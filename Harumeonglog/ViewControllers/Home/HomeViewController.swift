@@ -11,16 +11,6 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        checkFontName()
     }
     
-    func checkFontName() {
-            UIFont.familyNames.sorted().forEach { familyName in
-                print("*** \(familyName) ***")
-                UIFont.fontNames(forFamilyName: familyName).forEach { fontName in
-                    print("\(fontName)")
-                }
-          print("---------------------")
-            }
-    }
 }
