@@ -2,7 +2,7 @@
 | 김민지 | 이승준 | 임지빈 |
 | --- | --- | --- |
 | <center> <img width="150px" src="https://avatars.githubusercontent.com/u/90819894?v=4" /></center> | <center> <img width="150px" src="https://avatars.githubusercontent.com/u/109071777?v=4" /></center> | <center> <img width="150px" src="https://avatars.githubusercontent.com/u/54970536?v=4" /></center> |
-| **[@alwn8918](https://github.com/m1nzez)** | **[@Rudy-009](https://github.com/Rudy-009)** | **[@Rudy-009](https://github.com/danajlim)** |
+| **[@m1nzez](https://github.com/m1nzez)** | **[@Rudy-009](https://github.com/Rudy-009)** | **[@danajlim](https://github.com/danajlim)** |
 
 ## 🛠️ 컨벤션
 ### `Branch`
