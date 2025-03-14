@@ -42,14 +42,16 @@ extension AddScheduleViewController: AddScheduleViewDelegate {
         case .checkup:
             categoryInputView = CheckupView()
         case .other:
-            categoryInputView = nil
+            categoryInputView = OtherView()
         }
         
         if let newView = categoryInputView {
             view.addSubview(newView)
+            view.bringSubviewToFront(newView)
             newView.snp.makeConstraints { make in
                 make.top.equalTo(addScheduleView.categoryButton.snp.bottom).offset(20)
                 make.leading.trailing.equalToSuperview()
+                make.height.equalTo(300)
             }
         }
         view.bringSubviewToFront(addScheduleView.dropdownTableView)
