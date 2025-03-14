@@ -18,10 +18,15 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         self.view = homeView
         homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTap), for: .touchUpInside)
+        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTap), for: .touchUpInside)
     }
     
     @objc func alarmButtonTap(){
         let alarmVC = AlarmViewController()
         self.navigationController?.pushViewController(alarmVC, animated: true )
+    }
+    @objc func addScheduleButtonTap(){
+        let scheduleVC = AddScheduleViewController()
+        self.navigationController?.pushViewController(scheduleVC, animated: true )
     }
 }

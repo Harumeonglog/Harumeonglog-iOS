@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class AlarmView: UIView {
 
@@ -20,20 +21,37 @@ class AlarmView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    lazy var inviteButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("초대요청 + ", for: .normal)
+        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.titleLabel?.font = K.Font.body
+        button.setTitleColor(.brown00, for: .normal)
+        button.tintColor = .brown00
+        button.backgroundColor = .brown02
+        button.layer.cornerRadius = 15
+
+        // 🔹 버튼 내부 전체 여백 (텍스트 왼쪽에서 25pt 떨어지도록 설정)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: -20, bottom: 0, right: 15)
+
+        // 🔹 텍스트 위치 조정 (텍스트 끝에서 아이콘까지 220pt 떨어지도록 설정)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 220)
+
+        // 🔹 아이콘 위치 조정 (텍스트 끝에서 220pt 오른쪽으로 이동)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 210, bottom: 0, right: -200)
+
+        return button
+    }()
+    
 
     private func addComponents(){
-        let label = UILabel()
-            label.text = "알람 화면"
-            label.textAlignment = .center
-            label.textColor = .black
-            label.font = UIFont.systemFont(ofSize: 20)
-            
-            addSubview(label)
-            
-            label.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                label.centerXAnchor.constraint(equalTo: centerXAnchor),
-                label.centerYAnchor.constraint(equalTo: centerYAnchor)
-            ])
+        self.addSubview(inviteButton)
+        
+        inviteButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(128)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(358)
+            make.height.equalTo(40)
+        }
     }
 }

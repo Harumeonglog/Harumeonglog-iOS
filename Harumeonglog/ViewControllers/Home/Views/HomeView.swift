@@ -26,14 +26,27 @@ class HomeView: UIView {
         button.setImage(UIImage(named: "alarm_button"), for: .normal)
         return button
     }()
+    
+    lazy var addScheduleButton : UIButton = {
+        let button = UIButton()
+        button.setTitle("일정 추가", for: .normal)
+        button.backgroundColor = .black
+        return button
+    }()
 
     private func addComponents(){
         self.addSubview(alarmButton)
+        self.addSubview(addScheduleButton)
         
         alarmButton.snp.makeConstraints{ make in
-            make.top.equalToSuperview().offset(100)
-            make.leading.equalToSuperview().offset(100)
+            make.top.equalToSuperview().offset(81)
+            make.leading.equalToSuperview().offset(352)
             make.width.height.equalTo(30)
+        }
+        addScheduleButton.snp.makeConstraints{ make in
+            make.top.equalToSuperview().offset(81)
+            make.leading.equalToSuperview().offset(100)
+            make.width.height.equalTo(50)
         }
     }
 }

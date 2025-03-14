@@ -17,6 +17,11 @@ class AlarmViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = alarmView
+        alarmView.inviteButton.addTarget(self, action: #selector(inviteButtonTap), for: .touchUpInside)
     }
     
+    @objc func inviteButtonTap(){
+        let inviteVC = InviteViewController()
+        self.navigationController?.pushViewController(inviteVC, animated: true )
+    }
 }
