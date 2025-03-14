@@ -9,19 +9,19 @@ import UIKit
 
 class AlarmViewController: UIViewController {
 
-    private lazy var alarmView:  AlarmView = {
-            let view = AlarmView()
-            return view
-        }()
-        
+    private lazy var alarmView: AlarmView = {
+        let view = AlarmView()
+        return view
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = alarmView
         alarmView.inviteButton.addTarget(self, action: #selector(inviteButtonTap), for: .touchUpInside)
     }
-    
-    @objc func inviteButtonTap(){
+
+    @objc func inviteButtonTap() {
         let inviteVC = InviteViewController()
-        self.navigationController?.pushViewController(inviteVC, animated: true )
+        self.navigationController?.pushViewController(inviteVC, animated: true)
     }
 }

@@ -10,8 +10,9 @@ import UIKit
 class InviteViewController: UIViewController {
 
     private lazy var inviteView:  InviteView = {
-            let view = InviteView()
-            return view
+        let view = InviteView()
+        view.delegate = self
+        return view
         }()
         
     override func viewDidLoad() {
@@ -19,4 +20,17 @@ class InviteViewController: UIViewController {
         self.view = inviteView
     }
     
+}
+
+// ✅ InviteViewDelegate 구현
+extension InviteViewController: InviteViewDelegate {
+    func acceptButtonTapped(at indexPath: IndexPath) {
+        inviteView.inviteData.remove(at: indexPath.row)
+        inviteView.inviteTableView.deleteRows(at: [indexPath], with: .fade)
+    }
+
+    func declineButtonTapped(at indexPath: IndexPath) {
+        inviteView.inviteData.remove(at: indexPath.row)
+        inviteView.inviteTableView.deleteRows(at: [indexPath], with: .fade)
+    }
 }

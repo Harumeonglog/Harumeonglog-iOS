@@ -9,6 +9,15 @@ import UIKit
 import SnapKit
 
 class AlarmView: UIView {
+    
+    // 알람 데이터 배열 (샘플 데이터)
+        var alarmData: [(icon: String, title: String, time: String)] = [
+            ("sun.max", "오늘의 멍이를 기록하세요!", ""),
+            ("message", "카이 님이 회원님의 게시글을 좋아합니다.", "1시간"),
+            ("message", "카이 님이 회원님의 게시글을 좋아합니다.", "1시간"),
+            ("message", "카이 님이 회원님의 게시글을 좋아합니다.", "1시간"),
+            ("pencil", "일정 알림", "")
+        ]
 
     override init (frame: CGRect) {
         super.init(frame: frame)
@@ -43,9 +52,22 @@ class AlarmView: UIView {
         return button
     }()
     
+    lazy var alarmTableView : UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .bg
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .none // 구분선 제거
+        tableView.showsVerticalScrollIndicator = false
+        tableView.register(AlarmCell.self, forCellReuseIdentifier: "AlarmCell") 
+        return tableView4
+    }()
+    
 
     private func addComponents(){
+        
         self.addSubview(inviteButton)
+        self.addSubview(alarmTableView)
         
         inviteButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(128)
@@ -53,5 +75,30 @@ class AlarmView: UIView {
             make.width.equalTo(358)
             make.height.equalTo(40)
         }
+        alarmTableView.snp.makeConstraints { make in
+            make.top.equalTo(inviteButton.snp.bottom).offset(25)
+            make.width.equalTo(350)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(650)
+        }
+    }
+}
+
+// UITableView Delegate & DataSource 구현
+extension AlarmView: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return alarmData.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "AlarmCell", for: indexPath) as! AlarmCell
+        let data = alarmData[indexPath.row]
+        cell.configure(icon: data.icon, title: data.title, time: data.time)
+        cell.backgroundColor = .bg
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50 // 셀 높이 조정
     }
 }
