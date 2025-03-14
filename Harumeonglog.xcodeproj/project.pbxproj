@@ -19,7 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		63784C662D83245F00ACB41D /* Harumeonglog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Harumeonglog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		63784C662D83245F00ACB41D /* Harumeonglog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Harumeonglog.app; path = "/Users/iseungjun/Desktop/Harumeonglog-iOS/build/Debug-iphoneos/Harumeonglog.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -67,7 +67,6 @@
 			isa = PBXGroup;
 			children = (
 				63E121B12D825DB300402E92 /* Harumeonglog */,
-				63784C662D83245F00ACB41D /* Harumeonglog.app */,
 			);
 			sourceTree = "<group>";
 		};
