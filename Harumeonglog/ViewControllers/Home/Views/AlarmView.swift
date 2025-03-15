@@ -60,7 +60,7 @@ class AlarmView: UIView {
         tableView.separatorStyle = .none // 구분선 제거
         tableView.showsVerticalScrollIndicator = false
         tableView.register(AlarmCell.self, forCellReuseIdentifier: "AlarmCell") 
-        return tableView4
+        return tableView
     }()
     
 

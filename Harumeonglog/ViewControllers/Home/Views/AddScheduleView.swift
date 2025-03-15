@@ -55,6 +55,42 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         return view
     }()
     
+    // ✅ 요일 선택 버튼들 (월~일)
+    lazy var weekButtons: [UIButton] = {
+        let days = ["월", "화", "수", "목", "금", "토", "일"]
+        return days.map { day in
+            let button = UIButton(type: .system)
+            button.setTitle(day, for: .normal)
+            button.setTitleColor(.brown01, for: .normal)
+            button.backgroundColor = .white
+            button.layer.cornerRadius = 15
+            button.layer.borderWidth = 1.0
+            button.layer.borderColor = UIColor.brown01.cgColor
+            button.snp.makeConstraints { make in
+                make.width.height.equalTo(40)
+            }
+            return button
+        }
+    }()
+        
+        // ✅ 시간 선택 버튼
+    lazy var timeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("시간 선택 >", for: .normal)
+        button.setTitleColor(.brown01, for: .normal)
+
+        return button
+    }()
+
+        // ✅ 알람 설정 버튼
+    lazy var alarmButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("10분 전 팝업 >", for: .normal)
+        button.setTitleColor(.brown01, for: .normal)
+
+        return button
+    }()
+    
     //카테고리 선택 버튼
     lazy var categoryButton: UIButton = {
         let button = UIButton(type: .system)
@@ -107,6 +143,31 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(scheduleInfoView)
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
+        
+        let weekStack = UIStackView(arrangedSubviews: weekButtons)
+                weekStack.axis = .horizontal
+                weekStack.spacing = 8
+                weekStack.distribution = .fillEqually
+                
+                let timeStack = UIStackView(arrangedSubviews: [UIImageView(image: UIImage(systemName: "clock")), timeButton])
+                timeStack.axis = .horizontal
+                timeStack.spacing = 8
+                
+                let alarmStack = UIStackView(arrangedSubviews: [UIImageView(image: UIImage(systemName: "bell")), alarmButton])
+                alarmStack.axis = .horizontal
+                alarmStack.spacing = 8
+
+                let mainStack = UIStackView(arrangedSubviews: [timeStack, weekStack, alarmStack])
+                mainStack.axis = .vertical
+                mainStack.spacing = 12
+        
+        scheduleInfoView.addSubview(mainStack)
+        
+        mainStack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-12)
+        }
         
         titleTextField.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(130)
