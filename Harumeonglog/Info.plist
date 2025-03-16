@@ -8,6 +8,8 @@
 		<string>Pretendard-Medium.otf</string>
 		<string>Pretendard-Regular.otf</string>
 	</array>
+	<key>NMFClientId</key>
+	<string>p9atgjnvbn</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
