@@ -2,7 +2,14 @@ import UIKit
 import SnapKit
 import FSCalendar
 
+protocol HomeViewDelegate: AnyObject {
+    func showMonthYearPicker() // 📌 년/월 선택 모달 표시
+    func changeMonth(to date: Date) // 📌 선택한 월로 캘린더 이동
+}
+
 class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
+    
+    weak var delegate: HomeViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -12,6 +19,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         DispatchQueue.main.async {
             self.calendarView.select(Date())
         }
+        self.isUserInteractionEnabled = true
     }
     
     required init?(coder: NSCoder) {
@@ -21,6 +29,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var alarmButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "alarm_button"), for: .normal)
+        button.isUserInteractionEnabled = true // ✅ 터치 가능하도록 설정
         return button
     }()
     
@@ -48,10 +57,11 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     
     lazy var addScheduleButton: UIButton = {
         let button = UIButton()
-        button.setTitle("+", for: .normal)
-        button.titleLabel?.font = K.Font.title
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 30, weight: .regular), forImageIn: .normal)
+        button.tintColor = .white
         button.backgroundColor = .blue01
-        button.layer.cornerRadius = 25
+        button.layer.cornerRadius = 30
         button.isUserInteractionEnabled = true
         return button
     }()
@@ -75,11 +85,10 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         let calendar = FSCalendar()
         calendar.delegate = self
         calendar.dataSource = self
-        calendar.placeholderType = .none 
+        calendar.placeholderType = .none
         calendar.appearance.selectionColor = .blue01
         calendar.appearance.titleDefaultColor = .gray00
         calendar.appearance.titleSelectionColor = .white
-        calendar.appearance.headerMinimumDissolvedAlpha = 0
         calendar.locale = Locale(identifier: "ko_KR")
         
         // 오늘 날짜 스타일 변경
@@ -102,6 +111,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         stackView.axis = .horizontal
         stackView.spacing = 3
         stackView.alignment = .center
+        stackView.isUserInteractionEnabled = true // 터치 가능하도록 설정
         return stackView
     }()
     
@@ -114,7 +124,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         label.text = getCurrentMonthString(for: calendarView.currentPage)
         label.isUserInteractionEnabled = true
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showMonthYearPicker))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
         label.addGestureRecognizer(tapGesture)
         
         return label
@@ -123,18 +133,21 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var dropdownIcon: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.down"))
         imageView.tintColor = .gray00
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showMonthYearPicker))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
                 imageView.addGestureRecognizer(tapGesture)
         imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = true // 터치 가능하도록 설정
+
         return imageView
     }()
     
 
     private func addComponents() {
+        super.layoutSubviews()
         addSubview(alarmButton)
+        addSubview(addScheduleButton)
         addSubview(profileImageView)
         addSubview(nicknameLabel)
-        addSubview(addScheduleButton)
         addSubview(birthdayIconLabel)
         addSubview(birthdayLabel)
         addSubview(genderImageView)
@@ -185,9 +198,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         addScheduleButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(680)
-            make.trailing.equalToSuperview().inset(30)
-            make.width.height.equalTo(50)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(20)
+            make.trailing.equalToSuperview().inset(20)
+            make.width.height.equalTo(60)
         }
         
         headerStackView.snp.makeConstraints { make in
@@ -195,57 +208,14 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.top.equalTo(profileImageView.snp.bottom).offset(20)
         }
         
-        // ✅ 버튼을 가장 위로 가져오기
-        bringSubviewToFront(addScheduleButton)
-        addScheduleButton.layer.zPosition = 1
-        
+        superview?.bringSubviewToFront(addScheduleButton)
+        superview?.bringSubviewToFront(alarmButton)        
     }
 
-    // 📌 **현재 월을 "YYYY년 MM월" 형식으로 반환**
-        private func getCurrentMonthString(for date: Date = Date()) -> String {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "YYYY년 MM월"
-            return formatter.string(from: date)
-        }
-
-        // 📌 **년/월 선택 ActionSheet 표시**
-    @objc private func showMonthYearPicker() {
-        let alertController = UIAlertController(title: "\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
-        
-        let pickerView = UIDatePicker()
-        pickerView.datePickerMode = .date
-        pickerView.preferredDatePickerStyle = .wheels
-        pickerView.locale = Locale(identifier: "ko_KR")
-        
-        let currentDate = calendarView.currentPage
-        let calendar = Calendar.current
-        var components = calendar.dateComponents([.year, .month, .day], from: currentDate)
-        components.day = 1 // 날짜는 1일로 설정
-        
-        if let selectedDate = calendar.date(from: components) {
-            pickerView.setDate(selectedDate, animated: false)
-        }
-        
-        alertController.view.addSubview(pickerView)
-        
-        pickerView.snp.makeConstraints { make in
-            make.centerX.equalTo(alertController.view)
-            make.top.equalTo(alertController.view).offset(10)
-            make.width.equalTo(alertController.view).multipliedBy(0.9)
-        }
-        
-        let confirmAction = UIAlertAction(title: "선택", style: .default) { _ in
-            self.changeMonth(to: pickerView.date)
-        }
-        
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        
-        alertController.addAction(confirmAction)
-        alertController.addAction(cancelAction)
-        
-        if let topViewController = getTopViewController() {
-            topViewController.present(alertController, animated: true, completion: nil)
-        }
+    private func getCurrentMonthString(for date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "YYYY년 MM월"
+        return formatter.string(from: date)
     }
 
         // 📌 **선택한 년/월로 캘린더 이동**
@@ -258,19 +228,12 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         func updateHeaderLabel() {
             headerLabel.text = getCurrentMonthString(for: calendarView.currentPage)
         }
-    
-        // 📌 **현재 가장 상단의 ViewController 찾기 (iOS 15 이상)**
-    private func getTopViewController() -> UIViewController? {
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
-           let rootViewController = keyWindow.rootViewController {
-            
-            var topController: UIViewController = rootViewController
-            while let presentedViewController = topController.presentedViewController {
-                topController = presentedViewController
-            }
-            return topController
+    @objc private func headerTapped() {
+            delegate?.showMonthYearPicker()
         }
-        return nil
-    }
+    
+    func setCalendarTo(date: Date) {
+            calendarView.setCurrentPage(date, animated: true)
+            updateHeaderLabel()
+        }
 }

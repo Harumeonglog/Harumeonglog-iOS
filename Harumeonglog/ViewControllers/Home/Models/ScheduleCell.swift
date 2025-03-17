@@ -14,7 +14,7 @@ class ScheduleCell: UITableViewCell {
     
     private let containerView : UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         view.layer.cornerRadius = 20
         view.layer.borderWidth = 1
         view.layer.borderColor = UIColor.brown02.cgColor
@@ -52,7 +52,7 @@ class ScheduleCell: UITableViewCell {
 
         // ✅ **컨테이너 뷰 크기 설정**
         containerView.snp.makeConstraints { make in
-            make.width.equalTo(357)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(62)
             make.centerX.equalToSuperview()
             make.top.bottom.equalToSuperview().inset(7)

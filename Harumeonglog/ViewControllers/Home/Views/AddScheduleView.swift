@@ -45,7 +45,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         return textField
     }()
     
-    //일정 정보 담는 view
+    // 날짜, 알림, 반복 담는 뷰
     lazy var scheduleInfoView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 15
@@ -55,39 +55,66 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         return view
     }()
     
-    // ✅ 요일 선택 버튼들 (월~일)
+    private lazy var timeIcon : UIImageView = {
+        let image = UIImageView(image: UIImage(named: "time"))
+        image.contentMode = .scaleAspectFit // 비율 유지
+        image.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 적용
+        return image
+    }()
+    
+    private lazy var repeatIcon : UIImageView = {
+        let image = UIImageView(image: UIImage(named: "repeat"))
+        image.contentMode = .scaleAspectFit // 비율 유지
+        image.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 적용
+        return image
+    }()
+    
+    private lazy var alarmIcon : UIImageView = {
+        let image = UIImageView(image: UIImage(named: "alarm"))
+        image.contentMode = .scaleAspectFit // 비율 유지
+        image.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 적용
+        return image
+    }()
+    
+    
+    //  요일 선택 버튼들 (월~일)
     lazy var weekButtons: [UIButton] = {
         let days = ["월", "화", "수", "목", "금", "토", "일"]
         return days.map { day in
             let button = UIButton(type: .system)
             button.setTitle(day, for: .normal)
-            button.setTitleColor(.brown01, for: .normal)
+            button.titleLabel?.font = K.Font.description
+            button.setTitleColor(.gray00, for: .normal)
             button.backgroundColor = .white
             button.layer.cornerRadius = 15
-            button.layer.borderWidth = 1.0
+            button.layer.borderWidth = 1.5
             button.layer.borderColor = UIColor.brown01.cgColor
             button.snp.makeConstraints { make in
-                make.width.height.equalTo(40)
+                make.width.height.equalTo(30)
             }
             return button
         }
     }()
         
-        // ✅ 시간 선택 버튼
+    // 시간 선택 버튼
     lazy var timeButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("시간 선택 >", for: .normal)
-        button.setTitleColor(.brown01, for: .normal)
-
+        button.setTitle(getFormattedDate(Date()), for: .normal)  // 초기 날짜 표시
+        button.setTitleColor(.gray00, for: .normal)
         return button
     }()
 
-        // ✅ 알람 설정 버튼
+    // 알람 설정 버튼
     lazy var alarmButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("10분 전 팝업 >", for: .normal)
-        button.setTitleColor(.brown01, for: .normal)
+        button.setTitle("10분 전 팝업", for: .normal)
+        button.setTitleColor(.gray00, for: .normal)
+        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 10, weight: .regular), forImageIn: .normal)
 
+        button.tintColor = .gray00
+        button.semanticContentAttribute = .forceRightToLeft
+        button.contentHorizontalAlignment = .leading
         return button
     }()
     
@@ -144,29 +171,63 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
         
-        let weekStack = UIStackView(arrangedSubviews: weekButtons)
-                weekStack.axis = .horizontal
-                weekStack.spacing = 8
-                weekStack.distribution = .fillEqually
-                
-                let timeStack = UIStackView(arrangedSubviews: [UIImageView(image: UIImage(systemName: "clock")), timeButton])
-                timeStack.axis = .horizontal
-                timeStack.spacing = 8
-                
-                let alarmStack = UIStackView(arrangedSubviews: [UIImageView(image: UIImage(systemName: "bell")), alarmButton])
-                alarmStack.axis = .horizontal
-                alarmStack.spacing = 8
-
-                let mainStack = UIStackView(arrangedSubviews: [timeStack, weekStack, alarmStack])
-                mainStack.axis = .vertical
-                mainStack.spacing = 12
+        // ✅ 시간, 반복, 알람 StackView 배치
+        scheduleInfoView.addSubview(timeIcon)
+        scheduleInfoView.addSubview(repeatIcon)
+        scheduleInfoView.addSubview(alarmIcon)
+            
+        scheduleInfoView.addSubview(timeButton)
+        scheduleInfoView.addSubview(alarmButton)
         
-        scheduleInfoView.addSubview(mainStack)
+        // ✅ weekButtons(요일 선택 버튼) 추가
+        weekButtons.forEach { scheduleInfoView.addSubview($0) }
         
-        mainStack.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview().offset(-12)
+        // ✅ 아이콘 크기 설정 (22x22)
+        [timeIcon, repeatIcon, alarmIcon].forEach { icon in
+            icon.snp.makeConstraints { make in
+                make.width.height.equalTo(22)
+            }
+        }
+        
+        timeIcon.snp.makeConstraints { make in
+            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)  // ✅ scheduleInfoView의 leading에서 30pt
+            make.top.equalToSuperview().offset(20)  // ✅ 상단에서 20pt
+        }
+            
+        repeatIcon.snp.makeConstraints { make in
+            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)
+            make.top.equalTo(timeIcon.snp.bottom).offset(28)  // ✅ 요소 간 간격 40pt
+        }
+            
+        alarmIcon.snp.makeConstraints { make in
+            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)
+            make.top.equalTo(repeatIcon.snp.bottom).offset(28)  // ✅ 요소 간 간격 40pt
+        }
+            
+            // ✅ 버튼 크기 및 위치 설정
+        timeButton.snp.makeConstraints { make in
+            make.leading.equalTo(timeIcon.snp.trailing).offset(15)  // ✅ 아이콘과 15pt 간격
+            make.centerY.equalTo(timeIcon)  // ✅ Y축 정렬
+        }
+            
+        // ✅ 요일 선택 버튼(weekButtons) 가로 정렬
+        var previousButton: UIButton?
+        for button in weekButtons {
+            button.snp.makeConstraints { make in
+                if let prev = previousButton {
+                    make.leading.equalTo(prev.snp.trailing).offset(10) // 각 버튼 사이 8pt 간격
+                } else {
+                    make.leading.equalTo(repeatIcon.snp.trailing).offset(15) // 첫 번째 버튼은 repeatIcon에서 15pt 떨어짐
+                }
+                make.centerY.equalTo(repeatIcon.snp.centerY)
+                make.width.height.equalTo(30) // 모든 버튼 크기 동일
+            }
+            previousButton = button
+        }
+            
+        alarmButton.snp.makeConstraints { make in
+            make.leading.equalTo(alarmIcon.snp.trailing).offset(15)
+            make.centerY.equalTo(alarmIcon)
         }
         
         titleTextField.snp.makeConstraints { make in
@@ -230,5 +291,13 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         dropdownTableView.isHidden = true
         delegate?.categoryDidSelect(selectedCategory)
+    }
+    
+    // 오늘 날짜를 "2025.3.17 월요일" 형식으로 변환하는 함수
+    private func getFormattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR") // 한글 요일 표시
+        formatter.dateFormat = "yyyy.M.d EEEE" // "2025.3.17 월요일" 형식
+        return formatter.string(from: date)
     }
 }

@@ -9,10 +9,9 @@ import SnapKit
 
 protocol ScheduleModalViewDelegate: AnyObject {
     func didSelectCategory(_ category: String?) // ✅ 카테고리 선택 시 전달
-    func toggleCalendar() // ✅ 캘린더 확장/축소 함수
 }
 
-class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
     
     weak var delegate: ScheduleModalViewDelegate?
 
@@ -31,6 +30,8 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         view.backgroundColor = .white
         view.layer.cornerRadius = 20
         view.clipsToBounds = true
+        view.isUserInteractionEnabled = true // ✅ 터치 활성화
+
         return view
     }()
     
@@ -45,7 +46,12 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
         collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
+        collectionView.isUserInteractionEnabled = true
+        collectionView.delaysContentTouches = false // ✅ 터치 반응 속도 향상
+
+
         return collectionView
     }()
 
@@ -56,13 +62,13 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         tableView.rowHeight = 70 // 셀 높이
         tableView.separatorStyle = .none //구분선 제거
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.identifier) // ✅ 커스텀 셀 등록
+        tableView.backgroundColor = .clear
         return tableView
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
-        setupPanGesture()
     }
 
     required init?(coder: NSCoder) {
@@ -73,6 +79,7 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         addSubview(modalView)
         modalView.addSubview(categoryCollectionView)
         modalView.addSubview(tableView)
+
 
         modalView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
@@ -93,18 +100,9 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
             make.leading.trailing.equalToSuperview().inset(20)
             make.bottom.equalToSuperview()
         }
-    }
+        bringSubviewToFront(categoryCollectionView)
 
-    private func setupPanGesture() {
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
-        modalView.addGestureRecognizer(panGesture)
-    }
 
-    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: self)
-        if gesture.state == .ended, translation.y < 0 {
-            delegate?.toggleCalendar()
-        }
     }
 
     // ✅ **UICollectionView DataSource & Delegate (카테고리 필터)**
@@ -123,15 +121,15 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         let category = categories[indexPath.item]
         selectedCategory = (selectedCategory == category) ? "전체" : category // 선택 해제 시 전체 보기
         collectionView.reloadData()
-        delegate?.didSelectCategory(selectedCategory) // ✅ 선택된 카테고리 전달
+        delegate?.didSelectCategory(selectedCategory) // 선택된 카테고리 전달
     }
 
-    // ✅ **카테고리 버튼 크기 조정**
+    //  **카테고리 버튼 크기 조정**
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 70, height: 29)
     }
     
-    // ✅ UITableView DataSource & Delegate (일정 리스트)
+    // UITableView DataSource & Delegate (일정 리스트)
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return schedules.count
     }
@@ -146,3 +144,4 @@ class ScheduleModalView: UIView, UITableViewDelegate, UITableViewDataSource, UIC
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+

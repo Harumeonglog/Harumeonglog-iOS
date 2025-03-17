@@ -6,13 +6,8 @@
 import UIKit
 import SnapKit
 
-protocol ScheduleModalDelegate: AnyObject {
-    func toggleCalendar() // ✅ 캘린더 확장/축소 함수
-}
+class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
 
-class ScheduleModalViewController: UIViewController {
-
-    weak var delegate: ScheduleModalDelegate? // ✅ Delegate 선언
     
     private var allSchedules: [(category: String, title: String)] = [
         ("위생", "목욕하기"),
@@ -28,13 +23,13 @@ class ScheduleModalViewController: UIViewController {
 
     private lazy var scheduleModalView: ScheduleModalView = {
         let view = ScheduleModalView()
-        view.delegate = self
         return view
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = scheduleModalView
+        scheduleModalView.delegate = self
         updateScheduleList() // 초기 로드
     }
 
@@ -47,15 +42,9 @@ class ScheduleModalViewController: UIViewController {
         }
         scheduleModalView.schedules = filteredSchedules
     }
-}
-
-// ✅ ScheduleModalViewDelegate 채택
-extension ScheduleModalViewController: ScheduleModalViewDelegate {
-    func toggleCalendar() {
-        delegate?.toggleCalendar()
-    }
-    
+    // ✅ 카테고리 선택 시 일정 업데이트
     func didSelectCategory(_ category: String?) {
         updateScheduleList(category: category)
     }
 }
+
