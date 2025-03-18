@@ -6,21 +6,24 @@
 //
 
 import UIKit
-import CoreLocation
-import NMapsMap
 import SnapKit
 import Then
+import NMapsMap
+
 
 class WalkingView: UIView {
     
     public lazy var naverMapView = NMFNaverMapView()
     
-    public lazy var petStoreButton: UIButton = findPlaceButton(image: "petShop", title: "펫 샵")
+    public lazy var petStoreButton: UIButton = setfindPlaceButton(image: "petShop", title: "펫 샵")
     
-    public lazy var vetButton: UIButton = findPlaceButton(image: "vet", title: "병 원")
+    public lazy var vetButton: UIButton = setfindPlaceButton(image: "vet", title: "병 원")
     
     public lazy var moveToUserLocationButton = UIButton().then { button in
         button.setImage(UIImage(named: "userLocation"), for: .normal)
+//        button.layer.cornerRadius = 20
+//        button.layer.borderColor = UIColor(named: "blue01")?.cgColor
+//        button.layer.borderWidth = 2
     }
     
     public lazy var walkingStartButton = UIButton().then { button in
@@ -32,6 +35,46 @@ class WalkingView: UIView {
         button.layer.cornerRadius = 20
     }
     
+    public lazy var recommendRouteView = UIView().then { view in
+        view.backgroundColor = UIColor(named: "background")
+        view.layer.cornerRadius = 45
+        view.layer.maskedCorners =  [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+    }
+    
+    public lazy var recommendRouteLabel = UILabel().then { label in
+        label.text = "추천 경로"
+        label.font = .init(name: "Pretendard-Bold", size: 20)
+        label.textColor = UIColor(named: "brown00")
+        label.textAlignment = .center
+    }
+    
+    public lazy var routeFilterButton =  UIButton().then { button in
+        button.setTitle("추천순", for: .normal)
+        button.setTitleColor(UIColor(named: "gray00"), for: .normal)
+        button.titleLabel?.font = .init(name: "Pretendard-Regular", size: 12)
+        button.backgroundColor = .clear
+        
+        let filterArrow = UIImage(named: "sortArrow")
+        button.setImage(filterArrow, for: .normal)
+        button.semanticContentAttribute = .forceRightToLeft
+        button.contentHorizontalAlignment = .right
+        button.contentVerticalAlignment = .center
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
+    }
+    
+    public lazy var recommendRouteTableView = UITableView().then { tableView in
+        tableView.register(RecommendRouteTableViewCell.self, forCellReuseIdentifier: "RecommendRouteTableViewCell")
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor(named: "background")
+    }
+    
+    private lazy var modalSlideImageView = UIImageView().then { imageView in
+        imageView.image = UIImage(named: "modalSlide")
+    }
+    
+    private lazy var bottomLineView = UIView().then  { view in
+        view.backgroundColor = UIColor(named: "gray04")
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,25 +85,33 @@ class WalkingView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func findPlaceButton(image: String, title: String) -> UIButton {
+    private func setfindPlaceButton(image: String, title: String) -> UIButton {
         let button = UIButton()
         button.setTitle(title, for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = .init(name: "Pretendard-Regular", size: 13)
+        button.titleLabel?.font = .init(name: "Pretendard-Regular", size: 14)
         button.backgroundColor = .white
         button.layer.cornerRadius = 10
         button.layer.borderColor = UIColor(named: "brown00")?.cgColor
         button.layer.borderWidth = 1
         
-        let petStoreLogo = UIImage(named: image)
-        button.setImage(petStoreLogo, for: .normal)
+        let placeLogo = UIImage(named: image)
+        button.setImage(placeLogo, for: .normal)
         button.imageView?.frame = CGRect(x: 0 , y: 0, width: 13, height: 13)
-        button.contentHorizontalAlignment = .leading
+        button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 0)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -9, bottom: 0, right: 0)
         
         return button
+    }
+    
+    private func setRecommendRouteView() -> UIView {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "background")
+        view.layer.cornerRadius = 45
+        view.layer.maskedCorners =  [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        
+        return view
     }
     
     private func addComponents() {
@@ -89,16 +140,57 @@ class WalkingView: UIView {
         naverMapView.addSubview(walkingStartButton)
         
         moveToUserLocationButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(177)
+            make.bottom.equalToSuperview().inset(170)
             make.leading.equalToSuperview().inset(16)
             make.width.height.equalTo(40)
         }
         
         walkingStartButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(177)
+            make.bottom.equalToSuperview().inset(170)
             make.trailing.equalToSuperview().inset(16)
             make.width.equalTo(90)
             make.height.equalTo(45)
+        }
+        
+        naverMapView.addSubview(recommendRouteView)
+        
+        recommendRouteView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(150)
+        }
+        
+        recommendRouteView.addSubview(modalSlideImageView)
+        recommendRouteView.addSubview(recommendRouteLabel)
+        recommendRouteView.addSubview(routeFilterButton)
+        recommendRouteView.addSubview(recommendRouteTableView)
+        recommendRouteView.addSubview(bottomLineView)
+        
+        modalSlideImageView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().inset(11)
+        }
+        
+        recommendRouteLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(modalSlideImageView.snp.bottom).offset(30)
+        }
+        
+        routeFilterButton.snp.makeConstraints { make in
+            make.lastBaseline.equalTo(recommendRouteLabel)
+            make.trailing.equalToSuperview().inset(50)
+            make.width.equalTo(100)
+        }
+        
+        recommendRouteTableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(10)
+            make.top.equalTo(recommendRouteLabel.snp.bottom).offset(30)
+            make.bottom.equalToSuperview()
+        }
+        
+        bottomLineView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(1)
+            make.bottom.equalTo(self.safeAreaLayoutGuide)
         }
         
     }
