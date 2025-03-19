@@ -17,7 +17,7 @@ class PuppyRegistrationView: UIView {
     
     public let navigationBar = CustomNavigationBar()
     
-    private lazy var puppyNameLabel = commonLabel(text: "반려견 이름")
+    private lazy var dogNameLabel = commonLabel(text: "반려견 이름")
     public lazy var userNameTextField = commonTextField()
     
     private lazy var selectPuppySizeLabel = commonLabel(text: "반려견 크기")
@@ -50,7 +50,7 @@ class PuppyRegistrationView: UIView {
         self.backgroundColor = .background
     }
     
-    public func configure() {
+    public func setConstraints() {
         setCustomNavigationBarConstraints()
         setTypeNameConstraints()
         setSelectPuppySizeConstraints()
@@ -71,17 +71,17 @@ class PuppyRegistrationView: UIView {
     }
     
     private func setTypeNameConstraints() {
-        self.addSubview(puppyNameLabel)
+        self.addSubview(dogNameLabel)
         self.addSubview(userNameTextField)
         
-        puppyNameLabel.snp.makeConstraints { make in
+        dogNameLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(labelLeadingPadding)
             make.top.equalTo(navigationBar.snp.bottom).offset(39)
         }
         
         userNameTextField.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
-            make.top.equalTo(puppyNameLabel.snp.bottom).offset(10)
+            make.top.equalTo(dogNameLabel.snp.bottom).offset(10)
             make.height.equalTo(40)
         }
     }

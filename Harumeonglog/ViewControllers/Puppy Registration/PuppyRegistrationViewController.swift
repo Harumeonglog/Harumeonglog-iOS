@@ -19,7 +19,7 @@ class PuppyRegistrationViewController: UIViewController {
     }
     
     override func viewDidLayoutSubviews() {
-        puppyRegistrationView.configure()
+        puppyRegistrationView.setConstraints()
     }
     
     private func setButtonActions() {
