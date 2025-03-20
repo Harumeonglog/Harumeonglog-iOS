@@ -18,7 +18,7 @@ class PuppyRegistrationView: UIView {
     public let navigationBar = CustomNavigationBar()
     
     private lazy var dogNameLabel = commonLabel(text: "반려견 이름")
-    public lazy var userNameTextField = commonTextField()
+    public lazy var userNameTextField = UITextField.commonTextField()
     
     private lazy var selectPuppySizeLabel = commonLabel(text: "반려견 크기")
     private lazy var puppySizeStackView = UIStackView().then {
@@ -30,7 +30,7 @@ class PuppyRegistrationView: UIView {
     public lazy var bigPuppySizeButton = PuppySizeButton()
     
     private lazy var dogTypeLabel = commonLabel(text: "견종")
-    public lazy var dogTypeTextField = commonTextField()
+    public lazy var dogTypeTextField = UITextField.commonTextField()
     
     private lazy var dogGenderLabel = commonLabel(text: "성별")
     public lazy var dogGenderSelectButton = commonButton()
@@ -205,21 +205,7 @@ class PuppyRegistrationView: UIView {
             $0.font = .systemFont(ofSize: 15)
         }
     }
-    
-    private func commonTextField() -> UITextField {
-        return UITextField().then {
-            $0.borderStyle = .roundedRect
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 15
-            $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.brown02.cgColor
-            
-            $0.autocapitalizationType = .none
-            $0.autocorrectionType = .no
-            $0.spellCheckingType = .no
-        }
-    }
-    
+        
     private func commonButton() -> UIButton {
         return UIButton().then {
             $0.backgroundColor = .white

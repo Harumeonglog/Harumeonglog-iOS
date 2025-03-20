@@ -21,6 +21,7 @@ class CustomNavigationBar: UIView {
     
     public lazy var rightButton = UIButton().then {
         $0.contentMode = .scaleAspectFit
+        $0.titleLabel?.font = .systemFont(ofSize: 16)
     }
     
     override init(frame: CGRect) {
@@ -58,7 +59,7 @@ class CustomNavigationBar: UIView {
         
         rightButton.snp.makeConstraints { make in
             make.centerY.equalTo(maintitleLabel)
-            make.trailing.top.bottom.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-20)
             make.height.width.equalTo(44)
         }
         
@@ -75,6 +76,13 @@ class CustomNavigationBar: UIView {
         rightButton.isHidden = false
     }
     
+    public func configureRightButton(text: String) {
+        rightButton.isHidden = false
+        rightButton.setTitle(text, for: .normal)
+        rightButton.setTitleColor(.gray00, for: .normal)
+    }
+
+    
     public func changeLeftButton() {
         
     }
@@ -87,5 +95,5 @@ class CustomNavigationBar: UIView {
 
 import SwiftUI
 #Preview {
-    PuppyRegistrationViewController()
+    EditProfileViewController()
 }
