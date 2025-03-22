@@ -17,6 +17,9 @@ extension UITextField {
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.brown02.cgColor
             
+            $0.backgroundColor = .white
+            $0.textColor = .black
+            
             $0.autocapitalizationType = .none
             $0.autocorrectionType = .no
             $0.spellCheckingType = .no

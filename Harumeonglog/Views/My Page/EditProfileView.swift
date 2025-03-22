@@ -11,16 +11,16 @@ class EditProfileView: UIView {
     
     private let leadingTrailingPadding: CGFloat = 38
     
-    private lazy var navigationBar = CustomNavigationBar()
+    public lazy var navigationBar = CustomNavigationBar()
     
     private lazy var profileImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 80
         $0.clipsToBounds = true
         $0.backgroundColor = .gray01
     }
     
-    private lazy var cameraButton = UIButton().then {
+    public lazy var cameraButton = UIButton().then {
         $0.setImage(.camera, for: .normal)
     }
     
@@ -36,6 +36,10 @@ class EditProfileView: UIView {
         $0.layer.cornerRadius = 15
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.brown02.cgColor
+    }
+    
+    public func setProfileImage(_ image: UIImage) {
+        profileImageView.image = image
     }
     
     public func setConstraints() {
