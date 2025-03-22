@@ -14,7 +14,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
     
     public lazy var titleLabel = UILabel().then { label in
         label.text = "상명대에서 경복궁까지"
-        label.textColor = .black
+        label.textColor = UIColor.gray00
         label.textAlignment = .center
         label.font = UIFont(name: "Pretendard-Mdeium", size: 15)
     }
@@ -37,14 +37,14 @@ class RecommendRouteTableViewCell: UITableViewCell {
     public lazy var distanceLabel = commonTextColorFont(text: "4.5km")
     
     private lazy var separatorView = UIView().then { view in
-        view.backgroundColor = UIColor(named: "gray04")
+        view.backgroundColor = UIColor.gray04
     }
     
     
     private func commonTextColorFont(text: String) -> UILabel {
         let label = UILabel()
         label.text = text
-        label.textColor = UIColor(named: "gray00")
+        label.textColor = UIColor.gray01
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         
         return label
@@ -53,7 +53,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.backgroundColor = UIColor(named: "background")
+        self.backgroundColor = UIColor.background
         self.addComponents()
     }
     

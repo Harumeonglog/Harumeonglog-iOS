@@ -177,8 +177,7 @@ class WalkingView: UIView {
         
         routeFilterButton.snp.makeConstraints { make in
             make.lastBaseline.equalTo(recommendRouteLabel)
-            make.trailing.equalToSuperview().inset(50)
-            make.width.equalTo(100)
+            make.leading.equalToSuperview().inset(30)
         }
         
         recommendRouteTableView.snp.makeConstraints { make in

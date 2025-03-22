@@ -38,7 +38,9 @@ class WalkingViewController: UIViewController {
         
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest    // 거리 정확도 설정
-        locationManager.requestWhenInUseAuthorization()              // 서비스 권한을 허용할 것인지 묻는 팝업    }
+        locationManager.requestWhenInUseAuthorization()              // 서비스 권한을 허용할 것인지 묻는 팝업
+        
+        configRouteFilterButton()
     }
     
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -74,8 +76,35 @@ class WalkingViewController: UIViewController {
               break
           }
       }
+    
+    // 정렬을 위한 팝업버튼
+    private func configRouteFilterButton() {
+        let popUpButtonClosure = { (action: UIAction) in
+            if action.title == "추천순" {
+                self.walkingView.routeFilterButton.setTitle("추천순", for: .normal)
+                
+            } else if action.title == "거리순" {
+                self.walkingView.routeFilterButton.setTitle("거리순", for: .normal)
+                
+            } else if action.title == "소요 시간순" {
+                self.walkingView.routeFilterButton.setTitle("소요 시간순", for: .normal)
+            }
+            
+            self.walkingView.recommendRouteTableView.reloadData()
+        }
+        
+        walkingView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
+            UIAction(title: "추천순", handler: popUpButtonClosure),
+            UIAction(title: "거리순", handler: popUpButtonClosure),
+            UIAction(title: "소요 시간순", handler: popUpButtonClosure),
+        ])
+        
+        walkingView.routeFilterButton.showsMenuAsPrimaryAction = true
+    }
 }
 
+
+// MARK: 네이버지도
 extension WalkingViewController: CLLocationManagerDelegate {
     
     // 현재 위치로 이동하는 함수
@@ -131,8 +160,8 @@ extension WalkingViewController: CLLocationManagerDelegate {
             walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
             
             let marker = NMFMarker()
-            marker.width = 35
-            marker.height = 40
+            marker.width = 30
+            marker.height = 30
             marker.position = userLatLng
             marker.iconImage = NMFOverlayImage(image: UIImage(named: "currentLocation")!)
             marker.mapView = walkingView.naverMapView.mapView
@@ -168,7 +197,7 @@ extension WalkingViewController: CLLocationManagerDelegate {
     }
 }
 
-// 추천 경로에 대한 tableView
+// MARK: 추천 경로에 대한 tableView
 extension WalkingViewController: UITableViewDelegate, UITableViewDataSource {
     // 셀 등록
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
