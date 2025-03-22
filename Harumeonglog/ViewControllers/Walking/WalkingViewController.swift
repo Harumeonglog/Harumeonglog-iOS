@@ -1,32 +1,47 @@
 //
-//  ViewController.swift
+//  WalkingViewController.swift
 //  Harumeonglog
 //
-//  Created by 이승준 on 3/13/25.
+//  Created by 김민지 on 3/22/25.
 //
 
 import UIKit
-import NMapsMap
+
 
 class WalkingViewController: UIViewController {
     
     private lazy var walkingView: WalkingView = {
         let view = WalkingView()
-        view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
         
         return view
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = self.walkingView
-    
-    }
-    
-    @objc func moveToUserLocationButtonTapped() {
+        self.view = walkingView
         
+        walkingView.endBtn.addTarget(self, action: #selector(endBtnDidTap), for: .touchUpInside)
     }
+    
+    @objc private func endBtnDidTap() {
+        showAlert()
+    }
+    
+    private func showAlert() {
+        let alertView = AlertView(title: "산책을 끝내시겠습니까 ?", confirmText: "종료")
+        
+        // 뒷배경 어둡게 처리
+        if let window = UIApplication.shared.windows.first {
+            let dimmedView = UIView(frame: window.bounds)
+            dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            
+            window.addSubview(dimmedView)
+            window.addSubview(alertView)
+            
+            alertView.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
 
-
+        }
+    }
 }
-
