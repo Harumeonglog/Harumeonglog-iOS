@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NotificationsView: UIView {
+class NotiView: UIView {
     
     public let navigationBar = CustomNavigationBar()
     
@@ -38,8 +38,8 @@ class NotificationsView: UIView {
         cv.showsVerticalScrollIndicator = false
         cv.bouncesHorizontally = false
         
-        cv.register(NotificationCollectionViewCell.self,
-                    forCellWithReuseIdentifier: NotificationCollectionViewCell.identifier)
+        cv.register(NotiCollectionViewCell.self,
+                    forCellWithReuseIdentifier: NotiCollectionViewCell.identifier)
         return cv
     }()
     
@@ -117,5 +117,5 @@ class NotificationsView: UIView {
 
 import SwiftUI
 #Preview {
-    NotificationsViewController()
+    NotiViewController()
 }

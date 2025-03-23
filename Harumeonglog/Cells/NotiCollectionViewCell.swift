@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NotificationCollectionViewCell: UICollectionViewCell {
+class NotiCollectionViewCell: UICollectionViewCell {
     
     static let identifier = "NotificationCollectionViewCell"
     
@@ -27,14 +27,17 @@ class NotificationCollectionViewCell: UICollectionViewCell {
     
     private lazy var userNameLabel = UILabel().then { // Bold처리
         $0.textColor = .black
+        $0.font = .systemFont(ofSize: 17, weight: .bold)
     }
     
     private lazy var titleLabel = UILabel().then {
+        $0.textAlignment = .left
         $0.textColor = .black
     }
     
     private lazy var timeLabel = UILabel().then {
         $0.textColor = .gray02
+        $0.font = .systemFont(ofSize: 12)
     }
     
     public func configure(_ data: NotiModel) {
@@ -43,6 +46,11 @@ class NotificationCollectionViewCell: UICollectionViewCell {
         userNameLabel.text = userNickName
         titleLabel.text = type.typeMessage()
         timeLabel.text = data.date
+        if data.userNickname != nil {
+            userNameLabel.snp.makeConstraints { make in
+                make.width.greaterThanOrEqualTo(50)
+            }
+        }
     }
     
     override init(frame: CGRect) {
@@ -76,7 +84,7 @@ class NotificationCollectionViewCell: UICollectionViewCell {
         
         typeImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(13)
-            make.height.width.equalTo(30)
+            make.height.width.equalTo(25)
             make.centerY.equalToSuperview()
         }
         
@@ -88,6 +96,7 @@ class NotificationCollectionViewCell: UICollectionViewCell {
         timeLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
+            make.width.greaterThanOrEqualTo(40)
         }
         
         titleLabel.snp.makeConstraints { make in
@@ -101,5 +110,5 @@ class NotificationCollectionViewCell: UICollectionViewCell {
 
 import SwiftUI
 #Preview {
-    NotificationsViewController()
+    NotiViewController()
 }

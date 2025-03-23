@@ -7,9 +7,9 @@
 
 import UIKit
 
-class NotificationsViewController: UIViewController {
+class NotiViewController: UIViewController {
     
-    private let notificationsView = NotificationsView()
+    private let notificationsView = NotiView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,13 +25,13 @@ class NotificationsViewController: UIViewController {
     
 }
 
-extension NotificationsViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return NotiModelList.data.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NotificationCollectionViewCell.identifier, for: indexPath) as! NotificationCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NotiCollectionViewCell.identifier, for: indexPath) as! NotiCollectionViewCell
         let data = NotiModelList.data[indexPath.row]
         cell.configure(data)
         return cell
@@ -42,5 +42,5 @@ extension NotificationsViewController: UICollectionViewDelegate, UICollectionVie
 
 import SwiftUI
 #Preview {
-    NotificationsViewController()
+    NotiViewController()
 }
