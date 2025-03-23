@@ -15,7 +15,7 @@ class WalkingView: UIView {
     
     public lazy var naverMapView = NMFNaverMapView()
     
-    private lazy var recordView = UIView().then { view in
+    public lazy var recordView = UIView().then { view in
         view.backgroundColor = UIColor.background
         view.layer.cornerRadius = 45
         view.layer.maskedCorners =  [.layerMinXMinYCorner, .layerMaxXMinYCorner]

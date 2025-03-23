@@ -30,13 +30,13 @@ class AlertView: UIView {
         stackView.spacing = 0
     }
     
-    private lazy var cancelBtn = UIButton().then { button in
+    public lazy var cancelBtn = UIButton().then { button in
         button.setTitle("취소", for: .normal)
         button.setTitleColor(.gray01, for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 17)
     }
     
-    private lazy var confirmBtn = UIButton().then { button in
+    public lazy var confirmBtn = UIButton().then { button in
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 17)
         button.backgroundColor = .red00

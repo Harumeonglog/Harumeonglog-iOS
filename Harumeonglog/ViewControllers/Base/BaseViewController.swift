@@ -29,7 +29,7 @@ class CustomTabBar: UITabBar {
 class BaseViewController: UITabBarController {
     
     private let homeVC = HomeViewController()
-    private let walkingVC = WalkingViewController()
+    private let walkingVC = UINavigationController(rootViewController: MapViewController())
     private let photosVC = PhotosViewController()
     private let socialVC = SocialViewController()
     private let myPageVC = MyPageViewController()

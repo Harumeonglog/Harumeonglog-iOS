@@ -22,6 +22,7 @@ class MapViewController: UIViewController {
         let view = MapView()
         
         view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
+        view.walkingStartButton.addTarget(self, action: #selector(walkingStartButtonTapped), for: .touchUpInside)
 
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         view.recommendRouteView.addGestureRecognizer(panGesture)  // 슬라이드 제스처
@@ -41,6 +42,12 @@ class MapViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()              // 서비스 권한을 허용할 것인지 묻는 팝업
         
         configRouteFilterButton()
+    }
+    
+    @objc func walkingStartButtonTapped() {
+        let walkingVC = WalkingViewController()
+        walkingVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(walkingVC, animated: true)
     }
     
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
