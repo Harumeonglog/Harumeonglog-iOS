@@ -7,22 +7,22 @@
 
 import UIKit
 
-class NotificationSettingViewController: UIViewController {
+class SetNotificationViewController: UIViewController {
     
-    let notificationSettingView = NotificationSettingView()
+    let setNotificationView = SetNotificationView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = notificationSettingView
+        self.view = setNotificationView
     }
     
     override func viewDidLayoutSubviews() {
-        notificationSettingView.configure()
+        setNotificationView.configure()
     }
     
 }
 
 import SwiftUI
 #Preview {
-    NotificationSettingViewController()
+    SetNotificationViewController()
 }

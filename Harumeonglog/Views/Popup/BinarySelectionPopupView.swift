@@ -22,16 +22,16 @@ class BinarySelectionPopupView: UIView {
     }
     
     private lazy var divider = UIView().then {
-        $0.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.3)
+        $0.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
     }
     
     private lazy var buttonStackFrame = UIView()
     
-    public lazy var leftConfirmButton = UIButton().then {
+    public lazy var leftButton = UIButton().then {
         $0.setTitleColor(.black, for: .normal)
     }
     
-    public lazy var rightConfirmButton = UIButton().then {
+    public lazy var rightButton = UIButton().then {
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = UIColor(red: 1, green: 0, blue: 0, alpha: 0.4)
     }
@@ -74,16 +74,16 @@ class BinarySelectionPopupView: UIView {
             make.bottom.equalToSuperview().inset(12)
         }
         
-        buttonStackFrame.addSubview(leftConfirmButton)
-        buttonStackFrame.addSubview(rightConfirmButton)
+        buttonStackFrame.addSubview(leftButton)
+        buttonStackFrame.addSubview(rightButton)
         
-        leftConfirmButton.snp.makeConstraints { make in
+        leftButton.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
             make.width.equalTo(150)
             make.height.equalTo(60)
         }
         
-        rightConfirmButton.snp.makeConstraints { make in
+        rightButton.snp.makeConstraints { make in
             make.trailing.top.bottom.equalToSuperview()
             make.width.equalTo(150)
             make.height.equalTo(60)
@@ -92,8 +92,8 @@ class BinarySelectionPopupView: UIView {
     
     public func configure(title: String, leftButtonText: String, rightButtonText: String) {
         mainTitleLabel.text = title
-        leftConfirmButton.setTitle(leftButtonText, for: .normal)
-        rightConfirmButton.setTitle(rightButtonText, for: .normal)
+        leftButton.setTitle(leftButtonText, for: .normal)
+        rightButton.setTitle(rightButtonText, for: .normal)
     }
     
     required init?(coder: NSCoder) {

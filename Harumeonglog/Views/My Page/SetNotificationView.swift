@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NotificationSettingView: UIView {
+class SetNotificationView: UIView {
     
     public let navigationBar = CustomNavigationBar()
     
@@ -146,5 +146,5 @@ class NotificatonSettingCell: UIView {
 
 import SwiftUI
 #Preview {
-    NotificationSettingViewController()
+    SetNotificationViewController()
 }
