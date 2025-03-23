@@ -45,10 +45,19 @@ class NotiCollectionViewCell: UICollectionViewCell {
         typeImageView.image = type.typeImage()
         userNameLabel.text = userNickName
         titleLabel.text = type.typeMessage()
-        timeLabel.text = data.date
+        if type == .comment || type == .liked {
+            timeLabel.text = data.date
+            timeLabel.isHidden = false
+        } else {
+            timeLabel.isHidden = true
+        }
         if data.userNickname != nil {
             userNameLabel.snp.makeConstraints { make in
                 make.width.greaterThanOrEqualTo(50)
+            }
+        } else {
+            userNameLabel.snp.makeConstraints { make in
+                make.width.equalTo(0)
             }
         }
     }
