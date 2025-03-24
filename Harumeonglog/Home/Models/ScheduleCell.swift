@@ -31,7 +31,7 @@ class ScheduleCell: UITableViewCell {
 
     private let scheduleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: K.FontName.pretendard_regular, size: 16)
+        label.font = UIFont(name: FontName.pretendard_regular.rawValue, size: 16)
         label.textColor = .gray00
         return label
     }()

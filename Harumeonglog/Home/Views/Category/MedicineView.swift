@@ -12,14 +12,14 @@ class MedicineView: UIView {
     let medicineNameLabel : UILabel = {
         let label = UILabel()
         label.text = "복용약"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var medicineNameTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -31,14 +31,14 @@ class MedicineView: UIView {
     let medicineDosageLabel : UILabel = {
         let label = UILabel()
         label.text = "복용량"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var medicineDosageTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -50,7 +50,7 @@ class MedicineView: UIView {
     let detailLabel : UILabel = {
         let label = UILabel()
         label.text = "세부 내용"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
@@ -63,7 +63,7 @@ class MedicineView: UIView {
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
 
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor

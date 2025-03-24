@@ -34,7 +34,7 @@ class AlarmView: UIView {
         let button = UIButton()
         button.setTitle("초대요청 + ", for: .normal)
         button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         button.setTitleColor(.brown00, for: .normal)
         button.tintColor = .brown00
         button.backgroundColor = .brown02

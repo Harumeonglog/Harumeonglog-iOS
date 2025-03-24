@@ -33,7 +33,7 @@ class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
         updateScheduleList() // 초기 로드
     }
 
-    // ✅ 카테고리 선택 시 일정 업데이트
+    // 카테고리 선택 시 일정 업데이트
     private func updateScheduleList(category: String? = "전체") {
         if category == "전체" {
             filteredSchedules = allSchedules.map { $0.title }
@@ -42,7 +42,7 @@ class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
         }
         scheduleModalView.schedules = filteredSchedules
     }
-    // ✅ 카테고리 선택 시 일정 업데이트
+    // 카테고리 선택 시 일정 업데이트
     func didSelectCategory(_ category: String?) {
         updateScheduleList(category: category)
     }

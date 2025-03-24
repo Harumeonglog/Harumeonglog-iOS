@@ -13,7 +13,7 @@ class CategoryCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = K.Font.description
+        label.font = .description
         label.textAlignment = .center
         return label
     }()

@@ -13,7 +13,7 @@ class BathView: UIView {
     let detailLabel : UILabel = {
         let label = UILabel()
         label.text = "세부 내용"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
@@ -26,7 +26,7 @@ class BathView: UIView {
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
 
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray02
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor

@@ -22,7 +22,7 @@ class InviteCell: UITableViewCell {
 
     private let nicknameLabel: UILabel = {
         let label = UILabel()
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
@@ -33,7 +33,7 @@ class InviteCell: UITableViewCell {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .blue01
         button.layer.cornerRadius = 10
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         return button
     }()
 
@@ -45,7 +45,7 @@ class InviteCell: UITableViewCell {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.red.cgColor
         button.layer.cornerRadius = 10
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         return button
     }()
 

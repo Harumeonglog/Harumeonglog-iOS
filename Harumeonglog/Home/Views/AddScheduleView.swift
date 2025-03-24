@@ -34,7 +34,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             string: "일정 제목",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray02
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -83,7 +83,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         return days.map { day in
             let button = UIButton(type: .system)
             button.setTitle(day, for: .normal)
-            button.titleLabel?.font = K.Font.description
+            button.titleLabel?.font = .description
             button.setTitleColor(.gray00, for: .normal)
             button.backgroundColor = .white
             button.layer.cornerRadius = 15
@@ -100,7 +100,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     lazy var dateButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("2025.3.10 월요일", for: .normal)
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         button.setTitleColor(.gray00, for: .normal)
         return button
     }()
@@ -108,7 +108,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     lazy var timeButton : UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("8:00", for: .normal)
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         button.setTitleColor(.gray00, for: .normal)
         return button
     }()
@@ -118,7 +118,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         let button = UIButton(type: .system)
         button.setTitle("10분 전 팝업", for: .normal)
         button.setTitleColor(.gray00, for: .normal)
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
         button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 10, weight: .regular), forImageIn: .normal)
 
@@ -139,7 +139,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         button.setTitle("카테고리 선택", for: .normal)
         button.setTitleColor(.gray02, for: .normal)
-        button.titleLabel?.font = K.Font.body
+        button.titleLabel?.font = .body
         
         button.contentHorizontalAlignment = .left
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
@@ -289,7 +289,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DropdownCell") ?? UITableViewCell(style: .default, reuseIdentifier: "DropdownCell")
         cell.textLabel?.text = categories[indexPath.row].rawValue
         cell.textLabel?.textAlignment = .center
-        cell.textLabel?.font = K.Font.body
+        cell.textLabel?.font = .body
         cell.textLabel?.textColor = UIColor.gray02
 
 

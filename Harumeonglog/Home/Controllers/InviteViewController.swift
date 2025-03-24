@@ -22,7 +22,7 @@ class InviteViewController: UIViewController {
     
 }
 
-// ✅ InviteViewDelegate 구현
+// InviteViewDelegate 구현
 extension InviteViewController: InviteViewDelegate {
     func acceptButtonTapped(at indexPath: IndexPath) {
         inviteView.inviteData.remove(at: indexPath.row)

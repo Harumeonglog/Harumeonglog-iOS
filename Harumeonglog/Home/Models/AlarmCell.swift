@@ -19,14 +19,14 @@ class AlarmCell: UITableViewCell {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
 
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = K.Font.description
+        label.font = .description
         label.textColor = .gray02
         return label
     }()

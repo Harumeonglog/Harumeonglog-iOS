@@ -44,7 +44,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var nicknameLabel: UILabel = {
         let label = UILabel()
         label.text = "카이"
-        label.font = UIFont(name: K.FontName.pretendard_regular, size: 20)
+        label.font = .headline
         label.textColor = .gray00
         return label
     }()
@@ -69,14 +69,14 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var birthdayIconLabel: UILabel = {
         let label = UILabel()
         label.text = "🎂"
-        label.font = K.Font.description
+        label.font = .description
         return label
     }()
     
     lazy var birthdayLabel: UILabel = {
         let label = UILabel()
         label.text = "2005.01.01"
-        label.font = K.Font.description
+        label.font = .description
         label.textColor = .gray01
         return label
     }()
@@ -97,7 +97,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         calendar.appearance.titleTodayColor = .gray00  // 오늘 날짜 글자색 빨간색
         
         calendar.appearance.weekdayTextColor = .gray00
-        calendar.appearance.weekdayFont = UIFont(name: K.FontName.pretendard_medium, size: 12)
+        calendar.appearance.weekdayFont = .description
         calendar.headerHeight = 50
         calendar.calendarHeaderView.isHidden = true  // 기본 헤더 숨김
         return calendar
@@ -119,7 +119,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont(name: K.FontName.pretendard_medium, size: 16)
+        label.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 16)
         label.textColor = .gray00
         label.text = getCurrentMonthString(for: calendarView.currentPage)
         label.isUserInteractionEnabled = true

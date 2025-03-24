@@ -13,14 +13,14 @@ class CheckupView: UIView {
     let hospitalLabel : UILabel = {
         let label = UILabel()
         label.text = "병원"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var hospitalTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -32,14 +32,14 @@ class CheckupView: UIView {
     let departmentLabel : UILabel = {
         let label = UILabel()
         label.text = "진료과목"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var departmentTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -51,14 +51,14 @@ class CheckupView: UIView {
     let costLabel : UILabel = {
         let label = UILabel()
         label.text = "병원비"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var costTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -70,7 +70,7 @@ class CheckupView: UIView {
     let detailLabel : UILabel = {
         let label = UILabel()
         label.text = "세부 내용"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
@@ -83,7 +83,7 @@ class CheckupView: UIView {
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
 
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor

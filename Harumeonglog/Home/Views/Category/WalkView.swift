@@ -12,14 +12,14 @@ class WalkView: UIView {
     let distanceLabel : UILabel = {
         let label = UILabel()
         label.text = "거리 (km)"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var distanceTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -31,14 +31,14 @@ class WalkView: UIView {
     let timeLabel : UILabel = {
         let label = UILabel()
         label.text = "소요시간 (분)"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
     
     lazy var timeTextField: UITextField = {
         let textField = UITextField()
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
@@ -50,7 +50,7 @@ class WalkView: UIView {
     let descriptionLabel : UILabel = {
         let label = UILabel()
         label.text = "산책 후 데이터를 기록하세요!"
-        label.font = K.Font.description
+        label.font = .description
         label.textColor = .brown00
         return label
     }()
@@ -58,7 +58,7 @@ class WalkView: UIView {
     let detailLabel : UILabel = {
         let label = UILabel()
         label.text = "세부 내용"
-        label.font = K.Font.body
+        label.font = .body
         label.textColor = .gray00
         return label
     }()
@@ -71,7 +71,7 @@ class WalkView: UIView {
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
 
-        textField.font = K.Font.body
+        textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
         textField.layer.borderColor = UIColor.brown01.cgColor
