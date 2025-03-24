@@ -16,7 +16,6 @@
 		637201582D830F370088E222 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 637201572D830F370088E222 /* KakaoSDKUser */; };
 		637202232D830FCD0088E222 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 637202222D830FCD0088E222 /* FirebaseCore */; };
 		637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 637202242D830FCD0088E222 /* FirebaseMessaging */; };
-		975C6CEB2D87999D00FE827D /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 975C6CEA2D87999D00FE827D /* NMapsMap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +51,7 @@
 				637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */,
 				637201512D830F050088E222 /* Kingfisher in Frameworks */,
 				6372014E2D830EF60088E222 /* Alamofire in Frameworks */,
+				947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */,
 				637201482D830EAB0088E222 /* SnapKit in Frameworks */,
 				637201582D830F370088E222 /* KakaoSDKUser in Frameworks */,
 				6372014B2D830EB80088E222 /* Then in Frameworks */,
@@ -110,7 +110,6 @@
 				637201572D830F370088E222 /* KakaoSDKUser */,
 				637202222D830FCD0088E222 /* FirebaseCore */,
 				637202242D830FCD0088E222 /* FirebaseMessaging */,
-				975C6CEA2D87999D00FE827D /* NMapsMap */,
 			);
 			productName = Harumeonglog;
 			productReference = 63E121AF2D825DB300402E92 /* Harumeonglog.app */;
@@ -147,7 +146,7 @@
 				6372014F2D830F050088E222 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				637201522D830F370088E222 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				975C6CE92D87999D00FE827D /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
+
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63E121B02D825DB300402E92 /* Products */;
@@ -187,7 +186,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2QJX795Q3R;
+				DEVELOPMENT_TEAM = 4445T4W3PR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
@@ -222,7 +221,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2QJX795Q3R;
+				DEVELOPMENT_TEAM = 4445T4W3PR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
@@ -441,12 +440,7 @@
 				minimumVersion = 11.9.0;
 			};
 		};
-		975C6CE92D87999D00FE827D /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.20.0;
+
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -497,10 +491,7 @@
 			package = 637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		975C6CEA2D87999D00FE827D /* NMapsMap */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 975C6CE92D87999D00FE827D /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
-			productName = NMapsMap;
+
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
