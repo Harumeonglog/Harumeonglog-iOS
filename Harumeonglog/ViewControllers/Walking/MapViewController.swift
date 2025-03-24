@@ -223,7 +223,7 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
     
     // 셀 높이 설정
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80 + 10
+        return 80 + 20
     }
     
     // 셀 선택 아예 못하게 막기
