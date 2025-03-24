@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-// ✅ **카테고리 필터 셀 (UICollectionViewCell)**
+// 카테고리 필터 셀 (UICollectionViewCell)**
 class CategoryCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
@@ -38,14 +38,14 @@ class CategoryCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 15
         contentView.clipsToBounds = true
         contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.blue02.cgColor
+        contentView.layer.borderColor = UIColor.brown02.cgColor
     }
 
     func configure(with text: String, isSelected: Bool) {
         titleLabel.text = text
-        contentView.backgroundColor = isSelected ? .blue01 : .blue02
+        contentView.backgroundColor = isSelected ? .brown01 : .brown02
         titleLabel.textColor = isSelected ? .white : .gray00
-        contentView.layer.borderColor = isSelected ? UIColor.blue01.cgColor : UIColor.blue02.cgColor
+        contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.brown02.cgColor
 
     }
 }
