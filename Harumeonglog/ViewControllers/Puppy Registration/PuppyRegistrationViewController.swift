@@ -8,7 +8,7 @@
 import UIKit
 
 class PuppyRegistrationViewController: UIViewController {
-
+    
     private let puppyRegistrationView = PuppyRegistrationView()
     
     override func viewDidLoad() {
@@ -32,7 +32,7 @@ class PuppyRegistrationViewController: UIViewController {
             btn.addTarget(self, action: #selector(selectDogSize), for: .touchUpInside)
         }
     }
-        
+    
     @objc
     private func handleLeftButtonTap() {
         dismiss(animated: false)

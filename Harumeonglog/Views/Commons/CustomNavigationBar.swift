@@ -16,7 +16,7 @@ class CustomNavigationBar: UIView {
     
     private lazy var maintitleLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = UIFont(name: FontName.pretendard_light.rawValue , size: 16)
     }
     
     public lazy var rightButton = UIButton().then {
