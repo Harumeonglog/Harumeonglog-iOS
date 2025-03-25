@@ -47,7 +47,7 @@ class PuppyRegistrationView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .background
+        self.backgroundColor = .backgound
     }
     
     public func setConstraints() {
