@@ -20,7 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		63E121AF2D825DB300402E92 /* Harumeonglog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Harumeonglog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		638DF0612D84824200542F21 /* Harumeonglog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Harumeonglog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -69,16 +69,8 @@
 			isa = PBXGroup;
 			children = (
 				63E121B12D825DB300402E92 /* Harumeonglog */,
-				63E121B02D825DB300402E92 /* Products */,
+				638DF0612D84824200542F21 /* Harumeonglog.app */,
 			);
-			sourceTree = "<group>";
-		};
-		63E121B02D825DB300402E92 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				63E121AF2D825DB300402E92 /* Harumeonglog.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -113,7 +105,7 @@
 				947D14502D853E5E00486ED6 /* FSCalendar */,
 			);
 			productName = Harumeonglog;
-			productReference = 63E121AF2D825DB300402E92 /* Harumeonglog.app */;
+			productReference = 638DF0612D84824200542F21 /* Harumeonglog.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -137,6 +129,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = 63E121A62D825DB300402E92;
 			minimizedProjectReferenceProxies = 1;
@@ -150,7 +143,7 @@
 				947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 63E121B02D825DB300402E92 /* Products */;
+			productRefGroup = 63E121A62D825DB300402E92;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -249,6 +242,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -303,6 +297,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -312,6 +307,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -359,6 +355,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
