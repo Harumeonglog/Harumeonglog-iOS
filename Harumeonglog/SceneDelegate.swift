@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = EditProfileViewController()
+        window?.rootViewController = LoginViewController()
         window?.makeKeyAndVisible()
         
     }
@@ -49,6 +49,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
+    func changeRootViewController(_ viewController: UIViewController, animated: Bool) {
+        guard let window = self.window else { return }
+            
+        window.rootViewController = viewController
+    }
+    
+    
 }
 

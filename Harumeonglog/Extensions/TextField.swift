@@ -26,11 +26,11 @@ extension UITextField {
         }
     }
     
-    func setPlaceholder(text: String, color: UIColor) {
+    func setPlaceholder(text: String) {
         self.attributedPlaceholder = NSAttributedString(
             string: text,
             attributes: [
-                .foregroundColor: color
+                .foregroundColor: UIColor.gray03
             ]
         )
     }

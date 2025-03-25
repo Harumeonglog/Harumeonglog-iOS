@@ -9,25 +9,26 @@ import UIKit
 import SnapKit
 import Then
 
-class PuppyRegistrationView: UIView {
+class PetRegistrationView: UIView {
     
+    public var selectedDogSize: DogSizeEnum?
     private let labelLeadingPadding: CGFloat = 41
     private let leadingTrailingPadding: CGFloat = 28
     private let stackSpacing: CGFloat = 20
     
     public let navigationBar = CustomNavigationBar()
     
-    private lazy var dogNameLabel = commonLabel(text: "반려견 이름")
-    public lazy var userNameTextField = UITextField.commonTextField()
+    private lazy var petNameLabel = commonLabel(text: "반려견 이름")
+    public lazy var petNameTextField = UITextField.commonTextField()
     
-    private lazy var selectPuppySizeLabel = commonLabel(text: "반려견 크기")
-    private lazy var puppySizeStackView = UIStackView().then {
+    private lazy var selectPetSizeLabel = commonLabel(text: "반려견 크기")
+    private lazy var petSizeStackView = UIStackView().then {
         $0.spacing = stackSpacing
     }
     
-    public lazy var smallPuppySizeButton = PuppySizeButton()
-    public lazy var middlePuppySizeButton = PuppySizeButton()
-    public lazy var bigPuppySizeButton = PuppySizeButton()
+    public lazy var smallPetSizeButton = DogSizeButton()
+    public lazy var middlePetSizeButton = DogSizeButton()
+    public lazy var bigPetSizeButton = DogSizeButton()
     
     private lazy var dogTypeLabel = commonLabel(text: "견종")
     public lazy var dogTypeTextField = UITextField.commonTextField()
@@ -71,17 +72,17 @@ class PuppyRegistrationView: UIView {
     }
     
     private func setTypeNameConstraints() {
-        self.addSubview(dogNameLabel)
-        self.addSubview(userNameTextField)
+        self.addSubview(petNameLabel)
+        self.addSubview(petNameTextField)
         
-        dogNameLabel.snp.makeConstraints { make in
+        petNameLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(labelLeadingPadding)
             make.top.equalTo(navigationBar.snp.bottom).offset(39)
         }
         
-        userNameTextField.snp.makeConstraints { make in
+        petNameTextField.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
-            make.top.equalTo(dogNameLabel.snp.bottom).offset(10)
+            make.top.equalTo(petNameLabel.snp.bottom).offset(10)
             make.height.equalTo(40)
         }
     }
@@ -89,27 +90,27 @@ class PuppyRegistrationView: UIView {
     private func setSelectPuppySizeConstraints() {
         let buttonWidth = (UIScreen.main.bounds.width - (leadingTrailingPadding * 2) - (stackSpacing * 2)) / 3
         
-        self.addSubview(selectPuppySizeLabel)
-        self.addSubview(puppySizeStackView)
+        self.addSubview(selectPetSizeLabel)
+        self.addSubview(petSizeStackView)
         
-        selectPuppySizeLabel.snp.makeConstraints { make in
-            make.top.equalTo(userNameTextField.snp.bottom).offset(32)
+        selectPetSizeLabel.snp.makeConstraints { make in
+            make.top.equalTo(petNameTextField.snp.bottom).offset(32)
             make.leading.equalToSuperview().offset(labelLeadingPadding)
         }
         
-        puppySizeStackView.snp.makeConstraints { make in
-            make.top.equalTo(selectPuppySizeLabel.snp.bottom).offset(10)
+        petSizeStackView.snp.makeConstraints { make in
+            make.top.equalTo(selectPetSizeLabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
         }
         
-        smallPuppySizeButton.configure(size: .small)
-        middlePuppySizeButton.configure(size: .middle)
-        bigPuppySizeButton.configure(size: .big)
+        smallPetSizeButton.configure(size: .small)
+        middlePetSizeButton.configure(size: .middle)
+        bigPetSizeButton.configure(size: .big)
         
-        let buttons = [smallPuppySizeButton, middlePuppySizeButton, bigPuppySizeButton]
+        let buttons = [smallPetSizeButton, middlePetSizeButton, bigPetSizeButton]
         
         for button in buttons {
-            puppySizeStackView.addArrangedSubview(button)
+            petSizeStackView.addArrangedSubview(button)
             button.snp.makeConstraints { make in
                 make.width.height.equalTo(buttonWidth)
             }
@@ -121,7 +122,7 @@ class PuppyRegistrationView: UIView {
         self.addSubview(dogTypeTextField)
         
         dogTypeLabel.snp.makeConstraints { make in
-            make.top.equalTo(puppySizeStackView.snp.bottom).offset(32)
+            make.top.equalTo(petSizeStackView.snp.bottom).offset(32)
             make.leading.equalToSuperview().offset(labelLeadingPadding)
         }
         
@@ -222,5 +223,5 @@ class PuppyRegistrationView: UIView {
 
 import SwiftUI
 #Preview {
-    PuppyRegistrationViewController()
+    PetRegistrationViewController()
 }
