@@ -39,6 +39,22 @@ class ConfirmButton: UIButton {
         mainLabel.text = labelText
     }
     
+    public func addPlusImage() {
+        let plusImage = UIImageView()
+        plusImage.image = .whitePlus
+        
+        mainLabel.snp.updateConstraints { make in
+            make.centerX.equalToSuperview().offset(8.5)
+        }
+        
+        self.addSubview(plusImage)
+        plusImage.snp.makeConstraints { make in
+            make.height.width.equalTo(14)
+            make.centerY.equalTo(mainLabel)
+            make.trailing.equalTo(mainLabel.snp.leading).offset(-5)
+        }
+    }
+    
     public func availableForSendQuery() {
         self.backgroundColor = .gray02
         self.isEnabled = true
@@ -59,4 +75,3 @@ class ConfirmButton: UIButton {
     }
     
 }
-

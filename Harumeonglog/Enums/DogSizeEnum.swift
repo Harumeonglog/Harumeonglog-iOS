@@ -31,4 +31,15 @@ enum DogSizeEnum {
             return .bigDogButtonSelected
         }
     }
+    
+    func inKorean() -> String {
+        switch self {
+        case .small:
+            return "소형견"
+        case .middle:
+            return "중형견"
+        case .big:
+            return "대형견"
+        }
+    }
 }

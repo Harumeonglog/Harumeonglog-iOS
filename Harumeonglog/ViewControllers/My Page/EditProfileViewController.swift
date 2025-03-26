@@ -29,6 +29,7 @@ class EditProfileViewController: UIViewController {
     }
     
     private func setActions() {
+        editProfileView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         editProfileView.cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
         editProfileView.cameraButton.addTarget(self, action: #selector(textFieldEditing), for: .valueChanged)
         editProfileView.navigationBar.rightButton.addTarget(self, action: #selector(completionButtonPressed), for: .touchUpInside)
@@ -52,6 +53,11 @@ class EditProfileViewController: UIViewController {
     @objc
     private func completionButtonPressed() {
         
+    }
+    
+    @objc
+    private func dismissViewController() {
+        dismiss(animated: false)
     }
 }
 
