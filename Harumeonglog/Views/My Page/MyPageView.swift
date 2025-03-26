@@ -34,7 +34,7 @@ class MyPageView: UIView {
     public lazy var myCommentButton = UIImageView().then { $0.image = .myComment; $0.contentMode = .scaleAspectFill }
     
     private lazy var myPetsLabel = commonLabel(text: "반려견 목록")
-    public lazy var goTomyPetListButton = goToDetailButton()
+    public lazy var goToPetListButton = goToDetailButton()
     public lazy var petListPreviewTable = UITableView().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
@@ -150,7 +150,7 @@ class MyPageView: UIView {
     
     private func setPuppyListPreviewConstraints() {
         self.addSubview(myPetsLabel)
-        self.addSubview(goTomyPetListButton)
+        self.addSubview(goToPetListButton)
         self.addSubview(petListPreviewTable)
         
         myPetsLabel.snp.makeConstraints { make in
@@ -158,7 +158,7 @@ class MyPageView: UIView {
             make.top.equalTo(myActiveStack.snp.bottom).offset(24)
         }
         
-        goTomyPetListButton.snp.makeConstraints { make in
+        goToPetListButton.snp.makeConstraints { make in
             make.centerY.equalTo(myPetsLabel)
             make.trailing.equalToSuperview().offset(-38)
             make.height.equalTo(48)

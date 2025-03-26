@@ -9,11 +9,28 @@ import UIKit
 
 extension UITextField {
     
-    func setPlaceholder(text: String, color: UIColor) {
+    static func commonTextField() -> UITextField {
+        return UITextField().then {
+            $0.borderStyle = .roundedRect
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 15
+            $0.layer.borderWidth = 1
+            $0.layer.borderColor = UIColor.brown02.cgColor
+            
+            $0.backgroundColor = .white
+            $0.textColor = .black
+            
+            $0.autocapitalizationType = .none
+            $0.autocorrectionType = .no
+            $0.spellCheckingType = .no
+        }
+    }
+    
+    func setPlaceholder(text: String) {
         self.attributedPlaceholder = NSAttributedString(
             string: text,
             attributes: [
-                .foregroundColor: color
+                .foregroundColor: UIColor.gray03
             ]
         )
     }
