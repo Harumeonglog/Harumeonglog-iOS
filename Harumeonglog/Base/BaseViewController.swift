@@ -28,12 +28,20 @@ class CustomTabBar: UITabBar {
 
 class BaseViewController: UITabBarController {
     
-    private let homeVC = HomeViewController()
-    private let walkingVC = WalkingViewController()
-    private let photosVC = PhotosViewController()
-    private let socialVC = SocialViewController()
-    private let myPageVC = MyPageViewController()
-    
+    private let homeVC = UINavigationController(rootViewController: HomeViewController())
+    private let walkingVC = UINavigationController(rootViewController: WalkingViewController())
+    private lazy var photosVC: UINavigationController = {
+        let defaultAlbum = Album(
+            coverImage: UIImage(named: "defaultImage") ?? UIImage(),
+            images: [],
+            name: "기본 앨범",
+            photosCount: 0
+        )
+        return UINavigationController(rootViewController: PhotosViewController(album: defaultAlbum))
+    }()
+    private let socialVC = UINavigationController(rootViewController: SocialViewController())
+    private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBarItems()
@@ -78,7 +86,7 @@ class BaseViewController: UITabBarController {
         tabBar.unselectedItemTintColor = .gray02
         
         // 배경 색상
-        tabBar.backgroundColor = .background
+        tabBar.backgroundColor = .bg
     }
 
 }
