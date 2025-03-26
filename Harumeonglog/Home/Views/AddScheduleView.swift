@@ -181,7 +181,6 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
         
-        // ✅ 시간, 반복, 알람 StackView 배치
         scheduleInfoView.addSubview(timeIcon)
         scheduleInfoView.addSubview(repeatIcon)
         scheduleInfoView.addSubview(alarmIcon)
@@ -190,10 +189,9 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         scheduleInfoView.addSubview(alarmButton)
         scheduleInfoView.addSubview(timeButton)
         
-        // ✅ weekButtons(요일 선택 버튼) 추가
+        // weekButtons(요일 선택 버튼) 추가
         weekButtons.forEach { scheduleInfoView.addSubview($0) }
         
-        // ✅ 아이콘 크기 설정 (22x22)
         [timeIcon, repeatIcon, alarmIcon].forEach { icon in
             icon.snp.makeConstraints { make in
                 make.width.height.equalTo(22)
@@ -217,7 +215,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             
             //버튼 크기 및 위치 설정
         dateButton.snp.makeConstraints { make in
-            make.leading.equalTo(timeIcon.snp.trailing).offset(15)  // ✅ 아이콘과 15pt 간격
+            make.leading.equalTo(timeIcon.snp.trailing).offset(15)
             make.centerY.equalTo(timeIcon)
         }
         

@@ -50,30 +50,33 @@ class ScheduleCell: UITableViewCell {
         containerView.addSubview(checkmarkIcon)
         containerView.addSubview(scheduleLabel)
 
-        // ✅ **컨테이너 뷰 크기 설정**
         containerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(62)
+            make.height.equalTo(52)
             make.centerX.equalToSuperview()
-            make.top.bottom.equalToSuperview().inset(7)
+            make.top.bottom.equalToSuperview().inset(8)
         }
 
-                // ✅ **체크박스 아이콘**
         checkmarkIcon.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(24)
         }
 
-                // ✅ **일정 제목 라벨**
         scheduleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(20)
             make.centerY.equalToSuperview()
-            make.trailing.equalTo(checkmarkIcon.snp.leading).offset(-10) // ✅ 체크박스와 간격 유지
+            make.trailing.equalTo(checkmarkIcon.snp.leading).offset(-10)
         }
     }
     func configure(schedule: String, isChecked: Bool) {
         scheduleLabel.text = schedule
         checkmarkIcon.tintColor = isChecked ? .brown01 : .clear
     }
+}
+
+struct Schedule {
+    let category: String
+    let title : String
+    let date: Date
 }

@@ -14,7 +14,7 @@ protocol InviteViewDelegate: AnyObject {
 
 class InviteView: UIView {
     
-    weak var delegate: InviteViewDelegate? // ✅ Delegate 선언
+    weak var delegate: InviteViewDelegate?
     
     //더미데이터
     var inviteData: [(profileImage: String, nickname: String)] = [
@@ -83,12 +83,12 @@ extension InviteView: UITableViewDelegate, UITableViewDataSource {
     @objc private func acceptButtonTapped(_ sender: UIButton) {
         guard let cell = sender.superview?.superview as? InviteCell,
               let indexPath = inviteTableView.indexPath(for: cell) else { return }
-        delegate?.acceptButtonTapped(at: indexPath) // ✅ `InviteViewController`로 이벤트 전달
+        delegate?.acceptButtonTapped(at: indexPath)
     }
 
     @objc private func declineButtonTapped(_ sender: UIButton) {
         guard let cell = sender.superview?.superview as? InviteCell,
               let indexPath = inviteTableView.indexPath(for: cell) else { return }
-        delegate?.declineButtonTapped(at: indexPath) // ✅ `InviteViewController`로 이벤트 전달
+        delegate?.declineButtonTapped(at: indexPath) 
     }
 }

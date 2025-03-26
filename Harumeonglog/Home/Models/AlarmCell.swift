@@ -9,10 +9,19 @@ import UIKit
 import SnapKit
 
 class AlarmCell: UITableViewCell {
+    
+    private let circleView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "circle.fill")
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.tintColor = .blue01
+        return imageView
+    }()
 
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.tintColor = .blue // ✅ 아이콘 색상
+        imageView.tintColor = .blue01
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -42,9 +51,16 @@ class AlarmCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        contentView.addSubview(circleView)
         contentView.addSubview(iconImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(timeLabel)
+        
+        circleView.snp.makeConstraints { make in
+            make.width.height.equalTo(4)
+            make.leading.equalToSuperview().offset(0)
+            make.centerY.equalToSuperview()
+        }
 
         iconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
@@ -58,7 +74,7 @@ class AlarmCell: UITableViewCell {
         }
 
         timeLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(16)
+            make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
         }
     }
@@ -66,6 +82,6 @@ class AlarmCell: UITableViewCell {
     func configure(icon: String, title: String, time: String) {
         iconImageView.image = UIImage(systemName: icon)
         titleLabel.text = title
-        timeLabel.text = time.isEmpty ? "" : time // ✅ 시간이 없으면 숨김
+        timeLabel.text = time.isEmpty ? "" : time // 시간이 없으면 숨김
     }
 }

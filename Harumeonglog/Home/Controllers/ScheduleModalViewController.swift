@@ -6,7 +6,7 @@
 import UIKit
 import SnapKit
 
-class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
+/*class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
 
     
     private var allSchedules: [(category: String, title: String)] = [
@@ -47,4 +47,4 @@ class ScheduleModalViewController: UIViewController, ScheduleModalViewDelegate {
         updateScheduleList(category: category)
     }
 }
-
+*/
