@@ -17,6 +17,7 @@
 		637202232D830FCD0088E222 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 637202222D830FCD0088E222 /* FirebaseCore */; };
 		637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 637202242D830FCD0088E222 /* FirebaseMessaging */; };
 		947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 947D14502D853E5E00486ED6 /* FSCalendar */; };
+		97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 97470C7C2D93DBE600039FA5 /* NMapsMap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 				947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */,
 				637201482D830EAB0088E222 /* SnapKit in Frameworks */,
 				637201582D830F370088E222 /* KakaoSDKUser in Frameworks */,
+				97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */,
 				6372014B2D830EB80088E222 /* Then in Frameworks */,
 				637201562D830F370088E222 /* KakaoSDKCommon in Frameworks */,
 				637202232D830FCD0088E222 /* FirebaseCore in Frameworks */,
@@ -103,6 +105,7 @@
 				637202222D830FCD0088E222 /* FirebaseCore */,
 				637202242D830FCD0088E222 /* FirebaseMessaging */,
 				947D14502D853E5E00486ED6 /* FSCalendar */,
+				97470C7C2D93DBE600039FA5 /* NMapsMap */,
 			);
 			productName = Harumeonglog;
 			productReference = 638DF0612D84824200542F21 /* Harumeonglog.app */;
@@ -141,6 +144,7 @@
 				637201522D830F370088E222 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */,
+				97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63E121A62D825DB300402E92;
@@ -180,9 +184,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4445T4W3PR;
+				DEVELOPMENT_TEAM = 35G773T358;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description : 카메라 권한";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo Library Usage Description : 사진앨범 권한";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -212,9 +221,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4445T4W3PR;
+				DEVELOPMENT_TEAM = 35G773T358;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description : 카메라 권한";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치정보 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo Library Usage Description : 사진앨범 권한";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -440,6 +454,14 @@
 				minimumVersion = 2.8.4;
 			};
 		};
+		97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.21.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -492,6 +514,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */;
 			productName = FSCalendar;
+		};
+		97470C7C2D93DBE600039FA5 /* NMapsMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
+			productName = NMapsMap;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
