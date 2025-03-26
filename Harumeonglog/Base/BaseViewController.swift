@@ -29,7 +29,7 @@ class CustomTabBar: UITabBar {
 class BaseViewController: UITabBarController {
     
     private let homeVC = UINavigationController(rootViewController: HomeViewController())
-    private let walkingVC = UINavigationController(rootViewController: WalkingViewController())
+    private let walkingVC = UINavigationController(rootViewController: MapViewController())
     private lazy var photosVC: UINavigationController = {
         let defaultAlbum = Album(
             coverImage: UIImage(named: "defaultImage") ?? UIImage(),
