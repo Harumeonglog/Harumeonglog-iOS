@@ -28,7 +28,8 @@ class SocialViewController: UIViewController {
     }
     
     @objc private func addPostButtonTapped() {
-
+        let addPostVC = AddPostViewController()
+        navigationController?.pushViewController(addPostVC, animated: true)
     }
 
 }

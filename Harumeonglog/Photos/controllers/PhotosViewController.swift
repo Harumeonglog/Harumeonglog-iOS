@@ -54,7 +54,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         picker.dismiss(animated: true)
     }
     // Add image to collection view
-    private func uploadImage(image: UIImage) {
+    func uploadImage(image: UIImage) {
         album.images.append(image)  // Append image to album's images array
         
         // Reload the collection view after adding the image
