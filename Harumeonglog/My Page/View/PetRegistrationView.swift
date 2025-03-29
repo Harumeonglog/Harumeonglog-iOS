@@ -13,6 +13,7 @@ class PetRegistrationView: UIView {
         
     public var selectedDogSize: DogSizeEnum?
     public var selectedDogGender: DogGenderEnum?
+    public var birthday: Date?
     private let labelLeadingPadding: CGFloat = 41
     private let leadingTrailingPadding: CGFloat = 28
     private let stackSpacing: CGFloat = 20

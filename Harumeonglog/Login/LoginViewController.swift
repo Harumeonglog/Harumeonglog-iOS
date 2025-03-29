@@ -10,12 +10,10 @@ import UIKit
 class LoginViewController: UIViewController {
     
     private let loginView = LoginView()
-    private let registPetViewController = PetRegistrationViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = loginView
-        registPetViewController.modalPresentationStyle = .overFullScreen
         setButtonActions()
     }
     
@@ -30,12 +28,12 @@ extension LoginViewController {
     
     @objc
     private func handleAppleLogin() {
-        present(registPetViewController, animated: false)
+        RootViewControllerService.toBaseViewController()
     }
     
     @objc
     private func handleKakaologin() {
-        present(registPetViewController, animated: false)
+        RootViewControllerService.toBaseViewController()
     }
     
 }
