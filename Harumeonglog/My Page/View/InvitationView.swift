@@ -25,8 +25,8 @@ class InvitationView: UIView {
         cv.showsVerticalScrollIndicator = false
         cv.bouncesHorizontally = false
         
-        cv.register(InvitationCollectionViewCell.self,
-                    forCellWithReuseIdentifier: InvitationCollectionViewCell.identifier)
+        cv.register(InvitationCell.self,
+                    forCellWithReuseIdentifier: InvitationCell.identifier)
         return cv
     }()
     
