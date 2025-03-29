@@ -10,8 +10,9 @@ import SnapKit
 import Then
 
 class PetRegistrationView: UIView {
-    
+        
     public var selectedDogSize: DogSizeEnum?
+    public var selectedDogGender: DogGenderEnum?
     private let labelLeadingPadding: CGFloat = 41
     private let leadingTrailingPadding: CGFloat = 28
     private let stackSpacing: CGFloat = 20
@@ -219,6 +220,26 @@ class PetRegistrationView: UIView {
         }
     }
     
+    public func selectDogGender(_ gender: DogGenderEnum) {
+        dogGenderSelectButton.setTitle(gender.inKorean(), for: .normal)
+        dogGenderSelectButton.setTitleColor(.black, for: .normal)
+        selectedDogGender = gender
+    }
+    
+    enum DogGenderEnum {
+        case male, female, neutered
+        
+        func inKorean() -> String {
+            switch self {
+            case .male:
+                return "수컷"
+            case .female:
+                return "암컷"
+            case .neutered:
+                return "중성화"
+            }
+        }
+    }
 }
 
 import SwiftUI
