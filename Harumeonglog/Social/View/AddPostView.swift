@@ -105,6 +105,13 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         collectionView.isScrollEnabled = true
     }
     
+    public lazy var addImageCount = UILabel().then { label in
+        // label.text = "4/10"
+        label.textColor = .gray02
+        label.textAlignment = .center
+        label.font = UIFont.body
+    }
+    
     override init(frame: CGRect) {
         
         super.init(frame: frame)
@@ -151,6 +158,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         self.addSubview(addImageButton)
         self.addSubview(imageCollectionView)
+        self.addSubview(addImageCount)
         
         addImageButton.snp.makeConstraints { make in
             make.leading.equalTo(contentTextView)
@@ -160,9 +168,14 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         imageCollectionView.snp.makeConstraints { make in
             make.top.equalTo(addImageButton)
-            make.leading.equalTo(addImageButton.snp.trailing).offset(20)
+            make.leading.equalTo(addImageButton.snp.trailing).offset(10)
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(100)
+        }
+        
+        addImageCount.snp.makeConstraints { make in
+            make.top.equalTo(imageCollectionView.snp.bottom).offset(10)
+            make.trailing.equalToSuperview().inset(20)
         }
     
         

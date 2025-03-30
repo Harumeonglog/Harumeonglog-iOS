@@ -232,3 +232,70 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension MapViewController {
+
+    private func showChooseDogView() {
+        let chooseDogView = showDimmedView(ChooseDogView.self)
+        
+        chooseDogView.chooseCancelBtn.addTarget(self, action: #selector(cancelChooseBtnTapped), for: .touchUpInside)
+        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveBtnTapped), for: .touchUpInside)
+    }
+    
+    private func showChoosePersonView() {
+        let choosePersonView = showDimmedView(ChoosePersonView.self)
+        
+        choosePersonView.chooseCancelBtn.addTarget(self, action: #selector(cancelChooseBtnTapped), for: .touchUpInside)
+        choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(saveBtnTapped), for: .touchUpInside)
+    }
+    
+    @objc private func cancelChooseBtnTapped() {
+        removeView(ChoosePersonView.self)
+        navigationController!.popToRootViewController(animated: true)
+    }
+    
+    @objc private func saveBtnTapped() {
+        removeView(ChoosePersonView.self)
+        showChoosePersonView()
+        
+        // 서버로 데이터 전송 !!
+    }
+}
+
+// MARK: View 띄우기 및 삭제
+extension MapViewController {
+    
+    // view를 띄운걸 삭제하기 위한 공통 함수
+    private func removeView<T: UIView>(_ viewType: T.Type) {
+        if let window = UIApplication.shared.windows.first {
+            window.subviews.forEach { subview in
+                if subview is T || subview.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
+                    subview.removeFromSuperview()
+                }
+            }
+        }
+    }
+    
+    private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
+        if let window = UIApplication.shared.windows.first {
+            let dimmedView = UIView(frame: window.bounds)
+            dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            
+            let view = T()
+            
+            self.mapView.petStoreButton.isHidden = true
+            self.mapView.vetButton.isHidden = true
+            self.mapView.moveToUserLocationButton.isHidden = true
+            self.mapView.walkingStartButton.isHidden = true
+            self.mapView.recommendRouteView.isHidden = true
+            
+            window.addSubview(dimmedView)
+            window.addSubview(view)
+
+            view.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+            return view
+        }
+        return T()
+    }
+}

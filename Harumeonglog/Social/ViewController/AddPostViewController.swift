@@ -54,6 +54,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
             postImages.append(image)
             print("이미지 추가됨: \(image)")  // 이미지가 배열에 추가되는지 확인
             addPostView.imageCollectionView.reloadData()
+            addPostView.addImageCount.text = "\(postImages.count)/10"
         }
     
         picker.dismiss(animated: true)
@@ -62,6 +63,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         picker.dismiss(animated: true)
     }
 }
+
 
 extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -77,8 +79,8 @@ extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataS
         print("이미지 설정됨: \(postImages[indexPath.row])")
 
         // 컬렉션 뷰 업데이트
-        addPostView.imageCollectionView.reloadData()  // 데이터 갱신
-        addPostView.imageCollectionView.layoutIfNeeded()  // 레이아웃 강제 갱신
+        addPostView.imageCollectionView.reloadData()
+        addPostView.imageCollectionView.layoutIfNeeded()
         
         return cell
     }
