@@ -42,8 +42,8 @@ class AlbumCell: UICollectionViewCell {
 
         contentView.backgroundColor = .white
 
-        //let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
-        //self.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+        self.addGestureRecognizer(tapGesture)
     }
 
     required init?(coder: NSCoder) {
