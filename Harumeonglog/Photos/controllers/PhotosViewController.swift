@@ -25,7 +25,8 @@ class PhotosViewController: UIViewController {
         self.view = photosView
         title = album.name
         photosView.PhotosCollectionView.register(PictureCell.self, forCellWithReuseIdentifier: "PictureCell")
-        //photosView.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
+        photosView.PhotosCollectionView.delegate = self
+        photosView.PhotosCollectionView.dataSource = self
     }
     
     private lazy var photosView: PhotosView = {
@@ -33,12 +34,33 @@ class PhotosViewController: UIViewController {
         return view
     }()
     
-    /*@objc
-     private func addImageButtonTapped(){
-     pickImage(self)
-     }*/
+    @objc
+    private func addImageButtonTapped() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "카메라로 촬영", style: .default, handler: { _ in
+            self.presentImagePicker(sourceType: .camera)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "앨범에서 가져오기", style: .default, handler: { _ in
+            self.presentImagePicker(sourceType: .photoLibrary)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "닫기", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    private func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
+        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else { return }
+        let picker = UIImagePickerController()
+        picker.sourceType = sourceType
+        picker.allowsEditing = true
+        picker.delegate = self
+        self.present(picker, animated: true)
+    }
 }
-/*
+
 extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // 이미지 피커에서 이미지를 선택하지 않고 취소했을 때 호출되는 메서드
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -54,10 +76,10 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         picker.dismiss(animated: true)
     }
     private func uploadImage(image: UIImage) {
-        album.images.append(image)  // Append image to album's images array
+        album.images.append(image)
         
         DispatchQueue.main.async {
-            self.photosView.PhotosCollectionView.reloadData()  // Update the collection view
+            self.photosView.PhotosCollectionView.reloadData()
         }
     }
     
@@ -72,21 +94,22 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     }
 }
 
-     // MARK: imageCollectionview에 대한 처리
+// MARK: imageCollectionview delegate, datasource
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album.images.count + 1 // +1 for the add button
+        return album.images.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PictureCell", for: indexPath) as! PictureCell
         
         if indexPath.item == 0 {
-            cell.configure(isAddButton: true)  // This will show the add button
+            cell.configure(isAddButton: true)
+            cell.addButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
         } else {
             let image = album.images[indexPath.item - 1]
-            cell.configure(isAddButton: false, image: image)  // This will show the image
+            cell.configure(isAddButton: false, image: image)
         }
         
         return cell
@@ -98,5 +121,3 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
         }
     }
 }
-*/
-

@@ -10,23 +10,18 @@ import SnapKit
 
 class PhotosView: UIView {
     
-    lazy var addImageButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
-        button.tintColor = .brown01
-        button.backgroundColor = .brown02
-        return button
-    }()
-    
     lazy var PhotosCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: 120, height: 120) // Image size
-        layout.minimumInteritemSpacing = 8 // Spacing between items
+        layout.itemSize = CGSize(width: 120, height: 120) 
+        layout.minimumInteritemSpacing = 8
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.dataSource = nil
+        collectionView.delegate = nil
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "PictureCell")
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
     
@@ -47,10 +42,6 @@ class PhotosView: UIView {
             make.top.equalToSuperview().offset(125)
             make.leading.trailing.equalToSuperview().inset(13)
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(35)
-        }
-        
-        addImageButton.snp.makeConstraints { make in
-            make.height.width.equalTo(120)
         }
     }
 }

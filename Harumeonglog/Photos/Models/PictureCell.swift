@@ -9,7 +9,6 @@ import UIKit
 
 class PictureCell: UICollectionViewCell {
     
-    // Image view to display the image
     var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -17,30 +16,29 @@ class PictureCell: UICollectionViewCell {
         return imageView
     }()
     
-    // Add button for adding a new image
+    //이미지 추가 버튼
     var addButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        let config = UIImage.SymbolConfiguration(pointSize: 33, weight: .medium)
+        let image = UIImage(systemName: "plus", withConfiguration: config)
+        button.setImage(image, for: .normal)
         button.tintColor = .white
         button.backgroundColor = .brown02
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 8
         return button
     }()
     
-    // Configure the cell based on whether it's the "add" button or image cell
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(imageView)
         contentView.addSubview(addButton)
         
-        // Add constraints using SnapKit or manually
         imageView.snp.makeConstraints { make in
             make.top.leading.trailing.bottom.equalToSuperview()
         }
         
         addButton.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.height.equalTo(50)  // Set the size of the add button
+            make.top.leading.trailing.bottom.equalToSuperview()
         }
     }
     

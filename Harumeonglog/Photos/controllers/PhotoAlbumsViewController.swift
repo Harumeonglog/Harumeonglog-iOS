@@ -38,6 +38,7 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
         return cell
     }
     
+    //셀 선택했을때 해당 앨범으로 이동
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let album = photoAlbumsView.albums[indexPath.item]
         let photosVC = PhotosViewController(album: album)
