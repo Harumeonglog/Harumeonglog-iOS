@@ -28,7 +28,7 @@ class AlbumCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.textColor = .gray02
-        label.font = .body
+        label.font = .description
         return label
     }()
 
@@ -40,9 +40,6 @@ class AlbumCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 20
         contentView.layer.masksToBounds = true
         contentView.backgroundColor = .white
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
-        self.addGestureRecognizer(tapGesture)
     }
 
     required init?(coder: NSCoder) {
@@ -69,17 +66,6 @@ class AlbumCell: UICollectionViewCell {
             make.top.equalTo(nameLabel.snp.bottom).offset(0)
             make.leading.equalTo(nameLabel.snp.leading)
             make.height.equalTo(17)
-        }
-    }
-
-    @objc private func cellTapped() {
-        if let album = album {
-            if let parentVC = self.viewController(), let navigationController = parentVC.navigationController {
-                let photosVC = PhotosViewController(album: album)
-                navigationController.pushViewController(photosVC, animated: true)
-            } else {
-                print("Navigation controller not found")
-            }
         }
     }
     

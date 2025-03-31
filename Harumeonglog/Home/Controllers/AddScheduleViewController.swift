@@ -22,6 +22,7 @@ class AddScheduleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = addScheduleView
+        setCustomNavigationBarConstraints()
         
         addScheduleView.dateButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
         addScheduleView.timeButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
@@ -29,6 +30,19 @@ class AddScheduleViewController: UIViewController {
             button.addTarget(self, action: #selector(weekButtonTapped), for: .touchUpInside)
         }
         addScheduleView.alarmButton.addTarget(self, action: #selector(alertButtonTapped), for: .touchUpInside)
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = addScheduleView.navigationBar
+        navi.configureTitle(title: "일정 추가")
+        navi.configureRightButton(text: "저장")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
     }
     
     // 요일 버튼 클릭 시 동작
