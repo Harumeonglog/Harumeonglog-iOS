@@ -88,6 +88,7 @@ class SocialView: UIView {
         categoryButtonsScrollView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(29)
         }
     
         categoryButtonsStackView.snp.makeConstraints { make in
@@ -128,10 +129,11 @@ class SocialView: UIView {
             let button = UIButton(type: .system)
             button.backgroundColor = .brown02
             button.setTitle(tag, for: .normal)
-            button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 13)
+            button.titleLabel?.font = UIFontMetrics.default.scaledFont(for: UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13))
             button.layer.cornerRadius = 15
             button.tintColor = .gray00
             button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 21, bottom: 8, right: 21)
+            button.frame = CGRect(x: 0, y: 0, width: 70, height: 29)
             button.tag = num
 
             num += 1

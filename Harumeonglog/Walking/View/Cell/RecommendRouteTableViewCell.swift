@@ -63,7 +63,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
         
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().inset(15)
+            make.top.equalToSuperview().inset(20)
         }
         
         self.addSubview(leftContainer)
@@ -73,7 +73,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
         
         leftContainer.snp.makeConstraints { make in
             make.leading.bottom.equalToSuperview().inset(15)
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.top.equalTo(titleLabel.snp.bottom).offset(15)
             make.width.greaterThanOrEqualTo(110)
         }
         

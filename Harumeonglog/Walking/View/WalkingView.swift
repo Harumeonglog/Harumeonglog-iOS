@@ -23,8 +23,8 @@ class WalkingView: UIView {
 
     private lazy var recordDistanceTimeView = UIView()
     
-    public lazy var recordDistance = setDistanceTime(text: "3.45")
-    public lazy var recordTime = setDistanceTime(text: "34:02")
+    public lazy var recordDistance = setDistanceTime(text: "0.00")
+    public lazy var recordTime = setDistanceTime(text: "00:00")
     
     private func setDistanceTime(text: String) -> UILabel {
         let label = UILabel()
@@ -123,12 +123,12 @@ class WalkingView: UIView {
         
         recordDistanceLabel.snp.makeConstraints { make in
             make.top.equalTo(recordDistance.snp.bottom).offset(7)
-            make.centerX.equalTo(recordDistance)
+            make.leading.equalToSuperview().inset(10)
         }
         
         recordTimeLabel.snp.makeConstraints { make in
             make.top.equalTo(recordTime.snp.bottom).offset(7)
-            make.centerX.equalTo(recordTime)
+            make.trailing.equalToSuperview().inset(25)
         }
         
         recordView.addSubview(btnStackView)

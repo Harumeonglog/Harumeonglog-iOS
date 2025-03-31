@@ -89,6 +89,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         }
         picker.dismiss(animated: true)
     }
+
     private func uploadImage(image: UIImage) {
         album.images.append(image)
         
