@@ -16,6 +16,8 @@ protocol AddScheduleViewDelegate: AnyObject {
 class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     weak var delegate: AddScheduleViewDelegate?  // Delegate 선언
+    
+    public lazy var navigationBar = CustomNavigationBar()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -180,6 +182,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(scheduleInfoView)
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
+        self.addSubview(navigationBar)
         
         scheduleInfoView.addSubview(timeIcon)
         scheduleInfoView.addSubview(repeatIcon)
@@ -191,6 +194,10 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         // weekButtons(요일 선택 버튼) 추가
         weekButtons.forEach { scheduleInfoView.addSubview($0) }
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+        }
         
         [timeIcon, repeatIcon, alarmIcon].forEach { icon in
             icon.snp.makeConstraints { make in

@@ -23,9 +23,10 @@ class PhotosViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = photosView
-        title = album.name
+        setCustomNavigationBarConstraints()
         photosView.PhotosCollectionView.register(PictureCell.self, forCellWithReuseIdentifier: "PictureCell")
-        photosView.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
+        photosView.PhotosCollectionView.delegate = self
+        photosView.PhotosCollectionView.dataSource = self
     }
     
     private lazy var photosView: PhotosView = {
@@ -34,8 +35,43 @@ class PhotosViewController: UIViewController {
     }()
     
     @objc
-    private func addImageButtonTapped(){
-        pickImage(self)
+    private func addImageButtonTapped() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "카메라로 촬영", style: .default, handler: { _ in
+            self.presentImagePicker(sourceType: .camera)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "앨범에서 가져오기", style: .default, handler: { _ in
+            self.presentImagePicker(sourceType: .photoLibrary)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "닫기", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    private func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
+        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else { return }
+        let picker = UIImagePickerController()
+        picker.sourceType = sourceType
+        picker.allowsEditing = true
+        picker.delegate = self
+        self.present(picker, animated: true)
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = photosView.navigationBar
+        navi.configureTitle(title: album.name)
+        navi.configureRightButton(text: "선택")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        navi.configureRightButton()
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -54,13 +90,13 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         picker.dismiss(animated: true)
     }
     private func uploadImage(image: UIImage) {
-        album.images.append(image)  // Append image to album's images array
+        album.images.append(image)
         
         DispatchQueue.main.async {
-            self.photosView.PhotosCollectionView.reloadData()  // Update the collection view
+            self.photosView.PhotosCollectionView.reloadData()
         }
     }
-
+    
     // 이미지 선택 메서드
     @objc
     func pickImage(_ sender: Any) {
@@ -72,29 +108,30 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     }
 }
 
-// MARK: imageCollectionview에 대한 처리
+// MARK: imageCollectionview delegate, datasource
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album.images.count + 1 // +1 for the add button
+        return album.images.count + 1
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PictureCell", for: indexPath) as! PictureCell
         
         if indexPath.item == 0 {
-            cell.configure(isAddButton: true)  // This will show the add button
+            cell.configure(isAddButton: true)
+            cell.addButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
         } else {
             let image = album.images[indexPath.item - 1]
-            cell.configure(isAddButton: false, image: image)  // This will show the image
+            cell.configure(isAddButton: false, image: image)
         }
         
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == 0 {
-            addImageButtonTapped()  
+            addImageButtonTapped()
         }
     }
 }
