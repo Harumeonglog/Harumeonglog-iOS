@@ -26,7 +26,7 @@ class PhotoAlbumsView: UIView {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
+        collectionView.backgroundColor = .bg
         collectionView.showsVerticalScrollIndicator = true
         return collectionView
     }()
@@ -51,21 +51,7 @@ class PhotoAlbumsView: UIView {
         albumCollectionView.collectionViewLayout = layout
         
         albumCollectionView.register(AlbumCell.self, forCellWithReuseIdentifier: "AlbumCell")
-        albumCollectionView.delegate = self
-        albumCollectionView.dataSource = self
         albumCollectionView.showsVerticalScrollIndicator = false
     }
 }
 
-extension PhotoAlbumsView: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return albums.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumCell", for: indexPath) as! AlbumCell
-        let album = albums[indexPath.row]
-        cell.configure(with: album)
-        return cell
-    }
-}
