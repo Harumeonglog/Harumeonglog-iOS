@@ -33,6 +33,16 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private lazy var appLogoLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .brown02
+        label.layer.cornerRadius = 15
+        label.backgroundColor = .brown00
+        label.font = .body
+        label.clipsToBounds = true
+        return label
+    }()
+    
     lazy var alarmButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "alarm_button"), for: .normal)
@@ -167,6 +177,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     }()
     
     private func addComponents() {
+        addSubview(appLogoLabel)
         addSubview(alarmButton)
         addSubview(profileImageView)
         addSubview(nicknameLabel)
@@ -177,6 +188,13 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(calendarView)
         addSubview(scheduleModalView)
         addSubview(addScheduleButton)
+        
+        appLogoLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(80)
+            make.leading.equalToSuperview().offset(30)
+            make.height.equalTo(30)
+            make.width.equalTo(100)
+        }
         
         alarmButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(100)

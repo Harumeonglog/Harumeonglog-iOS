@@ -29,7 +29,7 @@ class OtherView: UIView {
         textField.font = .body
         textField.textColor = .gray02
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
 

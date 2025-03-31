@@ -18,22 +18,19 @@ class BathView: UIView {
         return label
     }()
     
-    lazy var detailTextField: UITextField = {
-        let textField = UITextField()
+    lazy var detailTextView: UITextView = {
+        let textView = UITextView()
         
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "세부내용을 입력하세요.",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
-        )
+        textView.text = "세부내용을 입력하세요." // placeholder
+        textView.textColor = .gray02 // placeholder 색상
+        textView.font = .body
+        textView.backgroundColor = .white
+        textView.layer.borderColor = UIColor.brown02.cgColor
+        textView.layer.borderWidth = 1.0
+        textView.layer.cornerRadius = 15
+        textView.textContainerInset = UIEdgeInsets(top: 10, left: 25, bottom: 10, right: 10) // 패딩
 
-        textField.font = .body
-        textField.textColor = .gray02
-        textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
-        textField.layer.borderWidth = 1.0
-        textField.layer.cornerRadius = 15
-
-        return textField
+        return textView
     }()
     
     override init(frame: CGRect) {
@@ -47,18 +44,32 @@ class BathView: UIView {
     
     private func setupView() {
         self.addSubview(detailLabel)
-        self.addSubview(detailTextField)
+        self.addSubview(detailTextView)
         
         detailLabel.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.equalToSuperview().offset(30)
         }
         
-        detailTextField.snp.makeConstraints { make in
+        detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(10)
             make.width.equalTo(362)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == "세부내용을 입력하세요." {
+            textView.text = ""
+            textView.textColor = .gray00
+        }
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = "세부내용을 입력하세요."
+            textView.textColor = .gray02
         }
     }
 }

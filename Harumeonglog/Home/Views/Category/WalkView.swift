@@ -22,7 +22,7 @@ class WalkView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
         return textField
@@ -41,7 +41,7 @@ class WalkView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
         return textField
@@ -74,7 +74,7 @@ class WalkView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
 
@@ -110,7 +110,7 @@ class WalkView: UIView {
             make.top.equalTo(distanceLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
             make.width.equalTo(170)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
         }
         
         timeLabel.snp.makeConstraints { make in
@@ -122,7 +122,7 @@ class WalkView: UIView {
             make.top.equalTo(distanceTextField.snp.top)
             make.trailing.equalToSuperview().inset(20)
             make.width.equalTo(170)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
         }
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(timeTextField.snp.bottom).offset(5)

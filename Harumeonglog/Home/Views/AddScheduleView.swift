@@ -37,9 +37,9 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
         )
         textField.font = .body
-        textField.textColor = .gray02
+        textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
@@ -51,7 +51,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     lazy var scheduleInfoView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 15
-        view.layer.borderColor = UIColor.brown01.cgColor
+        view.layer.borderColor = UIColor.brown02.cgColor
         view.layer.borderWidth = 1.0
         view.backgroundColor = .white
         return view
@@ -90,7 +90,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             button.backgroundColor = .white
             button.layer.cornerRadius = 15
             button.layer.borderWidth = 1.5
-            button.layer.borderColor = UIColor.brown01.cgColor
+            button.layer.borderColor = UIColor.brown02.cgColor
             button.snp.makeConstraints { make in
                 make.width.height.equalTo(30)
             }
@@ -136,7 +136,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         button.backgroundColor = .white
         button.layer.borderWidth = 1.0
-        button.layer.borderColor = UIColor.brown01.cgColor
+        button.layer.borderColor = UIColor.brown02.cgColor
         button.layer.cornerRadius = 15
         
         button.setTitle("카테고리 선택", for: .normal)
@@ -144,7 +144,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         button.titleLabel?.font = .body
         
         button.contentHorizontalAlignment = .left
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 25, bottom: 0, right: 0)
 
         let iconImageView = UIImageView(image: UIImage(systemName: "chevron.down"))
         iconImageView.tintColor = .gray00
@@ -170,7 +170,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         tableView.dataSource = self
         tableView.isHidden = true
         tableView.layer.borderWidth = 1.0
-        tableView.layer.borderColor = UIColor.brown01.cgColor
+        tableView.layer.borderColor = UIColor.brown02.cgColor
         tableView.layer.cornerRadius = 15
         return tableView
     }()
@@ -253,7 +253,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         titleTextField.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(130)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
         }
@@ -267,7 +267,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         categoryButton.snp.makeConstraints { make in
             make.top.equalTo(scheduleInfoView.snp.bottom).offset(20)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
         }

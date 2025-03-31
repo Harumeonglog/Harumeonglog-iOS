@@ -37,11 +37,21 @@ class AddScheduleViewController: UIViewController {
         let navi = addScheduleView.navigationBar
         navi.configureTitle(title: "일정 추가")
         navi.configureRightButton(text: "저장")
+        navi.rightButton.setTitleColor(.blue01, for: .normal)
+        navi.rightButton.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        navi.rightButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
     }
     
     @objc
     private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
+    
+    //저장버튼 동작 함수
+    @objc
+    private func saveButtonTapped(){
+        //내용 서버로 넘겨주기
         navigationController?.popViewController(animated: true)
     }
     

@@ -22,7 +22,7 @@ class MedicineView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
         return textField
@@ -41,7 +41,7 @@ class MedicineView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
         return textField
@@ -66,7 +66,7 @@ class MedicineView: UIView {
         textField.font = .body
         textField.textColor = .gray00
         textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown01.cgColor
+        textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
 
@@ -101,7 +101,7 @@ class MedicineView: UIView {
             make.top.equalTo(medicineNameLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
             make.width.equalTo(170)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
         }
         
         medicineDosageLabel.snp.makeConstraints { make in
@@ -113,7 +113,7 @@ class MedicineView: UIView {
             make.top.equalTo(medicineNameTextField.snp.top)
             make.trailing.equalToSuperview().inset(20)
             make.width.equalTo(170)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
         }
 
         detailLabel.snp.makeConstraints { make in
