@@ -207,7 +207,7 @@ class MyPageView: UIView {
         }
         
         logoutButton.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalToSuperview().offset(-23)
             make.top.equalTo(revokeButton.snp.bottom)
         }
         

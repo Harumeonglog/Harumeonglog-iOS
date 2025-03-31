@@ -1,17 +1,16 @@
 //
-//  PetCollectionViewCell.swift
+//  PetOwnerCell.swift
 //  Harumeonglog
 //
-//  Created by 이승준 on 3/26/25.
+//  Created by 이승준 on 3/29/25.
 //
 
 import UIKit
 
-class PetCollectionViewCell: UICollectionViewCell {
+class PetOwnerCell: UICollectionViewCell {
     
-    static let identifier = "PetCollectionViewCell"
+    static let identifier = "PetOwnerCell"
     
-    // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 40
@@ -20,7 +19,7 @@ class PetCollectionViewCell: UICollectionViewCell {
     }
     
     private lazy var nameLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12)
+        $0.font = UIFont.body
         $0.textColor = .black
     }
     
@@ -32,6 +31,7 @@ class PetCollectionViewCell: UICollectionViewCell {
     private lazy var birthdayLabel = commonLabel()
     
     private lazy var accessLevelTagImageView = UIImageView().then {
+        $0.image = .ownerTag
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
     }
@@ -40,28 +40,24 @@ class PetCollectionViewCell: UICollectionViewCell {
         $0.setImage(.meatballsMenu, for: .normal)
     }
     
-    // Owner 전용 View
     public lazy var memberTableView = UITableView().then {
-        $0.backgroundColor = .brown01
+        $0.backgroundColor = .brown02
+        $0.layer.cornerRadius = 15
+        $0.clipsToBounds = true
     }
     
-    public lazy var sendinvitationButton = UIButton().then {
-        $0.contentMode = .scaleAspectFit
+    public lazy var sendInviationButton = UIButton().then {
+        $0.setImage(.sendInvitation, for: .normal)
+        $0.imageView?.contentMode = .scaleAspectFit
     }
     
     public func configure(_ petData: PetData) {
         setDefaultConstraints()
-        if petData.level == .Guest {
-            accessLevelTagImageView.image = .guestTag
-        } else {
-            accessLevelTagImageView.image = .ownerTag
-        }
         profileImage.image = petData.image
         nameLabel.text = petData.name
         genderLabel.text = petData.gender
         dogSizeLabel.text = petData.size.inKorean()
         birthdayLabel.text = "🎂 " + petData.birthday
-        
     }
     
     private func setDefaultConstraints() {
@@ -77,6 +73,8 @@ class PetCollectionViewCell: UICollectionViewCell {
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
         self.addSubview(editButton)
+        self.addSubview(memberTableView)
+        self.addSubview(sendInviationButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
@@ -116,21 +114,23 @@ class PetCollectionViewCell: UICollectionViewCell {
             make.trailing.equalToSuperview().offset(-10)
         }
         
-        accessLevelTagImageView.image = .guestTag
         accessLevelTagImageView.snp.makeConstraints { make in
             make.centerY.equalTo(editButton)
             make.trailing.equalTo(editButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
         }
-    }
-    
-    private func addOwnerConstraints() {
         
-    }
-    
-    public func configureOwnerMode() {
+        memberTableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.top.equalTo(profileImage.snp.bottom).offset(24)
+            make.height.equalTo(157)
+        }
         
+        sendInviationButton.snp.makeConstraints { make in
+            make.top.equalTo(memberTableView.snp.bottom).offset(11)
+            make.trailing.equalToSuperview().inset(21)
+        }
     }
     
     override init(frame: CGRect) {
@@ -144,32 +144,10 @@ class PetCollectionViewCell: UICollectionViewCell {
     private func commonLabel() -> UILabel {
         return UILabel().then {
             $0.textColor = .gray01
-            $0.font = .systemFont(ofSize: 12)
+            $0.font = UIFont.body
         }
     }
     
-}
-
-struct PetData {
-    let level: UserAcessLevelEnum
-    let image: UIImage?
-    let name: String
-    let gender: String
-    let size: DogSizeEnum
-    let birthday: String
-}
-
-enum UserAcessLevelEnum: String {
-    case Owner, Guest
-    
-    func tagImage() -> UIImage {
-        switch self {
-        case .Owner:
-            return .ownerTag
-        case .Guest:
-            return .guestTag
-        }
-    }
 }
 
 import SwiftUI
