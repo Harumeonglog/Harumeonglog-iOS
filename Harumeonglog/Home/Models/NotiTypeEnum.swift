@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum NotificationTypeEnum: Codable {
+enum NotiTypeEnum: Codable {
     case todo, comment, morning, liked
     
     func typeImage() -> UIImage {

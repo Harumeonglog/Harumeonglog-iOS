@@ -31,7 +31,7 @@ extension InvitationViewController: UICollectionViewDelegate, UICollectionViewDa
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InvitationCollectionViewCell.self.identifier, for: indexPath) as! InvitationCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InvitationCell.self.identifier, for: indexPath) as! InvitationCell
         let data = InvitationModelList.data[indexPath.row]
         cell.configure(data)
         return cell

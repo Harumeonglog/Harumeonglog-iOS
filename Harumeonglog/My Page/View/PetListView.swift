@@ -13,7 +13,6 @@ class PetListView: UIView {
     
     public lazy var petListCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 120)
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 23
         
@@ -23,8 +22,10 @@ class PetListView: UIView {
         cv.showsVerticalScrollIndicator = false
         cv.bouncesHorizontally = false
         
-        cv.register(PetCollectionViewCell.self,
-                    forCellWithReuseIdentifier: PetCollectionViewCell.identifier)
+        cv.register(PetGuestCell.self,
+                    forCellWithReuseIdentifier: PetGuestCell.identifier)
+        cv.register(PetOwnerCell.self,
+                    forCellWithReuseIdentifier: PetOwnerCell.identifier)
         return cv
     }()
     

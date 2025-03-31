@@ -53,11 +53,10 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         }
         picker.dismiss(animated: true)
     }
-    // Add image to collection view
-    func uploadImage(image: UIImage) {
+
+    private func uploadImage(image: UIImage) {
         album.images.append(image)  // Append image to album's images array
         
-        // Reload the collection view after adding the image
         DispatchQueue.main.async {
             self.photosView.PhotosCollectionView.reloadData()  // Update the collection view
         }
@@ -84,7 +83,6 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PictureCell", for: indexPath) as! PictureCell
         
-        // Pass data based on whether it's the add button or an image
         if indexPath.item == 0 {
             cell.configure(isAddButton: true)  // This will show the add button
         } else {

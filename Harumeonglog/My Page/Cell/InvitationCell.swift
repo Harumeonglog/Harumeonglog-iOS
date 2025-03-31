@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InvitationCollectionViewCell: UICollectionViewCell {
+class InvitationCell: UICollectionViewCell {
     
     static let identifier = "InvitationCollectionViewCell"
     

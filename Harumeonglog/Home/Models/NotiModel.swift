@@ -8,7 +8,7 @@
 import Foundation
 
 struct NotiModel {
-    let type: NotificationTypeEnum
+    let type: NotiTypeEnum
     let isRead: Bool
     let userNickname: String?
     let date: String
