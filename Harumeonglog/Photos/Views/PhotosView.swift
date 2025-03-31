@@ -10,6 +10,8 @@ import SnapKit
 
 class PhotosView: UIView {
     
+    public lazy var navigationBar = CustomNavigationBar()
+    
     lazy var PhotosCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -36,12 +38,17 @@ class PhotosView: UIView {
     }
     
     private func addComponents() {
+        addSubview(navigationBar)
         addSubview(PhotosCollectionView)
         
         PhotosCollectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(125)
             make.leading.trailing.equalToSuperview().inset(13)
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(35)
+        }
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
         }
     }
 }

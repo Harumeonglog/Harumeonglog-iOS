@@ -23,7 +23,7 @@ class PhotosViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = photosView
-        title = album.name
+        setCustomNavigationBarConstraints()
         photosView.PhotosCollectionView.register(PictureCell.self, forCellWithReuseIdentifier: "PictureCell")
         photosView.PhotosCollectionView.delegate = self
         photosView.PhotosCollectionView.dataSource = self
@@ -58,6 +58,20 @@ class PhotosViewController: UIViewController {
         picker.allowsEditing = true
         picker.delegate = self
         self.present(picker, animated: true)
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = photosView.navigationBar
+        navi.configureTitle(title: album.name)
+        navi.configureRightButton(text: "선택")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        navi.configureRightButton()
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
     }
 }
 
