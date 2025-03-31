@@ -37,4 +37,10 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
         cell.configure(with: album)
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let album = photoAlbumsView.albums[indexPath.item]
+        let photosVC = PhotosViewController(album: album)
+        self.navigationController?.pushViewController(photosVC, animated: true)
+    }
 }
