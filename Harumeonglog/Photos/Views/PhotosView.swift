@@ -25,7 +25,6 @@ class PhotosView: UIView {
         layout.minimumInteritemSpacing = 8 // Spacing between items
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .black
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "PictureCell")
         return collectionView
@@ -44,14 +43,12 @@ class PhotosView: UIView {
     private func addComponents() {
         addSubview(PhotosCollectionView)
         
-        // Constraints for the collection view
         PhotosCollectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(125)
             make.leading.trailing.equalToSuperview().inset(13)
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(35)
         }
         
-        // Constraints for addImageButton
         addImageButton.snp.makeConstraints { make in
             make.height.width.equalTo(120)
         }
