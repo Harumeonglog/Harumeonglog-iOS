@@ -28,7 +28,7 @@ class AlbumCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.textColor = .gray02
-        label.font = .body
+        label.font = .description
         return label
     }()
 
@@ -39,10 +39,11 @@ class AlbumCell: UICollectionViewCell {
         addComponents()
         contentView.layer.cornerRadius = 20
         contentView.layer.masksToBounds = true
+
         contentView.backgroundColor = .white
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
-        self.addGestureRecognizer(tapGesture)
+
+        //let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+        //self.addGestureRecognizer(tapGesture)
     }
 
     required init?(coder: NSCoder) {

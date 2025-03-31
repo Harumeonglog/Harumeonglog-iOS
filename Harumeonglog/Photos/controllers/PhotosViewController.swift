@@ -25,7 +25,7 @@ class PhotosViewController: UIViewController {
         self.view = photosView
         title = album.name
         photosView.PhotosCollectionView.register(PictureCell.self, forCellWithReuseIdentifier: "PictureCell")
-        photosView.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
+        //photosView.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
     }
     
     private lazy var photosView: PhotosView = {
@@ -33,12 +33,12 @@ class PhotosViewController: UIViewController {
         return view
     }()
     
-    @objc
-    private func addImageButtonTapped(){
-        pickImage(self)
-    }
+    /*@objc
+     private func addImageButtonTapped(){
+     pickImage(self)
+     }*/
 }
-
+/*
 extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // 이미지 피커에서 이미지를 선택하지 않고 취소했을 때 호출되는 메서드
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -60,7 +60,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
             self.photosView.PhotosCollectionView.reloadData()  // Update the collection view
         }
     }
-
+    
     // 이미지 선택 메서드
     @objc
     func pickImage(_ sender: Any) {
@@ -72,13 +72,13 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     }
 }
 
-// MARK: imageCollectionview에 대한 처리
+     // MARK: imageCollectionview에 대한 처리
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return album.images.count + 1 // +1 for the add button
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PictureCell", for: indexPath) as! PictureCell
         
@@ -91,10 +91,12 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
         
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == 0 {
-            addImageButtonTapped()  
+            addImageButtonTapped()
         }
     }
 }
+*/
+

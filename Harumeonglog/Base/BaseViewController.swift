@@ -30,15 +30,7 @@ class BaseViewController: UITabBarController {
     
     private let homeVC = UINavigationController(rootViewController: HomeViewController())
     private let walkingVC = UINavigationController(rootViewController: MapViewController())
-    private lazy var photosVC: UINavigationController = {
-        let defaultAlbum = Album(
-            coverImage: UIImage(named: "defaultImage") ?? UIImage(),
-            images: [],
-            name: "기본 앨범",
-            photosCount: 0
-        )
-        return UINavigationController(rootViewController: PhotosViewController(album: defaultAlbum))
-    }()
+    private lazy var photosVC = UINavigationController(rootViewController: PhotoAlbumsViewController())
     private let socialVC = UINavigationController(rootViewController: SocialViewController())
     private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
         
