@@ -18,6 +18,8 @@ class SocialViewController: UIViewController {
         view.postTableView.delegate = self
         view.postTableView.dataSource = self
         
+        view.searchBar.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        view.searchCancelButton.addTarget(self, action: #selector(searchCancelButtonTapped), for: .touchUpInside)
         view.forEachButton { button in
             button.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
         }
@@ -30,6 +32,20 @@ class SocialViewController: UIViewController {
         super.viewDidLoad()
         
         self.view = socialView
+    }
+    
+    @objc private func textFieldDidChange() {
+        let isEmpty = socialView.searchBar.text?.isEmpty ?? true
+        socialView.searchCancelButton.isHidden = isEmpty
+    }
+
+    @objc private func searchCancelButtonTapped() {
+        socialView.searchBar.text = ""
+        socialView.searchCancelButton.isHidden = true
+        hideKeyboardWhenTappedAround()
+        
+        // 검색 결과 초기화 !! 필요함 
+        socialView.postTableView.reloadData()       // UI 업데이트
     }
     
     @objc private func categoryButtonTapped(_ sender: UIButton) {
