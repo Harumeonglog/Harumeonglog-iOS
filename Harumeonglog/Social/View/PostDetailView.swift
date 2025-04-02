@@ -11,6 +11,8 @@ import Then
 
 class PostDetailView: UIView {
     
+    public lazy var navigationBar = CustomNavigationBar()
+
     private let topLeftView = UIView().then { view in
     }
     
@@ -105,12 +107,23 @@ class PostDetailView: UIView {
         super.init(frame: .zero)
         
         self.isUserInteractionEnabled = true
+        setCustomNavigationBarConstraints()
         addComponents()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    
+    private func setCustomNavigationBarConstraints() {
+        self.addSubview(navigationBar)
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+        }
+    }
+    
     
     private func addComponents() {
         self.addSubview(topLeftView)
@@ -119,7 +132,7 @@ class PostDetailView: UIView {
         topLeftView.addSubview(postCategory)
         
         topLeftView.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).inset(20)
+            make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.leading.equalToSuperview().inset(25)
             make.height.equalTo(40)
         }

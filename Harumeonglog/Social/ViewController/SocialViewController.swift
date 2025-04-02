@@ -66,7 +66,7 @@ class SocialViewController: UIViewController {
     
     @objc private func addPostButtonTapped() {
         let addPostVC = AddPostViewController()
-        navigationController?.pushViewController(addPostVC, animated: true)
+        self.navigationController?.pushViewController(addPostVC, animated: true)
     }
 
 }
@@ -97,7 +97,7 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let postDetailVC = PostDetailViewController()
         postDetailVC.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(postDetailVC, animated: true)
+        self.navigationController?.pushViewController(postDetailVC, animated: true)
     }
     
     

@@ -11,6 +11,8 @@ import Then
 
 class CommentView: UIView {
     
+    public lazy var navigationBar = CustomNavigationBar()
+
     public lazy var commentTableView = UITableView().then { tableView in
         tableView.register(CommentTableViewCell.self, forCellReuseIdentifier: "CommentTableViewCell")
         tableView.register(ReplyCommentTableViewCell.self, forCellReuseIdentifier: "ReplyCommentTableViewCell")
@@ -48,10 +50,16 @@ class CommentView: UIView {
     }
     
     private func addComponents() {
+        self.addSubview(navigationBar)
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+        }
+        
         self.addSubview(commentTableView)
         commentTableView.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview().inset(25)
-            make.top.equalToSuperview().inset(20)
+            make.top.equalTo(navigationBar.snp.bottom).offset(5)
+            make.leading.trailing.bottom.equalToSuperview().inset(25)
             make.height.lessThanOrEqualTo(620)
         }
         

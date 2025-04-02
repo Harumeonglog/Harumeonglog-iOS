@@ -12,6 +12,7 @@ class PostDetailViewController: UIViewController {
     private var isLiked: Bool = false
     private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
 
+
     private lazy var postDetailView: PostDetailView = {
         let view = PostDetailView()
         view.backgroundColor = .background
@@ -31,6 +32,7 @@ class PostDetailViewController: UIViewController {
         super.viewDidLoad()
         
         self.view = postDetailView
+        setCustomNavigationBarConstraints()
  
     }
     
@@ -38,12 +40,21 @@ class PostDetailViewController: UIViewController {
         super.viewDidLayoutSubviews()
         contentScrollView()
     }
-
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = postDetailView.navigationBar
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
     
     @objc func commentButtonTapped() {
         let commentVC = CommentViewController()
         commentVC.hidesBottomBarWhenPushed = true
-
         navigationController?.pushViewController(commentVC, animated: true)
     }
     
