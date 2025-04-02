@@ -160,7 +160,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         button.addTarget(self, action: #selector(toggleDropdown), for: .touchUpInside)
         return button
     }()
-    
+      
     //카테고리 드롭다운 리스트
     lazy var dropdownTableView: UITableView = {
         let tableView = UITableView()
