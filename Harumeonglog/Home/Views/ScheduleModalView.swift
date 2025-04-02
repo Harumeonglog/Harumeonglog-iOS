@@ -107,7 +107,7 @@ extension ScheduleModalView: UICollectionViewDelegate, UICollectionViewDataSourc
 
     //  **카테고리 버튼 크기 조정**
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 70, height: 29)
+        return CGSize(width: 65, height: 30)
     }
 }
 
