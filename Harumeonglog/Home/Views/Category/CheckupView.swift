@@ -26,6 +26,8 @@ class CheckupView: UIView {
         textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
+        textField.leftViewMode = .always
         return textField
     }()
     
@@ -45,12 +47,14 @@ class CheckupView: UIView {
         textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
+        textField.leftViewMode = .always
         return textField
     }()
     
     let costLabel : UILabel = {
         let label = UILabel()
-        label.text = "병원비"
+        label.text = "병원비 (원)"
         label.font = .body
         label.textColor = .gray00
         return label
@@ -64,6 +68,8 @@ class CheckupView: UIView {
         textField.layer.borderColor = UIColor.brown02.cgColor
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 15
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
+        textField.leftViewMode = .always
         return textField
     }()
     
@@ -75,22 +81,25 @@ class CheckupView: UIView {
         return label
     }()
     
-    lazy var detailTextField: UITextField = {
-        let textField = UITextField()
+    lazy var detailTextView: UITextView = {
+        let textView = UITextView()
         
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "세부내용을 입력하세요.",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray02]
-        )
+        let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 10
 
-        textField.font = .body
-        textField.textColor = .gray00
-        textField.backgroundColor = .white
-        textField.layer.borderColor = UIColor.brown02.cgColor
-        textField.layer.borderWidth = 1.0
-        textField.layer.cornerRadius = 15
-
-        return textField
+        let attributes: [NSAttributedString.Key: Any] = [
+                .paragraphStyle: paragraphStyle,
+                .font: UIFont.body,
+                .foregroundColor: UIColor.gray00
+        ]
+        textView.typingAttributes = attributes
+        textView.attributedText = NSAttributedString(string: "", attributes: attributes)
+        textView.backgroundColor = .white
+        textView.layer.borderColor = UIColor.brown02.cgColor
+        textView.layer.borderWidth = 1.0
+        textView.layer.cornerRadius = 15
+        textView.textContainerInset = UIEdgeInsets(top: 20, left: 25, bottom: 20, right: 23)
+        return textView
     }()
     
     override init(frame: CGRect) {
@@ -111,7 +120,7 @@ class CheckupView: UIView {
         self.addSubview(costLabel)
         self.addSubview(costTextField)
         self.addSubview(detailLabel)
-        self.addSubview(detailTextField)
+        self.addSubview(detailTextView)
         
         hospitalLabel.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -155,7 +164,7 @@ class CheckupView: UIView {
             make.leading.equalToSuperview().offset(30)
             make.height.equalTo(16)
         }
-        detailTextField.snp.makeConstraints { make in
+        detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(10)
             make.width.equalTo(362)
             make.height.equalTo(126)

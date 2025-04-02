@@ -21,15 +21,21 @@ class BathView: UIView {
     lazy var detailTextView: UITextView = {
         let textView = UITextView()
         
-        textView.text = "세부내용을 입력하세요." // placeholder
-        textView.textColor = .gray02 // placeholder 색상
-        textView.font = .body
+        let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 10
+
+        let attributes: [NSAttributedString.Key: Any] = [
+                .paragraphStyle: paragraphStyle,
+                .font: UIFont.body,
+                .foregroundColor: UIColor.gray00
+        ]
+        textView.typingAttributes = attributes
+        textView.attributedText = NSAttributedString(string: "", attributes: attributes)
         textView.backgroundColor = .white
         textView.layer.borderColor = UIColor.brown02.cgColor
         textView.layer.borderWidth = 1.0
         textView.layer.cornerRadius = 15
-        textView.textContainerInset = UIEdgeInsets(top: 10, left: 25, bottom: 10, right: 10) // 패딩
-
+        textView.textContainerInset = UIEdgeInsets(top: 20, left: 25, bottom: 20, right: 23)
         return textView
     }()
     
@@ -56,20 +62,6 @@ class BathView: UIView {
             make.width.equalTo(362)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == "세부내용을 입력하세요." {
-            textView.text = ""
-            textView.textColor = .gray00
-        }
-    }
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            textView.text = "세부내용을 입력하세요."
-            textView.textColor = .gray02
         }
     }
 }

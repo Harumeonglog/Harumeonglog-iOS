@@ -101,7 +101,6 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     // 시간 선택 버튼
     lazy var dateButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("2025.3.10 월요일", for: .normal)
         button.titleLabel?.font = .body
         button.setTitleColor(.gray00, for: .normal)
         return button
@@ -109,7 +108,6 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     lazy var timeButton : UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("8:00", for: .normal)
         button.titleLabel?.font = .body
         button.setTitleColor(.gray00, for: .normal)
         return button

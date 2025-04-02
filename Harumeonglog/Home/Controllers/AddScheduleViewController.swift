@@ -24,6 +24,9 @@ class AddScheduleViewController: UIViewController {
         self.view = addScheduleView
         setCustomNavigationBarConstraints()
         
+        // 현재 날짜와 시간으로 초기화
+        setInitialDateTime()
+        
         addScheduleView.dateButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
         addScheduleView.timeButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
         for button in addScheduleView.weekButtons {
@@ -53,6 +56,17 @@ class AddScheduleViewController: UIViewController {
     private func saveButtonTapped(){
         //내용 서버로 넘겨주기
         navigationController?.popViewController(animated: true)
+    }
+    
+    
+    private func setInitialDateTime() {
+        let currentDate = Date()
+        let formattedDate = getFormattedDate(currentDate)  // 현재 날짜
+        let formattedTime = getFormattedTime(currentDate)  // 현재 시간
+        
+        // dateButton과 timeButton에 현재 날짜와 시간 설정
+        addScheduleView.dateButton.setTitle(formattedDate, for: .normal)
+        addScheduleView.timeButton.setTitle(formattedTime, for: .normal)
     }
     
     // 요일 버튼 클릭 시 동작
