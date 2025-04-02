@@ -5,6 +5,10 @@ import UIKit
 import FSCalendar
 import SnapKit
 
+protocol ProfileSelectDelegate: AnyObject {
+    func didSelectProfile(_ profile: Profile)
+}
+
 class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewDelegate {
 
     private lazy var homeView: HomeView = {
@@ -39,11 +43,17 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         homeView.calendarView.select(Date())
 
         // 버튼 액션 추가
-        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
-        homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
-
+        setupButtons()
+        
         updateScheduleList()
         updateScheduleDates()
+    }
+    
+    // MARK: - 버튼 동작 함수들 모음
+    private func setupButtons() {
+        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
+        homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
+        homeView.profileButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
     }
 
     // MARK: - Schedule 업데이트
@@ -190,5 +200,23 @@ extension HomeViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         if let date = Calendar.current.date(from: components) {
             homeView.setCalendarTo(date: date)
         }
+    }
+}
+
+// MARK: - 프로필 선택
+extension HomeViewController: ProfileSelectDelegate {
+
+    // 프로필이 선택되었을 때 호출되는 메서드
+    func didSelectProfile(_ profile: Profile) {
+        // 선택된 프로필을 업데이트
+        homeView.nicknameLabel.text = profile.name
+        homeView.profileButton.setImage(UIImage(named: profile.imageName), for: .normal)
+        homeView.birthdayLabel.text = profile.birthDate
+    }
+
+    @objc private func profileImageTapped() {
+        let profileModalVC = ProfileSelectModalViewController()
+        profileModalVC.modalPresentationStyle = .pageSheet
+        self.present(profileModalVC, animated: true, completion: nil)
     }
 }

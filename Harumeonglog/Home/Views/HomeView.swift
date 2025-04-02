@@ -50,12 +50,12 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return button
     }()
     
-    lazy var profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "dog1")
-        imageView.layer.cornerRadius = 35
-        imageView.clipsToBounds = true
-        return imageView
+    lazy var profileButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "dog1"), for: .normal) // 기본 이미지 설정
+        button.layer.cornerRadius = 35
+        button.clipsToBounds = true
+        return button
     }()
     
     lazy var nicknameLabel: UILabel = {
@@ -179,7 +179,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     private func addComponents() {
         addSubview(appLogoLabel)
         addSubview(alarmButton)
-        addSubview(profileImageView)
+        addSubview(profileButton)
         addSubview(nicknameLabel)
         addSubview(birthdayIconLabel)
         addSubview(birthdayLabel)
@@ -202,15 +202,15 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.width.height.equalTo(30)
         }
         
-        profileImageView.snp.makeConstraints { make in
+        profileButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(132)
             make.leading.equalToSuperview().offset(30)
             make.width.height.equalTo(70)
         }
         
         nicknameLabel.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.top).offset(18)
-            make.leading.equalTo(profileImageView.snp.trailing).offset(18)
+            make.top.equalTo(profileButton.snp.top).offset(18)
+            make.leading.equalTo(profileButton.snp.trailing).offset(18)
             make.height.equalTo(20)
         }
         
@@ -233,7 +233,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         calendarView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(3)
+            make.top.equalTo(profileButton.snp.bottom).offset(3)
             make.leading.trailing.equalToSuperview().inset(15)
             calendarHeightConstraint = make.height.equalTo(370).constraint
         }
@@ -246,7 +246,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         
         headerStackView.snp.makeConstraints { make in
             make.leading.equalTo(calendarView.snp.leading).offset(15) //왼쪽 정렬
-            make.top.equalTo(profileImageView.snp.bottom).offset(20)
+            make.top.equalTo(profileButton.snp.bottom).offset(20)
         }
         
         scheduleModalView.snp.makeConstraints { make in
