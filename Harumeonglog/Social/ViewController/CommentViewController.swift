@@ -26,11 +26,24 @@ class CommentViewController: UIViewController {
         super.viewDidLoad()
         
         self.view = commentView
+        setCustomNavigationBarConstraints()
     }
     
     @objc private func textFieldDidChange() {
         let isEmpty = commentView.commentTextField.text?.isEmpty ?? true
         commentView.commentUploadButton.isHidden = isEmpty
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = commentView.navigationBar
+        navi.configureTitle(title: "글 댓글")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -54,7 +67,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        110
+        100
     }
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {

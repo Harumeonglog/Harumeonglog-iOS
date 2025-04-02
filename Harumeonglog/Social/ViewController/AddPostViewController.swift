@@ -25,6 +25,20 @@ class AddPostViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = addPostView
+        setCustomNavigationBarConstraints()
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = addPostView.navigationBar
+        navi.configureRightButton(text: "개시")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        navi.configureRightButton()
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
     }
     
     @objc private func addImageButtonTapped() {

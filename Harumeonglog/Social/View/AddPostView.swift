@@ -12,6 +12,7 @@ import Then
 class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     private let categories = socialCategoryKey.tags
+    public lazy var navigationBar = CustomNavigationBar()
 
     public lazy var titleTextField: UITextField = {
         let textField = UITextField()
@@ -123,6 +124,11 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     private func addComponents() {
+        self.addSubview(navigationBar)
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+        }
         
         self.addSubview(titleTextField)
         self.addSubview(categoryButton)
@@ -130,7 +136,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(contentTextView)
         
         titleTextField.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).offset(20)
+            make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.height.equalTo(40)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()

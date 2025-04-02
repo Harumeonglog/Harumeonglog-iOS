@@ -47,7 +47,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
     }
     
     public lazy var commentContent = UILabel().then { label in
-        label.text = "와~ 저도 참고해야겠어요 간식 추천 감사합니다~!"
+        label.text = "와~ 저도 참고해야겠어요 간식 추천 감사합니다"
         label.font = UIFont(name: "Pretendard-Regular", size: 13)
         label.textAlignment = .left
         label.textColor = .gray00
@@ -55,12 +55,12 @@ class ReplyCommentTableViewCell: UITableViewCell {
         label.setLineSpacing(lineSpacing: 5)
     }
     
-    public lazy var replyButton = UIButton().then { button in
-        button.setTitle("답글 달기", for: .normal)
-        button.setTitleColor(UIColor.gray02, for: .normal)
-        button.backgroundColor = .background
-        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 10)
-    }
+//    public lazy var replyButton = UIButton().then { button in
+//        button.setTitle("답글 달기", for: .normal)
+//        button.setTitleColor(UIColor.gray02, for: .normal)
+//        button.backgroundColor = .background
+//        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 10)
+//    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -88,7 +88,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         topLeftView.addSubview(postTime)
         
         topLeftView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(30)
             make.leading.equalTo(arrowTurnDown.snp.trailing).offset(12)
             make.height.equalTo(40)
         }
@@ -117,7 +117,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         }
         
         self.addSubview(commentContent)
-        self.addSubview(replyButton)
+        // self.addSubview(replyButton)
         
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(90)
@@ -125,10 +125,10 @@ class ReplyCommentTableViewCell: UITableViewCell {
             make.trailing.equalTo(commentSetting.snp.leading)
         }
         
-        replyButton.snp.makeConstraints { make in
-            make.top.equalTo(commentContent.snp.bottom)
-            make.leading.equalTo(commentContent)
-        }
+//        replyButton.snp.makeConstraints { make in
+//            make.top.equalTo(commentContent.snp.bottom)
+//            make.leading.equalTo(commentContent)
+//        }
         
     }
 }
