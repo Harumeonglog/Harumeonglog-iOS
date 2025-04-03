@@ -193,7 +193,7 @@ class PostDetailView: UIView {
         
         likeButton.snp.makeConstraints { make in
             make.leading.equalTo(topLeftView)
-            make.top.equalTo(postImagePageControl.snp.bottom).offset(15)
+            make.top.equalTo(postImageScrollView.snp.bottom).offset(20)
             make.width.height.equalTo(24)
         }
         

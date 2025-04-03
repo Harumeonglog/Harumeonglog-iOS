@@ -18,6 +18,7 @@ class PostDetailViewController: UIViewController {
         view.backgroundColor = .background
         
         view.postImageScrollView.delegate = self
+        // view.postSetting.addTarget(self, action: #selector(postSettingTapped), for: .touchUpInside)
         view.commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
         
         // 버튼에 더블 탭 제스처 추가
@@ -33,7 +34,7 @@ class PostDetailViewController: UIViewController {
         
         self.view = postDetailView
         setCustomNavigationBarConstraints()
- 
+        postSettingButton()
     }
     
     override func viewDidLayoutSubviews() {
@@ -47,8 +48,13 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+    @objc func postSettingTapped() {
+        
+    }
+    
+    
     @objc
-    private func didTapBackButton(){
+    private func didTapBackButton() {
         navigationController?.popViewController(animated: true)
     }
     
@@ -69,6 +75,33 @@ class PostDetailViewController: UIViewController {
         postDetailView.likeButton.tintColor = tintColor
     }
     
+    private func postSettingButton() {
+        let popUpButtonClosure = { (action: UIAction) in
+            if action.title == "삭제" {
+                
+            }
+        }
+        
+        let deleteTitle = NSAttributedString(
+            string: "삭제",
+            attributes: [
+                .foregroundColor: UIColor.red00,
+                .font: UIFont.headline
+            ]
+        )
+        
+        let deleteAction = UIAction(title: "", handler: popUpButtonClosure)
+        deleteAction.setValue(deleteTitle, forKey: "attributedTitle") // 삭제 버튼의 색상을 변경
+
+        let menu = UIMenu(options: .displayInline, children: [deleteAction]) // 메뉴 크기 줄이기
+        postDetailView.postSetting.menu = menu
+        postDetailView.postSetting.showsMenuAsPrimaryAction = true
+    }
+}
+
+
+// 게시글 이미지에 대한 scrollView
+extension PostDetailViewController: UIScrollViewDelegate {
     func contentScrollView() {
         postDetailView.postImageScrollView.layoutIfNeeded()
 
@@ -85,16 +118,30 @@ class PostDetailViewController: UIViewController {
         
         // 전체 컨텐츠 크기를 설정하여 스크롤을 가능하게 만듦
         postDetailView.postImageScrollView.contentSize = CGSize(width: postDetailView.postImageScrollView.frame.width * CGFloat(photos.count), height: postDetailView.postImageScrollView.frame.height)
+        
+        // 페이지 컨트롤 설정
+        postDetailView.postImagePageControl.numberOfPages = photos.count
+        postDetailView.postImagePageControl.currentPage = 0
+        
+        // 이미지가 1개면 pageControl 숨김
+        postDetailView.postImagePageControl.isHidden = photos.count == 1 ? true : false
     }
-}
-
-
-// 게시글 이미지에 대한 scrollView
-extension PostDetailViewController: UIScrollViewDelegate {
     
-    
-    // 스크롤이 진행되는 동안 처리할 코드
+    // 스크롤할 때 페이지 변경
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let pageIndex = round(scrollView.contentOffset.x / scrollView.frame.width)
+        postDetailView.postImagePageControl.currentPage = Int(pageIndex)
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        postDetailView.postImagePageControl.isHidden = false
+    }
+    
+    // 스크롤 후 일정 시간 후에 pageControl 숨기기
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.postDetailView.postImagePageControl.isHidden = true
+        }
     }
     
 }
