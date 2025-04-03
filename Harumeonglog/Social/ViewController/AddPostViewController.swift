@@ -26,6 +26,7 @@ class AddPostViewController: UIViewController {
         super.viewDidLoad()
         self.view = addPostView
         setCustomNavigationBarConstraints()
+        hideKeyboardWhenTappedAround()
     }
     
     private func setCustomNavigationBarConstraints() {

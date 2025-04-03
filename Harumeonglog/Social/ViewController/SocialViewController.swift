@@ -32,6 +32,8 @@ class SocialViewController: UIViewController {
         super.viewDidLoad()
         
         self.view = socialView
+        hideKeyboardWhenTappedAround()
+
     }
     
     @objc private func textFieldDidChange() {

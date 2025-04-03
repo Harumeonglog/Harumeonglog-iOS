@@ -27,6 +27,7 @@ class CommentViewController: UIViewController {
         
         self.view = commentView
         setCustomNavigationBarConstraints()
+        hideKeyboardWhenTappedAround()
     }
     
     @objc private func textFieldDidChange() {
