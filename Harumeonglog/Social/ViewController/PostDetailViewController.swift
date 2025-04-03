@@ -18,6 +18,7 @@ class PostDetailViewController: UIViewController {
         view.backgroundColor = .background
         
         view.postImageScrollView.delegate = self
+        // view.postSetting.addTarget(self, action: #selector(postSettingTapped), for: .touchUpInside)
         view.commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
         
         // 버튼에 더블 탭 제스처 추가
@@ -33,7 +34,7 @@ class PostDetailViewController: UIViewController {
         
         self.view = postDetailView
         setCustomNavigationBarConstraints()
- 
+        postSettingButton()
     }
     
     override func viewDidLayoutSubviews() {
@@ -47,8 +48,13 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+    @objc func postSettingTapped() {
+        
+    }
+    
+    
     @objc
-    private func didTapBackButton(){
+    private func didTapBackButton() {
         navigationController?.popViewController(animated: true)
     }
     
@@ -67,6 +73,29 @@ class PostDetailViewController: UIViewController {
         
         postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
         postDetailView.likeButton.tintColor = tintColor
+    }
+    
+    private func postSettingButton() {
+        let popUpButtonClosure = { (action: UIAction) in
+            if action.title == "삭제" {
+                
+            }
+        }
+        
+        let deleteTitle = NSAttributedString(
+            string: "삭제",
+            attributes: [
+                .foregroundColor: UIColor.red00,
+                .font: UIFont.headline
+            ]
+        )
+        
+        let deleteAction = UIAction(title: "", handler: popUpButtonClosure)
+        deleteAction.setValue(deleteTitle, forKey: "attributedTitle") // 삭제 버튼의 색상을 변경
+
+        let menu = UIMenu(options: .displayInline, children: [deleteAction]) // 메뉴 크기 줄이기
+        postDetailView.postSetting.menu = menu
+        postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }
 }
 

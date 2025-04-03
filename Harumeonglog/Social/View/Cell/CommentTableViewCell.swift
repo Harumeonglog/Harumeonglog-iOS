@@ -9,9 +9,15 @@ import UIKit
 import SnapKit
 import Then
 
+protocol CommentTableViewCellDelegate: AnyObject {
+    func replyButtonTapped(in: CommentTableViewCell)
+}
+
 class CommentTableViewCell: UITableViewCell {
     
     static let identifer = "CommentTableViewCell"
+    
+    weak var delegate: CommentTableViewCellDelegate?
     
     private let topLeftView = UIView().then { view in
     }
@@ -55,6 +61,7 @@ class CommentTableViewCell: UITableViewCell {
         button.setTitleColor(UIColor.gray02, for: .normal)
         button.backgroundColor = .background
         button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 10)
+        button.isUserInteractionEnabled = true
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -62,10 +69,18 @@ class CommentTableViewCell: UITableViewCell {
 
         self.backgroundColor = .background
         self.addComponents()
+        
+        replyButton.addTarget(self, action: #selector(replyButtonTapped), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func replyButtonTapped() {
+        print("✅ replyButtonTapped 실행됨")
+
+        delegate?.replyButtonTapped(in: self) // Delegate 호출
     }
     
     private func addComponents() {
@@ -95,7 +110,7 @@ class CommentTableViewCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(4)
         }
         
-        self.addSubview(commentSetting)
+        contentView.addSubview(commentSetting)
         commentSetting.snp.makeConstraints { make in
             make.centerY.equalTo(topLeftView)
             make.width.equalTo(24)
@@ -104,7 +119,7 @@ class CommentTableViewCell: UITableViewCell {
         }
         
         self.addSubview(commentContent)
-        self.addSubview(replyButton)
+        contentView.addSubview(replyButton)
         
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(50)

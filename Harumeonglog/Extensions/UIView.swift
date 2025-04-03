@@ -49,4 +49,5 @@ extension UILabel {
         
         self.attributedText = attributedString
     }
+
 }
