@@ -55,6 +55,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         button.setImage(UIImage(named: "dog1"), for: .normal) // 기본 이미지 설정
         button.layer.cornerRadius = 35
         button.clipsToBounds = true
+        button.imageView?.contentMode = .scaleAspectFill
         return button
     }()
     

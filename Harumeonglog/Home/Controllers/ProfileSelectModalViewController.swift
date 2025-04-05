@@ -23,6 +23,8 @@ class ProfileSelectModalViewController: UIViewController {
         return view
     }()
     
+    weak var delegate: ProfileSelectDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = profileSelectModalView
@@ -58,7 +60,7 @@ extension ProfileSelectModalViewController: UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedProfile = profiles[indexPath.item]
         // delegate 호출
-        (self.presentingViewController as? HomeViewController)?.didSelectProfile(selectedProfile)
+        delegate?.didSelectProfile(selectedProfile)
         self.dismiss(animated: true, completion: nil)
     }
 }

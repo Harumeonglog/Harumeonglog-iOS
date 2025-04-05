@@ -206,7 +206,7 @@ extension HomeViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 // MARK: - 프로필 선택
 extension HomeViewController: ProfileSelectDelegate {
 
-    // 프로필이 선택되었을 때 호출되는 메서드
+    // 프로필이 선택되었을 때 호출되는 메서드 - 생일, 이름 바뀌도록
     func didSelectProfile(_ profile: Profile) {
         // 선택된 프로필을 업데이트
         homeView.nicknameLabel.text = profile.name
@@ -217,6 +217,7 @@ extension HomeViewController: ProfileSelectDelegate {
     @objc private func profileImageTapped() {
         let profileModalVC = ProfileSelectModalViewController()
         profileModalVC.modalPresentationStyle = .pageSheet
+        profileModalVC.delegate = self
         self.present(profileModalVC, animated: true, completion: nil)
     }
 }
