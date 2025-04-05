@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import PhotosUI
 
 class EditProfileViewController: UIViewController {
     
     private let editProfileView = EditProfileView()
+    private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     
     private lazy var picker: UIImagePickerController = {
         let picker = UIImagePickerController()
@@ -19,30 +21,48 @@ class EditProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = editProfileView
-        self.picker.delegate = self
+        picker.delegate = self
         hideKeyboardWhenTappedAround()
         setActions()
     }
-
+    
     override func viewDidLayoutSubviews() {
         editProfileView.setConstraints()
     }
     
     private func setActions() {
         editProfileView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
-        editProfileView.cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
-        editProfileView.cameraButton.addTarget(self, action: #selector(textFieldEditing), for: .valueChanged)
         editProfileView.navigationBar.rightButton.addTarget(self, action: #selector(completionButtonPressed), for: .touchUpInside)
+        editProfileView.nicknameTextField.addTarget(self, action: #selector(textFieldEditing), for: .valueChanged)
+        editProfileView.cameraButton.addTarget(self, action: #selector(handleCameraButtonTap), for: .touchUpInside)
+        
+        let firstAction = UIAlertAction(title: "카메라", style: .default, handler: {_ in
+            self.showCameraVC()})
+        let secondAction = UIAlertAction(title: "이미지 불러오기", style: .default, handler: {_ in
+            self.showPhotoLibrary()})
+        actionSheet.addAction(firstAction)
+        actionSheet.addAction(secondAction)
     }
     
     @objc
-    private func cameraButtonPressed() {
+    private func showCameraVC() {
         picker.sourceType = .camera // 카메라를 통해 가져온다
-            picker.allowsEditing = false // 수정 true면 허용
-            picker.cameraDevice = .rear // 후면 카메라
-            picker.cameraCaptureMode = .photo //사진 (영상X)
-            
-            present(picker, animated: true, completion: nil)
+        picker.allowsEditing = false // 수정 true면 허용
+        picker.cameraDevice = .rear // 후면 카메라
+        picker.cameraCaptureMode = .photo //사진 (영상X)
+        present(picker, animated: true, completion: nil)
+    }
+    
+    @objc
+    private func showPhotoLibrary() {
+        picker.sourceType = .photoLibrary // 카메라를 통해 가져온다
+        picker.allowsEditing = false // 수정 true면 허용
+//        var config = PHPickerConfiguration()
+//        config.filter = .images
+//        config.selectionLimit = 1
+//        let imagePicker = PHPickerViewController(configuration: config)
+//        imagePicker.delegate = self
+        present(picker, animated: true, completion: nil)
     }
     
     @objc
@@ -56,25 +76,34 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc
+    private func handleCameraButtonTap() {
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    @objc
     private func dismissViewController() {
         dismiss(animated: false)
     }
+    
 }
 
-extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension EditProfileViewController: PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            editProfileView.setProfileImage(image)
+            self.editProfileView.setProfileImage(image)
         }
-        
         dismiss(animated: true)
     }
-
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        
+    }
+    
 }
 
 import SwiftUI
+import PhotosUI
 #Preview {
     EditProfileViewController()
 }
