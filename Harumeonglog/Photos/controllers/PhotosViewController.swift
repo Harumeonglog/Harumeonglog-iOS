@@ -130,9 +130,14 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
         return cell
     }
     
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == 0 {
             addImageButtonTapped()
+        } else {
+            let selectedImage = album.images[indexPath.item - 1]
+            let detailVC = PhotoDetailViewController(image: selectedImage, album: album)
+            self.navigationController?.pushViewController(detailVC, animated: true)
         }
     }
 }
