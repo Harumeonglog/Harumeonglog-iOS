@@ -175,10 +175,10 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(birthdayIconLabel)
         addSubview(birthdayLabel)
         addSubview(genderImageView)
+        addSubview(profileButton)
         addSubview(calendarView)
         addSubview(headerStackView)
         addSubview(scheduleModalView)
-        addSubview(profileButton)
         addSubview(alarmButton)
         addSubview(addScheduleButton)
         
@@ -247,6 +247,6 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
             make.top.equalTo(calendarView.snp.bottom).offset(10)
         }
-        //self.bringSubviewToFront(headerStackView)
+        self.bringSubviewToFront(profileButton)
     }
 }

@@ -56,12 +56,14 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
         homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
         
-        //헤더 누르면 년/월 선택 
+        //헤더 누르면 년/월 선택
         let headerTap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
         homeView.headerStackView.addGestureRecognizer(headerTap)
         
         let swipeGesture = UIPanGestureRecognizer(target: self, action: #selector(handleCalendarSwipe(_:)))
         homeView.calendarView.addGestureRecognizer(swipeGesture)
+
+        homeView.profileButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
     }
 
     // MARK: - Schedule 업데이트
@@ -256,3 +258,4 @@ extension HomeViewController: ProfileSelectDelegate {
         self.present(profileModalVC, animated: true, completion: nil)
     }
 }
+
