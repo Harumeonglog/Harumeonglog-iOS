@@ -68,6 +68,7 @@ class SocialViewController: UIViewController {
     
     @objc private func addPostButtonTapped() {
         let addPostVC = AddPostViewController()
+        addPostVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(addPostVC, animated: true)
     }
 

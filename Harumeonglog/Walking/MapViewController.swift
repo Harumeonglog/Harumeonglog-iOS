@@ -45,10 +45,37 @@ class MapViewController: UIViewController {
     }
     
     @objc func walkingStartButtonTapped() {
+        let chooseDogView = showDimmedView(ChooseDogView.self)
+        
+        chooseDogView.chooseCancelBtn.addTarget(self, action: #selector(cancelDogBtnTapped), for: .touchUpInside)
+        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+    }
+    
+    @objc private func cancelDogBtnTapped() {
+        removeView(ChooseDogView.self)
+        navigationController!.popToRootViewController(animated: true)
+    }
+    
+    @objc private func saveDogBtnTapped() {
+        removeView(ChooseDogView.self)
+        let choosePersonView = showDimmedView(ChoosePersonView.self)
+        
+        choosePersonView.chooseCancelBtn.addTarget(self, action: #selector(cancelPersonBtnTapped), for: .touchUpInside)
+        choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
+    }
+    
+    @objc private func cancelPersonBtnTapped() {
+        removeView(ChoosePersonView.self)
+        navigationController!.popToRootViewController(animated: true)
+    }
+    
+    @objc private func savePersonBtnTapped() {
+        removeView(ChoosePersonView.self)
         let walkingVC = WalkingViewController()
         walkingVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(walkingVC, animated: true)
     }
+    
     
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
           let translation = gesture.translation(in: mapView.recommendRouteView)
@@ -232,3 +259,34 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+// MARK: View 띄우기 및 삭제
+extension MapViewController {
+    // view를 띄운걸 삭제하기 위한 공통 함수
+    private func removeView<T: UIView>(_ viewType: T.Type) {
+        if let window = UIApplication.shared.windows.first {
+            window.subviews.forEach { subview in
+                if subview is T || subview.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
+                    subview.removeFromSuperview()
+                }
+            }
+        }
+    }
+    
+    private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
+        if let window = UIApplication.shared.windows.first {
+            let dimmedView = UIView(frame: window.bounds)
+            dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            
+            let view = T()
+            
+            window.addSubview(dimmedView)
+            window.addSubview(view)
+
+            view.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+            return view
+        }
+        return T()
+    }
+}
