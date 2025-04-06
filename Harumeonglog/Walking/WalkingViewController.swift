@@ -135,7 +135,7 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     // 셀 등록
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCollectionViewCell", for: indexPath) as? ProfileCollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowProfileCollectionViewCell", for: indexPath) as? ShowProfileCollectionViewCell else {
             return UICollectionViewCell()
         }
         
