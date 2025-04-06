@@ -9,9 +9,9 @@ import UIKit
 import SnapKit
 import Then
 
-class ProfileCollectionViewCell: UICollectionViewCell {
+class ShowProfileCollectionViewCell: UICollectionViewCell {
     
-    static let identifier = "ProfileCollectionViewCell"
+    static let identifier = "ShowProfileCollectionViewCell"
 
     public lazy var imageView = UIImageView().then { imageView in
         imageView.image = UIImage.test

@@ -47,26 +47,21 @@ class MapViewController: UIViewController {
     @objc func walkingStartButtonTapped() {
         let chooseDogView = showDimmedView(ChooseDogView.self)
         
-        chooseDogView.chooseCancelBtn.addTarget(self, action: #selector(cancelDogBtnTapped), for: .touchUpInside)
+        chooseDogView.dogCollectionView.delegate = self
+        chooseDogView.dogCollectionView.dataSource = self
+        
         chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
     }
     
-    @objc private func cancelDogBtnTapped() {
-        removeView(ChooseDogView.self)
-        navigationController!.popToRootViewController(animated: true)
-    }
     
     @objc private func saveDogBtnTapped() {
         removeView(ChooseDogView.self)
         let choosePersonView = showDimmedView(ChoosePersonView.self)
         
-        choosePersonView.chooseCancelBtn.addTarget(self, action: #selector(cancelPersonBtnTapped), for: .touchUpInside)
+        choosePersonView.personCollectionView.delegate = self
+        choosePersonView.personCollectionView.dataSource = self
+        
         choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
-    }
-    
-    @objc private func cancelPersonBtnTapped() {
-        removeView(ChoosePersonView.self)
-        navigationController!.popToRootViewController(animated: true)
     }
     
     @objc private func savePersonBtnTapped() {
@@ -238,7 +233,6 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell") as? RecommendRouteTableViewCell else {
             return UITableViewCell()
         }
-        
         return cell
     }
     
@@ -246,7 +240,6 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         5
     }
-    
     
     // 셀 높이 설정
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -258,6 +251,23 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
         return false
     }
 }
+
+// MARK: 산책 멤버 선택에 대한 collectionView
+extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 4
+    }
+}
+
 
 // MARK: View 띄우기 및 삭제
 extension MapViewController {
@@ -274,19 +284,29 @@ extension MapViewController {
     
     private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
         if let window = UIApplication.shared.windows.first {
+            // dimmedView 생성
             let dimmedView = UIView(frame: window.bounds)
             dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
             
-            let view = T()
+            // 배경 터치 시 popToRootViewController
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped))
+            dimmedView.addGestureRecognizer(tapGesture)
             
+            // 실제 띄우고 싶은 뷰 생성
+            let view = T()
             window.addSubview(dimmedView)
             window.addSubview(view)
-
             view.snp.makeConstraints { make in
                 make.center.equalToSuperview()
             }
             return view
         }
         return T()
+    }
+    
+    @objc private func dimmedViewTapped() {
+        // 모든 dimmed 및 선택 뷰 제거
+        removeView(ChooseDogView.self)
+        removeView(ChoosePersonView.self)
     }
 }

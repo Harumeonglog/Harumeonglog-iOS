@@ -18,10 +18,16 @@ class ChooseDogView: UIView {
         label.font = .init(name: "Pretendard-Bold", size: 20)
     }
     
-    public lazy var chooseCancelBtn = UIButton().then { button in
-        button.setImage(UIImage(systemName: "xmark"), for: .normal)
-        button.tintColor = .gray00
-        button.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+    public lazy var dogCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then { layout in
+        
+        layout.minimumInteritemSpacing = 20
+        layout.minimumLineSpacing = 40
+        layout.itemSize = CGSize(width: 100, height: 100)
+        layout.scrollDirection = .vertical
+    }).then { collectionView in
+        collectionView.register(ChooseProfileViewCell.self, forCellWithReuseIdentifier: "ChooseProfileViewCell")
+        collectionView.backgroundColor = .clear
+        collectionView.isScrollEnabled = true
     }
     
     public lazy var chooseSaveBtn = UIButton().then { button in
@@ -29,7 +35,7 @@ class ChooseDogView: UIView {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 17)
         button.titleLabel?.textAlignment = .center
-        button.backgroundColor = .blue01
+        button.backgroundColor = .gray03
         button.layer.cornerRadius = 25
     }
     
@@ -54,26 +60,25 @@ class ChooseDogView: UIView {
         }
         
         self.addSubview(titleLabel)
-        self.addSubview(chooseCancelBtn)
-        
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(50)
             make.centerX.equalToSuperview()
         }
         
-        chooseCancelBtn.snp.makeConstraints { make in
-            make.lastBaseline.equalTo(titleLabel)
-            make.trailing.equalToSuperview().inset(25)
+        self.addSubview(dogCollectionView)
+        dogCollectionView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.height.equalTo(280)
+            make.width.equalTo(240)
         }
         
         self.addSubview(chooseSaveBtn)
-        
         chooseSaveBtn.snp.makeConstraints { make in
             make.bottom.equalToSuperview().inset(50)
-            make.width.lessThanOrEqualTo(130)
+            make.width.equalTo(130)
             make.height.equalTo(50)
-            make.leading.trailing.equalToSuperview().inset(110)
+            make.centerX.equalToSuperview()
         }
-        
     }
 }
