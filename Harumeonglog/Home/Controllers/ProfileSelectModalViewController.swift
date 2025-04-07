@@ -18,6 +18,8 @@ class ProfileSelectModalViewController: UIViewController {
         Profile(name: "카이 5", imageName: "dog1", birthDate: "2005.02.01")
     ]
     
+    public var selectedProfile: Profile?
+    
     private lazy var profileSelectModalView: ProfileSelectModalView = {
         let view = ProfileSelectModalView()
         return view
@@ -53,12 +55,14 @@ extension ProfileSelectModalViewController: UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCell", for: indexPath) as! ProfileSelectCollectionViewCell
         let profile = profiles[indexPath.item]
-        cell.configure(with: profile)
+        let isSelected = selectedProfile?.name == profile.name
+        cell.configure(with: profile, isSelected: isSelected)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedProfile = profiles[indexPath.item]
+        self.selectedProfile = selectedProfile
         // delegate 호출
         delegate?.didSelectProfile(selectedProfile)
         self.dismiss(animated: true, completion: nil)
