@@ -11,6 +11,9 @@ import CoreLocation
 
 class MapViewController: UIViewController {
     
+    var chooseDogView = ChooseDogView()
+    var choosePersonView = ChoosePersonView()
+    
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
     private let maxHeight: CGFloat = 750
@@ -45,21 +48,23 @@ class MapViewController: UIViewController {
     }
     
     @objc func walkingStartButtonTapped() {
-        let chooseDogView = showDimmedView(ChooseDogView.self)
+        chooseDogView = showDimmedView(ChooseDogView.self)
         
         chooseDogView.dogCollectionView.delegate = self
         chooseDogView.dogCollectionView.dataSource = self
-        
+        chooseDogView.dogCollectionView.allowsMultipleSelection = true
+
         chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
     }
     
     
     @objc private func saveDogBtnTapped() {
         removeView(ChooseDogView.self)
-        let choosePersonView = showDimmedView(ChoosePersonView.self)
+        choosePersonView = showDimmedView(ChoosePersonView.self)
         
         choosePersonView.personCollectionView.delegate = self
         choosePersonView.personCollectionView.dataSource = self
+        choosePersonView.personCollectionView.allowsMultipleSelection = true
         
         choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
     }
@@ -253,18 +258,44 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 // MARK: 산책 멤버 선택에 대한 collectionView
-extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell else {
-            return UICollectionViewCell()
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell
         
-        return cell
+        return cell!
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
+        
+        // 선택된 셀 상태를 업데이트
+        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
+            cell.isSelected = true
+            updateSaveBtn(isEnabled: true)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
+            cell.isSelected = false
+            
+            let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+            updateSaveBtn(isEnabled: hasSelection)
+        }
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 4
+    }
+    
+    // 셀선택.해제시 다음 버튼 활성화 함수
+    private func updateSaveBtn(isEnabled: Bool) {
+        let color: UIColor = isEnabled ? .blue01 : .gray03
+        chooseDogView.chooseSaveBtn.backgroundColor = color
+        chooseDogView.chooseSaveBtn.isEnabled = isEnabled
+        choosePersonView.chooseSaveBtn.backgroundColor = color
+        choosePersonView.chooseSaveBtn.isEnabled = isEnabled
     }
 }
 

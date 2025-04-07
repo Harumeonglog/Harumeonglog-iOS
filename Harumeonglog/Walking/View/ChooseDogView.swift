@@ -37,6 +37,7 @@ class ChooseDogView: UIView {
         button.titleLabel?.textAlignment = .center
         button.backgroundColor = .gray03
         button.layer.cornerRadius = 25
+        button.isEnabled = false
     }
     
     
