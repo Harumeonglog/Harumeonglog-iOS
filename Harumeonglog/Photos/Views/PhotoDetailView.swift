@@ -28,7 +28,6 @@ class PhotoDetailView: UIView {
         view.layer.borderColor = UIColor.gray04.cgColor
         view.layer.borderWidth = 1
         view.backgroundColor = .bg
-        view.isHidden = true
         return view
     }()
     
