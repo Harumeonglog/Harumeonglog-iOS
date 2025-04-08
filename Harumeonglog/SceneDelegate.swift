@@ -6,20 +6,28 @@
 //
 
 import UIKit
+import KakaoSDKAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
-
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = EditProfileViewController()
+        window?.rootViewController = LoginViewController()
         window?.makeKeyAndVisible()
         
     }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+            if let url = URLContexts.first?.url {
+                if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                    _ = AuthController.handleOpenUrl(url: url)
+                }
+            }
+        }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
@@ -51,7 +59,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func changeRootViewController(_ viewController: UIViewController, animated: Bool) {
         guard let window = self.window else { return }
-            
         window.rootViewController = viewController
     }
     

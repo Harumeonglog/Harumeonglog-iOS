@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import PhotosUI
 
 class EditProfileViewController: UIViewController {
     
@@ -57,11 +56,6 @@ class EditProfileViewController: UIViewController {
     private func showPhotoLibrary() {
         picker.sourceType = .photoLibrary // 카메라를 통해 가져온다
         picker.allowsEditing = false // 수정 true면 허용
-//        var config = PHPickerConfiguration()
-//        config.filter = .images
-//        config.selectionLimit = 1
-//        let imagePicker = PHPickerViewController(configuration: config)
-//        imagePicker.delegate = self
         present(picker, animated: true, completion: nil)
     }
     
@@ -72,7 +66,7 @@ class EditProfileViewController: UIViewController {
     
     @objc
     private func completionButtonPressed() {
-        
+        // API 연동
     }
     
     @objc
@@ -87,7 +81,7 @@ class EditProfileViewController: UIViewController {
     
 }
 
-extension EditProfileViewController: PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
@@ -96,14 +90,9 @@ extension EditProfileViewController: PHPickerViewControllerDelegate, UIImagePick
         dismiss(animated: true)
     }
     
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        
-    }
-    
 }
 
 import SwiftUI
-import PhotosUI
 #Preview {
     EditProfileViewController()
 }
