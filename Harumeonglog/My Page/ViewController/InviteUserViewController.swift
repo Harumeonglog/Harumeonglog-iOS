@@ -14,10 +14,14 @@ class InviteUserViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = inviteUserView
+        self.inviteUserView.searchTextField.delegate = self
         self.inviteUserView.userStageCollectionView.delegate = self
         self.inviteUserView.userStageCollectionView.dataSource = self
-
     }
+}
+
+extension InviteUserViewController: UITextFieldDelegate {
+    
 }
 
 extension InviteUserViewController: UICollectionViewDelegate, UICollectionViewDataSource {

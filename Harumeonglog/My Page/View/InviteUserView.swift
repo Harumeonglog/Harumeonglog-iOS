@@ -9,7 +9,7 @@ import UIKit
 
 class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    private lazy var searchTextField = UITextField().then {
+    public lazy var searchTextField = UITextField().then {
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
         $0.font = UIFont.body

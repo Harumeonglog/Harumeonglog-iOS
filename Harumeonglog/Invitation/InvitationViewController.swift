@@ -20,6 +20,12 @@ class InvitationViewController: UIViewController {
         invitationView.setConstraints()
         invitationView.invitationMessageCollectionView.delegate = self
         invitationView.invitationMessageCollectionView.dataSource = self
+        invitationView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func popVC() {
+        dismiss(animated: false)
     }
     
 }
