@@ -9,6 +9,7 @@ import UIKit
 
 class UserStageCell: UICollectionViewCell {
     
+    public var userLevel: UserLevelEnum = .guest
     static let identifier: String = "UserStageCell"
     
     private lazy var profileImageView = UIImageView().then {
@@ -64,9 +65,15 @@ class UserStageCell: UICollectionViewCell {
         }
     }
     
+    @objc
+    private func toggleUserLevel() {
+        userLevel = userLevelToggleButton.toggleUserLevel()
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setConstraints()
+        userLevelToggleButton.addTarget(self, action: #selector(toggleUserLevel), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {

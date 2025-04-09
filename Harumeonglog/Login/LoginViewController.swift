@@ -51,27 +51,26 @@ extension LoginViewController {
     func kakaoLonginWithApp() {
         UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
             if let error = error {
+                print("카카오 APP 로그인 에러")
                 print(error)
-            }
-            else {
+            } else {
                 print("loginWithKakaoTalk() success.")
-                
                 //do something
+                RootViewControllerService.toBaseViewController()
                 _ = oauthToken
             }
         }
     }
     
     func kakaoLoginWithAccount() {
-        
         UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
             if let error = error {
+                print("카카오 WEB 로그인 에러")
                 print(error)
-            }
-            else {
+            } else {
                 print("loginWithKakaoAccount() success.")
-                
                 //do something
+                RootViewControllerService.toBaseViewController()
                 _ = oauthToken
             }
         }

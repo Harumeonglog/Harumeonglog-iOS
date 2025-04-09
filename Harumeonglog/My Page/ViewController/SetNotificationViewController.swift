@@ -14,10 +14,16 @@ class SetNotificationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = setNotificationView
+        setNotificationView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
         setNotificationView.configure()
+    }
+    
+    @objc
+    private func popVC() {
+        dismiss(animated: false)
     }
     
 }

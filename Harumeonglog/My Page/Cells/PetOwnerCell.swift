@@ -7,8 +7,15 @@
 
 import UIKit
 
+protocol PetOwnerCellDelegate: AnyObject {
+    func didTapInviteButton()
+    func didTapExitButton()
+    func didTapEditButton()
+}
+
 class PetOwnerCell: UICollectionViewCell {
     
+    private weak var delegate: PetOwnerCellDelegate?
     static let identifier = "PetOwnerCell"
     
     private lazy var profileImage = UIImageView().then {
@@ -36,8 +43,12 @@ class PetOwnerCell: UICollectionViewCell {
         $0.clipsToBounds = true
     }
     
-    public lazy var editButton = UIButton().then {
-        $0.setImage(.meatballsMenu, for: .normal)
+    public lazy var exitButton = UIButton().then {
+        $0.setImage(.exit, for: .normal)
+    }
+    
+    public lazy var editPuppyInfoButton = UIButton().then {
+        $0.setImage(.editPuppy, for: .normal)
     }
     
     public lazy var memberTableView = UITableView().then {
@@ -51,7 +62,8 @@ class PetOwnerCell: UICollectionViewCell {
         $0.imageView?.contentMode = .scaleAspectFit
     }
     
-    public func configure(_ petData: PetData) {
+    public func configure(_ petData: PetData, delegate: PetOwnerCellDelegate?) {
+        self.delegate = delegate
         setDefaultConstraints()
         profileImage.image = petData.image
         nameLabel.text = petData.name
@@ -72,13 +84,19 @@ class PetOwnerCell: UICollectionViewCell {
         self.addSubview(dogSizeLabel)
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
-        self.addSubview(editButton)
+        self.addSubview(exitButton)
+        self.addSubview(editPuppyInfoButton)
         self.addSubview(memberTableView)
         self.addSubview(sendInviationButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
             make.leading.top.equalToSuperview().offset(20)
+        }
+        
+        editPuppyInfoButton.snp.makeConstraints { make in
+            make.height.width.equalTo(30)
+            make.leading.bottom.equalTo(profileImage)
         }
         
         nameLabel.snp.makeConstraints { make in
@@ -108,15 +126,15 @@ class PetOwnerCell: UICollectionViewCell {
             make.top.equalTo(dogSizeLabel.snp.bottom).offset(7)
         }
         
-        editButton.snp.makeConstraints { make in
+        exitButton.snp.makeConstraints { make in
             make.height.width.equalTo(44)
             make.top.equalTo(profileImage.snp.top).inset(-10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         accessLevelTagImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(editButton)
-            make.trailing.equalTo(editButton.snp.leading)
+            make.centerY.equalTo(exitButton)
+            make.trailing.equalTo(exitButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
         }
@@ -135,6 +153,24 @@ class PetOwnerCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.exitButton.addTarget(self, action: #selector(didTapExitButton), for: .touchUpInside)
+        self.editPuppyInfoButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
+        self.sendInviationButton.addTarget(self, action: #selector(showInvitaionVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func showInvitaionVC() {
+        delegate?.didTapInviteButton()
+    }
+    
+    @objc
+    private func didTapEditButton() {
+        delegate?.didTapEditButton()
+    }
+    
+    @objc
+    private func didTapExitButton() {
+        delegate?.didTapExitButton()
     }
     
     required init?(coder: NSCoder) {

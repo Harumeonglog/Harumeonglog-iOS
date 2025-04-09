@@ -12,6 +12,9 @@ class MyPageView: UIView {
     private let labelLeading: CGFloat = 28
     private let leadingTrailingPadding: CGFloat = 38
     
+    public lazy var goNotification = UIButton().then {
+        $0.setImage(.alarmButton, for: .normal)
+    }
     private let myProfileFrame = UIView()
     private let myProfileImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
@@ -70,6 +73,7 @@ class MyPageView: UIView {
     }
     
     private func setProfileConstraints() {
+        self.addSubview(goNotification)
         self.addSubview(myProfileFrame)
         myProfileFrame.addSubview(myProfileImageView)
         myProfileFrame.addSubview(myProfileNameLabel)
@@ -98,6 +102,12 @@ class MyPageView: UIView {
             make.height.equalTo(48)
             make.width.equalTo(48)
         }
+        
+        goNotification.snp.makeConstraints { make in
+            make.bottom.equalTo(myProfileFrame.snp.top)
+            make.trailing.equalToSuperview().inset(leadingTrailingPadding + 10)
+        }
+        
     }
     
     private func setActiveConstraints() {

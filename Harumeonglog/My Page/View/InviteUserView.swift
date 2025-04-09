@@ -9,7 +9,9 @@ import UIKit
 
 class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    private lazy var searchTextField = UITextField().then {
+    public lazy var navigationBar = CustomNavigationBar()
+    
+    public lazy var searchTextField = UITextField().then {
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
         $0.font = UIFont.body
@@ -20,6 +22,8 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.brown02.cgColor
     }
+    
+    public lazy var inviteButton = ConfirmButton()
     
     public lazy var userStageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -43,22 +47,37 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
     }
     
     private func addConstraints() {
+        self.addSubview(navigationBar)
         self.addSubview(searchTextField)
+        self.addSubview(inviteButton)
+        self.addSubview(userStageCollectionView)
+        
+        navigationBar.configureTitle(title: "초대하기")
+        navigationBar.snp.makeConstraints { make in
+            make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
+        }
         
         searchTextField.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(31)
+            make.top.equalTo(navigationBar.snp.bottom).offset(31)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(40)
         }
         addLeftViewInTextField()
         
-        self.addSubview(userStageCollectionView)
+        inviteButton.configure(labelText: "초대하기")
+        inviteButton.available()
+        inviteButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalToSuperview().offset(-53)
+        }
         
         userStageCollectionView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)
             make.trailing.equalToSuperview()
             make.top.equalTo(searchTextField.snp.bottom).offset(40)
-            make.bottom.equalToSuperview().inset(20)
+            make.bottom.equalTo(inviteButton.snp.top).inset(-20)
         }
     }
     
