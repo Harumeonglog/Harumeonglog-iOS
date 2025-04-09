@@ -10,8 +10,6 @@ import UIKit
 class MyPageViewController: UIViewController {
     
     private let myPageView = MyPageView()
-    private let editVC = EditProfileViewController()
-    private let petListVC = PetListViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,18 +22,28 @@ class MyPageViewController: UIViewController {
     }
     
     private func setButtonActions() {
+        myPageView.goNotification.addTarget(self, action: #selector(goToNotificationSettingVC), for: .touchUpInside)
         myPageView.goEditProileButton.addTarget(self, action: #selector(handleEditProfileButtonTapped), for: .touchUpInside)
         myPageView.goToPetListButton.addTarget(self, action: #selector(handlePetLisstButtonTapped), for: .touchUpInside)
     }
     
     @objc
+    private func goToNotificationSettingVC() {
+        let notiVC = SetNotificationViewController()
+        notiVC.modalPresentationStyle = .overFullScreen
+        present(notiVC, animated: false)
+    }
+    
+    @objc
     private func handleEditProfileButtonTapped() {
+        let editVC = EditProfileViewController()
         editVC.modalPresentationStyle = .overFullScreen
         present(editVC, animated: false)
     }
     
     @objc
     private func handlePetLisstButtonTapped() {
+        let petListVC = PetListViewController()
         petListVC.modalPresentationStyle = .overFullScreen
         present(petListVC, animated: false)
     }
