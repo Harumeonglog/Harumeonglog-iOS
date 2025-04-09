@@ -35,6 +35,16 @@ class AddScheduleViewController: UIViewController {
         addScheduleView.alarmButton.addTarget(self, action: #selector(alertButtonTapped), for: .touchUpInside)
     }
     
+    //탭바 숨기기
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
     private func setCustomNavigationBarConstraints() {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = addScheduleView.navigationBar

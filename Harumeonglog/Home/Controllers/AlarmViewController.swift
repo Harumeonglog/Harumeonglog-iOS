@@ -22,6 +22,16 @@ class AlarmViewController: UIViewController {
         setCustomNavigationBarConstraints()
         alarmView.inviteButton.addTarget(self, action: #selector(inviteButtonTap), for: .touchUpInside)
     }
+    
+    //탭바 숨기기
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = false
+    }
 
     @objc func inviteButtonTap() {
         let inviteVC = InviteViewController()

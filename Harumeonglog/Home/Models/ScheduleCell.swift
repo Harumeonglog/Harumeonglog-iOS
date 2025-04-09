@@ -22,10 +22,10 @@ class ScheduleCell: UITableViewCell {
         return view
     }()
 
-    private let checkmarkIcon: UIImageView = {
+    public let checkmarkIcon: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "checkmark")
-        imageView.tintColor = .blue01
+        imageView.image = UIImage(systemName: "checkmark.circle")
+        imageView.tintColor = .brown01
         return imageView
     }()
 
@@ -38,6 +38,7 @@ class ScheduleCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
         setupLayout()
     }
     
@@ -71,7 +72,8 @@ class ScheduleCell: UITableViewCell {
     }
     func configure(schedule: String, isChecked: Bool) {
         scheduleLabel.text = schedule
-        checkmarkIcon.tintColor = isChecked ? .brown01 : .clear
+        let iconName = isChecked ? "checkmark.circle.fill" : "checkmark.circle"
+        checkmarkIcon.image = UIImage(systemName: iconName)
     }
 }
 
