@@ -23,6 +23,8 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         $0.layer.borderColor = UIColor.brown02.cgColor
     }
     
+    public lazy var inviteButton = ConfirmButton()
+    
     public lazy var userStageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -47,6 +49,7 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
     private func addConstraints() {
         self.addSubview(navigationBar)
         self.addSubview(searchTextField)
+        self.addSubview(inviteButton)
         self.addSubview(userStageCollectionView)
         
         navigationBar.configureTitle(title: "초대하기")
@@ -62,11 +65,19 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         }
         addLeftViewInTextField()
         
+        inviteButton.configure(labelText: "초대하기")
+        inviteButton.available()
+        inviteButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalToSuperview().offset(-53)
+        }
+        
         userStageCollectionView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)
             make.trailing.equalToSuperview()
             make.top.equalTo(searchTextField.snp.bottom).offset(40)
-            make.bottom.equalToSuperview().inset(20)
+            make.bottom.equalTo(inviteButton.snp.top).inset(-20)
         }
     }
     
