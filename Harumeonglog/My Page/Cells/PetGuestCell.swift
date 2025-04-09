@@ -37,8 +37,8 @@ class PetGuestCell: UICollectionViewCell {
         $0.clipsToBounds = true
     }
     
-    public lazy var editButton = UIButton().then {
-        $0.setImage(.meatballsMenu, for: .normal)
+    public lazy var exitButton = UIButton().then {
+        $0.setImage(.exit, for: .normal)
     }
     
     public func configure(_ petData: PetData) {
@@ -62,7 +62,7 @@ class PetGuestCell: UICollectionViewCell {
         self.addSubview(dogSizeLabel)
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
-        self.addSubview(editButton)
+        self.addSubview(exitButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
@@ -96,15 +96,15 @@ class PetGuestCell: UICollectionViewCell {
             make.top.equalTo(dogSizeLabel.snp.bottom).offset(7)
         }
         
-        editButton.snp.makeConstraints { make in
+        exitButton.snp.makeConstraints { make in
             make.height.width.equalTo(44)
             make.top.equalTo(profileImage.snp.top).inset(-10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         accessLevelTagImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(editButton)
-            make.trailing.equalTo(editButton.snp.leading)
+            make.centerY.equalTo(exitButton)
+            make.trailing.equalTo(exitButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
         }

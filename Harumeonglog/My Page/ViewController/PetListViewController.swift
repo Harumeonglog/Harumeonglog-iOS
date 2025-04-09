@@ -8,7 +8,7 @@
 import UIKit
 
 class PetListViewController: UIViewController, PetOwnerCellDelegate {
-        
+    
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
@@ -61,6 +61,16 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
         let invitationVC = InviteUserViewController()
         invitationVC.modalPresentationStyle = .overFullScreen
         present(invitationVC, animated: false)
+    }
+    
+    func didTapExitButton() {
+        
+    }
+    
+    func didTapEditButton() {
+        let petRegistrationVC = PetRegistrationViewController()
+        petRegistrationVC.modalPresentationStyle = .overFullScreen
+        present(petRegistrationVC, animated: false)
     }
 }
 
