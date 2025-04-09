@@ -3,7 +3,6 @@ import SnapKit
 import FSCalendar
 
 protocol HomeViewDelegate: AnyObject {
-    func showMonthYearPicker() //년월 선택 모달 표시
     func changeMonth(to date: Date) // 선택한 월로 캘린더 이동
 }
 
@@ -20,18 +19,22 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             self.calendarView.select(Date())
         }
         self.isUserInteractionEnabled = true
-        let swipeGesture = UIPanGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
-        calendarView.addGestureRecognizer(swipeGesture)
         calendarView.scope = .week
-        
-        let headerTap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
-        headerLabel.addGestureRecognizer(headerTap)
-        dropdownIcon.addGestureRecognizer(headerTap)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private lazy var appLogoLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .brown02
+        label.layer.cornerRadius = 15
+        label.backgroundColor = .brown00
+        label.font = .body
+        label.clipsToBounds = true
+        return label
+    }()
     
     lazy var alarmButton: UIButton = {
         let button = UIButton()
@@ -40,12 +43,13 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return button
     }()
     
-    lazy var profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "dog1")
-        imageView.layer.cornerRadius = 35
-        imageView.clipsToBounds = true
-        return imageView
+    lazy var profileButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "dog1"), for: .normal) // 기본 이미지 설정
+        button.layer.cornerRadius = 35
+        button.clipsToBounds = true
+        button.imageView?.contentMode = .scaleAspectFill
+        return button
     }()
     
     lazy var nicknameLabel: UILabel = {
@@ -99,7 +103,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         calendar.locale = Locale(identifier: "ko_KR")
         
         // 오늘 날짜 스타일 변경
-        calendar.appearance.todayColor = .blue02  
+        calendar.appearance.todayColor = .blue02
         calendar.appearance.todaySelectionColor = .blue01
         calendar.appearance.titleTodayColor = .gray00
         
@@ -141,9 +145,8 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         label.textAlignment = .center
         label.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 16)
         label.textColor = .gray00
-        label.text = getCurrentMonthString(for: calendarView.currentPage)
+        label.text = "" // 초기 텍스트 설정을 빈 문자열로 둡니다.
         label.isUserInteractionEnabled = true
-        
         return label
     }()
     
@@ -167,16 +170,24 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     }()
     
     private func addComponents() {
-        addSubview(alarmButton)
-        addSubview(profileImageView)
+        addSubview(appLogoLabel)
         addSubview(nicknameLabel)
         addSubview(birthdayIconLabel)
         addSubview(birthdayLabel)
         addSubview(genderImageView)
-        addSubview(headerStackView)
+        addSubview(profileButton)
         addSubview(calendarView)
+        addSubview(headerStackView)
         addSubview(scheduleModalView)
+        addSubview(alarmButton)
         addSubview(addScheduleButton)
+        
+        appLogoLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(80)
+            make.leading.equalToSuperview().offset(30)
+            make.height.equalTo(30)
+            make.width.equalTo(100)
+        }
         
         alarmButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(100)
@@ -184,15 +195,15 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.width.height.equalTo(30)
         }
         
-        profileImageView.snp.makeConstraints { make in
+        profileButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(132)
             make.leading.equalToSuperview().offset(30)
             make.width.height.equalTo(70)
         }
         
         nicknameLabel.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.top).offset(18)
-            make.leading.equalTo(profileImageView.snp.trailing).offset(18)
+            make.top.equalTo(profileButton.snp.top).offset(18)
+            make.leading.equalTo(profileButton.snp.trailing).offset(18)
             make.height.equalTo(20)
         }
         
@@ -215,7 +226,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         calendarView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(3)
+            make.top.equalTo(profileButton.snp.bottom).offset(3)
             make.leading.trailing.equalToSuperview().inset(15)
             calendarHeightConstraint = make.height.equalTo(370).constraint
         }
@@ -228,7 +239,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         
         headerStackView.snp.makeConstraints { make in
             make.leading.equalTo(calendarView.snp.leading).offset(15) //왼쪽 정렬
-            make.top.equalTo(profileImageView.snp.bottom).offset(20)
+            make.top.equalTo(profileButton.snp.bottom).offset(20)
         }
         
         scheduleModalView.snp.makeConstraints { make in
@@ -236,45 +247,6 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
             make.top.equalTo(calendarView.snp.bottom).offset(10)
         }
-        
-    }
-    
-    private func getCurrentMonthString(for date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "YYYY년 MM월"
-        return formatter.string(from: date)
-    }
-    
-    // 선택한 년/월로 캘린더 이동
-    private func changeMonth(to date: Date) {
-        calendarView.setCurrentPage(date, animated: true)
-        headerLabel.text = getCurrentMonthString(for: date)
-    }
-    
-    // 헤더 텍스트 업데이트 (HomeViewController에서 호출)
-    func updateHeaderLabel() {
-        headerLabel.text = getCurrentMonthString(for: calendarView.currentPage)
-    }
-    
-    @objc private func headerTapped() {
-        delegate?.showMonthYearPicker()
-    }
-    
-    //캘린더 스와이프
-    @objc private func handleSwipe(_ gesture: UIPanGestureRecognizer) {
-        let velocity = gesture.velocity(in: calendarView).y
-        
-        if gesture.state == .ended {
-            if velocity < -300 {
-                calendarView.setScope(.week, animated: true)
-            } else if velocity > 300 {
-                calendarView.setScope(.month, animated: true)
-            }
-        }
-    }
-    
-    func setCalendarTo(date: Date) {
-        calendarView.setCurrentPage(date, animated: true)
-        updateHeaderLabel()
+        self.bringSubviewToFront(profileButton)
     }
 }

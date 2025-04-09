@@ -15,7 +15,7 @@ class CustomNavigationBar: UIView {
     }
     
     private lazy var maintitleLabel = UILabel().then {
-        $0.textColor = .black
+        $0.textColor = .gray00
         $0.font = .systemFont(ofSize: 16)
     }
     
@@ -90,10 +90,5 @@ class CustomNavigationBar: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-}
 
-import SwiftUI
-#Preview {
-    EditProfileViewController()
 }

@@ -124,7 +124,7 @@ class RecordView: UIView {
         layout.minimumInteritemSpacing = 3
         layout.itemSize = CGSize(width: 50, height: 70)
     }).then { collectionView in
-        collectionView.register(ProfileCollectionViewCell.self, forCellWithReuseIdentifier: "ProfileCollectionViewCell")
+        collectionView.register(ShowProfileCollectionViewCell.self, forCellWithReuseIdentifier: "ShowProfileCollectionViewCell")
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
     }

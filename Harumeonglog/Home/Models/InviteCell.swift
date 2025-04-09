@@ -10,7 +10,6 @@ import SnapKit
 
 
 class InviteCell: UITableViewCell {
-    
 
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()

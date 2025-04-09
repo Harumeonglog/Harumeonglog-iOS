@@ -18,26 +18,30 @@ class PhotoAlbumsViewController: UIViewController {
         super.viewDidLoad()
         self.view = photoAlbumsView
         
-        // album 예시
-        photoAlbumsView.albums = [
-            Album(coverImage: UIImage(named: "doggo")!,
-                  images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!,UIImage(named: "doggo")!,UIImage(named: "doggo")!],
-                  name: "누룽지",
-                  photosCount: 308),
-            Album(coverImage: UIImage(named: "doggo")!,
-                  images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!],
-                  name: "호빵이",
-                  photosCount: 10),
-            Album(coverImage: UIImage(named: "doggo")!,
-                  images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!],
-                  name: "바보",
-                  photosCount: 503),
-            Album(coverImage: UIImage(named: "doggo")!,
-                  images: [UIImage(named: "doggo")!],
-                  name: "나비",
-                  photosCount: 283)
-        ]
+        photoAlbumsView.albumCollectionView.register(AlbumCell.self, forCellWithReuseIdentifier: "AlbumCell")
+        photoAlbumsView.albumCollectionView.delegate = self
+        photoAlbumsView.albumCollectionView.dataSource = self
         
-        photoAlbumsView.albumCollectionView.reloadData()
+    }
+}
+
+//컬렉션뷰 delegate, datasource
+extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return photoAlbumsView.albums.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumCell", for: indexPath) as! AlbumCell
+        let album = photoAlbumsView.albums[indexPath.item]
+        cell.configure(with: album)
+        return cell
+    }
+    
+    //셀 선택했을때 해당 앨범으로 이동
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let album = photoAlbumsView.albums[indexPath.item]
+        let photosVC = PhotosViewController(album: album)
+        self.navigationController?.pushViewController(photosVC, animated: true)
     }
 }

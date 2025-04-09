@@ -5,6 +5,10 @@ import UIKit
 import FSCalendar
 import SnapKit
 
+protocol ProfileSelectDelegate: AnyObject {
+    func didSelectProfile(_ profile: Profile)
+}
+
 class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewDelegate {
 
     private lazy var homeView: HomeView = {
@@ -30,6 +34,7 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         super.viewDidLoad()
         self.view = homeView
         
+        homeView.delegate = self
         homeView.calendarView.delegate = self
         homeView.calendarView.dataSource = self
         homeView.scheduleModalView.delegate = self
@@ -39,11 +44,26 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         homeView.calendarView.select(Date())
 
         // 버튼 액션 추가
-        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
-        homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
+        setupButtons()
 
         updateScheduleList()
         updateScheduleDates()
+        updateHeaderLabel()
+    }
+    
+    // MARK: - 버튼 동작 함수들 모음
+    private func setupButtons() {
+        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
+        homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
+        
+        //헤더 누르면 년/월 선택
+        let headerTap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
+        homeView.headerStackView.addGestureRecognizer(headerTap)
+        
+        let swipeGesture = UIPanGestureRecognizer(target: self, action: #selector(handleCalendarSwipe(_:)))
+        homeView.calendarView.addGestureRecognizer(swipeGesture)
+
+        homeView.profileButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
     }
 
     // MARK: - Schedule 업데이트
@@ -80,14 +100,41 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
     }
     
     @objc private func headerTapped() {
+        print("헤더 탭 감지됨")
         showMonthYearPicker()
+    }
+    
+    @objc private func handleCalendarSwipe(_ gesture: UIPanGestureRecognizer) {
+        let velocity = gesture.velocity(in: homeView.calendarView).y
+        if gesture.state == .ended {
+            if velocity < -300 {
+                homeView.calendarView.setScope(.week, animated: true)
+            } else if velocity > 300 {
+                homeView.calendarView.setScope(.month, animated: true)
+            }
+        }
+    }
+
+    private func getCurrentMonthString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy년 M월"
+        return formatter.string(from: date)
+    }
+
+    private func updateHeaderLabel() {
+        homeView.headerLabel.text = getCurrentMonthString(for: homeView.calendarView.currentPage)
+    }
+
+    private func setCalendarTo(date: Date) {
+        homeView.calendarView.setCurrentPage(date, animated: true)
+        updateHeaderLabel()
     }
 }
 
 // MARK: - FSCalendarDelegate & Appearance
 extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalendarDelegateAppearance {
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-        homeView.updateHeaderLabel()
+        updateHeaderLabel()
     }
 
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
@@ -163,7 +210,7 @@ extension HomeViewController {
     }
 
     func changeMonth(to date: Date) {
-        homeView.setCalendarTo(date: date)
+        setCalendarTo(date: date)
     }
 }
 
@@ -189,7 +236,27 @@ extension HomeViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         components.day = 1
 
         if let date = Calendar.current.date(from: components) {
-            homeView.setCalendarTo(date: date)
+            setCalendarTo(date: date)
         }
     }
 }
+
+// MARK: - 프로필 선택
+extension HomeViewController: ProfileSelectDelegate {
+
+    // 프로필이 선택되었을 때 호출되는 메서드 - 생일, 이름 바뀌도록
+    func didSelectProfile(_ profile: Profile) {
+        // 선택된 프로필을 업데이트
+        homeView.nicknameLabel.text = profile.name
+        homeView.profileButton.setImage(UIImage(named: profile.imageName), for: .normal)
+        homeView.birthdayLabel.text = profile.birthDate
+    }
+
+    @objc private func profileImageTapped() {
+        let profileModalVC = ProfileSelectModalViewController()
+        profileModalVC.modalPresentationStyle = .pageSheet
+        profileModalVC.delegate = self
+        self.present(profileModalVC, animated: true, completion: nil)
+    }
+}
+

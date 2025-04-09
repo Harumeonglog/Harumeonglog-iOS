@@ -15,10 +15,59 @@ class SocialView: UIView {
     public lazy var searchBar = UITextField().then { textfield in
         textfield.layer.borderWidth = 1
         textfield.layer.borderColor = UIColor.brown02.cgColor
+        textfield.textColor = .gray01
+        textfield.font = UIFont(name: "Pretendard-Medium", size: 14)
         textfield.layer.cornerRadius = 20
         textfield.backgroundColor = .white
         textfield.clipsToBounds = true
         
+        // 왼쪽 여백을 포함한 StackView 생성
+        let leftpaddingView = UIView().then { make in
+            make.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        }
+        let searchIcon = searchButton
+        let paddingView = UIView().then { make in
+            make.widthAnchor.constraint(equalToConstant: 5).isActive = true
+        }
+
+        let leftStackView = UIStackView(arrangedSubviews: [leftpaddingView, searchIcon, paddingView]).then { make in
+            make.axis = .horizontal
+            make.spacing = 5
+            make.alignment = .center
+            make.frame = CGRect(x: 0, y: 0, width: 50, height: 17)
+        }
+
+        textfield.leftView = leftStackView
+        textfield.leftViewMode = .always
+
+        // 오른쪽 x 버튼 설정
+        let cancelButton = searchCancelButton
+        let rightpaddingView = UIView().then { make in
+            make.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        }
+        
+        let rightStackView = UIStackView(arrangedSubviews: [cancelButton, rightpaddingView]).then { make in
+            make.axis = .horizontal
+            make.spacing = 5
+            make.alignment = .center
+            make.frame = CGRect(x: 0, y: 0, width: 50, height: 17)
+        }
+        
+        textfield.rightView = rightStackView
+        textfield.rightViewMode = .always
+    }
+    
+    public lazy var searchButton = UIButton().then { button in
+        button.tintColor = .gray01
+        button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        button.frame = CGRect(x: 0, y: 0, width: 17, height: 17)
+    }
+    
+    public lazy var searchCancelButton = UIButton().then { button in
+        button.tintColor = .gray01
+        button.setImage(UIImage(systemName: "xmark"), for: .normal)
+        button.frame = CGRect(x: 0, y: 0, width: 10, height: 10)
+        button.isHidden = true
     }
     
     public lazy var categoryButtonsScrollView: UIScrollView = {
@@ -88,6 +137,7 @@ class SocialView: UIView {
         categoryButtonsScrollView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(29)
         }
     
         categoryButtonsStackView.snp.makeConstraints { make in
@@ -128,10 +178,11 @@ class SocialView: UIView {
             let button = UIButton(type: .system)
             button.backgroundColor = .brown02
             button.setTitle(tag, for: .normal)
-            button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 13)
+            button.titleLabel?.font = UIFontMetrics.default.scaledFont(for: UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13))
             button.layer.cornerRadius = 15
             button.tintColor = .gray00
             button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 21, bottom: 8, right: 21)
+            button.frame = CGRect(x: 0, y: 0, width: 70, height: 29)
             button.tag = num
 
             num += 1

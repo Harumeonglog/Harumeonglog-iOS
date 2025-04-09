@@ -22,6 +22,10 @@ class AddScheduleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = addScheduleView
+        setCustomNavigationBarConstraints()
+        
+        // 현재 날짜와 시간으로 초기화
+        setInitialDateTime()
         
         addScheduleView.dateButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
         addScheduleView.timeButton.addTarget(self, action: #selector(showDateTimePicker), for: .touchUpInside)
@@ -29,6 +33,50 @@ class AddScheduleViewController: UIViewController {
             button.addTarget(self, action: #selector(weekButtonTapped), for: .touchUpInside)
         }
         addScheduleView.alarmButton.addTarget(self, action: #selector(alertButtonTapped), for: .touchUpInside)
+    }
+    
+    //탭바 숨기기
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = addScheduleView.navigationBar
+        navi.configureTitle(title: "일정 추가")
+        navi.configureRightButton(text: "저장")
+        navi.rightButton.setTitleColor(.blue01, for: .normal)
+        navi.rightButton.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        navi.rightButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
+    
+    //저장버튼 동작 함수
+    @objc
+    private func saveButtonTapped(){
+        //내용 서버로 넘겨주기
+        navigationController?.popViewController(animated: true)
+    }
+    
+    
+    private func setInitialDateTime() {
+        let currentDate = Date()
+        let formattedDate = getFormattedDate(currentDate)  // 현재 날짜
+        let formattedTime = getFormattedTime(currentDate)  // 현재 시간
+        
+        // dateButton과 timeButton에 현재 날짜와 시간 설정
+        addScheduleView.dateButton.setTitle(formattedDate, for: .normal)
+        addScheduleView.timeButton.setTitle(formattedTime, for: .normal)
     }
     
     // 요일 버튼 클릭 시 동작

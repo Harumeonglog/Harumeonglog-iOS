@@ -9,19 +9,20 @@ import UIKit
 import SnapKit
 import Then
 
-class ProfileCollectionViewCell: UICollectionViewCell {
+class ShowProfileCollectionViewCell: UICollectionViewCell {
     
-    static let identifier = "ProfileCollectionViewCell"
+    static let identifier = "ShowProfileCollectionViewCell"
 
     public lazy var imageView = UIImageView().then { imageView in
-        imageView.image = UIImage(systemName: "person.circle")
+        imageView.image = UIImage.test
         imageView.layer.cornerRadius = 25
+        imageView.clipsToBounds = true
     }
     
     public lazy var nameLabel = UILabel().then { label in
         label.text = "누렁이"
         label.textColor = .gray00
-        label.font = UIFont(name: "Pretendard-Regular", size: 9)
+        label.font = UIFont(name: "Pretendard-Regular", size: 10)
         label.textAlignment = .center
     }
     

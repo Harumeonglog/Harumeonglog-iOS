@@ -11,6 +11,8 @@ import Then
 
 class CommentView: UIView {
     
+    public lazy var navigationBar = CustomNavigationBar()
+
     public lazy var commentTableView = UITableView().then { tableView in
         tableView.register(CommentTableViewCell.self, forCellReuseIdentifier: "CommentTableViewCell")
         tableView.register(ReplyCommentTableViewCell.self, forCellReuseIdentifier: "ReplyCommentTableViewCell")
@@ -20,17 +22,23 @@ class CommentView: UIView {
         tableView.separatorStyle = .none
     }
     
-    public lazy var commentTextField = UITextField().then { textField in
-        textField.textColor = .gray00
-        textField.placeholder = "댓글을 달아주세요."
-        textField.layer.cornerRadius = 15
-        textField.layer.borderColor = UIColor.brown00.cgColor
-        textField.layer.borderWidth = 1
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
-        textField.leftView = paddingView
-        textField.leftViewMode = .always
+    public lazy var commentTextView = UITextView().then { textView in
+        textView.textColor = .gray00
+        textView.font = .body
+        textView.layer.cornerRadius = 15
+        textView.layer.borderColor = UIColor.brown00.cgColor
+        textView.layer.borderWidth = 1
+        textView.returnKeyType = .done
+        textView.isScrollEnabled = false  // 자동으로 크기 조절
+        textView.textContainerInset = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 45+16) // 왼쪽 패딩 적용
     }
+    
+    public lazy var placeholderLabel = UILabel().then { label in
+        label.text = "댓글을 달아주세요."
+        label.textColor = .gray02
+        label.font = .body
+    }
+
     
     public lazy var commentUploadButton = UIButton().then { button in
         button.setImage(UIImage(named: "commentUpload"), for: .normal)
@@ -48,25 +56,37 @@ class CommentView: UIView {
     }
     
     private func addComponents() {
+        self.addSubview(navigationBar)
+        
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+        }
+        
         self.addSubview(commentTableView)
         commentTableView.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview().inset(25)
-            make.top.equalToSuperview().inset(20)
+            make.top.equalTo(navigationBar.snp.bottom).offset(5)
+            make.leading.trailing.bottom.equalToSuperview().inset(25)
             make.height.lessThanOrEqualTo(620)
         }
         
-        self.addSubview(commentTextField)
-        commentTextField.addSubview(commentUploadButton)
+        self.addSubview(commentTextView)
+        commentTextView.addSubview(placeholderLabel)
+        self.addSubview(commentUploadButton)
         
-        commentTextField.snp.makeConstraints { make in
+        commentTextView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(50)
             make.height.equalTo(40)
         }
         
-        commentUploadButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(10)
+        placeholderLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(19)
             make.centerY.equalToSuperview()
+        }
+        
+        commentUploadButton.snp.makeConstraints { make in
+            make.trailing.equalTo(commentTextView.snp.trailing).offset(-10)
+            make.bottom.equalTo(commentTextView.snp.bottom).offset(-5)
             make.width.equalTo(45)
             make.height.equalTo(30)
         }

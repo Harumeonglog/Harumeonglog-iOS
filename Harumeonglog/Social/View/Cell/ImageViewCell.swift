@@ -25,7 +25,7 @@ class ImageViewCell: UITableViewCell {
         stackView.addArrangedSubview(subContentStackView)
         
         stackView.axis = .vertical
-        stackView.spacing = 5
+        stackView.spacing = 7
         stackView.distribution = .fill
         stackView.alignment = .leading
     }

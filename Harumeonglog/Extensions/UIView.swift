@@ -18,7 +18,7 @@ extension UITextField {
             $0.layer.borderColor = UIColor.brown02.cgColor
             
             $0.backgroundColor = .white
-            $0.textColor = .black
+            $0.textColor = .gray00
             
             $0.autocapitalizationType = .none
             $0.autocorrectionType = .no
@@ -49,4 +49,5 @@ extension UILabel {
         
         self.attributedText = attributedString
     }
+
 }
