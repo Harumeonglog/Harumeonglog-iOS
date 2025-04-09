@@ -28,7 +28,6 @@ class WalkingViewController: UIViewController {
         walkingView.playBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
         walkingView.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
         
-        startTimer()
     }
     
     @objc private func endBtnTapped() {
@@ -38,11 +37,10 @@ class WalkingViewController: UIViewController {
     @objc private func stopBtnTapped() {
         if timer == nil {
             startTimer()
-            walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            
+            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)            
         } else {
             stopTimer()
-            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
         }
     }
     
