@@ -7,8 +7,8 @@
 
 import UIKit
 
-class PetListViewController: UIViewController {
-    
+class PetListViewController: UIViewController, PetOwnerCellDelegate {
+        
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
@@ -56,6 +56,12 @@ class PetListViewController: UIViewController {
     private func dismissViewController() {
         dismiss(animated: false)
     }
+    
+    func didTapInviteButton() {
+        let invitationVC = InviteUserViewController()
+        invitationVC.modalPresentationStyle = .overFullScreen
+        present(invitationVC, animated: false)
+    }
 }
 
 extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -69,7 +75,7 @@ extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataS
         switch data.level {
         case .Owner:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetOwnerCell.self.identifier, for: indexPath) as! PetOwnerCell
-            cell.configure(data)
+            cell.configure(data, delegate: self)
             return cell
         case .Guest:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetGuestCell.self.identifier, for: indexPath) as! PetGuestCell

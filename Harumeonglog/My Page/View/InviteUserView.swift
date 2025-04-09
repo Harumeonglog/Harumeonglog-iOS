@@ -9,6 +9,8 @@ import UIKit
 
 class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
+    public lazy var navigationBar = CustomNavigationBar()
+    
     public lazy var searchTextField = UITextField().then {
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
@@ -43,16 +45,22 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
     }
     
     private func addConstraints() {
+        self.addSubview(navigationBar)
         self.addSubview(searchTextField)
+        self.addSubview(userStageCollectionView)
+        
+        navigationBar.configureTitle(title: "초대하기")
+        navigationBar.snp.makeConstraints { make in
+            make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
+        }
         
         searchTextField.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(31)
+            make.top.equalTo(navigationBar.snp.bottom).offset(31)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(40)
         }
         addLeftViewInTextField()
-        
-        self.addSubview(userStageCollectionView)
         
         userStageCollectionView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)

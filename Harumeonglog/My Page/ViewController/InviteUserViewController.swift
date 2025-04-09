@@ -17,6 +17,13 @@ class InviteUserViewController: UIViewController {
         self.inviteUserView.searchTextField.delegate = self
         self.inviteUserView.userStageCollectionView.delegate = self
         self.inviteUserView.userStageCollectionView.dataSource = self
+        
+        self.inviteUserView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func popVC() {
+        dismiss(animated: false)
     }
 }
 

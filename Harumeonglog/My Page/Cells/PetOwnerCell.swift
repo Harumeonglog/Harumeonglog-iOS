@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol PetOwnerCellDelegate: AnyObject {
+    func didTapInviteButton()
+}
+
 class PetOwnerCell: UICollectionViewCell {
     
+    private weak var delegate: PetOwnerCellDelegate?
     static let identifier = "PetOwnerCell"
     
     private lazy var profileImage = UIImageView().then {
@@ -51,7 +56,9 @@ class PetOwnerCell: UICollectionViewCell {
         $0.imageView?.contentMode = .scaleAspectFit
     }
     
-    public func configure(_ petData: PetData) {
+    public func configure(_ petData: PetData, delegate: PetOwnerCellDelegate?) {
+        self.delegate = delegate
+        sendInviationButton.addTarget(self, action: #selector(showInvitaionVC), for: .touchUpInside)
         setDefaultConstraints()
         profileImage.image = petData.image
         nameLabel.text = petData.name
@@ -135,6 +142,17 @@ class PetOwnerCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.editButton.addTarget(self, action: #selector(showEditView), for: .touchUpInside)
+    }
+    
+    @objc
+    private func showInvitaionVC() {
+        delegate?.didTapInviteButton()
+    }
+    
+    @objc
+    private func showEditView() {
+        
     }
     
     required init?(coder: NSCoder) {
