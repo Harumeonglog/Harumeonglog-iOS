@@ -44,7 +44,7 @@ class PetOwnerCell: UICollectionViewCell {
     }
     
     public lazy var exitButton = UIButton().then {
-        $0.setImage(.exit, for: .normal)
+        $0.setImage(.meatballsMenu , for: .normal)
     }
     
     public lazy var editPuppyInfoButton = UIButton().then {
@@ -98,6 +98,7 @@ class PetOwnerCell: UICollectionViewCell {
             make.height.width.equalTo(30)
             make.leading.bottom.equalTo(profileImage)
         }
+        editPuppyInfoButton.isHidden = true
         
         nameLabel.snp.makeConstraints { make in
             make.leading.equalTo(profileImage.snp.trailing).offset(16)
