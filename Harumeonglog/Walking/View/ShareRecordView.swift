@@ -17,9 +17,13 @@ class ShareRecordView: UIView {
         button.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
     }
     
+    private lazy var imageView = UIImageView().then { image in
+        image.image = UIImage(named: "applogo")
+    }
+    
     private lazy var titleLabel = UILabel().then { label in
         label.text = "오늘의 산책을\n공유해주세요 !"
-        label.textColor = UIColor.gray01
+        label.textColor = UIColor.gray00
         label.numberOfLines = 2
         label.font = UIFont(name: "Pretendard-Bold", size: 30)
         label.textAlignment = .center
@@ -69,17 +73,24 @@ class ShareRecordView: UIView {
             make.trailing.equalToSuperview().inset(25)
         }
         
+        self.addSubview(imageView)
+        imageView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(shareCancelBtn.snp.bottom).offset(10)
+            make.width.height.equalTo(100)
+        }
+        
         self.addSubview(titleLabel)
         self.addSubview(subtitleLabel)
         
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(shareCancelBtn.snp.bottom).offset(90)
+            make.top.equalTo(imageView.snp.bottom).offset(10)
         }
         
         subtitleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(titleLabel.snp.bottom).offset(35)
+            make.top.equalTo(titleLabel.snp.bottom).offset(30)
         }
         
         self.addSubview(shareBtn)
