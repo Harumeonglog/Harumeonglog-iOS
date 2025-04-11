@@ -1,16 +1,17 @@
 //
-//  PetOwnerCell.swift
+//  PetCollectionViewCell.swift
 //  Harumeonglog
 //
-//  Created by 이승준 on 3/29/25.
+//  Created by 이승준 on 3/26/25.
 //
 
 import UIKit
 
-class PetOwnerCell: UICollectionViewCell {
+class PetGuestCell: UICollectionViewCell {
     
-    static let identifier = "PetOwnerCell"
+    static let identifier = "PetGuestCell"
     
+    // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 40
@@ -31,24 +32,13 @@ class PetOwnerCell: UICollectionViewCell {
     private lazy var birthdayLabel = commonLabel()
     
     private lazy var accessLevelTagImageView = UIImageView().then {
-        $0.image = .ownerTag
+        $0.image = .guestTag
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
     }
     
-    public lazy var editButton = UIButton().then {
-        $0.setImage(.meatballsMenu, for: .normal)
-    }
-    
-    public lazy var memberTableView = UITableView().then {
-        $0.backgroundColor = .brown02
-        $0.layer.cornerRadius = 15
-        $0.clipsToBounds = true
-    }
-    
-    public lazy var sendInviationButton = UIButton().then {
-        $0.setImage(.sendInvitation, for: .normal)
-        $0.imageView?.contentMode = .scaleAspectFit
+    public lazy var exitButton = UIButton().then {
+        $0.setImage(.exit, for: .normal)
     }
     
     public func configure(_ petData: PetData) {
@@ -72,9 +62,7 @@ class PetOwnerCell: UICollectionViewCell {
         self.addSubview(dogSizeLabel)
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
-        self.addSubview(editButton)
-        self.addSubview(memberTableView)
-        self.addSubview(sendInviationButton)
+        self.addSubview(exitButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
@@ -108,28 +96,17 @@ class PetOwnerCell: UICollectionViewCell {
             make.top.equalTo(dogSizeLabel.snp.bottom).offset(7)
         }
         
-        editButton.snp.makeConstraints { make in
+        exitButton.snp.makeConstraints { make in
             make.height.width.equalTo(44)
             make.top.equalTo(profileImage.snp.top).inset(-10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         accessLevelTagImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(editButton)
-            make.trailing.equalTo(editButton.snp.leading)
+            make.centerY.equalTo(exitButton)
+            make.trailing.equalTo(exitButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
-        }
-        
-        memberTableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(8)
-            make.top.equalTo(profileImage.snp.bottom).offset(24)
-            make.height.equalTo(157)
-        }
-        
-        sendInviationButton.snp.makeConstraints { make in
-            make.top.equalTo(memberTableView.snp.bottom).offset(11)
-            make.trailing.equalToSuperview().inset(21)
         }
     }
     

@@ -21,6 +21,20 @@ class NotiViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         notificationsView.setConstraints()
+        notificationsView.toInvitationButton.addTarget(self, action: #selector(showInvitationVC), for: .touchUpInside)
+        notificationsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func popVC() {
+        dismiss(animated: false)
+    }
+    
+    @objc
+    private func showInvitationVC() {
+        let invitationVC = InvitationViewController()
+        invitationVC.modalPresentationStyle = .overFullScreen
+        present(invitationVC, animated: false)
     }
     
 }

@@ -52,10 +52,13 @@ class WalkingView: UIView {
     
     private lazy var btnStackView = UIStackView().then { stackView in
         stackView.addArrangedSubview(endBtn)
-        stackView.addArrangedSubview(stopBtn)
+        stackView.addArrangedSubview(playBtn)
         stackView.addArrangedSubview(cameraBtn)
         stackView.axis = .horizontal
         stackView.spacing = 17
+        
+        playBtn.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        playBtn.heightAnchor.constraint(equalToConstant: 80).isActive = true
     }
     
     public lazy var endBtn = UIButton().then { button in
@@ -63,9 +66,14 @@ class WalkingView: UIView {
         button.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
     }
     
-    public lazy var stopBtn = UIButton().then { button in
-        button.setImage(UIImage(named: "stopBtn"), for: .normal)
+    public lazy var playBtn = UIButton().then { button in
+        button.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 30, weight: .regular), forImageIn: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        button.tintColor = .white
+        button.backgroundColor = .brown00
+        button.layer.cornerRadius = 40
+        button.isUserInteractionEnabled = true
     }
     
     public lazy var cameraBtn = UIButton().then { button in

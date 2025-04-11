@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import KakaoSDKUser
 
 class LoginViewController: UIViewController {
     
@@ -33,7 +34,46 @@ extension LoginViewController {
     
     @objc
     private func handleKakaologin() {
-        RootViewControllerService.toBaseViewController()
+        KakaoLogin()
+    }
+    
+    func KakaoLogin() {
+        // 카카오톡 실행 가능 여부 확인
+        if (UserApi.isKakaoTalkLoginAvailable()) {
+            // 카카오톡 앱으로 로그인 인증
+            kakaoLonginWithApp()
+        } else { // 카톡이 설치가 안 되어 있을 때
+            // 카카오 계정으로 로그인
+            kakaoLoginWithAccount()
+        }
+    }
+    
+    func kakaoLonginWithApp() {
+        UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
+            if let error = error {
+                print("카카오 APP 로그인 에러")
+                print(error)
+            } else {
+                print("loginWithKakaoTalk() success.")
+                //do something
+                RootViewControllerService.toBaseViewController()
+                _ = oauthToken
+            }
+        }
+    }
+    
+    func kakaoLoginWithAccount() {
+        UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
+            if let error = error {
+                print("카카오 WEB 로그인 에러")
+                print(error)
+            } else {
+                print("loginWithKakaoAccount() success.")
+                //do something
+                RootViewControllerService.toBaseViewController()
+                _ = oauthToken
+            }
+        }
     }
     
 }

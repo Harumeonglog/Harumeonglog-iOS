@@ -1,17 +1,23 @@
 //
-//  PetCollectionViewCell.swift
+//  PetOwnerCell.swift
 //  Harumeonglog
 //
-//  Created by 이승준 on 3/26/25.
+//  Created by 이승준 on 3/29/25.
 //
 
 import UIKit
 
-class PetGuestCell: UICollectionViewCell {
+protocol PetOwnerCellDelegate: AnyObject {
+    func didTapInviteButton()
+    func didTapExitButton()
+    func didTapEditButton()
+}
+
+class PetOwnerCell: UICollectionViewCell {
     
-    static let identifier = "PetGuestCell"
+    private weak var delegate: PetOwnerCellDelegate?
+    static let identifier = "PetOwnerCell"
     
-    // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 40
@@ -32,16 +38,32 @@ class PetGuestCell: UICollectionViewCell {
     private lazy var birthdayLabel = commonLabel()
     
     private lazy var accessLevelTagImageView = UIImageView().then {
-        $0.image = .guestTag
+        $0.image = .ownerTag
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
     }
     
-    public lazy var editButton = UIButton().then {
-        $0.setImage(.meatballsMenu, for: .normal)
+    public lazy var exitButton = UIButton().then {
+        $0.setImage(.meatballsMenu , for: .normal)
     }
     
-    public func configure(_ petData: PetData) {
+    public lazy var editPuppyInfoButton = UIButton().then {
+        $0.setImage(.editPuppy, for: .normal)
+    }
+    
+    public lazy var memberTableView = UITableView().then {
+        $0.backgroundColor = .brown02
+        $0.layer.cornerRadius = 15
+        $0.clipsToBounds = true
+    }
+    
+    public lazy var sendInviationButton = UIButton().then {
+        $0.setImage(.sendInvitation, for: .normal)
+        $0.imageView?.contentMode = .scaleAspectFit
+    }
+    
+    public func configure(_ petData: PetData, delegate: PetOwnerCellDelegate?) {
+        self.delegate = delegate
         setDefaultConstraints()
         profileImage.image = petData.image
         nameLabel.text = petData.name
@@ -62,12 +84,21 @@ class PetGuestCell: UICollectionViewCell {
         self.addSubview(dogSizeLabel)
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
-        self.addSubview(editButton)
+        self.addSubview(exitButton)
+        self.addSubview(editPuppyInfoButton)
+        self.addSubview(memberTableView)
+        self.addSubview(sendInviationButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
             make.leading.top.equalToSuperview().offset(20)
         }
+        
+        editPuppyInfoButton.snp.makeConstraints { make in
+            make.height.width.equalTo(30)
+            make.leading.bottom.equalTo(profileImage)
+        }
+        editPuppyInfoButton.isHidden = true
         
         nameLabel.snp.makeConstraints { make in
             make.leading.equalTo(profileImage.snp.trailing).offset(16)
@@ -96,22 +127,51 @@ class PetGuestCell: UICollectionViewCell {
             make.top.equalTo(dogSizeLabel.snp.bottom).offset(7)
         }
         
-        editButton.snp.makeConstraints { make in
+        exitButton.snp.makeConstraints { make in
             make.height.width.equalTo(44)
             make.top.equalTo(profileImage.snp.top).inset(-10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         accessLevelTagImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(editButton)
-            make.trailing.equalTo(editButton.snp.leading)
+            make.centerY.equalTo(exitButton)
+            make.trailing.equalTo(exitButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
+        }
+        
+        memberTableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.top.equalTo(profileImage.snp.bottom).offset(24)
+            make.height.equalTo(157)
+        }
+        
+        sendInviationButton.snp.makeConstraints { make in
+            make.top.equalTo(memberTableView.snp.bottom).offset(11)
+            make.trailing.equalToSuperview().inset(21)
         }
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.exitButton.addTarget(self, action: #selector(didTapExitButton), for: .touchUpInside)
+        self.editPuppyInfoButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
+        self.sendInviationButton.addTarget(self, action: #selector(showInvitaionVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func showInvitaionVC() {
+        delegate?.didTapInviteButton()
+    }
+    
+    @objc
+    private func didTapEditButton() {
+        delegate?.didTapEditButton()
+    }
+    
+    @objc
+    private func didTapExitButton() {
+        delegate?.didTapExitButton()
     }
     
     required init?(coder: NSCoder) {

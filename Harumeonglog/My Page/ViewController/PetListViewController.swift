@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PetListViewController: UIViewController {
+class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
@@ -23,13 +23,13 @@ class PetListViewController: UIViewController {
     }
     
     let dataSource: [PetData] = [
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
         PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: [PetDataPerson(level: .Owner, name: "하민혁")]),
         PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: [PetDataPerson(level: .Owner, name: "하민혁"), PetDataPerson(level: .Owner, name: "하민혁")]),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
         PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
         PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
+        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
+        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
+        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
         PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
     ]
     
@@ -38,6 +38,7 @@ class PetListViewController: UIViewController {
         petListView.petListCollectionView.delegate = self
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
+        self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
@@ -45,8 +46,31 @@ class PetListViewController: UIViewController {
     }
     
     @objc
+    private func showPetRegistrationVC() {
+        let petRegistrationVC = PetRegistrationViewController()
+        petRegistrationVC.modalPresentationStyle = .overFullScreen
+        present(petRegistrationVC, animated: false)
+    }
+    
+    @objc
     private func dismissViewController() {
         dismiss(animated: false)
+    }
+    
+    func didTapInviteButton() {
+        let invitationVC = InviteUserViewController()
+        invitationVC.modalPresentationStyle = .overFullScreen
+        present(invitationVC, animated: false)
+    }
+    
+    func didTapExitButton() {
+        
+    }
+    
+    func didTapEditButton() {
+        let petRegistrationVC = PetRegistrationViewController()
+        petRegistrationVC.modalPresentationStyle = .overFullScreen
+        present(petRegistrationVC, animated: false)
     }
 }
 
@@ -61,7 +85,7 @@ extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataS
         switch data.level {
         case .Owner:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetOwnerCell.self.identifier, for: indexPath) as! PetOwnerCell
-            cell.configure(data)
+            cell.configure(data, delegate: self)
             return cell
         case .Guest:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetGuestCell.self.identifier, for: indexPath) as! PetGuestCell
