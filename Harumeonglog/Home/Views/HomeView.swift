@@ -116,6 +116,8 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return calendar
     }()
     
+    var scheduleView = ScheduleView() // ScheduleView 추가
+
     var calendarHeightConstraint: Constraint?
     
     //캘린더 height 맞추기
@@ -158,17 +160,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return imageView
     }()
     
-    lazy var scheduleModalView : ScheduleModalView = {
-        let view = ScheduleModalView()
-        view.backgroundColor = .white
-        view.isHidden = false
-        view.layer.cornerRadius = 20
-        view.clipsToBounds = true
-        view.isUserInteractionEnabled = true
-        view.delegate = self.delegate as? ScheduleModalViewDelegate
-        return view
-    }()
     
+    
+    //MARK: constraint 잡기
     private func addComponents() {
         addSubview(appLogoLabel)
         addSubview(nicknameLabel)
@@ -178,9 +172,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(profileButton)
         addSubview(calendarView)
         addSubview(headerStackView)
-        addSubview(scheduleModalView)
         addSubview(alarmButton)
         addSubview(addScheduleButton)
+        addSubview(scheduleView)
         
         appLogoLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(80)
@@ -231,6 +225,12 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             calendarHeightConstraint = make.height.equalTo(370).constraint
         }
         
+        scheduleView.snp.makeConstraints { make in
+            make.top.equalTo(calendarView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(self.safeAreaLayoutGuide)
+        }
+        
         addScheduleButton.snp.makeConstraints { make in
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(20)
             make.trailing.equalToSuperview().inset(20)
@@ -242,11 +242,6 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.top.equalTo(profileButton.snp.bottom).offset(20)
         }
         
-        scheduleModalView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
-            make.top.equalTo(calendarView.snp.bottom).offset(10)
-        }
         self.bringSubviewToFront(profileButton)
     }
 }

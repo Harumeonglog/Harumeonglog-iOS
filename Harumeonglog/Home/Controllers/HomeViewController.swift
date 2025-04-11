@@ -1,6 +1,3 @@
-// HomeViewController.swift
-// Harumeonglog
-
 import UIKit
 import FSCalendar
 import SnapKit
@@ -9,26 +6,12 @@ protocol ProfileSelectDelegate: AnyObject {
     func didSelectProfile(_ profile: Profile)
 }
 
-class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewDelegate {
+class HomeViewController: UIViewController, HomeViewDelegate {
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
         return view
     }()
-
-    //더미데이터
-    private var allSchedules: [Schedule] = [
-        Schedule(category: "건강", title: "병원 가기", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 24))!),
-        Schedule(category: "산책", title: "공원 산책", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 31))!),
-        Schedule(category: "산책", title: "공원 산책", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 31))!),
-        Schedule(category: "산책", title: "공원 산책", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 31))!),
-        Schedule(category: "산책", title: "공원 산책", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 31))!),
-        Schedule(category: "기타", title: "친구 만나기", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 27))!),
-        Schedule(category: "위생", title: "손톱 깎기", date: Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 27))!)
-    ]
-
-    private var filteredSchedules: [Schedule] = []
-    private var scheduleDates : [Date] = [] //일정 있는 날짜들
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,20 +20,42 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         homeView.delegate = self
         homeView.calendarView.delegate = self
         homeView.calendarView.dataSource = self
-        homeView.scheduleModalView.delegate = self
 
-        // 캘린더를 오늘 날짜로 초기화
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
 
-        // 버튼 액션 추가
-        setupButtons()
+        fetchPets()
 
-        updateScheduleList()
-        updateScheduleDates()
+        homeView.scheduleView.updateSchedules(for: Date())
+        setupButtons()
         updateHeaderLabel()
     }
     
+    private func fetchPets() {
+        PetService.fetchPets(completion: { result in
+            switch result {
+            case .success(let response):
+                switch response.result {
+                case .result(let petResult):
+                    let pets = petResult.pets
+                    if let defaultPet = pets.first(where: { $0.petId == 1 }) {
+                        print("선택된 반려견: \(defaultPet.name)")
+                        self.homeView.nicknameLabel.text = defaultPet.name
+                        self.homeView.profileButton.setImage(UIImage(named: defaultPet.mainImage ?? ""), for: .normal)
+                        self.homeView.birthdayLabel.text = defaultPet.birth ?? ""
+                    }
+                case .message(let msg):
+                    print("result 메시지: \(msg)")
+                case .none:
+                    print("result 없음")
+                }
+            case .failure(let error):
+                debugPrint("반려동물 조회 실패: \(error)")
+            }
+        })
+    }
+    
+                             
     // MARK: - 버튼 동작 함수들 모음
     private func setupButtons() {
         homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
@@ -64,28 +69,6 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
         homeView.calendarView.addGestureRecognizer(swipeGesture)
 
         homeView.profileButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
-    }
-
-    // MARK: - Schedule 업데이트
-    private func updateScheduleList(category: String? = "전체") {
-        if category == "전체" {
-            filteredSchedules = allSchedules
-        } else {
-            filteredSchedules = allSchedules.filter { $0.category == category }
-        }
-
-        DispatchQueue.main.async {
-            self.homeView.scheduleModalView.schedules = self.filteredSchedules.map { $0.title }
-        }
-    }
-    
-    private func updateScheduleDates() {
-        scheduleDates = Array(Set(allSchedules.map { $0.date }))
-    }
-    
-    // MARK: - Actions
-    func didSelectCategory(_ category: String?) {
-        updateScheduleList(category: category)
     }
 
     @objc func addScheduleButtonTapped() {
@@ -146,30 +129,9 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
         }
     }
     
-    //날짜 아래에 점찍기
-    func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-        // 일정이 있는 날짜에만 1 반환해서 점 표시
-        return scheduleDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) ? 1 : 0
-    }
-    
-    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, eventDefaultColorsFor date: Date) -> [UIColor]? {
-        return [.blue01]
-    }
-    
-    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, eventOffsetFor date: Date) -> CGPoint {
-        return CGPoint(x: 0, y: 1)
-    }
-    
-    //날짜 선택시 해당 일정 목록 보여주기
+    // 날짜 선택시 해당 일정 목록 보여주기
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        updateScheduleList(for: date)
-    }
-    
-    fileprivate func updateScheduleList(for date: Date) {
-        let filtered = allSchedules.filter {
-            Calendar.current.isDate($0.date, inSameDayAs: date)
-        }
-        homeView.scheduleModalView.schedules = filtered.map { $0.title }
+        homeView.scheduleView.updateSchedules(for: date)
     }
 }
 
@@ -259,4 +221,3 @@ extension HomeViewController: ProfileSelectDelegate {
         self.present(profileModalVC, animated: true, completion: nil)
     }
 }
-

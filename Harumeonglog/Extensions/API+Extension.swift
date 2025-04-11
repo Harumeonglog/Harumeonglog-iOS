@@ -5,7 +5,6 @@
 //  Created by Dana Lim on 3/13/25.
 //
 
-
 import Alamofire
 
 // APIClient 클래스 정의
@@ -17,7 +16,7 @@ class APIClient {
 extension APIClient {
     
     // Base URL 설정
-    private static let baseURL = ""
+    private static let baseURL = "https://api.haru-official.click"
     
     // 공통 헤더 생성 함수
     private static func getHeaders(withToken token: String? = nil) -> HTTPHeaders {
@@ -96,6 +95,16 @@ extension APIClient {
         let headers = getHeaders(withToken: token)
         
         AF.request(url, method: .delete, headers: headers).responseDecodable(of: T.self) { response in
+            completion(response.result)
+        }
+    }
+
+    // 공통 PATCH 요청 함수
+    static func patchRequest<T: Decodable, U: Encodable>(endpoint: String, parameters: U, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
+        let url = "\(baseURL)\(endpoint)"
+        let headers = getHeaders(withToken: token)
+
+        AF.request(url, method: .patch, parameters: parameters, encoder: JSONParameterEncoder.default, headers: headers).validate().responseDecodable(of: T.self) { response in
             completion(response.result)
         }
     }
