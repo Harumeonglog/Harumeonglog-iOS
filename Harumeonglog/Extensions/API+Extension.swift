@@ -99,6 +99,27 @@ extension APIClient {
         }
     }
 
+    // 공통 DELETE 요청 함수 (body 포함)
+    static func deleteRequest<T: Decodable, U: Encodable>(
+        endpoint: String,
+        parameters: U,
+        token: String? = nil,
+        completion: @escaping (Result<T, AFError>) -> Void
+    ) {
+        let url = "\(baseURL)\(endpoint)"
+        let headers = getHeaders(withToken: token)
+
+        AF.request(url,
+                   method: .delete,
+                   parameters: parameters,
+                   encoder: JSONParameterEncoder.default,
+                   headers: headers)
+        .validate()
+        .responseDecodable(of: T.self) { response in
+            completion(response.result)
+        }
+    }
+
     // 공통 PATCH 요청 함수
     static func patchRequest<T: Decodable, U: Encodable>(endpoint: String, parameters: U, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
         let url = "\(baseURL)\(endpoint)"
@@ -109,3 +130,4 @@ extension APIClient {
         }
     }
 }
+
