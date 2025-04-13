@@ -15,6 +15,7 @@ class MyPageViewController: UIViewController {
         super.viewDidLoad()
         self.view = myPageView
         setButtonActions()
+        self.navigationController?.isNavigationBarHidden = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -30,27 +31,24 @@ class MyPageViewController: UIViewController {
     @objc
     private func goToNotificationSettingVC() {
         let notiVC = SetNotificationViewController()
-        notiVC.modalPresentationStyle = .overFullScreen
-        present(notiVC, animated: false)
+        self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc
     private func handleEditProfileButtonTapped() {
         let editVC = EditProfileViewController()
-        editVC.modalPresentationStyle = .overFullScreen
-        present(editVC, animated: false)
+        self.navigationController?.pushViewController(editVC, animated: true)
     }
     
     @objc
     private func handlePetLisstButtonTapped() {
         let petListVC = PetListViewController()
-        petListVC.modalPresentationStyle = .overFullScreen
-        present(petListVC, animated: false)
+        self.navigationController?.pushViewController(petListVC, animated: true)
     }
     
 }
 
 import SwiftUI
 #Preview {
-    MyPageViewController()
+    BaseViewController()
 }

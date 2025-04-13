@@ -95,8 +95,7 @@ class HomeViewController: UIViewController, HomeViewDelegate, ScheduleModalViewD
 
     @objc func alarmButtonTapped() {
         let notificationVC = NotiViewController()
-        notificationVC.modalPresentationStyle = .overFullScreen
-        present(notificationVC, animated: false)
+        self.navigationController?.pushViewController(notificationVC, animated: true)
     }
     
     @objc private func headerTapped() {

@@ -9,8 +9,8 @@ import UIKit
 
 class MyPageView: UIView {
     
-    private let labelLeading: CGFloat = 28
-    private let leadingTrailingPadding: CGFloat = 38
+    private let labelLeading: CGFloat = 38
+    private let leadingTrailingPadding: CGFloat = 28
     
     public lazy var goNotification = UIButton().then {
         $0.setImage(.alarmButton, for: .normal)

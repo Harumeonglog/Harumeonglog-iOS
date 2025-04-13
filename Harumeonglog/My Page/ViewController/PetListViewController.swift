@@ -39,6 +39,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -48,13 +49,12 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     @objc
     private func showPetRegistrationVC() {
         let petRegistrationVC = PetRegistrationViewController()
-        petRegistrationVC.modalPresentationStyle = .overFullScreen
-        present(petRegistrationVC, animated: false)
+        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
     
     @objc
     private func dismissViewController() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     func didTapInviteButton() {
@@ -69,8 +69,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
     func didTapEditButton() {
         let petRegistrationVC = PetRegistrationViewController()
-        petRegistrationVC.modalPresentationStyle = .overFullScreen
-        present(petRegistrationVC, animated: false)
+        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
 }
 

@@ -17,6 +17,7 @@ class NotiViewController: UIViewController {
         self.notificationsView.notificationCollectionView.delegate = self
         self.notificationsView.notificationCollectionView.dataSource = self
         self.notificationsView.configure(invitationCount: 10)
+        self.navigationController?.isNavigationBarHidden = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -27,14 +28,13 @@ class NotiViewController: UIViewController {
     
     @objc
     private func popVC() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc
     private func showInvitationVC() {
         let invitationVC = InvitationViewController()
-        invitationVC.modalPresentationStyle = .overFullScreen
-        present(invitationVC, animated: false)
+        self.navigationController?.pushViewController(invitationVC, animated: true)
     }
     
 }

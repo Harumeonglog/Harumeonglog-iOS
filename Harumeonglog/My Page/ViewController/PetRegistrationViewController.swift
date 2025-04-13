@@ -54,7 +54,7 @@ extension PetRegistrationViewController {
     
     @objc
     private func handleNavigationBarLeftButton() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
 }
 
@@ -167,7 +167,7 @@ extension PetRegistrationViewController {
     
     @objc
     private func handleRegistrationButtonTap() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
 }
 

@@ -76,7 +76,7 @@ class EditProfileViewController: UIViewController {
     
     @objc
     private func dismissViewController() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
 }

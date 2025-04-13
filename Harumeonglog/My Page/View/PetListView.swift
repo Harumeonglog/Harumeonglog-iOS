@@ -43,7 +43,6 @@ class PetListView: UIView {
     public func setConstraints() {
         self.addSubview(navigationBar)
         self.addSubview(petListCollectionView)
-        self.addSubview(addPetButton)
         
         navigationBar.configureTitle(title: "반려견 목록")
         navigationBar.snp.makeConstraints { make in
@@ -56,6 +55,7 @@ class PetListView: UIView {
             make.bottom.equalToSuperview().inset(120)
         }
         
+        self.addSubview(addPetButton)
         addPetButton.configure(labelText: "반려견 추가")
         addPetButton.addPlusImage()
         addPetButton.available()
