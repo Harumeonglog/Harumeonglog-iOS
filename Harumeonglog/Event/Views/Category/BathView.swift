@@ -66,3 +66,8 @@ class BathView: UIView {
     }
 }
 
+extension BathView: EventDetailReceivable {
+    func applyContent(from data: EventDetailData) {
+        detailTextView.text = data.fields["detail"]
+    }
+}

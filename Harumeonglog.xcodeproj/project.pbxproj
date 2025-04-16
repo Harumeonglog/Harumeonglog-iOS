@@ -17,6 +17,7 @@
 		637202232D830FCD0088E222 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 637202222D830FCD0088E222 /* FirebaseCore */; };
 		637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 637202242D830FCD0088E222 /* FirebaseMessaging */; };
 		947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 947D14502D853E5E00486ED6 /* FSCalendar */; };
+		94AFC6832DAA52BC0089C7F8 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 94AFC6822DAA52BC0089C7F8 /* SDWebImage */; };
 		97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 97470C7C2D93DBE600039FA5 /* NMapsMap */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +57,7 @@
 				947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */,
 				637201482D830EAB0088E222 /* SnapKit in Frameworks */,
 				637201582D830F370088E222 /* KakaoSDKUser in Frameworks */,
+				94AFC6832DAA52BC0089C7F8 /* SDWebImage in Frameworks */,
 				97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */,
 				6372014B2D830EB80088E222 /* Then in Frameworks */,
 				637201562D830F370088E222 /* KakaoSDKCommon in Frameworks */,
@@ -106,6 +108,7 @@
 				637202242D830FCD0088E222 /* FirebaseMessaging */,
 				947D14502D853E5E00486ED6 /* FSCalendar */,
 				97470C7C2D93DBE600039FA5 /* NMapsMap */,
+				94AFC6822DAA52BC0089C7F8 /* SDWebImage */,
 			);
 			productName = Harumeonglog;
 			productReference = 638DF0612D84824200542F21 /* Harumeonglog.app */;
@@ -145,6 +148,7 @@
 				637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */,
 				97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
+				94AFC6812DAA52BC0089C7F8 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63E121A62D825DB300402E92;
@@ -456,6 +460,14 @@
 				minimumVersion = 2.8.4;
 			};
 		};
+		94AFC6812DAA52BC0089C7F8 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.0;
+			};
+		};
 		97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
@@ -516,6 +528,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */;
 			productName = FSCalendar;
+		};
+		94AFC6822DAA52BC0089C7F8 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 94AFC6812DAA52BC0089C7F8 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
 		};
 		97470C7C2D93DBE600039FA5 /* NMapsMap */ = {
 			isa = XCSwiftPackageProductDependency;

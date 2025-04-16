@@ -1,24 +1,24 @@
 //
-//  ScheduleModalView.swift
+//  EventModalView.swift
 //  Harumeonglog
 //
 
 import UIKit
 import SnapKit
 
-protocol ScheduleModalViewDelegate: AnyObject {
+protocol EventModalViewDelegate: AnyObject {
     func didSelectCategory(_ category: String?) // 카테고리 선택 시 전달
 }
 
-class ScheduleModalView: UIView {
+class EventModalView: UIView {
     
-    weak var delegate: ScheduleModalViewDelegate?
+    weak var delegate: EventModalViewDelegate?
 
     private let categories = ["전체", "위생", "건강", "산책", "기타"]
     private var selectedCategory: String? = "전체"
 
     // 일정 데이터 (외부에서 설정 가능)**
-    var schedules: [String] = [] {
+    var Events: [String] = [] {
         didSet {
             tableView.reloadData()
         }
@@ -49,7 +49,7 @@ class ScheduleModalView: UIView {
         tableView.dataSource = self
         tableView.rowHeight = 70 // 셀 높이
         tableView.separatorStyle = .none //구분선 제거
-        tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.identifier)
+        tableView.register(EventCell.self, forCellReuseIdentifier: EventCell.identifier)
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -83,7 +83,7 @@ class ScheduleModalView: UIView {
     }
 }
 
-extension ScheduleModalView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension EventModalView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     // MARK: - UICollectionViewDelegate & DataSource
     
@@ -111,18 +111,18 @@ extension ScheduleModalView: UICollectionViewDelegate, UICollectionViewDataSourc
     }
 }
 
-extension ScheduleModalView: UITableViewDelegate, UITableViewDataSource {
+extension EventModalView: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: - UITableViewDelegate & DataSource
     
     // UITableView DataSource & Delegate (일정 리스트)
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return schedules.count
+        return Events.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.identifier, for: indexPath) as! ScheduleCell
-        cell.configure(schedule: schedules[indexPath.row], isChecked: false) // 기본 체크 해제 상태
+        let cell = tableView.dequeueReusableCell(withIdentifier: EventCell.identifier, for: indexPath) as! EventCell
+        cell.configure(Event: Events[indexPath.row], isChecked: false) // 기본 체크 해제 상태
         return cell
     }
 

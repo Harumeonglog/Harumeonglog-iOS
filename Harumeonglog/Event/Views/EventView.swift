@@ -1,5 +1,5 @@
 //
-//  ScheduleView.swift
+//  EventView.swift
 //  Harumeonglog
 //
 //  Created by Dana Lim on 4/11/25.
@@ -8,9 +8,15 @@
 import UIKit
 import SnapKit
 
-class ScheduleView: UIView {
+protocol EventViewDelegate: AnyObject {
+    func didSelectEvent(_ event: Event)
+}
 
-    private let categoryCollectionView: UICollectionView = {
+class EventView: UIView {
+
+    weak var delegate: EventViewDelegate?
+    
+    let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumInteritemSpacing = 8
@@ -26,26 +32,22 @@ class ScheduleView: UIView {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
-        tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.identifier)
+        tableView.register(EventCell.self, forCellReuseIdentifier: EventCell.identifier)
         return tableView
     }()
 
-    private var allSchedules: [Schedule] = [
-        Schedule(category: "위생", title: "목욕하기", date: Date()),
-        Schedule(category: "건강", title: "병원 가기", date: Date()),
-        Schedule(category: "산책", title: "공원 산책", date: Date()),
-        Schedule(category: "기타", title: "친구 만나기", date: Date()),
-        Schedule(category: "건강", title: "운동하기", date: Date()),
-        Schedule(category: "산책", title: "강아지랑 걷기", date: Date()),
-        Schedule(category: "위생", title: "손톱 깎기", date: Date())
+    private var allEvents: [Event] = [
+        Event(id: 0, title: "목욕하기", done: false, category: "위생"),
+        Event(id: 1, title: "산책하기", done: false, category: "산책"),
+        Event(id: 2, title: "병원가기", done: false, category: "건강"),
+        Event(id: 3, title: "목욕하기", done: false, category: "기타")
+        
     ]
 
-    private var filteredSchedules: [Schedule] = []
+    private var filteredEvents: [Event] = []
     private var selectedCategory: String? = "전체"
 
-    private var categories: [String] {
-        return ["전체"] + Array(Set(allSchedules.map { $0.category })).sorted()
-    }
+    private var categories: [String] { return ["전체"] + Array(Set(allEvents.map { $0.category })).sorted()}
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -79,23 +81,23 @@ class ScheduleView: UIView {
         }
     }
 
-    func updateSchedules(for date: Date) {
-        filteredSchedules = allSchedules.filter { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    /*func updateEvents(for date: Date) {
+        filteredEvents = allEvents.filter { Calendar.current.isDate($0.date, inSameDayAs: date) }
         applyCategoryFilter()
-    }
+    }*/
 
     private func applyCategoryFilter() {
         if selectedCategory == "전체" || selectedCategory == nil {
-            filteredSchedules = allSchedules
+            filteredEvents = allEvents
         } else {
-            filteredSchedules = allSchedules.filter { $0.category == selectedCategory }
+            filteredEvents = allEvents.filter { $0.category == selectedCategory }
         }
         tableView.reloadData()
         categoryCollectionView.reloadData()
     }
 }
 
-extension ScheduleView : UICollectionViewDelegate, UICollectionViewDataSource {
+extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return categories.count
     }
@@ -116,17 +118,22 @@ extension ScheduleView : UICollectionViewDelegate, UICollectionViewDataSource {
     }
 }
 
-extension ScheduleView : UITableViewDelegate, UITableViewDataSource {
+extension EventView : UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredSchedules.count
+        return filteredEvents.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.identifier, for: indexPath) as? ScheduleCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: EventCell.identifier, for: indexPath) as? EventCell else {
             return UITableViewCell()
         }
-        let schedule = filteredSchedules[indexPath.row]
-        cell.configure(schedule: schedule.title, isChecked: false)
+        let Event = filteredEvents[indexPath.row]
+        cell.configure(Event: Event.title, isChecked: false)
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedEvent = filteredEvents[indexPath.row]
+        delegate?.didSelectEvent(selectedEvent)
     }
 }

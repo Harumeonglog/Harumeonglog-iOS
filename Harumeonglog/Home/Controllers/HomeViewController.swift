@@ -20,13 +20,14 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.delegate = self
         homeView.calendarView.delegate = self
         homeView.calendarView.dataSource = self
+        homeView.eventView.delegate = self
 
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
 
         fetchPets()
 
-        homeView.scheduleView.updateSchedules(for: Date())
+        //homeView.eventView.updateEvents(for: Date())
         setupButtons()
         updateHeaderLabel()
     }
@@ -58,7 +59,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                              
     // MARK: - 버튼 동작 함수들 모음
     private func setupButtons() {
-        homeView.addScheduleButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
+        homeView.addeventButton.addTarget(self, action: #selector(addeventButtonTapped), for: .touchUpInside)
         homeView.alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
         
         //헤더 누르면 년/월 선택
@@ -71,8 +72,8 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.profileButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
     }
 
-    @objc func addScheduleButtonTapped() {
-        let addVC = AddScheduleViewController()
+    @objc func addeventButtonTapped() {
+        let addVC = AddEventViewController()
         self.navigationController?.pushViewController(addVC, animated: true)
     }
 
@@ -131,7 +132,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     
     // 날짜 선택시 해당 일정 목록 보여주기
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        homeView.scheduleView.updateSchedules(for: date)
+        // 선택한 날짜에 해당하는 이벤트를 보여주는 로직만 수행
+        //homeView.eventView.updateEvents(for: date)
     }
 }
 
@@ -219,5 +221,21 @@ extension HomeViewController: ProfileSelectDelegate {
         profileModalVC.modalPresentationStyle = .pageSheet
         profileModalVC.delegate = self
         self.present(profileModalVC, animated: true, completion: nil)
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension HomeViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 이벤트 목록 중 선택된 index의 eventId를 전달
+        let editVC = EditEventViewController(eventId: indexPath.row + 1)
+        self.navigationController?.pushViewController(editVC, animated: true)
+    }
+}
+
+extension HomeViewController: EventViewDelegate {
+    func didSelectEvent(_ event: Event) {
+        let editVC = EditEventViewController(eventId: event.id)
+        navigationController?.pushViewController(editVC, animated: true)
     }
 }

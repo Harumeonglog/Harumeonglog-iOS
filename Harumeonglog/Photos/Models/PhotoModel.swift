@@ -6,11 +6,30 @@
 //
 
 //MARK: GET /pet-images/{petId} 특정 반려동물의 이미지 목록 불러오기
-struct PetImageListResponse: Codable {
+struct PetImageListResponse: Decodable {
     let isSuccess: Bool
-    let code : String
+    let code: String
     let message: String
-    let result: PetImageListResult?
+    let result: PetImageListResultOrString?
+}
+
+enum PetImageListResultOrString: Decodable {
+    case result(PetImageListResult)
+    case message(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let result = try? container.decode(PetImageListResult.self) {
+            self = .result(result)
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                PetImageListResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected type for result field.")
+            )
+        }
+    }
 }
 
 struct PetImageListResult: Codable {

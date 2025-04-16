@@ -1,5 +1,5 @@
 //
-//  AddScheduleView.swift
+//  AddEventView.swift
 //  Harumeonglog
 //
 //  Created by Dana Lim on 3/13/25.
@@ -9,13 +9,19 @@ import UIKit
 import SnapKit
 
 
-protocol AddScheduleViewDelegate: AnyObject {
+protocol AddEventViewDelegate: AnyObject {
     func categoryDidSelect(_ category: CategoryType)
+    func dateButtonTapped()
+    func timeButtonTapped()
+    func alarmButtonTapped()
+    func weekdayTapped(_ weekday: String, isSelected: Bool)
 }
 
-class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
+class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
-    weak var delegate: AddScheduleViewDelegate?  // Delegate 선언
+    weak var delegate: AddEventViewDelegate?  // Delegate 선언
+    
+    public private(set) var categoryInputView: UIView?
     
     public lazy var navigationBar = CustomNavigationBar()
 
@@ -48,7 +54,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
     }()
     
     // 날짜, 알림, 반복 담는 뷰
-    lazy var scheduleInfoView: UIView = {
+    lazy var EventInfoView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 15
         view.layer.borderColor = UIColor.brown02.cgColor
@@ -172,26 +178,44 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         tableView.layer.cornerRadius = 15
         return tableView
     }()
+    
+    lazy var deleteEventButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("삭제", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .body
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .white
+        button.isHidden = true
+        button.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.5, alpha: 1.0)
+        button.layer.cornerRadius = 20
+        button.contentHorizontalAlignment = .center
+        button.semanticContentAttribute = .forceLeftToRight
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -40)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -20, bottom: 0, right: 20)
+        return button
+    }()
 
     private let categories: [CategoryType] = [.bath, .walk, .medicine, .checkup, .other]
 
     private func addComponents() {
+        self.addSubview(deleteEventButton)
         self.addSubview(titleTextField)
-        self.addSubview(scheduleInfoView)
+        self.addSubview(EventInfoView)
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
         self.addSubview(navigationBar)
         
-        scheduleInfoView.addSubview(timeIcon)
-        scheduleInfoView.addSubview(repeatIcon)
-        scheduleInfoView.addSubview(alarmIcon)
+        EventInfoView.addSubview(timeIcon)
+        EventInfoView.addSubview(repeatIcon)
+        EventInfoView.addSubview(alarmIcon)
             
-        scheduleInfoView.addSubview(dateButton)
-        scheduleInfoView.addSubview(alarmButton)
-        scheduleInfoView.addSubview(timeButton)
+        EventInfoView.addSubview(dateButton)
+        EventInfoView.addSubview(alarmButton)
+        EventInfoView.addSubview(timeButton)
         
         // weekButtons(요일 선택 버튼) 추가
-        weekButtons.forEach { scheduleInfoView.addSubview($0) }
+        weekButtons.forEach { EventInfoView.addSubview($0) }
         
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
@@ -204,17 +228,17 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         timeIcon.snp.makeConstraints { make in
-            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)  // scheduleInfoView의 leading에서 30pt
+            make.leading.equalTo(EventInfoView.snp.leading).offset(30)  // EventInfoView의 leading에서 30pt
             make.top.equalToSuperview().offset(20)  // 상단에서 20pt
         }
             
         repeatIcon.snp.makeConstraints { make in
-            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)
+            make.leading.equalTo(EventInfoView.snp.leading).offset(30)
             make.top.equalTo(timeIcon.snp.bottom).offset(28)  // 요소 간 간격 40pt
         }
             
         alarmIcon.snp.makeConstraints { make in
-            make.leading.equalTo(scheduleInfoView.snp.leading).offset(30)
+            make.leading.equalTo(EventInfoView.snp.leading).offset(30)
             make.top.equalTo(repeatIcon.snp.bottom).offset(28)  // 요소 간 간격 40pt
         }
             
@@ -256,7 +280,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.centerX.equalToSuperview()
         }
         
-        scheduleInfoView.snp.makeConstraints { make in
+        EventInfoView.snp.makeConstraints { make in
             make.top.equalTo(titleTextField.snp.bottom).offset(20)
             make.width.equalTo(362)
             make.height.equalTo(160)
@@ -264,7 +288,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         categoryButton.snp.makeConstraints { make in
-            make.top.equalTo(scheduleInfoView.snp.bottom).offset(20)
+            make.top.equalTo(EventInfoView.snp.bottom).offset(20)
             make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
@@ -276,10 +300,67 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
         }
+        
+        deleteEventButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(21)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
+            make.height.equalTo(50)
+        }
+
+
+        dateButton.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
+        timeButton.addTarget(self, action: #selector(timeButtonTapped), for: .touchUpInside)
+        alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
+        weekButtons.forEach { $0.addTarget(self, action: #selector(weekButtonTapped(_:)), for: .touchUpInside) }
     }
 
     @objc private func toggleDropdown() {
         dropdownTableView.isHidden.toggle()
+    }
+
+    @objc private func dateButtonTapped() {
+        delegate?.dateButtonTapped()
+    }
+
+    @objc private func timeButtonTapped() {
+        delegate?.timeButtonTapped()
+    }
+
+    @objc private func alarmButtonTapped() {
+        delegate?.alarmButtonTapped()
+    }
+
+    @objc private func weekButtonTapped(_ sender: UIButton) {
+        guard let title = sender.titleLabel?.text else { return }
+        let isSelected = sender.backgroundColor != .brown01
+        delegate?.weekdayTapped(title, isSelected: isSelected)
+    }
+
+    func updateCategoryInputView(for category: CategoryType) {
+        categoryInputView?.removeFromSuperview()
+
+        switch category {
+        case .bath:
+            categoryInputView = BathView()
+        case .walk:
+            categoryInputView = WalkView()
+        case .medicine:
+            categoryInputView = MedicineView()
+        case .checkup:
+            categoryInputView = CheckupView()
+        case .other:
+            categoryInputView = OtherView()
+        }
+
+        if let newView = categoryInputView {
+            addSubview(newView)
+            bringSubviewToFront(dropdownTableView)
+            newView.snp.makeConstraints { make in
+                make.top.equalTo(categoryButton.snp.bottom).offset(20)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(300)
+            }
+        }
     }
 
     // UITableView DataSource & Delegate
@@ -298,7 +379,7 @@ class AddScheduleView: UIView, UITableViewDelegate, UITableViewDataSource {
 
         return cell
     }
-    //셀 선택시 동작 
+    //셀 선택시 동작
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) {
                 cell.backgroundColor = .white  // 선택된 셀의 배경색을 하얀색으로 유지
