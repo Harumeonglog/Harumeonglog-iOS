@@ -7,8 +7,12 @@
 
 import UIKit
 
+
+
 class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
+    var delegate: PetListViewControllerDelegate?
+    public let showTabBar: (()->Void)? = nil
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
@@ -39,11 +43,11 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
-        self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewDidLayoutSubviews() {
         petListView.setConstraints()
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     @objc
@@ -55,6 +59,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     @objc
     private func dismissViewController() {
         self.navigationController?.popViewController(animated: true)
+        delegate?.showTabBar()
     }
     
     func didTapInviteButton() {
@@ -127,7 +132,9 @@ enum UserAcessLevelEnum: String {
     case Owner, Guest
 }
 
-
+protocol PetListViewControllerDelegate {
+    func showTabBar()
+}
 
 import SwiftUI
 #Preview {

@@ -7,15 +7,19 @@
 
 import UIKit
 
-class MyPageViewController: UIViewController {
+class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetListViewControllerDelegate {
     
     private let myPageView = MyPageView()
+    private let petListVC = PetListViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPageView
         setButtonActions()
-        self.navigationController?.isNavigationBarHidden = true
+        petListVC.delegate = self
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -42,8 +46,11 @@ class MyPageViewController: UIViewController {
     
     @objc
     private func handlePetLisstButtonTapped() {
-        let petListVC = PetListViewController()
         self.navigationController?.pushViewController(petListVC, animated: true)
+    }
+    
+    func showTabBar() {
+        self.tabBarController?.tabBar.isHidden = false
     }
     
 }
