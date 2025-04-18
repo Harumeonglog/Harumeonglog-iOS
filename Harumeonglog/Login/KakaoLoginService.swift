@@ -12,7 +12,7 @@ import Foundation
 class KakaoLoginService {
     
     static func login(oauth: OAuthToken) {
-        let url = K.haruURL + "/api/v1/members/KAKAO/login"
+        let url = K.haruURL + "/api/v1/auth/KAKAO/login"
         let headers: HTTPHeaders = [
             "accept": "*/*",
             "Content-Type": "application/json"
