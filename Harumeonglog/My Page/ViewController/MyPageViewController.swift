@@ -7,14 +7,19 @@
 
 import UIKit
 
-class MyPageViewController: UIViewController {
+class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetListViewControllerDelegate {
     
     private let myPageView = MyPageView()
+    private let petListVC = PetListViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPageView
         setButtonActions()
+        petListVC.delegate = self
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -30,27 +35,27 @@ class MyPageViewController: UIViewController {
     @objc
     private func goToNotificationSettingVC() {
         let notiVC = SetNotificationViewController()
-        notiVC.modalPresentationStyle = .overFullScreen
-        present(notiVC, animated: false)
+        self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc
     private func handleEditProfileButtonTapped() {
         let editVC = EditProfileViewController()
-        editVC.modalPresentationStyle = .overFullScreen
-        present(editVC, animated: false)
+        self.navigationController?.pushViewController(editVC, animated: true)
     }
     
     @objc
     private func handlePetLisstButtonTapped() {
-        let petListVC = PetListViewController()
-        petListVC.modalPresentationStyle = .overFullScreen
-        present(petListVC, animated: false)
+        self.navigationController?.pushViewController(petListVC, animated: true)
+    }
+    
+    func showTabBar() {
+        self.tabBarController?.tabBar.isHidden = false
     }
     
 }
 
 import SwiftUI
 #Preview {
-    MyPageViewController()
+    BaseViewController()
 }

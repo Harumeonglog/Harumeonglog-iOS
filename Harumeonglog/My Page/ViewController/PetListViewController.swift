@@ -7,8 +7,12 @@
 
 import UIKit
 
+
+
 class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
+    var delegate: PetListViewControllerDelegate?
+    public let showTabBar: (()->Void)? = nil
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
@@ -43,18 +47,19 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
     override func viewDidLayoutSubviews() {
         petListView.setConstraints()
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     @objc
     private func showPetRegistrationVC() {
         let petRegistrationVC = PetRegistrationViewController()
-        petRegistrationVC.modalPresentationStyle = .overFullScreen
-        present(petRegistrationVC, animated: false)
+        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
     
     @objc
     private func dismissViewController() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
+        delegate?.showTabBar()
     }
     
     func didTapInviteButton() {
@@ -69,8 +74,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
     func didTapEditButton() {
         let petRegistrationVC = PetRegistrationViewController()
-        petRegistrationVC.modalPresentationStyle = .overFullScreen
-        present(petRegistrationVC, animated: false)
+        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
 }
 
@@ -128,7 +132,9 @@ enum UserAcessLevelEnum: String {
     case Owner, Guest
 }
 
-
+protocol PetListViewControllerDelegate {
+    func showTabBar()
+}
 
 import SwiftUI
 #Preview {

@@ -9,8 +9,8 @@ import UIKit
 
 class MyPageView: UIView {
     
-    private let labelLeading: CGFloat = 28
-    private let leadingTrailingPadding: CGFloat = 38
+    private let labelLeading: CGFloat = 38
+    private let leadingTrailingPadding: CGFloat = 28
     
     public lazy var goNotification = UIButton().then {
         $0.setImage(.alarmButton, for: .normal)
@@ -99,8 +99,8 @@ class MyPageView: UIView {
         goEditProileButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview()
-            make.height.equalTo(48)
-            make.width.equalTo(48)
+            make.height.equalTo(44)
+            make.width.equalTo(44)
         }
         
         goNotification.snp.makeConstraints { make in
@@ -122,6 +122,8 @@ class MyPageView: UIView {
         let screenWidth = UIScreen.main.bounds.width
         let myStackWidth: CGFloat = screenWidth - 2 * leadingTrailingPadding
         let myStackHeight: CGFloat = myStackWidth * (80.0/346.0)
+        
+        let buttonWidth = (myStackWidth - 2) / 3
         
         myActiveStack.clipsToBounds = true
         myActiveStack.layer.cornerRadius = myStackHeight / 4
@@ -152,7 +154,7 @@ class MyPageView: UIView {
         
         for button in buttons {
             button.snp.makeConstraints { make in
-                make.width.equalTo(myStackWidth / 3)
+                make.width.equalTo(buttonWidth)
             }
         }
         
@@ -268,8 +270,7 @@ class MyPageView: UIView {
         return UIButton().then {
             $0.setImage(.rightArrow, for: .normal)
             $0.imageView?.contentMode = .scaleAspectFit
-            $0.snp.makeConstraints { $0.height.width.equalTo(44) }
-            $0.imageView?.snp.makeConstraints { $0.height.width.equalTo(20) }
+            // $0.imageView?.snp.makeConstraints { $0.height.width.equalTo(20) }
             $0.tintColor = .gray01
         }
     }

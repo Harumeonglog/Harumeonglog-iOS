@@ -26,12 +26,7 @@ extension LoginViewController {
         self.loginView.appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
         self.loginView.kakaoLoginButton.addTarget(self, action: #selector(handleKakaologin), for: .touchUpInside)
     }
-    
-    @objc
-    private func handleAppleLogin() {
-        RootViewControllerService.toBaseViewController()
-    }
-    
+        
     @objc
     private func handleKakaologin() {
         KakaoLogin()
@@ -51,13 +46,11 @@ extension LoginViewController {
     func kakaoLonginWithApp() {
         UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
             if let error = error {
-                print("카카오 APP 로그인 에러")
+                // print("카카오 APP 로그인 에러")
                 print(error)
             } else {
-                print("loginWithKakaoTalk() success.")
-                //do something
-                RootViewControllerService.toBaseViewController()
-                _ = oauthToken
+                guard let oauthToken = oauthToken else { return }
+                KakaoLoginService.login(oauth: oauthToken)
             }
         }
     }
@@ -65,15 +58,18 @@ extension LoginViewController {
     func kakaoLoginWithAccount() {
         UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
             if let error = error {
-                print("카카오 WEB 로그인 에러")
+                // print("카카오 WEB 로그인 에러")
                 print(error)
             } else {
-                print("loginWithKakaoAccount() success.")
-                //do something
-                RootViewControllerService.toBaseViewController()
-                _ = oauthToken
+                guard let oauthToken = oauthToken else { return }
+                KakaoLoginService.login(oauth: oauthToken)
             }
         }
+    }
+    
+    @objc
+    private func handleAppleLogin() {
+        RootViewControllerService.toBaseViewController()
     }
     
 }

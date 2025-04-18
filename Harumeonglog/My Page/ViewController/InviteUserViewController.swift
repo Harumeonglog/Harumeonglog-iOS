@@ -29,6 +29,10 @@ class InviteUserViewController: UIViewController {
 
 extension InviteUserViewController: UITextFieldDelegate {
     
+    func textField(_ textField: UITextField, willPresentEditMenuWith animator: any UIEditMenuInteractionAnimating) {
+        print("it's edditing now")
+    }
+    
 }
 
 extension InviteUserViewController: UICollectionViewDelegate, UICollectionViewDataSource {
