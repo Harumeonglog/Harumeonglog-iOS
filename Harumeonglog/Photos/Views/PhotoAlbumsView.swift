@@ -25,19 +25,27 @@ class PhotoAlbumsView: UIView {
         Album(coverImage: UIImage(named: "doggo")!,
               images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!,UIImage(named: "doggo")!,UIImage(named: "doggo")!],
               name: "누룽지",
-              photosCount: 308),
+              photosCount: 308,
+              mainImageURL: nil,
+              petId: 1),
         Album(coverImage: UIImage(named: "doggo")!,
               images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!],
               name: "호빵이",
-              photosCount: 10),
+              photosCount: 10,
+              mainImageURL: nil,
+              petId: 2),
         Album(coverImage: UIImage(named: "doggo")!,
               images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!],
               name: "바보",
-              photosCount: 503),
+              photosCount: 503,
+              mainImageURL: nil,
+              petId: 3),
         Album(coverImage: UIImage(named: "doggo")!,
               images: [UIImage(named: "doggo")!],
               name: "나비",
-              photosCount: 283)
+              photosCount: 283,
+              mainImageURL: nil,
+              petId: 4)
     ]
     
 
@@ -65,4 +73,3 @@ class PhotoAlbumsView: UIView {
     }
    
 }
-

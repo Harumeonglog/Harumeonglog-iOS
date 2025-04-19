@@ -6,6 +6,7 @@
 //
 import UIKit
 import SnapKit
+import SDWebImage
 
 class AlbumCell: UICollectionViewCell {
     
@@ -71,9 +72,16 @@ class AlbumCell: UICollectionViewCell {
     
     func configure(with album: Album) {
         self.album = album
-        imageView.image = album.coverImage
         nameLabel.text = album.name
         photosCountLabel.text = "\(album.photosCount)"
+
+        // 이미지 로딩
+        if let urlString = album.mainImageURL, let url = URL(string: urlString) {
+            // SDWebImage 사용 시
+            imageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder"))
+        } else {
+            imageView.image = UIImage(named: "placeholder")
+        }
     }
 }
 
@@ -95,4 +103,6 @@ struct Album {
     var images : [UIImage]
     let name: String
     let photosCount: Int
+    let mainImageURL: String?
+    let petId : Int
 }

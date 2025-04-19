@@ -136,3 +136,11 @@ class MedicineView: UIView {
         }
     }
 }
+
+extension MedicineView: EventDetailReceivable {
+    func applyContent(from data: EventDetailData) {
+        medicineNameTextField.text = data.fields["medicineName"]
+        medicineDosageTextField.text = data.fields["dosage"]
+        detailTextView.text = data.fields["detail"]
+    }
+}

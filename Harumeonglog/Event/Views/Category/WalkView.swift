@@ -149,3 +149,11 @@ class WalkView: UIView {
         }
     }
 }
+
+extension WalkView: EventDetailReceivable {
+    func applyContent(from data: EventDetailData) {
+        distanceTextField.text = data.fields["distance"]
+        timeTextField.text = data.fields["time"]
+        detailTextView.text = data.fields["detail"]
+    }
+}

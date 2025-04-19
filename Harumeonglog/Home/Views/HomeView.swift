@@ -66,7 +66,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return imageView
     }()
     
-    lazy var addScheduleButton: UIButton = {
+    lazy var addeventButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 30, weight: .regular), forImageIn: .normal)
@@ -116,7 +116,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         return calendar
     }()
     
-    var scheduleView = ScheduleView() // ScheduleView 추가
+    var eventView = EventView() // eventView 추가
 
     var calendarHeightConstraint: Constraint?
     
@@ -173,8 +173,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(calendarView)
         addSubview(headerStackView)
         addSubview(alarmButton)
-        addSubview(addScheduleButton)
-        addSubview(scheduleView)
+        addSubview(eventView)
+        addSubview(addeventButton)
+
         
         appLogoLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(80)
@@ -225,13 +226,13 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             calendarHeightConstraint = make.height.equalTo(370).constraint
         }
         
-        scheduleView.snp.makeConstraints { make in
+        eventView.snp.makeConstraints { make in
             make.top.equalTo(calendarView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(self.safeAreaLayoutGuide)
         }
         
-        addScheduleButton.snp.makeConstraints { make in
+        addeventButton.snp.makeConstraints { make in
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(20)
             make.trailing.equalToSuperview().inset(20)
             make.width.height.equalTo(60)

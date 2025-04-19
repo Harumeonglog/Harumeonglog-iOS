@@ -172,3 +172,13 @@ class CheckupView: UIView {
         }
     }
 }
+
+extension CheckupView: EventDetailReceivable {
+    func applyContent(from data: EventDetailData) {
+        hospitalTextField.text = data.fields["hospital"]
+        departmentTextField.text = data.fields["department"]
+        costTextField.text = data.fields["cost"]
+        detailTextView.text = data.fields["detail"]
+    }
+}
+
