@@ -25,10 +25,9 @@ class WalkingViewController: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         
         walkingView.endBtn.addTarget(self, action: #selector(endBtnTapped), for: .touchUpInside)
-        walkingView.stopBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
+        walkingView.playBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
         walkingView.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
         
-        startTimer()
     }
     
     @objc private func endBtnTapped() {
@@ -38,17 +37,21 @@ class WalkingViewController: UIViewController {
     @objc private func stopBtnTapped() {
         if timer == nil {
             startTimer()
-            walkingView.stopBtn.setImage(UIImage(named: "stopBtn"), for: .normal)
-            
+            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)            
         } else {
             stopTimer()
-            walkingView.stopBtn.setImage(UIImage(named: "startBtn"), for: .normal)
+            walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
         }
     }
     
     @objc private func cameraBtnTapped() {
-        
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = self
+        self.present(picker, animated: true)
     }
+
+
     
     // MARK: 산책 종료 확인 알람
     private func showAlertView() {
@@ -108,6 +111,22 @@ extension WalkingViewController {
         
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
+}
+
+// MARK: 사진 촬영 후 이미지 받아오기
+extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+           
+           picker.dismiss(animated: true, completion: nil)
+           
+           guard let image = info[.originalImage] as? UIImage else {
+               print("이미지를 가져오지 못했습니다.")
+               return
+           }
+
+           // 여기서 서버로 이미지 전송
+           // uploadImageToServer(image)
+       }
 }
 
 // MARK: 산책 기록 결과
@@ -173,7 +192,6 @@ extension WalkingViewController {
 
 
 
-
 // MARK: View 띄우기 및 삭제
 extension WalkingViewController {
     // view를 띄운걸 삭제하기 위한 공통 함수
@@ -206,3 +224,5 @@ extension WalkingViewController {
         return T()
     }
 }
+
+

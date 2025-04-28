@@ -158,15 +158,6 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         }
         picker.dismiss(animated: true)
     }
-
-    // 이미지 업로드 후 컬렉션 뷰를 갱신
-    private func uploadImage(image: UIImage) {
-        album.images.append(image)
-        
-        DispatchQueue.main.async {
-            self.photosView.PhotosCollectionView.reloadData()
-        }
-    }
     
     // 이미지 선택 메서드
     @objc
@@ -176,6 +167,33 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         picker.allowsEditing = true
         picker.delegate = self
         self.present(picker, animated: true)
+    }
+    
+    // 이미지 업로드 후 컬렉션 뷰를 갱신
+    private func uploadImage(image: UIImage) {
+        // 예: 이미지 파일명을 서버에서 요구하는 방식으로 임시 생성
+        let imageKey = UUID().uuidString + ".jpg"
+        
+        // 1. 이미지 업로드 API 호출
+        PhotoService.uploadPetImages(
+            petId: album.petId,
+            imageKeys: [imageKey],
+            token: "your_access_token" // 실제 로그인 토큰으로 대체
+        ) { result in
+            switch result {
+            case .success(let response):
+                print("업로드 성공:", response.result.imageIds)
+                
+                // 2. 성공 후 이미지 로컬에 추가하고 reload
+                DispatchQueue.main.async {
+                    self.album.images.append(image)
+                    self.photosView.PhotosCollectionView.reloadData()
+                }
+                
+            case .failure(let error):
+                print("업로드 실패:", error)
+            }
+        }
     }
 }
 

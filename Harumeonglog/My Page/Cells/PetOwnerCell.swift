@@ -142,6 +142,7 @@ class PetOwnerCell: UICollectionViewCell {
             make.bottom.leading.trailing.equalToSuperview()
             make.top.equalTo(editMenuFrameLine.snp.bottom)
         }
+        editPuppyInfoButton.isHidden = true
         
         nameLabel.snp.makeConstraints { make in
             make.leading.equalTo(profileImage.snp.trailing).offset(16)

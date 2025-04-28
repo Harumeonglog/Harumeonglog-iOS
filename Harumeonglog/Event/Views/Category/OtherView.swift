@@ -66,3 +66,9 @@ class OtherView: UIView {
     }
 }
 
+extension OtherView: EventDetailReceivable {
+    func applyContent(from data: EventDetailData) {
+        detailTextView.text = data.fields["detail"]
+    }
+}
+
