@@ -36,6 +36,7 @@ extension LoginViewController {
         // 카카오톡 실행 가능 여부 확인
         if (UserApi.isKakaoTalkLoginAvailable()) {
             // 카카오톡 앱으로 로그인 인증
+            print("111")
             kakaoLonginWithApp()
         } else { // 카톡이 설치가 안 되어 있을 때
             // 카카오 계정으로 로그인
@@ -50,7 +51,8 @@ extension LoginViewController {
                 print(error)
             } else {
                 guard let oauthToken = oauthToken else { return }
-                KakaoLoginService.login(oauth: oauthToken)
+                print(oauthToken)
+                RootViewControllerService.toBaseViewController()
             }
         }
     }
@@ -62,9 +64,14 @@ extension LoginViewController {
                 print(error)
             } else {
                 guard let oauthToken = oauthToken else { return }
-                KakaoLoginService.login(oauth: oauthToken)
+                print(oauthToken)
+                RootViewControllerService.toBaseViewController()
             }
         }
+    }
+    
+    func kakaoLogin(oauthToken: String) {
+        
     }
     
     @objc
