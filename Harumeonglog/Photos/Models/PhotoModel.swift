@@ -60,19 +60,19 @@ struct UploadResult: Codable {
     let imageIds: [Int]
 }
 
-//MARK: DELETE /pet-images/{petId} 앨범 내 모든 이미지 삭제
-struct DeletePetImagesRequest : Codable {
+//MARK: DELETE /api/v1/pets/{petId}/images 다중 이미지 삭제
+struct DeleteImagesRequest : Codable {
     let imageIds : [Int]
 }
 
-struct DeletePetImagesResponse: Codable {
+struct DeleteImagesResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
     let result: String
 }
 
-//MARK: GET /pet-images/image/{imageId} 사진 상세 보기 용
+//MARK: GET /api/v1/pets/images/{imageId} 단일 이미지 조회
 struct PetImageDetailResponse: Codable {
     let isSuccess: Bool
     let code: String
@@ -86,10 +86,75 @@ struct PetImageDetail: Codable {
     let createdAt: String
 }
 
-//MARK: DELETE /pet-images/image/{imageId} 특정 이미지 삭제
+//MARK: DELETE /api/v1/pets/images/{imageId} 특정 이미지 삭제
+
 struct DeleteSingleImageResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
     let result: String
 }
+
+//MARK: POST /api/v1/s3/presigned-urls S3 단일 이미지 PresignedUrl 발급
+struct PresignedUrlSingleRequest: Codable {
+    let image: PresignedUrlImage
+    let domain: String
+    let entityId: Int
+}
+
+struct PresignedUrlSingleResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: PresignedUrlResult
+}
+
+struct PresignedUrlResult: Codable {
+    let presignedUrl: String
+    let imageKey: String
+}
+
+struct PresignedUrlImage: Codable {
+    let filename: String
+    let contentType: String
+}
+
+//MARK: POST /api/v1/s3/presigned-urls/batch S3 복수 이미지 PresignedUrl 발급
+struct PresignedUrlBatchRequest: Codable {
+    let images: [PresignedUrlImage]
+    let domain: String
+    let entityId: Int
+}
+
+struct PresignedUrlBatchResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: PresignedUrlBatchResult
+}
+
+
+struct PresignedUrlBatchResult: Codable {
+    let images: [PresignedUrlResult]
+}
+
+
+//MARK: POST /api/v1/pets/images S3 업로드 후 이미지 저장
+struct SaveImagesRequest: Codable {
+    let petId: Int
+    let imageKeys: [String]
+}
+
+struct SaveImagesResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: SaveImagesResult
+}
+
+struct SaveImagesResult: Codable {
+    let imageIds: [Int]
+    let createdAt: String
+    let updatedAt: String
+}
+
