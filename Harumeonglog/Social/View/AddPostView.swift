@@ -10,6 +10,7 @@ import SnapKit
 import Then
 
 class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
+    weak var delegate: CategorySelectionDelegate?
     
     private let categories = socialCategoryKey.tags
     public lazy var navigationBar = CustomNavigationBar()
@@ -219,6 +220,8 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         categoryButton.setTitle("\(selectedCategory)", for: .normal)
         categoryButton.setTitleColor(.gray00, for: .normal)
         dropdownTableView.isHidden = true
+        
+        delegate?.didSelectCategory(selectedCategory)
     }
 
 }

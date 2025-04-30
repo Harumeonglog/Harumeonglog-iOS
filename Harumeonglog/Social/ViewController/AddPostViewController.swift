@@ -7,16 +7,25 @@
 
 import UIKit
 
-class AddPostViewController: UIViewController {
+protocol CategorySelectionDelegate: AnyObject {
+    func didSelectCategory(_ category: String)
+}
+
+class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
+    let socialPostService = SocialPostService()
+    var postTitle: String = ""
+    var selectedCategory: String?
+    var postContent: String = ""
+    private var postImagesURL: [URL] = []
     private var postImages: [UIImage] = []
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
+        view.delegate = self
         view.backgroundColor = .background
         view.imageCollectionView.delegate = self
         view.imageCollectionView.dataSource = self
-        
         view.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
         
         return view
@@ -38,8 +47,23 @@ class AddPostViewController: UIViewController {
     }
     
     @objc func didTapRightButton() {
-        // 서버로 보내주기
-        navigationController?.popViewController(animated: true)
+        
+        let postTitle = addPostView.titleTextField.text ?? ""
+        let postContent = addPostView.contentTextView.text ?? ""
+        
+        // 서버로 제목, 컨텐츠 , 이미지 url, 카테고리 넘겨주기
+        socialPostService.postPostToServer(
+            title: postTitle,
+            postCategory: selectedCategory!,
+            content: postContent,
+            postImageList: postImagesURL
+        ) { [weak self] success in
+            if success {
+                self?.navigationController?.popViewController(animated: true)
+            } else {
+                print("게시글 생성 실패")
+            }
+        }
     }
     
     @objc
@@ -52,6 +76,11 @@ class AddPostViewController: UIViewController {
         imagePickerController.allowsEditing = true
         imagePickerController.delegate = self
         self.present(imagePickerController, animated: true)
+    }
+    
+    func didSelectCategory(_ category: String) {
+        print("선택된 카테고리: \(category)")
+        selectedCategory = socialCategoryKey.tagsMap[category] ?? "unkonwn"
     }
 
 }
@@ -69,14 +98,22 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
             selectedImage = originalImage
         }
         
+        if let imageURL = info[.imageURL] as? URL {
+            print("이미지 URL: \(imageURL)")
+            postImagesURL.append(imageURL)
+        } else {
+            print("이미지 URL을 가져올 수 없음")
+        }
+        
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
             postImages.append(image)
             print("이미지 추가됨: \(image)")  // 이미지가 배열에 추가되는지 확인
             addPostView.imageCollectionView.reloadData()
+            addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
-    
+        
         picker.dismiss(animated: true)
     }
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -96,11 +133,7 @@ extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataS
         }
         
         cell.imageView.image = postImages[indexPath.row]
-        print("이미지 설정됨: \(postImages[indexPath.row])")
-
-        // 컬렉션 뷰 업데이트
-        addPostView.imageCollectionView.reloadData()
-        addPostView.imageCollectionView.layoutIfNeeded()
+        print("이미지 설정됨")
         
         return cell
     }
