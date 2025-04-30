@@ -51,7 +51,8 @@ extension LoginViewController {
                 print(error)
             } else {
                 guard let oauthToken = oauthToken else { return }
-                AuthAPIService.login(oauth: oauthToken)
+                print(oauthToken)
+                // AuthAPIService.login(oauth: oauthToken)
             }
         }
     }

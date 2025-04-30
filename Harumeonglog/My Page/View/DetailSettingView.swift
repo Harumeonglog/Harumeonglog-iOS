@@ -7,12 +7,12 @@
 
 import UIKit
 
-class SetNotificationView: UIView {
+class DetailSettingView: UIView {
     
     public let navigationBar = CustomNavigationBar()
     
     private let notificationLabel = UILabel().then {
-        $0.text = "알림 설정"
+        $0.text = "설정"
         $0.textColor = .gray01
         $0.font = .systemFont(ofSize: 16)
     }
@@ -146,5 +146,5 @@ class NotificatonSettingCell: UIView {
 
 import SwiftUI
 #Preview {
-    SetNotificationViewController()
+    DetailSettingViewController()
 }
