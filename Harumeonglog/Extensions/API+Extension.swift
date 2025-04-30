@@ -72,7 +72,7 @@ extension APIClient {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
         
-        AF.request(url, method: .post, headers: headers).responseDecodable(of: T.self) { response in
+        AF.request(url, method: .post, encoding: JSONEncoding.default, headers: headers).responseDecodable(of: T.self) { response in
             completion(response.result)
         }
     }
@@ -94,7 +94,7 @@ extension APIClient {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
         
-        AF.request(url, method: .delete, headers: headers).responseDecodable(of: T.self) { response in
+        AF.request(url, method: .delete, encoding: JSONEncoding.default, headers: headers).responseDecodable(of: T.self) { response in
             completion(response.result)
         }
     }
