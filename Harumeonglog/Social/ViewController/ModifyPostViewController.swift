@@ -1,13 +1,14 @@
 //
-//  AddPostViewController.swift
+//  ModifyPostViewController.swift
 //  Harumeonglog
 //
-//  Created by 김민지 on 3/27/25.
+//  Created by 김민지 on 4/30/25.
 //
+
 
 import UIKit
 
-class AddPostViewController: UIViewController {
+class ModifyPostViewController: UIViewController {
     
     private var postImages: [UIImage] = []
 
@@ -27,23 +28,21 @@ class AddPostViewController: UIViewController {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        
+        // postDetailView 서버에서 받아와서 업테이트 시켜놓기 
     }
     
     private func setCustomNavigationBarConstraints() {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = addPostView.navigationBar
-        navi.configureRightButton(text: "개시")
+        navi.configureRightButton(text: "수정")
+        navi.leftArrowButton.isHidden = true
+        navi.rightButton.setTitleColor(.red00, for: .normal)
         navi.rightButton.addTarget(self, action: #selector(didTapRightButton), for: .touchUpInside)
-        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
-    }
-    
-    @objc func didTapRightButton() {
-        // 서버로 보내주기
-        navigationController?.popViewController(animated: true)
     }
     
     @objc
-    private func didTapBackButton(){
+    private func didTapRightButton(){
         navigationController?.popViewController(animated: true)
     }
     
@@ -56,7 +55,7 @@ class AddPostViewController: UIViewController {
 
 }
 
-extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ModifyPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
@@ -85,7 +84,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
 }
 
 
-extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return postImages.count
     }

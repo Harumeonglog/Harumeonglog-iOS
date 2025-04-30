@@ -18,7 +18,6 @@ class PostDetailViewController: UIViewController {
         view.backgroundColor = .background
         
         view.postImageScrollView.delegate = self
-        // view.postSetting.addTarget(self, action: #selector(postSettingTapped), for: .touchUpInside)
         view.commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
         
         // 버튼에 더블 탭 제스처 추가
@@ -48,10 +47,6 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
-    @objc func postSettingTapped() {
-        
-    }
-    
     
     @objc
     private func didTapBackButton() {
@@ -77,10 +72,23 @@ class PostDetailViewController: UIViewController {
     
     private func postSettingButton() {
         let popUpButtonClosure = { (action: UIAction) in
+            if action.title == "수정" {
+                let modifyPostVC = ModifyPostViewController()
+                self.navigationController?.pushViewController(modifyPostVC, animated: true)
+            }
+            
             if action.title == "삭제" {
-                
+            
             }
         }
+        
+        let modifyTitle = NSAttributedString(
+            string: "수정",
+            attributes: [
+                .foregroundColor: UIColor.gray00,
+                .font: UIFont.headline
+            ]
+        )
         
         let deleteTitle = NSAttributedString(
             string: "삭제",
@@ -90,10 +98,12 @@ class PostDetailViewController: UIViewController {
             ]
         )
         
-        let deleteAction = UIAction(title: "", handler: popUpButtonClosure)
+        let modifyAction = UIAction(title: "수정", handler: popUpButtonClosure)
+        let deleteAction = UIAction(title: "삭제", handler: popUpButtonClosure)
+        modifyAction.setValue(modifyTitle, forKey: "attributedTitle")
         deleteAction.setValue(deleteTitle, forKey: "attributedTitle") // 삭제 버튼의 색상을 변경
 
-        let menu = UIMenu(options: .displayInline, children: [deleteAction]) // 메뉴 크기 줄이기
+        let menu = UIMenu(options: .displayInline, children: [modifyAction, deleteAction])
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }
