@@ -15,6 +15,7 @@ class SocialPostService {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         let parameters = postSocialRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
         
+        print("\(parameters)")
         APIClient.postRequest(endpoint: "/", parameters: parameters, token: token) { (result :  Result<HaruResponse<postSocialResponse>, AFError>) in
             switch result {
             case .success(let response):

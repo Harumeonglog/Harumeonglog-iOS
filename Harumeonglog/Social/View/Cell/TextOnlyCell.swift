@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: 소셜 조회에서 이미지가 없는 경우
 class TextOnlyCell: UITableViewCell {
     
     static let identifier = "TextOnlyCell"

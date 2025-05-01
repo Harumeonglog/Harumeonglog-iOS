@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: 소셜 조회에서 이미지가 있는 경우
 class ImageViewCell: UITableViewCell {
     
     static let identifier = "ImageViewCell"

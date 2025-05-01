@@ -133,8 +133,14 @@ extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataS
         }
         
         cell.imageView.image = postImages[indexPath.row]
-        print("이미지 설정됨")
         
+        // 삭제 버튼 눌렸을 때 동작
+        cell.onDelete = { [weak self] in
+            self?.postImages.remove(at: indexPath.row)
+            self?.addPostView.imageCollectionView.reloadData()
+            self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
+        }
+
         return cell
     }
 }
