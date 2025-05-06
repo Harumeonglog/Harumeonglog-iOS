@@ -102,24 +102,37 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                 print("특정 반려동물 이미지 목록 불러오기 성공: \(petId)")
                 switch response.result {
                 case .result(let result):
-                    let imageUrls = result.images.map { $0.imageKey }
-                    let images: [UIImage] = imageUrls.compactMap { urlString in
-                        guard let url = URL(string: urlString),
-                              let data = try? Data(contentsOf: url),
-                              let image = UIImage(data: data) else { return UIImage(named: "placeholder") }
-                        return image
+                    var images: [UIImage] = []
+                    let dispatchGroup = DispatchGroup()
+
+                    for urlString in result.images.map({ $0.imageKey }) {
+                        guard let url = URL(string: urlString) else {
+                            images.append(UIImage(named: "placeholder") ?? UIImage())
+                            continue
+                        }
+
+                        dispatchGroup.enter()
+                        URLSession.shared.dataTask(with: url) { data, response, error in
+                            defer { dispatchGroup.leave() }
+
+                            if let data = data, let image = UIImage(data: data) {
+                                images.append(image)
+                            } else {
+                                images.append(UIImage(named: "placeholder") ?? UIImage())
+                            }
+                        }.resume()
                     }
 
-                    let updatedAlbum = Album(
-                        mainImage: album.mainImage,
-                        name: album.name,
-                        photosCount: images.count,
-                        petId: album.petId,
-                        imageInfos: result.images,
-                        uiImages: images
-                    )
+                    dispatchGroup.notify(queue: .main) {
+                        let updatedAlbum = Album(
+                            mainImage: album.mainImage,
+                            name: album.name,
+                            photosCount: images.count,
+                            petId: album.petId,
+                            imageInfos: result.images,
+                            uiImages: images
+                        )
 
-                    DispatchQueue.main.async {
                         let photosVC = PhotosViewController(album: updatedAlbum)
                         self?.navigationController?.pushViewController(photosVC, animated: true)
                     }
