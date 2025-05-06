@@ -94,7 +94,7 @@ class PhotosViewController: UIViewController {
         navi.configureRightButton()
     }
     
-    // 선택 버튼을 눌렀을 때 선택 모드를 토글하고 UI를 갱신합니다.
+    // 선택 버튼을 눌렀을 때 선택 모드를 토글하고 UI를 갱신
     @objc
     private func didTapSelectButton() {
         isSelecting.toggle()
@@ -116,13 +116,13 @@ class PhotosViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    // 선택된 사진 개수를 라벨에 표시합니다.
+    // 선택된 사진 개수를 라벨에 표시
     private func updateSelectedCountLabel() {
         let count = selectedIndexPaths.count
         photosView.selectedCountLabel.text = "\(count)장의 사진이 선택됨"
     }
     
-    // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신합니다.
+    // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신
     @objc private func deleteSelectedImages() {
         let indices = selectedIndexPaths.map { $0.item - 1 }.sorted(by: >)
         for index in indices {
@@ -134,7 +134,7 @@ class PhotosViewController: UIViewController {
         photosView.PhotosCollectionView.reloadData()
     }
 
-    // 선택된 이미지를 사용자 사진 앨범에 저장합니다.
+    // 선택된 이미지를 사용자 사진 앨범에 저장
     @objc private func downloadSelectedImages() {
         for indexPath in selectedIndexPaths {
             let index = indexPath.item - 1
@@ -172,9 +172,64 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     
     // 이미지 업로드 후 컬렉션 뷰를 갱신
     private func uploadImage(image: UIImage) {
-        // 예: 이미지 파일명을 서버에서 요구하는 방식으로 임시 생성
         let imageKey = UUID().uuidString + ".jpg"
-        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+                print("토큰이 없습니다.")
+                return
+            }
+
+        PhotoService.fetchPresignedUrl(
+            filename: imageKey,
+            contentType: "image/jpeg",
+            entityId: album.petId,
+            token: token
+        ) { result in
+            switch result {
+            case .success(let response):
+                print("이미지 업로드 성공: \(response)")
+                guard case .result(let presigned) = response.result,
+                      let url = URL(string: presigned.presignedUrl) else {
+                    print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
+                    return
+                }
+
+                var request = URLRequest(url: url)
+                request.httpMethod = "PUT"
+                request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                let imageData = image.jpegData(compressionQuality: 0.8)
+
+                URLSession.shared.uploadTask(with: request, from: imageData) { _, _, error in
+                    if let error = error {
+                        print("이미지 업로드 실패: \(error)")
+                        return
+                    }
+
+                    PhotoService.saveImages(petId: self.album.petId, imageKeys: [presigned.imageKey], token: token) { saveResult in
+                        switch saveResult {
+                        case .success(let saveResponse):
+                            DispatchQueue.main.async {
+                                if let imageId = saveResponse.result?.imageIds.first {
+                                    let newPetImage = PetImage(
+                                        imageId: imageId,
+                                        imageKey: presigned.imageKey,
+                                        createdAt: saveResponse.result?.createdAt ?? ""
+                                    )
+                                    self.album.imageInfos.append(newPetImage)
+                                    self.album.uiImages.append(image)
+                                    self.photosView.PhotosCollectionView.reloadData()
+                                }
+                            }
+                        case .failure(let error):
+                            print("이미지 저장 실패: \(error)")
+                        }
+                    }
+
+                }.resume()
+
+            case .failure(let error):
+                print("Presigned URL 요청 실패: \(error)")
+            }
+        }
         
     }
 }

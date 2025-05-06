@@ -109,12 +109,30 @@ struct PresignedUrlSingleRequest: Codable {
     let entityId: Int
 }
 
-struct PresignedUrlSingleResponse: Codable {
+struct PresignedUrlSingleResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let presignedUrl: String
-    let imageKey: String
+    let result: PresignedUrlResultOrString
+}
+
+enum PresignedUrlResultOrString: Decodable {
+    case result(PresignedUrlResult)
+    case message(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let result = try? container.decode(PresignedUrlResult.self) {
+            self = .result(result)
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                PresignedUrlResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected type for result field.")
+            )
+        }
+    }
 }
 
 struct PresignedUrlResult: Codable {
@@ -157,6 +175,6 @@ struct SaveImagesResponse: Codable {
 
 struct SaveImagesResult: Codable {
     let imageIds: [Int]
-    let createdAt: String
-    let updatedAt: String
+    let createdAt: String?
+    let updatedAt: String?
 }
