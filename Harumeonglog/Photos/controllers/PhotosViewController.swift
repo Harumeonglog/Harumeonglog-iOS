@@ -7,7 +7,7 @@
 
 import UIKit
 
-// PhotosViewController는 특정 앨범에 있는 사진을 표시하고, 선택 모드로 전환하여 삭제 및 다운로드 기능을 제공하는 뷰 컨트롤러
+// PhotosViewController는 특정 앨범에 있는 사진을 표시하고, 선택 모드로 전환하여 삭제 및 다운로드 기능을 제공하는 뷰 컨트롤러입니다.
 class PhotosViewController: UIViewController {
     
     required init?(coder: NSCoder) {
@@ -126,7 +126,8 @@ class PhotosViewController: UIViewController {
     @objc private func deleteSelectedImages() {
         let indices = selectedIndexPaths.map { $0.item - 1 }.sorted(by: >)
         for index in indices {
-            album.images.remove(at: index)
+            album.uiImages.remove(at: index)
+            album.imageInfos.remove(at: index)
         }
         selectedIndexPaths.removeAll()
         updateSelectedCountLabel()
@@ -137,7 +138,7 @@ class PhotosViewController: UIViewController {
     @objc private func downloadSelectedImages() {
         for indexPath in selectedIndexPaths {
             let index = indexPath.item - 1
-            let image = album.images[index]
+            let image = album.uiImages[index]
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         }
     }
@@ -183,7 +184,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album.images.count + 1  // 첫 번째 셀은 추가 버튼
+        return album.uiImages.count + 1  // 첫 번째 셀은 추가 버튼
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -196,8 +197,8 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
                 cell.addButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
             }
         } else {
-            let petImage = album.images[indexPath.item - 1]
-            cell.configure(isAddButton: false, image: petImage)
+            let image = album.uiImages[indexPath.item - 1]
+            cell.configure(isAddButton: false, image: image)
         }
         
         return cell
@@ -211,9 +212,23 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
             if indexPath.item == 0 {
                 addImageButtonTapped()
             } else {
-                let selectedImage = album.images[indexPath.item - 1]
-                let detailVC = PhotoDetailViewController(image: selectedImage, album: album)
-                self.navigationController?.pushViewController(detailVC, animated: true)
+                let imageId = album.imageInfos[indexPath.item - 1].imageId
+                let image = album.uiImages[indexPath.item - 1]
+                let token = UserDefaults.standard.string(forKey: "accessToken")
+                PhotoService.fetchImageDetail(imageId: imageId, token: token) { result in
+                    switch result {
+                    case .success(let response):
+                        print("단일 이미지 조회 성공")
+                        guard response.isSuccess else { return }
+                        let detail = response.result
+                        DispatchQueue.main.async {
+                            let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
+                            self.navigationController?.pushViewController(detailVC, animated: true)
+                        }
+                    case .failure(let error):
+                        print("단일 이미지 조회 실패: \(error)")
+                    }
+                }
             }
             return
         }

@@ -100,8 +100,12 @@ extension UIView {
 
 struct Album {
     let mainImage: String?
-    var images : [UIImage]
     let name: String
     let photosCount: Int
-    let petId : Int
+    let petId: Int
+    
+    //서버에서 받아온 이미지 메타데이터
+    var imageInfos: [PetImage]
+    //메모리에 로드된 실제 이미지들
+    var uiImages:[UIImage]
 }

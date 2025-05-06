@@ -41,10 +41,11 @@ class PhotoAlbumsViewController: UIViewController {
                     let albums = pets.map {
                         Album(
                             mainImage: $0.mainImage,
-                            images: [],
                             name: $0.name,
                             photosCount: 0,
-                            petId: $0.petId
+                            petId: $0.petId,
+                            imageInfos: [],
+                            uiImages: []
                         )
                     }
                     self!.photoAlbumsView.albums = albums
@@ -111,10 +112,11 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
 
                     let updatedAlbum = Album(
                         mainImage: album.mainImage,
-                        images: images,
                         name: album.name,
                         photosCount: images.count,
-                        petId: album.petId
+                        petId: album.petId,
+                        imageInfos: result.images,
+                        uiImages: images
                     )
 
                     DispatchQueue.main.async {
