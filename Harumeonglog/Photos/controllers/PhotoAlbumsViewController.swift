@@ -34,6 +34,7 @@ class PhotoAlbumsViewController: UIViewController {
         PetService.fetchPets(token: token) { [weak self] result in
             switch result {
             case .success(let response):
+                print("반려동물 목록 조회 성공!")
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
@@ -97,6 +98,7 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
         PhotoService.fetchPetImages(petId: petId, cursor: 0, size: 100, token: token) { [weak self] result in
             switch result {
             case .success(let response):
+                print("특정 반려동물 이미지 목록 불러오기 성공: \(petId)")
                 switch response.result {
                 case .result(let result):
                     let imageUrls = result.images.map { $0.imageKey }

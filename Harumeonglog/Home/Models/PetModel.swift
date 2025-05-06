@@ -64,3 +64,46 @@ struct PetMember: Decodable {
     let role: String
     let image: String
 }
+
+//MARK: GET /api/v1/pets/active - 현재 펫 변경 시 보유 펫 조회
+struct ActivePetsResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: ActivePetsResult
+}
+
+struct ActivePetsResult: Decodable {
+    let pets: [ActivePets]
+}
+
+struct ActivePets: Decodable {
+    let petId: Int
+    let name: String
+    let mainImage: String?
+}
+
+//MARK: /api/v1/pets/{petId}/status/active - 현재 펫 변경
+struct ActivePetResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+}
+
+//MARK: /api/v1/pets/active/primary - 현재 펫 정보 조회
+struct ActivePetInfoResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: ActivePetInfoResult?
+}
+
+struct ActivePetInfoResult: Decodable {
+    let petId: Int
+    let name: String
+    let mainImage: String?
+    let gender: String
+    let birth: String
+}
+

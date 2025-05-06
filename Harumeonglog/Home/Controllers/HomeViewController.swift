@@ -25,53 +25,56 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
 
-        fetchPets()
-
-        //homeView.eventView.updateEvents(for: Date())
+        fetchActivePets()
+        if let accessToken = KeychainService.get(key: K.Keys.accessToken), !accessToken.isEmpty {
+            updateActivePetIfNeeded(petId: 1, token: accessToken)
+        }
+        
         setupButtons()
         updateHeaderLabel()
     }
     
-    private func fetchPets() {
-        guard
-            let accessToken = KeychainService.get(key: K.Keys.accessToken),
-            !accessToken.isEmpty
-                
-        else {
+    //
+    private func fetchActivePets() {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken), !accessToken.isEmpty else {
             print("AccessToken이 존재하지 않음")
             return
         }
-        print(accessToken)
 
-        PetService.fetchPets(token: accessToken, completion: { result in
+        PetService.fetchActivePets(token: accessToken) { result in
             switch result {
             case .success(let response):
-                switch response.result {
-                case .result(let petResult):
-                    let pets = petResult.pets
-                    if let defaultPet = pets.first(where: { $0.petId == 1 }) {
-                        print("선택된 반려견: \(defaultPet.name)")
-                        self.homeView.nicknameLabel.text = defaultPet.name
+                let pets = response.result.pets
+                if let defaultPet = pets.first(where: { $0.petId == 1 }) {
+                    print("선택된 반려견: \(defaultPet.name)")
+                    self.homeView.nicknameLabel.text = defaultPet.name
 
-                        if let imageName = defaultPet.mainImage, let image = UIImage(named: imageName) {
-                            self.homeView.profileButton.setImage(image, for: .normal)
-                        } else {
-                            print("이미지 이름이 없거나 이미지 로드 실패")
-                        }
-
-                        self.homeView.birthdayLabel.text = defaultPet.birth ?? ""
+                    if let imageUrl = URL(string: defaultPet.mainImage ?? "") {
+                        URLSession.shared.dataTask(with: imageUrl) { data, _, _ in
+                            if let data = data, let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.homeView.profileButton.setImage(image, for: .normal)
+                                }
+                            }
+                        }.resume()
                     }
-                case .message(let msg):
-                    print("서버 응답 메시지: \(msg)")
-                case .none:
-                    print("서버 응답 없음")
                 }
             case .failure(let error):
-                debugPrint("반려동물 조회 실패: \(error)")
+                print("반려동물 조회 실패: \(error)")
             }
-        })
+        }
     }
     
+    private func updateActivePetIfNeeded(petId: Int, token: String) {
+        PetService.UpdateActivePet(petId: petId, token: token) { result in
+            switch result {
+            case .success(let changeResponse):
+                print("대표 펫 변경 응답: \(changeResponse.message)")
+            case .failure(let error):
+                print("대표 펫 변경 실패: \(error)")
+            }
+        }
+    }
                              
     // MARK: - 버튼 동작 함수들 모음
     private func setupButtons() {
@@ -225,17 +228,45 @@ extension HomeViewController: ProfileSelectDelegate {
 
     // 프로필이 선택되었을 때 호출되는 메서드 - 생일, 이름 바뀌도록
     func didSelectProfile(_ profile: Profile) {
-        // 선택된 프로필을 업데이트
-        homeView.nicknameLabel.text = profile.name
-        homeView.profileButton.setImage(UIImage(named: profile.imageName), for: .normal)
-        homeView.birthdayLabel.text = profile.birthDate
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken), !accessToken.isEmpty else {
+            print("AccessToken이 존재하지 않음")
+            return
+        }
+
+        // 대표 펫 변경 API 호출
+        PetService.UpdateActivePet(petId: profile.petId, token: accessToken) { result in
+            switch result {
+            case .success(let changeResponse):
+                print("대표 펫 변경: \(changeResponse.message)")
+
+                // UI 업데이트는 메인 스레드에서 수행
+                DispatchQueue.main.async {
+                    self.homeView.nicknameLabel.text = profile.name
+
+                    if let url = URL(string: profile.imageName) {
+                        URLSession.shared.dataTask(with: url) { data, _, _ in
+                            if let data = data, let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.homeView.profileButton.setImage(image, for: .normal)
+                                }
+                            }
+                        }.resume()
+                    }
+                }
+
+            case .failure(let error):
+                print("대표 펫 변경 실패: \(error)")
+            }
+        }
     }
 
     @objc private func profileImageTapped() {
         let profileModalVC = ProfileSelectModalViewController()
         profileModalVC.modalPresentationStyle = .pageSheet
         profileModalVC.delegate = self
-        self.present(profileModalVC, animated: true, completion: nil)
+        self.present(profileModalVC, animated: true) {
+            profileModalVC.loadProfiles()
+        }
     }
 }
 

@@ -152,7 +152,7 @@ struct SaveImagesResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: SaveImagesResult
+    let result: SaveImagesResult?
 }
 
 struct SaveImagesResult: Codable {

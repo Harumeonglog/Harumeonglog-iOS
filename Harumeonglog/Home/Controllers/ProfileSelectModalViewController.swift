@@ -10,13 +10,11 @@ import UIKit
 
 class ProfileSelectModalViewController: UIViewController {
     
-    var profiles: [Profile] = [
-        Profile(name: "카이", imageName: "dog1", birthDate: "2000.01.01"),
-        Profile(name: "카이 2", imageName: "dog1", birthDate: "2001.02.01"),
-        Profile(name: "카이 3", imageName: "dog1", birthDate: "2003.02.01"),
-        Profile(name: "카이 4", imageName: "dog1", birthDate: "2004.02.01"),
-        Profile(name: "카이 5", imageName: "dog1", birthDate: "2005.02.01")
-    ]
+    var profiles: [Profile] = [] {
+        didSet {
+            profileSelectModalView.collectionView.reloadData()
+        }
+    }
     
     public var selectedProfile: Profile?
     
@@ -41,6 +39,24 @@ class ProfileSelectModalViewController: UIViewController {
             sheet.prefersGrabberVisible = true // 상단에 그랩바 표시
         }
         
+    }
+    
+    public func loadProfiles() {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken), !accessToken.isEmpty else {
+            print("AccessToken이 존재하지 않음")
+            return
+        }
+
+        PetService.fetchActivePets(token: accessToken) { result in
+            switch result {
+            case .success(let response):
+                self.profiles = response.result.pets.map {
+                    Profile(petId: $0.petId, name: $0.name, imageName: $0.mainImage ?? "")
+                }
+            case .failure(let error):
+                print("반려동물 목록 불러오기 실패:", error)
+            }
+        }
     }
 }
 
