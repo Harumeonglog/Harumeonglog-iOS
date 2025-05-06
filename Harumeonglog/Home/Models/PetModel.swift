@@ -5,12 +5,12 @@
 //  Created by Dana Lim on 4/11/25.
 //
 
-//MARK: GET /pets 
+//MARK: GET /api/v1/pets - 반려동물 목록 조회
 struct PetResponse: Decodable {
-    let isSuccess : Bool
+    let isSuccess: Bool
     let code: String
-    let message : String
-    let result : PetResultOrString?
+    let message: String
+    let result: PetResultOrString?
 }
 
 // enum으로 분기 처리
@@ -20,22 +20,29 @@ enum PetResultOrString: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let result = try? container.decode(PetResult.self) {
+        do {
+            let result = try container.decode(PetResult.self)
             self = .result(result)
-        } else if let message = try? container.decode(String.self) {
-            self = .message(message)
-        } else {
-            throw DecodingError.typeMismatch(
-                PetResultOrString.self,
-                DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unexpected result type")
-            )
+        } catch let resultError {
+            do {
+                let message = try container.decode(String.self)
+                self = .message(message)
+            } catch let messageError {
+                throw DecodingError.typeMismatch(
+                    PetResultOrString.self,
+                    .init(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Unexpected type for result field. Tried PetResult (\(resultError)) and String (\(messageError))."
+                    )
+                )
+            }
         }
     }
 }
 
-struct PetResult : Decodable {
+struct PetResult: Decodable {
     let pets: [Pet]
-    let cursor: Int
+    let cursor: Int?
     let hasNext: Bool
 }
 
@@ -55,22 +62,5 @@ struct PetMember: Decodable {
     let id: Int
     let name: String
     let role: String
-}
-
-
-//MARK: PATCH /pets/current
-struct UpdateCurrentPetRequest: Encodable {
-    let petId: Int
-}
-
-struct UpdateCurrentPetResponse: Decodable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: CurrentPetResult?
-}
-
-struct CurrentPetResult: Decodable {
-    let petId: Int
-    let name: String
+    let image: String
 }

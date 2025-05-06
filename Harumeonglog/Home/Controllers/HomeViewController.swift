@@ -33,7 +33,17 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
     
     private func fetchPets() {
-        PetService.fetchPets(completion: { result in
+        guard
+            let accessToken = KeychainService.get(key: K.Keys.accessToken),
+            !accessToken.isEmpty
+                
+        else {
+            print("AccessToken이 존재하지 않음")
+            return
+        }
+        print(accessToken)
+
+        PetService.fetchPets(token: accessToken, completion: { result in
             switch result {
             case .success(let response):
                 switch response.result {
@@ -42,13 +52,19 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                     if let defaultPet = pets.first(where: { $0.petId == 1 }) {
                         print("선택된 반려견: \(defaultPet.name)")
                         self.homeView.nicknameLabel.text = defaultPet.name
-                        self.homeView.profileButton.setImage(UIImage(named: defaultPet.mainImage ?? ""), for: .normal)
+
+                        if let imageName = defaultPet.mainImage, let image = UIImage(named: imageName) {
+                            self.homeView.profileButton.setImage(image, for: .normal)
+                        } else {
+                            print("이미지 이름이 없거나 이미지 로드 실패")
+                        }
+
                         self.homeView.birthdayLabel.text = defaultPet.birth ?? ""
                     }
                 case .message(let msg):
-                    print("result 메시지: \(msg)")
+                    print("서버 응답 메시지: \(msg)")
                 case .none:
-                    print("result 없음")
+                    print("서버 응답 없음")
                 }
             case .failure(let error):
                 debugPrint("반려동물 조회 실패: \(error)")

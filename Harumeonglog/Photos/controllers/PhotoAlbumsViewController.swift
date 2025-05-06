@@ -29,7 +29,9 @@ class PhotoAlbumsViewController: UIViewController {
     }
     
     private func fetchAlbums() {
-        PetService.fetchPets(completion: { result in
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        PetService.fetchPets(token: token) { [weak self] result in
             switch result {
             case .success(let response):
                 switch response.result {
@@ -37,37 +39,29 @@ class PhotoAlbumsViewController: UIViewController {
                     let pets = petResult.pets
                     let albums = pets.map {
                         Album(
-                            coverImage: UIImage(),
+                            mainImage: $0.mainImage,
                             images: [],
                             name: $0.name,
                             photosCount: 0,
-                            mainImageURL: $0.mainImage,
                             petId: $0.petId
                         )
                     }
-                    self.photoAlbumsView.albums = albums
-                    self.photoAlbumsView.albumCollectionView.reloadData()
+                    self!.photoAlbumsView.albums = albums
+                    self!.photoAlbumsView.albumCollectionView.reloadData()
                     
                 case .message(let msg):
-                    print("result 메시지: \(msg)")
+                    print("반려동물 목록 조회 실패: \(msg)")
                 case .none:
-                    print("result 없음")
+                    print("반려동물 목록 데이터 없음")
                 }
             case .failure(let error):
                 debugPrint("반려동물 조회 실패: \(error)")
             }
-        })
+        }
     }
     
     private func uploadImages(for petId: Int, imageKeys: [String]) {
-        PhotoService.uploadPetImages(petId: petId, imageKeys: imageKeys, token: nil) { result in
-            switch result {
-            case .success(let response):
-                print("업로드 성공:", response.result.imageIds)
-            case .failure(let error):
-                print("업로드 실패:", error)
-            }
-        }
+        
     }
     
     @objc private func addButtonTapped() {
@@ -94,8 +88,13 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let album = photoAlbumsView.albums[indexPath.item]
         let petId = album.petId
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+                print("토큰이 없습니다.")
+                return
+            }
 
-        PhotoService.fetchPetImages(petId: petId, cursor: 0, size: 100) { [weak self] result in
+        PhotoService.fetchPetImages(petId: petId, cursor: 0, size: 100, token: token) { [weak self] result in
             switch result {
             case .success(let response):
                 switch response.result {
@@ -104,16 +103,15 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                     let images: [UIImage] = imageUrls.compactMap { urlString in
                         guard let url = URL(string: urlString),
                               let data = try? Data(contentsOf: url),
-                              let image = UIImage(data: data) else { return nil }
+                              let image = UIImage(data: data) else { return UIImage(named: "placeholder") }
                         return image
                     }
 
                     let updatedAlbum = Album(
-                        coverImage: images.first ?? UIImage(),
+                        mainImage: album.mainImage,
                         images: images,
                         name: album.name,
                         photosCount: images.count,
-                        mainImageURL: album.mainImageURL,
                         petId: album.petId
                     )
 

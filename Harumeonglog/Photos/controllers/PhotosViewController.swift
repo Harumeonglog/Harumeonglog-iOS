@@ -7,7 +7,7 @@
 
 import UIKit
 
-// PhotosViewController는 특정 앨범에 있는 사진을 표시하고, 선택 모드로 전환하여 삭제 및 다운로드 기능을 제공하는 뷰 컨트롤러입니다.
+// PhotosViewController는 특정 앨범에 있는 사진을 표시하고, 선택 모드로 전환하여 삭제 및 다운로드 기능을 제공하는 뷰 컨트롤러
 class PhotosViewController: UIViewController {
     
     required init?(coder: NSCoder) {
@@ -174,34 +174,16 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
         // 예: 이미지 파일명을 서버에서 요구하는 방식으로 임시 생성
         let imageKey = UUID().uuidString + ".jpg"
         
-        // 1. 이미지 업로드 API 호출
-        PhotoService.uploadPetImages(
-            petId: album.petId,
-            imageKeys: [imageKey],
-            token: "your_access_token" // 실제 로그인 토큰으로 대체
-        ) { result in
-            switch result {
-            case .success(let response):
-                print("업로드 성공:", response.result.imageIds)
-                
-                // 2. 성공 후 이미지 로컬에 추가하고 reload
-                DispatchQueue.main.async {
-                    self.album.images.append(image)
-                    self.photosView.PhotosCollectionView.reloadData()
-                }
-                
-            case .failure(let error):
-                print("업로드 실패:", error)
-            }
-        }
+        
     }
 }
 
 // MARK: imageCollectionview delegate, datasource
+// MARK: imageCollectionview delegate, datasource
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album.images.count + 1
+        return album.images.count + 1  // 첫 번째 셀은 추가 버튼
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -214,8 +196,8 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
                 cell.addButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
             }
         } else {
-            let image = album.images[indexPath.item - 1]
-            cell.configure(isAddButton: false, image: image)
+            let petImage = album.images[indexPath.item - 1]
+            cell.configure(isAddButton: false, image: petImage)
         }
         
         return cell

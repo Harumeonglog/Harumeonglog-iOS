@@ -19,22 +19,29 @@ enum PetImageListResultOrString: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let result = try? container.decode(PetImageListResult.self) {
+        do {
+            let result = try container.decode(PetImageListResult.self)
             self = .result(result)
-        } else if let message = try? container.decode(String.self) {
-            self = .message(message)
-        } else {
-            throw DecodingError.typeMismatch(
-                PetImageListResultOrString.self,
-                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected type for result field.")
-            )
+        } catch let resultError {
+            do {
+                let message = try container.decode(String.self)
+                self = .message(message)
+            } catch let messageError {
+                throw DecodingError.typeMismatch(
+                    PetImageListResultOrString.self,
+                    .init(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Unexpected type for result field. Tried PetImageListResult (\(resultError)) and String (\(messageError))."
+                    )
+                )
+            }
         }
     }
 }
 
 struct PetImageListResult: Codable {
     let images:[PetImage]
-    let cursor: Int
+    let cursor: Int?
     let hasNext: Bool
 }
 
@@ -106,7 +113,8 @@ struct PresignedUrlSingleResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: PresignedUrlResult
+    let presignedUrl: String
+    let imageKey: String
 }
 
 struct PresignedUrlResult: Codable {
@@ -130,12 +138,7 @@ struct PresignedUrlBatchResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: PresignedUrlBatchResult
-}
-
-
-struct PresignedUrlBatchResult: Codable {
-    let images: [PresignedUrlResult]
+    let presignedUrls: [PresignedUrlResult]
 }
 
 
@@ -157,4 +160,3 @@ struct SaveImagesResult: Codable {
     let createdAt: String
     let updatedAt: String
 }
-
