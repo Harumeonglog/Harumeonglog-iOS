@@ -269,16 +269,20 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
             } else {
                 let imageId = album.imageInfos[indexPath.item - 1].imageId
                 let image = album.uiImages[indexPath.item - 1]
-                let token = UserDefaults.standard.string(forKey: "accessToken")
+                guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
                 PhotoService.fetchImageDetail(imageId: imageId, token: token) { result in
                     switch result {
                     case .success(let response):
                         print("단일 이미지 조회 성공")
                         guard response.isSuccess else { return }
-                        let detail = response.result
-                        DispatchQueue.main.async {
-                            let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
-                            self.navigationController?.pushViewController(detailVC, animated: true)
+                        switch response.result {
+                        case .result(let detail):
+                            DispatchQueue.main.async {
+                                let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
+                                self.navigationController?.pushViewController(detailVC, animated: true)
+                            }
+                        case .message(let message):
+                            print("이미지 정보 오류: \(message)")
                         }
                     case .failure(let error):
                         print("단일 이미지 조회 실패: \(error)")

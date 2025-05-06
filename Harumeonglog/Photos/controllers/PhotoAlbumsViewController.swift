@@ -125,10 +125,9 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                     }
 
                 case .message(let msg):
-                    print("서버 메시지: \(msg)")
-
+                    print("이미지 조회 실패 메시지: \(msg)")
                 case .none:
-                    print("이미지 result 없음")
+                    print("이미지 응답 result 값이 없습니다.")
                 }
             case .failure(let error):
                 print("이미지 목록 불러오기 실패:", error)

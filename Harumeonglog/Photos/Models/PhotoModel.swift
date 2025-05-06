@@ -80,11 +80,30 @@ struct DeleteImagesResponse: Codable {
 }
 
 //MARK: GET /api/v1/pets/images/{imageId} 단일 이미지 조회
-struct PetImageDetailResponse: Codable {
+struct PetImageDetailResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: PetImageDetail
+    let result: PetImageDetailResultOrString
+}
+
+enum PetImageDetailResultOrString: Decodable {
+    case result(PetImageDetail)
+    case message(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let detail = try? container.decode(PetImageDetail.self) {
+            self = .result(detail)
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                PetImageDetailResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected result type")
+            )
+        }
+    }
 }
 
 struct PetImageDetail: Codable {
