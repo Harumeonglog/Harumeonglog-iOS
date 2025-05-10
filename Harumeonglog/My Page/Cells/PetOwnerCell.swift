@@ -15,6 +15,7 @@ protocol PetOwnerCellDelegate: AnyObject {
 
 class PetOwnerCell: UICollectionViewCell {
     
+    private var overlayView: UIView?
     private weak var delegate: PetOwnerCellDelegate?
     static let identifier = "PetOwnerCell"
     
@@ -43,12 +44,33 @@ class PetOwnerCell: UICollectionViewCell {
         $0.clipsToBounds = true
     }
     
+    public lazy var meatballButton = UIButton().then {
+        $0.setImage(.meatballsMenu, for: .normal)
+    }
+    
+    private lazy var editMenuFrameView = UIView().then {
+        $0.layer.cornerRadius = 15
+        $0.clipsToBounds = true
+        $0.backgroundColor = .white
+    }
+    
+    private lazy var editMenuFrameLine = UIView().then {
+        $0.backgroundColor = .gray04
+        $0.snp.makeConstraints { make in
+            make.height.equalTo(1)
+        }
+    }
+    
     public lazy var exitButton = UIButton().then {
-        $0.setImage(.meatballsMenu , for: .normal)
+        $0.setTitle("나가기", for: .normal)
+        $0.setTitleColor(.red00, for: .normal)
+        $0.titleLabel?.font = UIFont.description
     }
     
     public lazy var editPuppyInfoButton = UIButton().then {
-        $0.setImage(.editPuppy, for: .normal)
+        $0.setTitle("수정하기", for: .normal)
+        $0.setTitleColor(.black, for: .normal)
+        $0.titleLabel?.font = UIFont.description
     }
     
     public lazy var memberTableView = UITableView().then {
@@ -84,19 +106,41 @@ class PetOwnerCell: UICollectionViewCell {
         self.addSubview(dogSizeLabel)
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
-        self.addSubview(exitButton)
+        self.addSubview(meatballButton)
         self.addSubview(editPuppyInfoButton)
         self.addSubview(memberTableView)
         self.addSubview(sendInviationButton)
+        self.addSubview(editMenuFrameView)
+        editMenuFrameView.addSubview(editMenuFrameLine)
+        editMenuFrameView.addSubview(exitButton)
+        editMenuFrameView.addSubview(editPuppyInfoButton)
         
         profileImage.snp.makeConstraints { make in
             make.height.width.equalTo(80)
             make.leading.top.equalToSuperview().offset(20)
         }
         
+        editMenuFrameView.isHidden = true
+        editMenuFrameView.snp.makeConstraints { make in
+            make.height.equalTo(60)
+            make.width.equalTo(100)
+            make.top.equalTo(meatballButton.snp.centerY)
+            make.trailing.equalTo(meatballButton.snp.centerX)
+        }
+        
+        editMenuFrameLine.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+        
         editPuppyInfoButton.snp.makeConstraints { make in
-            make.height.width.equalTo(30)
-            make.leading.bottom.equalTo(profileImage)
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(editMenuFrameLine.snp.top)
+        }
+        
+        exitButton.snp.makeConstraints { make in
+            make.bottom.leading.trailing.equalToSuperview()
+            make.top.equalTo(editMenuFrameLine.snp.bottom)
         }
         editPuppyInfoButton.isHidden = true
         
@@ -127,15 +171,15 @@ class PetOwnerCell: UICollectionViewCell {
             make.top.equalTo(dogSizeLabel.snp.bottom).offset(7)
         }
         
-        exitButton.snp.makeConstraints { make in
+        meatballButton.snp.makeConstraints { make in
             make.height.width.equalTo(44)
             make.top.equalTo(profileImage.snp.top).inset(-10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         accessLevelTagImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(exitButton)
-            make.trailing.equalTo(exitButton.snp.leading)
+            make.centerY.equalTo(meatballButton)
+            make.trailing.equalTo(meatballButton.snp.leading)
             make.height.equalTo(25)
             make.width.equalTo(70)
         }
@@ -154,6 +198,7 @@ class PetOwnerCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.meatballButton.addTarget(self, action: #selector(didTapMeatballButton), for: .touchUpInside)
         self.exitButton.addTarget(self, action: #selector(didTapExitButton), for: .touchUpInside)
         self.editPuppyInfoButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
         self.sendInviationButton.addTarget(self, action: #selector(showInvitaionVC), for: .touchUpInside)
@@ -174,6 +219,44 @@ class PetOwnerCell: UICollectionViewCell {
         delegate?.didTapExitButton()
     }
     
+    // EditMenuFrameView 관련 동작
+    @objc
+    private func didTapMeatballButton() {
+        editMenuFrameView.isHidden = false
+        showOverlay()
+    }
+    
+    private func showOverlay() {
+        guard overlayView == nil else { return }
+        
+        let overlay = UIView(frame: self.bounds)
+        overlay.backgroundColor = .clear
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = true
+        
+        self.insertSubview(overlay, belowSubview: editMenuFrameView)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleOverlayTap(_:)))
+        overlay.addGestureRecognizer(tapGesture)
+        self.overlayView = overlay
+    }
+    
+    @objc
+    private func handleOverlayTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: self)
+        if editMenuFrameView.frame.contains(location) {
+            return
+        }
+        hideEditMenuFrameView()
+    }
+    
+    @objc
+    private func hideEditMenuFrameView() {
+        editMenuFrameView.isHidden = true
+        overlayView?.removeFromSuperview()
+        overlayView = nil
+    }
+        
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
