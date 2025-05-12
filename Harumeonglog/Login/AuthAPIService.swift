@@ -72,7 +72,7 @@ class AuthAPIService {
         APIClient.deleteRequest(
             endpoint: "/api/v1/members",
             token: accessToken
-        ) { (response: Result<HaruResponse<String>, AFError>) in
+        ) { (response: Result<HaruResponse<HaruEmptyResult>, AFError>) in
             switch response {
             case .success(let success):
                 switch success.code {
@@ -101,15 +101,18 @@ class AuthAPIService {
             case .success(let success):
                 switch success.code {
                 case AuthCode.COMMON200.rawValue:
-                    let _ = KeychainService.update(key: K.Keys.accessToken, value: success.result!.accessToken)
+                    print("access token : ", success.result!.accessToken!)
+                    let _ = KeychainService.update(key: K.Keys.accessToken, value: success.result!.accessToken!)
                     completion(.COMMON200)
                 case AuthCode.AUTH400.rawValue:
                     completion(.AUTH400)
                 default:
+                    completion(.AUTH400)
                     print("undefined code, \(success.code)")
                 }
             case .failure(let failure):
-                print("revoke decoding failed: \(failure)")
+                completion(.AUTH400)
+                print("reissue decoding failed: \(failure)")
             }
         }
     }
@@ -127,5 +130,5 @@ struct LoginResult: Codable {
 }
 
 struct ReissueResult: Codable {
-    let accessToken: String
+    let accessToken: String?
 }
