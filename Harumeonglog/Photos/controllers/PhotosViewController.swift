@@ -178,7 +178,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
                 return
             }
 
-        PhotoService.fetchPresignedUrl(
+        PresignedUrlService.fetchPresignedUrl(
             filename: imageKey,
             contentType: "image/jpeg",
             entityId: album.petId,

@@ -13,29 +13,21 @@ struct PetResponse: Decodable {
     let result: PetResultOrString?
 }
 
-// enum으로 분기 처리
 enum PetResultOrString: Decodable {
     case result(PetResult)
     case message(String)
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        do {
-            let result = try container.decode(PetResult.self)
+        if let result = try? container.decode(PetResult.self) {
             self = .result(result)
-        } catch let resultError {
-            do {
-                let message = try container.decode(String.self)
-                self = .message(message)
-            } catch let messageError {
-                throw DecodingError.typeMismatch(
-                    PetResultOrString.self,
-                    .init(
-                        codingPath: decoder.codingPath,
-                        debugDescription: "Unexpected type for result field. Tried PetResult (\(resultError)) and String (\(messageError))."
-                    )
-                )
-            }
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                PetResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "result 필드 디코딩 실패")
+            )
         }
     }
 }
@@ -70,7 +62,26 @@ struct ActivePetsResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: ActivePetsResult
+    let result: ActivePetsResultOrString?
+}
+
+enum ActivePetsResultOrString: Decodable {
+    case result(ActivePetsResult)
+    case message(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let result = try? container.decode(ActivePetsResult.self) {
+            self = .result(result)
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                ActivePetsResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "result 필드 디코딩 실패")
+            )
+        }
+    }
 }
 
 struct ActivePetsResult: Decodable {
@@ -106,4 +117,3 @@ struct ActivePetInfoResult: Decodable {
     let gender: String
     let birth: String
 }
-

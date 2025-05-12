@@ -77,34 +77,5 @@ enum PhotoService {
     
     
     
-    // MARK: - POST /api/v1/s3/presigned-urls S3 단일 이미지 PresignedUrl 발급
-    static func fetchPresignedUrl(
-        filename: String,
-        contentType: String,
-        domain: String = "PET",
-        entityId: Int,
-        token: String? = nil,
-        completion: @escaping (Result<PresignedUrlSingleResponse, AFError>) -> Void
-    ) {
-        let endpoint = "/api/v1/s3/presigned-urls"
-        let body = PresignedUrlSingleRequest(
-            image: PresignedUrlImage(filename: filename, contentType: contentType),
-            domain: domain,
-            entityId: entityId
-        )
-        APIClient.postRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
-    }
-    
-    //MARK: POST /api/v1/s3/presigned-urls/batch S3 복수 이미지 PresignedUrl 발급
-    static func fetchBatchPresignedUrls(
-        images: [PresignedUrlImage],
-        domain: String = "PET",
-        entityId: Int,
-        token: String? = nil,
-        completion: @escaping (Result<PresignedUrlBatchResponse, AFError>) -> Void
-    ) {
-        let endpoint = "/api/v1/s3/presigned-urls/batch"
-        let body = PresignedUrlBatchRequest(images: images, domain: domain, entityId: entityId)
-        APIClient.postRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
-    }
+
 }

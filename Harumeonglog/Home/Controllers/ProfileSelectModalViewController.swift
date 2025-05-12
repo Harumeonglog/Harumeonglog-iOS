@@ -50,8 +50,15 @@ class ProfileSelectModalViewController: UIViewController {
         PetService.fetchActivePets(token: accessToken) { result in
             switch result {
             case .success(let response):
-                self.profiles = response.result.pets.map {
-                    Profile(petId: $0.petId, name: $0.name, imageName: $0.mainImage ?? "")
+                switch response.result {
+                case .result(let activePetsResult):
+                    self.profiles = activePetsResult.pets.map {
+                        Profile(petId: $0.petId, name: $0.name, imageName: $0.mainImage ?? "")
+                    }
+                case .message(let msg):
+                    print("서버 메시지:", msg)
+                case .none:
+                    print("result가 없습니다.")
                 }
             case .failure(let error):
                 print("반려동물 목록 불러오기 실패:", error)

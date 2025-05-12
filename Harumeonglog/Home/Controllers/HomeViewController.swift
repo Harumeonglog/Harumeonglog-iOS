@@ -44,21 +44,31 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         PetService.fetchActivePets(token: accessToken) { result in
             switch result {
             case .success(let response):
-                let pets = response.result.pets
-                if let defaultPet = pets.first(where: { $0.petId == 1 }) {
-                    print("선택된 반려견: \(defaultPet.name)")
-                    self.homeView.nicknameLabel.text = defaultPet.name
+                switch response.result {
+                case .result(let activePetsResult):
+                    let pets = activePetsResult.pets
+                    if let defaultPet = pets.first(where: { $0.petId == 1 }) {
+                        print("선택된 반려견: \(defaultPet.name)")
+                        self.homeView.nicknameLabel.text = defaultPet.name
 
-                    if let imageUrl = URL(string: defaultPet.mainImage ?? "") {
-                        URLSession.shared.dataTask(with: imageUrl) { data, _, _ in
-                            if let data = data, let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self.homeView.profileButton.setImage(image, for: .normal)
+                        if let imageUrl = URL(string: defaultPet.mainImage ?? "") {
+                            URLSession.shared.dataTask(with: imageUrl) { data, _, _ in
+                                if let data = data, let image = UIImage(data: data) {
+                                    DispatchQueue.main.async {
+                                        self.homeView.profileButton.setImage(image, for: .normal)
+                                    }
                                 }
-                            }
-                        }.resume()
+                            }.resume()
+                        }
                     }
+
+                case .message(let msg):
+                    print("서버 메시지: \(msg)")
+
+                case .none:
+                    print("result가 없습니다.")
                 }
+
             case .failure(let error):
                 print("반려동물 조회 실패: \(error)")
             }

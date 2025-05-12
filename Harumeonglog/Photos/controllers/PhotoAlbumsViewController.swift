@@ -35,6 +35,7 @@ class PhotoAlbumsViewController: UIViewController {
             switch result {
             case .success(let response):
                 print("반려동물 목록 조회 성공!")
+
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
@@ -48,14 +49,18 @@ class PhotoAlbumsViewController: UIViewController {
                             uiImages: []
                         )
                     }
-                    self!.photoAlbumsView.albums = albums
-                    self!.photoAlbumsView.albumCollectionView.reloadData()
-                    
+                    self?.photoAlbumsView.albums = albums
+                    self?.photoAlbumsView.albumCollectionView.reloadData()
+
                 case .message(let msg):
-                    print("반려동물 목록 조회 실패: \(msg)")
+                    print("서버 응답 메시지: \(msg)")
+                    self?.photoAlbumsView.albums = []
+                    self?.photoAlbumsView.albumCollectionView.reloadData()
+
                 case .none:
-                    print("반려동물 목록 데이터 없음")
+                    print("result가 없습니다.")
                 }
+
             case .failure(let error):
                 debugPrint("반려동물 조회 실패: \(error)")
             }
