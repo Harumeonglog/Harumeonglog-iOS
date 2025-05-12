@@ -30,11 +30,13 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
         myPageView.goNotification.addTarget(self, action: #selector(goToNotificationSettingVC), for: .touchUpInside)
         myPageView.goEditProileButton.addTarget(self, action: #selector(handleEditProfileButtonTapped), for: .touchUpInside)
         myPageView.goToPetListButton.addTarget(self, action: #selector(handlePetLisstButtonTapped), for: .touchUpInside)
+        myPageView.logoutButton.addTarget(self, action: #selector(handleLogoutButtonTapped), for: .touchUpInside)
+        myPageView.revokeButton.addTarget(self, action: #selector(handleRevokeButtonTapped), for: .touchUpInside)
     }
     
     @objc
     private func goToNotificationSettingVC() {
-        let notiVC = SetNotificationViewController()
+        let notiVC = DetailSettingViewController()
         self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
@@ -49,13 +51,36 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
         self.navigationController?.pushViewController(petListVC, animated: true)
     }
     
+    @objc
+    private func handleLogoutButtonTapped() {
+        AuthAPIService.logout { code in
+            switch code {
+            case .COMMON200:
+                RootViewControllerService.toLoginViewController()
+                let _ = KeychainService.delete(key: K.Keys.accessToken)
+                let _ = KeychainService.delete(key: K.Keys.refreshToken)
+            case .AUTH400:
+                break
+            }
+        }
+    }
+    
+    @objc
+    private func handleRevokeButtonTapped() {
+        AuthAPIService.revoke { code in
+            switch code {
+            case .COMMON200:
+                RootViewControllerService.toLoginViewController()
+                let _ = KeychainService.delete(key: K.Keys.accessToken)
+                let _ = KeychainService.delete(key: K.Keys.refreshToken)
+            case .AUTH400:
+                break
+            }
+        }
+    }
+    
     func showTabBar() {
         self.tabBarController?.tabBar.isHidden = false
     }
     
-}
-
-import SwiftUI
-#Preview {
-    BaseViewController()
 }

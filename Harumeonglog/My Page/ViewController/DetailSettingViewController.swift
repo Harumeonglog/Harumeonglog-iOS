@@ -7,18 +7,18 @@
 
 import UIKit
 
-class SetNotificationViewController: UIViewController {
+class DetailSettingViewController: UIViewController {
     
-    let setNotificationView = SetNotificationView()
+    let detailSettingView = DetailSettingView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = setNotificationView
-        setNotificationView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        self.view = detailSettingView
+        detailSettingView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
-        setNotificationView.configure()
+        detailSettingView.configure()
     }
     
     @objc
@@ -30,5 +30,5 @@ class SetNotificationViewController: UIViewController {
 
 import SwiftUI
 #Preview {
-    SetNotificationViewController()
+    DetailSettingViewController()
 }

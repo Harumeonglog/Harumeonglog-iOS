@@ -16,9 +16,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = LoginViewController()
         window?.makeKeyAndVisible()
         
+        AuthAPIService.reissue() { code in
+            switch code {
+            case .COMMON200:
+                self.window?.rootViewController = BaseViewController()
+            case .AUTH400:
+                self.window?.rootViewController = LoginViewController()
+            }
+        }
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
