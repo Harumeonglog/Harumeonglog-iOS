@@ -101,6 +101,7 @@ class AuthAPIService {
             case .success(let success):
                 switch success.code {
                 case AuthCode.COMMON200.rawValue:
+                    let _ = KeychainService.update(key: K.Keys.accessToken, value: success.result!.accessToken)
                     completion(.COMMON200)
                 case AuthCode.AUTH400.rawValue:
                     completion(.AUTH400)
