@@ -89,8 +89,28 @@ class AuthAPIService {
         }
     }
     
-    static func reissue(completion: @escaping (Result<LoginResult, AFError>) -> Void) {
-        
+    static func reissue(completion: @escaping (AuthCode) -> Void) {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+        guard let refreshToken = KeychainService.get(key: K.Keys.refreshToken) else { return }
+        APIClient.postRequest(
+            endpoint: "/api/v1/auth/reissue",
+            parameters: ["refreshToken": refreshToken],
+            token: accessToken
+        ) { (response: Result<HaruResponse<ReissueResult>, AFError>) in
+            switch response {
+            case .success(let success):
+                switch success.code {
+                case AuthCode.COMMON200.rawValue:
+                    completion(.COMMON200)
+                case AuthCode.AUTH400.rawValue:
+                    completion(.AUTH400)
+                default:
+                    print("undefined code, \(success.code)")
+                }
+            case .failure(let failure):
+                print("revoke decoding failed: \(failure)")
+            }
+        }
     }
     
 }
@@ -103,4 +123,8 @@ struct LoginResult: Codable {
     let memberId: Int
     let accessToken: String
     let refreshToken: String
+}
+
+struct ReissueResult: Codable {
+    let accessToken: String
 }
