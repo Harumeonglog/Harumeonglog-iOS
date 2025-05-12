@@ -36,7 +36,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     @objc
     private func goToNotificationSettingVC() {
-        let notiVC = SetNotificationViewController()
+        let notiVC = DetailSettingViewController()
         self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
