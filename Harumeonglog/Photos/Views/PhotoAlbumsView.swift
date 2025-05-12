@@ -19,36 +19,8 @@ class PhotoAlbumsView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // album 예시
-    var albums: [Album] = [
-        Album(coverImage: UIImage(named: "doggo")!,
-              images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!,UIImage(named: "doggo")!,UIImage(named: "doggo")!],
-              name: "누룽지",
-              photosCount: 308,
-              mainImageURL: nil,
-              petId: 1),
-        Album(coverImage: UIImage(named: "doggo")!,
-              images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!],
-              name: "호빵이",
-              photosCount: 10,
-              mainImageURL: nil,
-              petId: 2),
-        Album(coverImage: UIImage(named: "doggo")!,
-              images: [UIImage(named: "doggo")!, UIImage(named: "doggo")!, UIImage(named: "doggo")!],
-              name: "바보",
-              photosCount: 503,
-              mainImageURL: nil,
-              petId: 3),
-        Album(coverImage: UIImage(named: "doggo")!,
-              images: [UIImage(named: "doggo")!],
-              name: "나비",
-              photosCount: 283,
-              mainImageURL: nil,
-              petId: 4)
-    ]
-    
 
+    var albums: [Album] = [] // `Album` 객체들을 저장
     
     lazy var albumCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()

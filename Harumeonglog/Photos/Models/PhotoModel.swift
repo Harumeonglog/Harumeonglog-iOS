@@ -19,22 +19,29 @@ enum PetImageListResultOrString: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let result = try? container.decode(PetImageListResult.self) {
+        do {
+            let result = try container.decode(PetImageListResult.self)
             self = .result(result)
-        } else if let message = try? container.decode(String.self) {
-            self = .message(message)
-        } else {
-            throw DecodingError.typeMismatch(
-                PetImageListResultOrString.self,
-                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected type for result field.")
-            )
+        } catch let resultError {
+            do {
+                let message = try container.decode(String.self)
+                self = .message(message)
+            } catch let messageError {
+                throw DecodingError.typeMismatch(
+                    PetImageListResultOrString.self,
+                    .init(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Unexpected type for result field. Tried PetImageListResult (\(resultError)) and String (\(messageError))."
+                    )
+                )
+            }
         }
     }
 }
 
 struct PetImageListResult: Codable {
     let images:[PetImage]
-    let cursor: Int
+    let cursor: Int?
     let hasNext: Bool
 }
 
@@ -60,24 +67,43 @@ struct UploadResult: Codable {
     let imageIds: [Int]
 }
 
-//MARK: DELETE /pet-images/{petId} 앨범 내 모든 이미지 삭제
-struct DeletePetImagesRequest : Codable {
+//MARK: DELETE /api/v1/pets/{petId}/images 다중 이미지 삭제
+struct DeleteImagesRequest : Codable {
     let imageIds : [Int]
 }
 
-struct DeletePetImagesResponse: Codable {
+struct DeleteImagesResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
     let result: String
 }
 
-//MARK: GET /pet-images/image/{imageId} 사진 상세 보기 용
-struct PetImageDetailResponse: Codable {
+//MARK: GET /api/v1/pets/images/{imageId} 단일 이미지 조회
+struct PetImageDetailResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: PetImageDetail
+    let result: PetImageDetailResultOrString
+}
+
+enum PetImageDetailResultOrString: Decodable {
+    case result(PetImageDetail)
+    case message(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let detail = try? container.decode(PetImageDetail.self) {
+            self = .result(detail)
+        } else if let message = try? container.decode(String.self) {
+            self = .message(message)
+        } else {
+            throw DecodingError.typeMismatch(
+                PetImageDetailResultOrString.self,
+                .init(codingPath: decoder.codingPath, debugDescription: "Unexpected result type")
+            )
+        }
+    }
 }
 
 struct PetImageDetail: Codable {
@@ -86,10 +112,32 @@ struct PetImageDetail: Codable {
     let createdAt: String
 }
 
-//MARK: DELETE /pet-images/image/{imageId} 특정 이미지 삭제
+//MARK: DELETE /api/v1/pets/images/{imageId} 특정 이미지 삭제
+
 struct DeleteSingleImageResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
     let result: String
+}
+
+
+
+//MARK: POST /api/v1/pets/images S3 업로드 후 이미지 저장
+struct SaveImagesRequest: Codable {
+    let petId: Int
+    let imageKeys: [String]
+}
+
+struct SaveImagesResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: SaveImagesResult?
+}
+
+struct SaveImagesResult: Codable {
+    let imageIds: [Int]
+    let createdAt: String?
+    let updatedAt: String?
 }

@@ -13,8 +13,13 @@ class PhotoDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(image: UIImage, album: Album) {
+    var image: UIImage
+    var album: Album
+    var imageInfo: PetImageDetail
+
+    init(image: UIImage, imageInfo: PetImageDetail, album: Album){
         self.image = image
+        self.imageInfo = imageInfo
         self.album = album
         super.init(nibName: nil, bundle: nil)
     }
@@ -34,13 +39,10 @@ class PhotoDetailViewController: UIViewController {
         super.viewWillDisappear(animated)
         self.tabBarController?.tabBar.isHidden = false
     }
-    
-    var image: UIImage
-    var album: Album
 
     
     private lazy var photoDetailView: PhotoDetailView = {
-        let view = PhotoDetailView(image:image, album: album)
+        let view = PhotoDetailView(image: image, imageInfo: imageInfo, album: album)
         return view
     }()
     

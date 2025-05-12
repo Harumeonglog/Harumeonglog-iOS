@@ -67,10 +67,6 @@ extension LoginViewController {
         }
     }
     
-    func kakaoLogin(oauthToken: String) {
-        
-    }
-    
     @objc
     private func handleAppleLogin() {
         RootViewControllerService.toBaseViewController()

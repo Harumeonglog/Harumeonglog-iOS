@@ -29,45 +29,46 @@ class PhotoAlbumsViewController: UIViewController {
     }
     
     private func fetchAlbums() {
-        PetService.fetchPets(completion: { result in
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        PetService.fetchPets(token: token) { [weak self] result in
             switch result {
             case .success(let response):
+                print("반려동물 목록 조회 성공!")
+
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
                     let albums = pets.map {
                         Album(
-                            coverImage: UIImage(),
-                            images: [],
+                            mainImage: $0.mainImage,
                             name: $0.name,
                             photosCount: 0,
-                            mainImageURL: $0.mainImage,
-                            petId: $0.petId
+                            petId: $0.petId,
+                            imageInfos: [],
+                            uiImages: []
                         )
                     }
-                    self.photoAlbumsView.albums = albums
-                    self.photoAlbumsView.albumCollectionView.reloadData()
-                    
+                    self?.photoAlbumsView.albums = albums
+                    self?.photoAlbumsView.albumCollectionView.reloadData()
+
                 case .message(let msg):
-                    print("result 메시지: \(msg)")
+                    print("서버 응답 메시지: \(msg)")
+                    self?.photoAlbumsView.albums = []
+                    self?.photoAlbumsView.albumCollectionView.reloadData()
+
                 case .none:
-                    print("result 없음")
+                    print("result가 없습니다.")
                 }
+
             case .failure(let error):
                 debugPrint("반려동물 조회 실패: \(error)")
             }
-        })
+        }
     }
     
     private func uploadImages(for petId: Int, imageKeys: [String]) {
-        PhotoService.uploadPetImages(petId: petId, imageKeys: imageKeys, token: nil) { result in
-            switch result {
-            case .success(let response):
-                print("업로드 성공:", response.result.imageIds)
-            case .failure(let error):
-                print("업로드 실패:", error)
-            }
-        }
+        
     }
     
     @objc private func addButtonTapped() {
@@ -94,39 +95,57 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let album = photoAlbumsView.albums[indexPath.item]
         let petId = album.petId
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+                print("토큰이 없습니다.")
+                return
+            }
 
-        PhotoService.fetchPetImages(petId: petId, cursor: 0, size: 100) { [weak self] result in
+        PhotoService.fetchPetImages(petId: petId, cursor: 0, size: 100, token: token) { [weak self] result in
             switch result {
             case .success(let response):
+                print("특정 반려동물 이미지 목록 불러오기 성공: \(petId)")
                 switch response.result {
                 case .result(let result):
-                    let imageUrls = result.images.map { $0.imageKey }
-                    let images: [UIImage] = imageUrls.compactMap { urlString in
-                        guard let url = URL(string: urlString),
-                              let data = try? Data(contentsOf: url),
-                              let image = UIImage(data: data) else { return nil }
-                        return image
+                    var images: [UIImage] = []
+                    let dispatchGroup = DispatchGroup()
+
+                    for urlString in result.images.map({ $0.imageKey }) {
+                        guard let url = URL(string: urlString) else {
+                            images.append(UIImage(named: "placeholder") ?? UIImage())
+                            continue
+                        }
+
+                        dispatchGroup.enter()
+                        URLSession.shared.dataTask(with: url) { data, response, error in
+                            defer { dispatchGroup.leave() }
+
+                            if let data = data, let image = UIImage(data: data) {
+                                images.append(image)
+                            } else {
+                                images.append(UIImage(named: "placeholder") ?? UIImage())
+                            }
+                        }.resume()
                     }
 
-                    let updatedAlbum = Album(
-                        coverImage: images.first ?? UIImage(),
-                        images: images,
-                        name: album.name,
-                        photosCount: images.count,
-                        mainImageURL: album.mainImageURL,
-                        petId: album.petId
-                    )
+                    dispatchGroup.notify(queue: .main) {
+                        let updatedAlbum = Album(
+                            mainImage: album.mainImage,
+                            name: album.name,
+                            photosCount: images.count,
+                            petId: album.petId,
+                            imageInfos: result.images,
+                            uiImages: images
+                        )
 
-                    DispatchQueue.main.async {
                         let photosVC = PhotosViewController(album: updatedAlbum)
                         self?.navigationController?.pushViewController(photosVC, animated: true)
                     }
 
                 case .message(let msg):
-                    print("서버 메시지: \(msg)")
-
+                    print("이미지 조회 실패 메시지: \(msg)")
                 case .none:
-                    print("이미지 result 없음")
+                    print("이미지 응답 result 값이 없습니다.")
                 }
             case .failure(let error):
                 print("이미지 목록 불러오기 실패:", error)
