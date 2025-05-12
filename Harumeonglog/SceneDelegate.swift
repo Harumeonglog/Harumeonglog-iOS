@@ -17,7 +17,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
         window?.makeKeyAndVisible()
-        
         AuthAPIService.reissue() { code in
             switch code {
             case .COMMON200:

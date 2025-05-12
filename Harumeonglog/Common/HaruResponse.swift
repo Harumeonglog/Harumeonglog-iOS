@@ -13,3 +13,5 @@ struct HaruResponse<T: Codable>: Codable {
     let message: String
     let result: T?
 }
+
+struct HaruEmptyResult: Codable {}
