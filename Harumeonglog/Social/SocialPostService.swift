@@ -13,10 +13,10 @@ class SocialPostService {
     
     func postPostToServer(title: String, postCategory: String, content: String, postImageList: [URL], completion: @escaping (Bool) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-        let parameters = postSocialRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+        let parameters = addPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
         
         print("\(parameters)")
-        APIClient.postRequest(endpoint: "/", parameters: parameters, token: token) { (result :  Result<HaruResponse<postSocialResponse>, AFError>) in
+        APIClient.postRequest(endpoint: "/", parameters: parameters, token: token) { (result :  Result<HaruResponse<addPostResponse>, AFError>) in
             switch result {
             case .success(let response):
                 if response.isSuccess {

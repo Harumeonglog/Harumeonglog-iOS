@@ -1,5 +1,5 @@
 //
-//  SocialServiceModel.swift
+//  postServiceModel.swift
 //  Harumeonglog
 //
 //  Created by 김민지 on 4/21/25.
@@ -9,13 +9,20 @@ import Foundation
 
 
 // MARK: 게시글 조회 API
-struct socialRespone : Codable {
+struct postRequest : Encodable {
+    let search : String?
+    let postRequestCategory: String
     let cursor : Int
-    let hasNext : Bool
-    let items : [socialItem]
+    let size : Int
 }
 
-struct socialItem : Codable {
+struct postRespone : Codable {
+    let cursor : Int
+    let hasNext : Bool
+    let items : [postItem]
+}
+
+struct postItem : Codable {
     let postId : Int
     let content : String
     let likeNum : Int
@@ -32,15 +39,27 @@ struct memberInfoResponse : Codable {
     let image : String
 }
 
+// MARK: 게시글 상세 조회 API
+struct postDetailResponse : Codable {
+    let postId : Int
+    let content : String
+    let title : String
+    let likeNum : Int
+    let commentNum : Int
+    let postCategory : String
+    let memberInfoResponse : memberInfoResponse
+    let postImageList : [String]
+}
+
 // MARK: 게시글 생성 API 
-struct postSocialRequest : Encodable {
+struct addPostRequest : Encodable {
     let postCategory : String
     let title: String
     let content : String
     let postImageList : [URL]
 }
 
-struct postSocialResponse : Codable {
+struct addPostResponse : Codable {
     let postId : Int
     let createAt: String
     let updateAt: String
