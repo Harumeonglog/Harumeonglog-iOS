@@ -6,7 +6,7 @@
 //
 
 struct Profile {
+    var petId: Int
     var name: String
     var imageName: String
-    var birthDate: String
 }

@@ -9,11 +9,13 @@ import SnapKit
 
 class PhotoDetailView: UIView {
     private let imageView: UIImageView
+    private let imageInfo: PetImageDetail
     
     public lazy var navigationBar = CustomNavigationBar()
 
-    init(image: UIImage, album: Album) {
+    init(image: UIImage, imageInfo: PetImageDetail, album: Album) {
         self.imageView = UIImageView(image: image)
+        self.imageInfo = imageInfo
         super.init(frame: .zero)
         backgroundColor = .background
         setupView()

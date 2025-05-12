@@ -71,18 +71,18 @@ class AlbumCell: UICollectionViewCell {
     }
     
     func configure(with album: Album) {
-        self.album = album
-        nameLabel.text = album.name
-        photosCountLabel.text = "\(album.photosCount)"
+            self.album = album
+            nameLabel.text = album.name
+            photosCountLabel.text = "\(album.photosCount)"
 
-        // 이미지 로딩
-        if let urlString = album.mainImageURL, let url = URL(string: urlString) {
-            // SDWebImage 사용 시
-            imageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder"))
-        } else {
-            imageView.image = UIImage(named: "placeholder")
+            // 이미지 로딩
+            if let urlString = album.mainImage, let url = URL(string: urlString) {
+                // SDWebImage 사용 시
+                imageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder"))
+            } else {
+                imageView.image = UIImage(named: "placeholder")
+            }
         }
-    }
 }
 
 extension UIView {
@@ -99,10 +99,13 @@ extension UIView {
 }
 
 struct Album {
-    let coverImage: UIImage
-    var images : [UIImage]
+    let mainImage: String?
     let name: String
     let photosCount: Int
-    let mainImageURL: String?
-    let petId : Int
+    let petId: Int
+    
+    //서버에서 받아온 이미지 메타데이터
+    var imageInfos: [PetImage]
+    //메모리에 로드된 실제 이미지들
+    var uiImages:[UIImage]
 }

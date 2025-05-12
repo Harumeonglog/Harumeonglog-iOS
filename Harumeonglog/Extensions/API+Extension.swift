@@ -129,5 +129,16 @@ extension APIClient {
             completion(response.result)
         }
     }
+    
+    static func patchRequest<T: Decodable>(endpoint: String, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
+        let url = "\(baseURL)\(endpoint)"
+        let headers = getHeaders(withToken: token)
+
+        AF.request(url, method: .patch, headers: headers)
+            .validate()
+            .responseDecodable(of: T.self) { response in
+                completion(response.result)
+            }
+    }
 }
 

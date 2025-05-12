@@ -94,7 +94,7 @@ class PhotosViewController: UIViewController {
         navi.configureRightButton()
     }
     
-    // 선택 버튼을 눌렀을 때 선택 모드를 토글하고 UI를 갱신합니다.
+    // 선택 버튼을 눌렀을 때 선택 모드를 토글하고 UI를 갱신
     @objc
     private func didTapSelectButton() {
         isSelecting.toggle()
@@ -116,28 +116,29 @@ class PhotosViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    // 선택된 사진 개수를 라벨에 표시합니다.
+    // 선택된 사진 개수를 라벨에 표시
     private func updateSelectedCountLabel() {
         let count = selectedIndexPaths.count
         photosView.selectedCountLabel.text = "\(count)장의 사진이 선택됨"
     }
     
-    // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신합니다.
+    // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신
     @objc private func deleteSelectedImages() {
         let indices = selectedIndexPaths.map { $0.item - 1 }.sorted(by: >)
         for index in indices {
-            album.images.remove(at: index)
+            album.uiImages.remove(at: index)
+            album.imageInfos.remove(at: index)
         }
         selectedIndexPaths.removeAll()
         updateSelectedCountLabel()
         photosView.PhotosCollectionView.reloadData()
     }
 
-    // 선택된 이미지를 사용자 사진 앨범에 저장합니다.
+    // 선택된 이미지를 사용자 사진 앨범에 저장
     @objc private func downloadSelectedImages() {
         for indexPath in selectedIndexPaths {
             let index = indexPath.item - 1
-            let image = album.images[index]
+            let image = album.uiImages[index]
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         }
     }
@@ -171,37 +172,74 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     
     // 이미지 업로드 후 컬렉션 뷰를 갱신
     private func uploadImage(image: UIImage) {
-        // 예: 이미지 파일명을 서버에서 요구하는 방식으로 임시 생성
         let imageKey = UUID().uuidString + ".jpg"
-        
-        // 1. 이미지 업로드 API 호출
-        PhotoService.uploadPetImages(
-            petId: album.petId,
-            imageKeys: [imageKey],
-            token: "your_access_token" // 실제 로그인 토큰으로 대체
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+                print("토큰이 없습니다.")
+                return
+            }
+
+        PresignedUrlService.fetchPresignedUrl(
+            filename: imageKey,
+            contentType: "image/jpeg",
+            entityId: album.petId,
+            token: token
         ) { result in
             switch result {
             case .success(let response):
-                print("업로드 성공:", response.result.imageIds)
-                
-                // 2. 성공 후 이미지 로컬에 추가하고 reload
-                DispatchQueue.main.async {
-                    self.album.images.append(image)
-                    self.photosView.PhotosCollectionView.reloadData()
+                print("이미지 업로드 성공: \(response)")
+                guard case .result(let presigned) = response.result,
+                      let url = URL(string: presigned.presignedUrl) else {
+                    print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
+                    return
                 }
-                
+
+                var request = URLRequest(url: url)
+                request.httpMethod = "PUT"
+                request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                let imageData = image.jpegData(compressionQuality: 0.8)
+
+                URLSession.shared.uploadTask(with: request, from: imageData) { _, _, error in
+                    if let error = error {
+                        print("이미지 업로드 실패: \(error)")
+                        return
+                    }
+
+                    PhotoService.saveImages(petId: self.album.petId, imageKeys: [presigned.imageKey], token: token) { saveResult in
+                        switch saveResult {
+                        case .success(let saveResponse):
+                            DispatchQueue.main.async {
+                                if let imageId = saveResponse.result?.imageIds.first {
+                                    let newPetImage = PetImage(
+                                        imageId: imageId,
+                                        imageKey: presigned.imageKey,
+                                        createdAt: saveResponse.result?.createdAt ?? ""
+                                    )
+                                    self.album.imageInfos.append(newPetImage)
+                                    self.album.uiImages.append(image)
+                                    self.photosView.PhotosCollectionView.reloadData()
+                                }
+                            }
+                        case .failure(let error):
+                            print("이미지 저장 실패: \(error)")
+                        }
+                    }
+
+                }.resume()
+
             case .failure(let error):
-                print("업로드 실패:", error)
+                print("Presigned URL 요청 실패: \(error)")
             }
         }
+        
     }
 }
 
 // MARK: imageCollectionview delegate, datasource
+// MARK: imageCollectionview delegate, datasource
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album.images.count + 1
+        return album.uiImages.count + 1  // 첫 번째 셀은 추가 버튼
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -214,7 +252,7 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
                 cell.addButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
             }
         } else {
-            let image = album.images[indexPath.item - 1]
+            let image = album.uiImages[indexPath.item - 1]
             cell.configure(isAddButton: false, image: image)
         }
         
@@ -229,9 +267,27 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
             if indexPath.item == 0 {
                 addImageButtonTapped()
             } else {
-                let selectedImage = album.images[indexPath.item - 1]
-                let detailVC = PhotoDetailViewController(image: selectedImage, album: album)
-                self.navigationController?.pushViewController(detailVC, animated: true)
+                let imageId = album.imageInfos[indexPath.item - 1].imageId
+                let image = album.uiImages[indexPath.item - 1]
+                guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+                PhotoService.fetchImageDetail(imageId: imageId, token: token) { result in
+                    switch result {
+                    case .success(let response):
+                        print("단일 이미지 조회 성공")
+                        guard response.isSuccess else { return }
+                        switch response.result {
+                        case .result(let detail):
+                            DispatchQueue.main.async {
+                                let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
+                                self.navigationController?.pushViewController(detailVC, animated: true)
+                            }
+                        case .message(let message):
+                            print("이미지 정보 오류: \(message)")
+                        }
+                    case .failure(let error):
+                        print("단일 이미지 조회 실패: \(error)")
+                    }
+                }
             }
             return
         }
