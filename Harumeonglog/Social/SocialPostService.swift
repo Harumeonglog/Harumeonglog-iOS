@@ -11,27 +11,16 @@ import Alamofire
 // Post 관련 API
 class SocialPostService {
     
-    func postPostToServer(title: String, postCategory: String, content: String, postImageList: [URL], completion: @escaping (Bool) -> Void) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-        let parameters = addPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+    func getPostListFromServer(token: String, completion: @escaping (Result<HaruResponse<postListResponse>, AFError>) -> Void) {
         
-        print("\(parameters)")
-        APIClient.postRequest(endpoint: "/", parameters: parameters, token: token) { (result :  Result<HaruResponse<addPostResponse>, AFError>) in
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-                    print("Successfully posted")
-
-                    if let result = response.result {
-                        print("postID: \(result.postId)")
-                    }
-                } else {
-                    print("Response 실패: \(response.message)")
-                }
-            case .failure(let error):
-                print("Failed to posted : \(error.localizedDescription)")
-            }
-            
-        }
+        let endpoint = "/api/v1/posts"
+        APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
+    }
+    
+    
+    func sendPostToServer(token: String, completion: @escaping (Result<HaruResponse<addPostResponse>, AFError>) -> Void) {
+        
+        let endpoint = "/api/v1/posts"
+        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
 }

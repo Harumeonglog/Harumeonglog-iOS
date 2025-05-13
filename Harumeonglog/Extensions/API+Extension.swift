@@ -31,7 +31,7 @@ extension APIClient {
     }
     
     // 공통 GET 요청 함수
-    static func getRequest<T: Decodable>(endpoint: String, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
+    static func getRequestWithoutParameters<T: Decodable>(endpoint: String, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
         

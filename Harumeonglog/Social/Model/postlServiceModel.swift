@@ -16,7 +16,7 @@ struct postRequest : Encodable {
     let size : Int
 }
 
-struct postRespone : Codable {
+struct postListResponse : Codable {
     let cursor : Int
     let hasNext : Bool
     let items : [postItem]

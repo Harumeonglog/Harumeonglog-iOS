@@ -11,6 +11,7 @@ protocol CategorySelectionDelegate: AnyObject {
     func didSelectCategory(_ category: String)
 }
 
+
 class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     let socialPostService = SocialPostService()
@@ -19,6 +20,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     var postContent: String = ""
     private var postImagesURL: [URL] = []
     private var postImages: [UIImage] = []
+    private var presignedURLResult: [String] = []
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
@@ -52,18 +54,18 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         let postContent = addPostView.contentTextView.text ?? ""
         
         // 서버로 제목, 컨텐츠 , 이미지 url, 카테고리 넘겨주기
-        socialPostService.postPostToServer(
-            title: postTitle,
-            postCategory: selectedCategory!,
-            content: postContent,
-            postImageList: postImagesURL
-        ) { [weak self] success in
-            if success {
-                self?.navigationController?.popViewController(animated: true)
-            } else {
-                print("게시글 생성 실패")
-            }
-        }
+//        socialPostService.sendPostToServer(
+//            title: postTitle,
+//            postCategory: selectedCategory!,
+//            content: postContent,
+//            postImageList: postImagesURL
+//        ) { [weak self] success in
+//            if success {
+//                self?.navigationController?.popViewController(animated: true)
+//            } else {
+//                print("게시글 생성 실패")
+//            }
+//        }
     }
     
     @objc
@@ -107,6 +109,32 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
+            guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+                    print("토큰 없음")
+                    return
+            }
+            
+            PresignedUrlService.fetchPresignedUrl(
+                filename: UUID().uuidString + ".jpg",
+                contentType: "image/jpeg",
+                domain: .post,
+                entityId: 0,
+                token: token
+            ) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    // PresignedUrlResultOrString의 result 값을 꺼내는 과정
+                    switch response.result {
+                    case .result(let presignedUrlResult):
+                        self?.presignedURLResult.append(presignedUrlResult.presignedUrl)
+                    case .message(let message):
+                        print("Error: \(message)")
+                    }
+                case .failure(let error):
+                    print("Presigned URL 발급 실패: \(error)")
+                }
+            }
+            
             postImages.append(image)
             print("이미지 추가됨: \(image)")  // 이미지가 배열에 추가되는지 확인
             addPostView.imageCollectionView.reloadData()
@@ -137,6 +165,7 @@ extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataS
         // 삭제 버튼 눌렸을 때 동작
         cell.onDelete = { [weak self] in
             self?.postImages.remove(at: indexPath.row)
+            self?.presignedURLResult.remove(at: indexPath.row)
             self?.addPostView.imageCollectionView.reloadData()
             self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
         }
