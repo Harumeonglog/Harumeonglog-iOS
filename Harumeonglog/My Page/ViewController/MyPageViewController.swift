@@ -11,7 +11,6 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     private let myPageView = MyPageView()
     private let petListVC = PetListViewController()
-    private var userInfo: InfoParameters?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,12 +28,11 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        MemberAPIService.getInfo { code, info  in
+        MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
-                if let info = info {
-                    self.userInfo = InfoParameters(image: info.image, nickname: info.nickname)
-                    self.myPageView.configure(name: info.nickname, imageURL: info.image)
+                if let userInfo = MemberAPIService.userInfo {
+                    self.myPageView.configure(userInfo)
                 }
             case .AUTH401:
                 RootViewControllerService.toLoginViewController()
@@ -62,9 +60,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     @objc
     private func handleEditProfileButtonTapped() {
         let editVC = EditProfileViewController()
-        if let info = userInfo {
-            editVC.configure(userInfo: info)
-        }
+        editVC.configure()
         self.navigationController?.pushViewController(editVC, animated: true)
     }
     

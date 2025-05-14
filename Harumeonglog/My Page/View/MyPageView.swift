@@ -73,10 +73,10 @@ class MyPageView: UIView {
         setHelpConstraints()
     }
     
-    public func configure(name: String, imageURL: String) {
-        myProfileNameLabel.text = name
-        if let url = URL(string: imageURL) {
-            myProfileImageView.kf.setImage(with: url)
+    public func configure(_ userInfo: UserInfo) {
+        myProfileNameLabel.text = userInfo.nickname ?? ""
+        if let urlString = userInfo.image {
+            myProfileImageView.kf.setImage(with: URL(string: urlString))
         }
     }
     

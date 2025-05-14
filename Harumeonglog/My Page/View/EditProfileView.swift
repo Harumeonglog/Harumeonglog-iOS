@@ -10,7 +10,6 @@ import UIKit
 class EditProfileView: UIView {
     
     private let leadingTrailingPadding: CGFloat = 38
-    
     public lazy var navigationBar = CustomNavigationBar()
     
     private lazy var profileImageView = UIImageView().then {

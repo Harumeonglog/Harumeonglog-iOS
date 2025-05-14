@@ -34,10 +34,12 @@ enum InfoCode: String {
 struct InfoResult: Codable {
     let memberId: Int
     let email: String?
-    let nickname: String
-    let image: String
+    let nickname: String?
+    let image: String?
     let updatedAt: String?
 }
+
+typealias UserInfo = InfoResult
 
 struct InfoParameters {
     let image: String?
@@ -45,6 +47,8 @@ struct InfoParameters {
 }
 
 class MemberAPIService {
+    
+    static var userInfo: UserInfo?
     
     static func getSetting(completion: @escaping (MemberCode, SettingResult?) -> Void) {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
@@ -105,7 +109,7 @@ class MemberAPIService {
         }
     }
     
-    static func getInfo(completion: @escaping (InfoCode, InfoResult?) -> Void) {
+    static func getInfo(completion: @escaping (InfoCode, UserInfo?) -> Void) {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
         APIClient.getRequest(
             endpoint: "/api/v1/members/info",
@@ -116,6 +120,7 @@ class MemberAPIService {
                 switch apiResponse.code {
                 case MemberCode.COMMON200.rawValue:
                     completion(.COMMON200, apiResponse.result)
+                    self.userInfo = apiResponse.result
                 case MemberCode.AUTH400.rawValue:
                     completion(.AUTH400, nil)
                 case MemberCode.AUTH401.rawValue:

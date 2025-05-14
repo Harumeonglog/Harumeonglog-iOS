@@ -12,7 +12,7 @@ class EditProfileViewController: UIViewController {
     
     private let editProfileView = EditProfileView()
     private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-    private var userInfo: InfoParameters?
+    private var userInfo: UserInfo?
     private var selectedImage: UIImage?
     private var imageKey: String?
     
@@ -33,11 +33,12 @@ class EditProfileViewController: UIViewController {
         editProfileView.setConstraints()
     }
     
-    public func configure(userInfo: InfoParameters) {
-        self.userInfo = userInfo
-        editProfileView.nicknameTextField.text = userInfo.nickname
-        if let url = userInfo.image {
-            editProfileView.setPrifileImageByURL(URL(string: url)!)
+    public func configure() {
+        if let userInfo = MemberAPIService.userInfo {
+            editProfileView.nicknameTextField.text = userInfo.nickname
+            if let url = userInfo.image {
+                editProfileView.setPrifileImageByURL(URL(string: url)!)
+            }
         }
     }
     
