@@ -42,6 +42,10 @@ class EditProfileView: UIView {
         profileImageView.image = image
     }
     
+    public func setPrifileImageByURL(_ url: URL) {
+        profileImageView.kf.setImage(with: url)
+    }
+    
     public func setConstraints() {
         setCustomNavigationBarConstraints()
         navigationBar.configureRightButton(text: "완료")
@@ -113,9 +117,4 @@ class EditProfileView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-
-import SwiftUI
-#Preview {
-    EditProfileViewController()
 }

@@ -40,8 +40,8 @@ struct InfoResult: Codable {
 }
 
 struct InfoParameters {
-    let image: String
-    let nickname: String
+    let image: String?
+    let nickname: String?
 }
 
 class MemberAPIService {

@@ -6,11 +6,15 @@
 //
 
 import UIKit
+import Alamofire
 
 class EditProfileViewController: UIViewController {
     
     private let editProfileView = EditProfileView()
     private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private var userInfo: InfoParameters?
+    private var selectedImage: UIImage?
+    private var imageKey: String?
     
     private lazy var picker: UIImagePickerController = {
         let picker = UIImagePickerController()
@@ -27,6 +31,14 @@ class EditProfileViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         editProfileView.setConstraints()
+    }
+    
+    public func configure(userInfo: InfoParameters) {
+        self.userInfo = userInfo
+        editProfileView.nicknameTextField.text = userInfo.nickname
+        if let url = userInfo.image {
+            editProfileView.setPrifileImageByURL(URL(string: url)!)
+        }
     }
     
     private func setActions() {
@@ -66,7 +78,8 @@ class EditProfileViewController: UIViewController {
     
     @objc
     private func completionButtonPressed() {
-        // API 연동
+        guard let nickname = editProfileView.nicknameTextField.text, !nickname.isEmpty else { return }
+        
     }
     
     @objc
@@ -86,13 +99,30 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.editProfileView.setProfileImage(image)
+            self.selectedImage = image  // 선택된 이미지 저장
         }
         dismiss(animated: true)
     }
     
-}
-
-import SwiftUI
-#Preview {
-    EditProfileViewController()
+    
+    
+    private func updateProfile(imageKey: String, nickname: String) {
+        MemberAPIService.patchInfo(
+            param: InfoParameters(image: imageKey, nickname: nickname)
+        ) { [weak self] code in
+            guard let self = self else { return }
+            switch code {
+            case .COMMON200:
+                
+                self.navigationController?.popViewController(animated: true)
+            case .AUTH401:
+                RootViewControllerService.toLoginViewController()
+            case .ERROR500:
+                // 서버 에러 발생
+                break
+            default:
+                break
+            }
+        }
+    }
 }

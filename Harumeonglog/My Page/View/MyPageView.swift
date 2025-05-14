@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class MyPageView: UIView {
     
@@ -15,14 +16,14 @@ class MyPageView: UIView {
     public lazy var goNotification = UIButton().then {
         $0.setImage(.alarmButton, for: .normal)
     }
-    private let myProfileFrame = UIView()
-    private let myProfileImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
+    private lazy var myProfileFrame = UIView()
+    private lazy var myProfileImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 40
         $0.backgroundColor = .gray03
         $0.clipsToBounds = true
     }
-    private let myProfileNameLabel = UILabel().then {
+    private lazy var myProfileNameLabel = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 20)
     }
@@ -72,6 +73,13 @@ class MyPageView: UIView {
         setHelpConstraints()
     }
     
+    public func configure(name: String, imageURL: String) {
+        myProfileNameLabel.text = name
+        if let url = URL(string: imageURL) {
+            myProfileImageView.kf.setImage(with: url)
+        }
+    }
+    
     private func setProfileConstraints() {
         self.addSubview(goNotification)
         self.addSubview(myProfileFrame)
@@ -90,7 +98,6 @@ class MyPageView: UIView {
             make.leading.equalToSuperview()
         }
         
-        myProfileNameLabel.text = "하츄핑"
         myProfileNameLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(myProfileImageView.snp.trailing).offset(20)
@@ -283,9 +290,4 @@ class MyPageView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
-
-import SwiftUI
-#Preview {
-    MyPageViewController()
 }
