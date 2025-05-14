@@ -11,7 +11,7 @@ import Alamofire
 enum PetService {
     
     //MARK: GET /api/v1/pets - 반려동물 목록 조회
-    static func fetchPets(token: String? = nil, size: Int = 10, cursor: Int? = 10, completion: @escaping (Result<PetResponse, AFError>) -> Void) {
+    static func fetchPets(token: String? = nil, size: Int = 10, cursor: Int? = 0, completion: @escaping (Result<PetResponse, AFError>) -> Void) {
         let endpoint = "/api/v1/pets"
         var parameters: [String: Any] = ["size": size]
         if let cursor = cursor {
@@ -27,7 +27,7 @@ enum PetService {
     }
     
     //MARK: GET /api/v1/pets/active - 현재 펫 변경 시 보유 펫 조회
-    static func fetchActivePets(token: String, size: Int = 10, cursor: Int? = 10, completion: @escaping (Result<ActivePetsResponse, AFError>) -> Void) {
+    static func fetchActivePets(token: String, size: Int = 10, cursor: Int? = 0, completion: @escaping (Result<ActivePetsResponse, AFError>) -> Void) {
         let endpoint = "/api/v1/pets/active"
         var parameters: [String: Any] = ["size": size]
         if let cursor = cursor {
