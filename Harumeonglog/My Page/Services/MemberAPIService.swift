@@ -66,7 +66,7 @@ class MemberAPIService {
                 "articleLikeAlarm": param.articleLikeAlarm,
                 "commentAlarm": param.commentAlarm
             ],
-            token: accessToken,
+            token: accessToken
         ) { (response: Result<HaruResponse<SettingResult>, AFError>) in
             switch response {
             case .success(let apiResponse):
