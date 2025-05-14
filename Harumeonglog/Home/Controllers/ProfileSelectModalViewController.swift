@@ -41,6 +41,11 @@ class ProfileSelectModalViewController: UIViewController {
         
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        loadProfiles()
+    }
+    
     public func loadProfiles() {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken), !accessToken.isEmpty else {
             print("AccessToken이 존재하지 않음")

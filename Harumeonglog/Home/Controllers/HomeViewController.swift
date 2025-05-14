@@ -275,7 +275,6 @@ extension HomeViewController: ProfileSelectDelegate {
         profileModalVC.modalPresentationStyle = .pageSheet
         profileModalVC.delegate = self
         self.present(profileModalVC, animated: true) {
-            profileModalVC.loadProfiles()
         }
     }
 }
