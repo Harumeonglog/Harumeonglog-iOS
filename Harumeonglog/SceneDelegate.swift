@@ -21,6 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             switch code {
             case .COMMON200:
                 self.window?.rootViewController = BaseViewController()
+                MemberAPIService.getInfo { code, info in }
             case .AUTH400:
                 self.window?.rootViewController = LoginViewController()
             }

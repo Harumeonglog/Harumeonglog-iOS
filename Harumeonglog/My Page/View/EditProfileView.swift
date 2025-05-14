@@ -10,7 +10,6 @@ import UIKit
 class EditProfileView: UIView {
     
     private let leadingTrailingPadding: CGFloat = 38
-    
     public lazy var navigationBar = CustomNavigationBar()
     
     private lazy var profileImageView = UIImageView().then {
@@ -40,6 +39,10 @@ class EditProfileView: UIView {
     
     public func setProfileImage(_ image: UIImage) {
         profileImageView.image = image
+    }
+    
+    public func setPrifileImageByURL(_ url: URL) {
+        profileImageView.kf.setImage(with: url)
     }
     
     public func setConstraints() {
@@ -113,9 +116,4 @@ class EditProfileView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-
-import SwiftUI
-#Preview {
-    EditProfileViewController()
 }

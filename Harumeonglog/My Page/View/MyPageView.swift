@@ -6,20 +6,25 @@
 //
 
 import UIKit
+import Kingfisher
 
 class MyPageView: UIView {
     
     private let labelLeading: CGFloat = 38
     private let leadingTrailingPadding: CGFloat = 28
     
-    private let myProfileFrame = UIView()
-    private let myProfileImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
+
+    public lazy var goNotification = UIButton().then {
+        $0.setImage(.alarmButton, for: .normal)
+    }
+    private lazy var myProfileFrame = UIView()
+    private lazy var myProfileImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 40
         $0.backgroundColor = .gray03
         $0.clipsToBounds = true
     }
-    private let myProfileNameLabel = UILabel().then {
+    private lazy var myProfileNameLabel = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 20)
     }
@@ -71,6 +76,13 @@ class MyPageView: UIView {
         setHelpConstraints()
     }
     
+    public func configure(_ userInfo: UserInfo) {
+        myProfileNameLabel.text = userInfo.nickname ?? ""
+        if let urlString = userInfo.image {
+            myProfileImageView.kf.setImage(with: URL(string: urlString))
+        }
+    }
+    
     private func setProfileConstraints() {
         self.addSubview(myProfileFrame)
         myProfileFrame.addSubview(myProfileImageView)
@@ -88,7 +100,6 @@ class MyPageView: UIView {
             make.leading.equalToSuperview()
         }
         
-        myProfileNameLabel.text = "하츄핑"
         myProfileNameLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(myProfileImageView.snp.trailing).offset(20)
@@ -287,9 +298,4 @@ class MyPageView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
-
-import SwiftUI
-#Preview {
-    MyPageViewController()
 }

@@ -26,6 +26,23 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
         myPageView.setConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        MemberAPIService.getInfo { code, info in
+            switch code {
+            case .COMMON200:
+                if let userInfo = MemberAPIService.userInfo {
+                    self.myPageView.configure(userInfo)
+                }
+            case .AUTH401:
+                RootViewControllerService.toLoginViewController()
+            case .ERROR500, .AUTH400:
+                print(code)
+                break
+            }
+        }
+    }
+    
     private func setButtonActions() {
         myPageView.goNotification.addTarget(self, action: #selector(goToNotificationSettingVC), for: .touchUpInside)
         myPageView.goEditProileButton.addTarget(self, action: #selector(handleEditProfileButtonTapped), for: .touchUpInside)
@@ -43,6 +60,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     @objc
     private func handleEditProfileButtonTapped() {
         let editVC = EditProfileViewController()
+        editVC.configure()
         self.navigationController?.pushViewController(editVC, animated: true)
     }
     
