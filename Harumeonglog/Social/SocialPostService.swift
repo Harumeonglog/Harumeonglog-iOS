@@ -11,16 +11,42 @@ import Alamofire
 // Post 관련 API
 class SocialPostService {
     
-    func getPostListFromServer(token: String, completion: @escaping (Result<HaruResponse<postListResponse>, AFError>) -> Void) {
+    func getPostListFromServer(
+        search: String?,
+        postRequestCategory: String,
+        cursor: Int,
+        size: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<PostListResponse>, AFError>) -> Void) {
         
         let endpoint = "/api/v1/posts"
-        APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
+        var parameters: [String: Any] = [
+            "postRequestCategory": postRequestCategory,
+            "cursor": cursor,
+            "size": size
+        ]
+            
+        if let search = search {
+            parameters["search"] = search
+        }
+        
+        print("게시글 조회 body: \(parameters)")
+        APIClient.getRequest(endpoint: endpoint, parameters: parameters, token: token, completion: completion)
     }
     
     
-    func sendPostToServer(token: String, completion: @escaping (Result<HaruResponse<addPostResponse>, AFError>) -> Void) {
-        
+    func sendPostToServer(
+        postCategory: String,
+        title: String,
+        content: String,
+        postImageList: [String],
+        token: String,
+        completion: @escaping (Result<HaruResponse<addPostResponse>, AFError>) -> Void
+    ) {
         let endpoint = "/api/v1/posts"
-        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+        let body = addPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+        
+        print("게시글 생성 body: \(body)")
+        APIClient.postRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
     }
 }

@@ -41,7 +41,6 @@ extension APIClient {
     }
     
     // 공통 GET 요청 함수 (parameters 추가)
-    // Parameter: 서버에 요청할 때 필요한 추가 정보나 데이터
     static func getRequest<T: Decodable>(endpoint: String, parameters: [String: Any]? = nil, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
@@ -50,14 +49,20 @@ extension APIClient {
             completion(response.result)
         }
     }
+    
+    // 공통 GET 요청 함수 (requestBody 추가)
+    static func getRequestWithRequestBody<T: Decodable, U: Encodable>(endpoint: String, parameters: U, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
+        let url = "\(baseURL)\(endpoint)"
+        let headers = getHeaders(withToken: token)
+        
+        AF.request(url, method: .get, parameters: parameters, headers: headers).responseDecodable(of: T.self) { response in
+            completion(response.result)
+        }
+    }
+
 
     
     // 공통 POST 요청 함수
-    // T: Decodable로 응답으로 받을 데이터 타입, U: Encodable로 요청에 포함될 파라미터 타입
-    // completion: @escaping (Result<T, AFError>) -> Void
-        // 비동기 작업의 결과를 처리하기 위한 클로저입니다. 요청이 성공하면 Result의 성공 케이스에 응답 데이터 T가 포함되고, 실패하면 AFError 객체가 포함됩니다.
-        // @escaping 키워드는 이 클로저가 함수 종료 후에도 계속해서 사용할 수 있음을 나타냅니다.
-
     static func postRequest<T: Decodable, U: Encodable>(endpoint: String, parameters: U, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)

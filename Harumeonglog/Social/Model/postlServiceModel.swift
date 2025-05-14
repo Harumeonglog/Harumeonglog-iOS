@@ -9,58 +9,57 @@ import Foundation
 
 
 // MARK: 게시글 조회 API
-struct postRequest : Encodable {
-    let search : String?
-    let postRequestCategory: String
-    let cursor : Int
-    let size : Int
-}
-
-struct postListResponse : Codable {
-    let cursor : Int
+struct PostListResponse : Codable {
+    let cursor : Int?
     let hasNext : Bool
-    let items : [postItem]
+    let items : [PostItem]
+
 }
 
-struct postItem : Codable {
+struct PostItem : Codable {
     let postId : Int
+    let title : String
     let content : String
     let likeNum : Int
     let commentNum : Int
     let postCategory : String
-    let memberInfoResponse : memberInfoResponse
-    let imageKeyName: String
+    let memberInfoResponse : MemberInfoResponse?
+    let imageKeyName: String?
 }
 
-struct memberInfoResponse : Codable {
+struct MemberInfoResponse : Codable {
     let memberId : Int
     let email : String
     let nickname : String
-    let image : String
+    let image : String?
 }
 
+
+
 // MARK: 게시글 상세 조회 API
-struct postDetailResponse : Codable {
+struct PostDetailResponse : Codable {
     let postId : Int
     let content : String
     let title : String
     let likeNum : Int
     let commentNum : Int
     let postCategory : String
-    let memberInfoResponse : memberInfoResponse
+    let memberInfoResponse : MemberInfoResponse
     let postImageList : [String]
 }
 
-// MARK: 게시글 생성 API 
+
+// MARK: 게시글 생성 API
 struct addPostRequest : Encodable {
     let postCategory : String
     let title: String
     let content : String
-    let postImageList : [URL]
+    let postImageList : [String]
 }
 
-struct addPostResponse : Codable {
+struct addPostResponse: Codable {
     let postId : Int
-    let createAt: String
-    let updateAt: String
+    let createAt : String
+    let updateAt : String
 }
+

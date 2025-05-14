@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Alamofire
 
 protocol CategorySelectionDelegate: AnyObject {
     func didSelectCategory(_ category: String)
@@ -48,24 +49,54 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+    
     @objc func didTapRightButton() {
         
         let postTitle = addPostView.titleTextField.text ?? ""
         let postContent = addPostView.contentTextView.text ?? ""
         
-        // 서버로 제목, 컨텐츠 , 이미지 url, 카테고리 넘겨주기
-//        socialPostService.sendPostToServer(
-//            title: postTitle,
-//            postCategory: selectedCategory!,
-//            content: postContent,
-//            postImageList: postImagesURL
-//        ) { [weak self] success in
-//            if success {
-//                self?.navigationController?.popViewController(animated: true)
-//            } else {
-//                print("게시글 생성 실패")
-//            }
-//        }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+         // 서버로 제목, 컨텐츠 , 이미지 url, 카테고리 넘겨주기
+        socialPostService.sendPostToServer(
+            postCategory: selectedCategory!,
+            title: postTitle,
+            content: postContent,
+            postImageList: presignedURLResult,
+            token: token
+        ) { [weak self] result in
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("게시글 생성 성공")
+                    self?.navigationController?.popViewController(animated: true)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+
+            case .failure(let error):
+                if let afError = error as? AFError,
+                   let underlyingError = afError.underlyingError as? URLError,
+                   let data = underlyingError.userInfo["com.alamofire.serialization.response.error.data"] as? Data {
+                    // 경우 1: underlyingError에서 data 꺼낼 수 있을 때
+                    let jsonString = String(data: data, encoding: .utf8) ?? "응답 없음"
+                    print("🧾 서버 응답 JSON:\n\(jsonString)")
+                } else if let afError = error as? AFError,
+                          let data = afError.underlyingError as? Data {
+                    // 경우 2: 일반적인 경우
+                    let jsonString = String(data: data, encoding: .utf8) ?? "응답 없음"
+                    print("🧾 서버 응답 JSON:\n\(jsonString)")
+                } else {
+                    print("❗️ underlyingError 없음 또는 디코딩 불가")
+                }
+
+                print("❌ 게시글 전송 실패: \(error.localizedDescription)")
+
+            }
+        }
     }
     
     @objc
@@ -110,8 +141,8 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
             guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-                    print("토큰 없음")
-                    return
+                print("토큰 없음")
+                return
             }
             
             PresignedUrlService.fetchPresignedUrl(
@@ -123,20 +154,19 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
             ) { [weak self] result in
                 switch result {
                 case .success(let response):
-                    // PresignedUrlResultOrString의 result 값을 꺼내는 과정
                     switch response.result {
                     case .result(let presignedUrlResult):
+                        print("Presigned URL 발급 성공: \(presignedUrlResult.presignedUrl)")
                         self?.presignedURLResult.append(presignedUrlResult.presignedUrl)
                     case .message(let message):
                         print("Error: \(message)")
                     }
                 case .failure(let error):
-                    print("Presigned URL 발급 실패: \(error)")
+                    print("Presigned URL 발급 실패: \(error.localizedDescription)")
                 }
             }
             
             postImages.append(image)
-            print("이미지 추가됨: \(image)")  // 이미지가 배열에 추가되는지 확인
             addPostView.imageCollectionView.reloadData()
             addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"

@@ -100,7 +100,7 @@ class TextOnlyCell: UITableViewCell {
         
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(20)
-            make.leading.trailing.equalToSuperview().inset(5)
+            make.leading.trailing.equalToSuperview().inset(27.5)
             make.width.equalTo(230)
         }
         
@@ -108,7 +108,8 @@ class TextOnlyCell: UITableViewCell {
         
 
         underlineView.snp.makeConstraints { make in
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(22.5)
             make.height.equalTo(1)
         }
         
