@@ -12,6 +12,7 @@ class SocialViewController: UIViewController {
     let socialPostService = SocialPostService()
     private var selectedBtn: UIButton?      // 이전에 눌린 카테고리 버튼 저장
     
+    private var selectedCategory: String = "ALL"
     private var posts: [PostItem] = []
     private var cursor: Int = 0
     private var hasNext: Bool = true
@@ -44,9 +45,10 @@ class SocialViewController: UIViewController {
 
     }
     
+
+    
     private func fetchPostsFromServer(reset: Bool = false) {
-        let getAll = "ALL"
-        
+                
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
@@ -64,7 +66,7 @@ class SocialViewController: UIViewController {
         
         socialPostService.getPostListFromServer(
             search: nil,
-            postRequestCategory: getAll,
+            postRequestCategory: selectedCategory,
             cursor: cursor,
             size: 5,
             token: token
@@ -76,9 +78,9 @@ class SocialViewController: UIViewController {
             case .success(let response):
                 if response.isSuccess {
                     if let postList = response.result {
-                        print("게시글 조회 성공: \(postList)")
-                        self.posts.append(contentsOf: postList.items.compactMap { $0 } ?? [])
-                        self.cursor = postList.cursor!
+                        print("게시글 조회 성공: \(postList.items.count)")
+                        self.posts.append(contentsOf: postList.items)
+                        self.cursor = postList.cursor ?? 0
                         self.hasNext = postList.hasNext
                         DispatchQueue.main.async {
                             self.socialView.postTableView.reloadData()
@@ -111,6 +113,24 @@ class SocialViewController: UIViewController {
     }
     
     @objc private func categoryButtonTapped(_ sender: UIButton) {
+        let senderTitle = sender.titleLabel?.text ?? ""
+        let tappedCategory = socialCategoryKey.tagsMap[senderTitle] ?? "unknown"
+        
+        if selectedCategory == tappedCategory {
+            // 버튼 스타일 초기화
+            sender.backgroundColor = .brown02
+            sender.tintColor = .gray00
+            sender.titleLabel?.font = UIFontMetrics.default.scaledFont(
+                for: UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13)
+            )
+            
+            // 선택 해제 처리
+            selectedBtn = nil
+            selectedCategory = "ALL"
+            fetchPostsFromServer(reset: true)
+            return
+        }
+        
         if let previousBtn = selectedBtn {
             previousBtn.backgroundColor = .brown02
             previousBtn.tintColor = .gray00
@@ -123,8 +143,12 @@ class SocialViewController: UIViewController {
         sender.titleLabel?.adjustsFontSizeToFitWidth = false
         
         selectedBtn = sender
+        selectedCategory = tappedCategory
 
+        fetchPostsFromServer(reset: true)
+        
     }
+    
     
     @objc private func addPostButtonTapped() {
         let addPostVC = AddPostViewController()
@@ -140,20 +164,28 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // 마지막 셀이 화면에 보일 떄 다음 데이터 요청
         if indexPath.row == posts.count - 1 && hasNext {
-             fetchPostsFromServer()
+            fetchPostsFromServer()
          }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row < 3 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TextOnlyCell", for: indexPath)
+        let post = posts[indexPath.row]
+        
+        if let imageKey = post.imageKeyName, !imageKey.isEmpty {
+            // 이미지가 있는 경우 ImageViewCell 사용
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageViewCell", for: indexPath) as! ImageViewCell
             cell.selectionStyle = .none
+            //cell.configure(with: post)
+            
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageViewCell", for: indexPath)
+            // 이미지가 없는 경우 TextOnlyCell 사용
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TextOnlyCell", for: indexPath) as! TextOnlyCell
             cell.selectionStyle = .none
+            cell.configure(with: post)
             return cell
         }
+
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -161,7 +193,7 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 20 + 100 + 20
+        return 20 + 90 + 20
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -169,7 +201,7 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
         postDetailVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(postDetailVC, animated: true)
     }
-    
+
     
 }
 

@@ -195,4 +195,6 @@ class SocialView: UIView {
         categoryButtonsStackView.arrangedSubviews.compactMap { $0 as? UIButton }.forEach(action)
     }
     
+    
+    
 }

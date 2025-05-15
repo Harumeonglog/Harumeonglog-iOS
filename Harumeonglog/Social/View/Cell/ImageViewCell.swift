@@ -26,7 +26,7 @@ class ImageViewCell: UITableViewCell {
         stackView.addArrangedSubview(subContentStackView)
         
         stackView.axis = .vertical
-        stackView.spacing = 7
+        stackView.spacing = 8
         stackView.distribution = .fill
         stackView.alignment = .leading
     }
@@ -50,7 +50,7 @@ class ImageViewCell: UITableViewCell {
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textAlignment = .left
         label.textColor = .gray01
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         // label.setLineSpacing(lineSpacing: 3)
     }
     
@@ -59,7 +59,7 @@ class ImageViewCell: UITableViewCell {
         imageView.tintColor = .gray02
         
         imageView.snp.makeConstraints { make in
-            make.width.height.equalTo(14)
+            make.width.height.equalTo(15)
         }
     }
     
@@ -72,7 +72,7 @@ class ImageViewCell: UITableViewCell {
     private func setSubLabel(title: String) -> UILabel {
         let label = UILabel()
         label.text = title
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 11)
         label.textColor = .gray01
     
         return label
@@ -126,6 +126,14 @@ class ImageViewCell: UITableViewCell {
             make.height.equalTo(1)
         }
         
-        
+    }
+    
+    
+    func configure(with post: PostItem) {
+        categoryLabel.text = post.postCategory
+        titleLabel.text = post.title
+        contentLabel.text = post.content
+        likeCountLabel.text = "\(post.likeNum)"
+        postImageView.image = UIImage(named: post.imageKeyName!)
     }
 }

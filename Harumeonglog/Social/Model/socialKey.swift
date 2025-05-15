@@ -16,7 +16,7 @@ struct socialCategoryKey {
         "정보 공유": "INFO",
         "유머": "HUMOR",
         "Q&A": "QNA",
-        "SOS": "SNS",
+        "SNS": "SNS",
         "기타": "ETC"
     ]
 }
