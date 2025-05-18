@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: 소셜 조회에서 이미지가 없는 경우
 class TextOnlyCell: UITableViewCell {
     
     static let identifier = "TextOnlyCell"
@@ -25,7 +26,7 @@ class TextOnlyCell: UITableViewCell {
         stackView.addArrangedSubview(subContentStackView)
         
         stackView.axis = .vertical
-        stackView.spacing = 6
+        stackView.spacing = 8
         stackView.distribution = .fill
         stackView.alignment = .leading
     }
@@ -46,10 +47,10 @@ class TextOnlyCell: UITableViewCell {
     
     public lazy var contentLabel = UILabel().then { label in
         label.text = "주인이 뺏어먹어도 될 정도로 진짜 맛있는걸루 ,, 그럼 빵맛이 나는 간식이 있을까요 ????? 없겠지 ㅜㅜ 만약에 혹시나도 있으면 땅버맛으로 부탁할게요"
-        label.font = UIFont(name: "Pretendard-Regular", size: 12)
+        label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textAlignment = .left
         label.textColor = .gray00
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.setLineSpacing(lineSpacing: 3)
     }
     
@@ -58,7 +59,7 @@ class TextOnlyCell: UITableViewCell {
         imageView.tintColor = .gray02
         
         imageView.snp.makeConstraints { make in
-            make.width.height.equalTo(14)
+            make.width.height.equalTo(15)
         }
     }
     
@@ -71,7 +72,7 @@ class TextOnlyCell: UITableViewCell {
     private func setSubLabel(title: String) -> UILabel {
         let label = UILabel()
         label.text = title
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 11)
         label.textColor = .gray01
     
         return label
@@ -99,7 +100,7 @@ class TextOnlyCell: UITableViewCell {
         
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(20)
-            make.leading.trailing.equalToSuperview().inset(5)
+            make.leading.trailing.equalToSuperview().inset(27.5)
             make.width.equalTo(230)
         }
         
@@ -107,10 +108,18 @@ class TextOnlyCell: UITableViewCell {
         
 
         underlineView.snp.makeConstraints { make in
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(22.5)
             make.height.equalTo(1)
         }
         
         
+    }
+    
+    func configure(with post: PostItem) {
+        categoryLabel.text = post.postCategory
+        titleLabel.text = post.title
+        contentLabel.text = post.content
+        likeCountLabel.text = "\(post.likeNum)"
     }
 }

@@ -151,7 +151,7 @@ class SocialView: UIView {
         
         postTableView.snp.makeConstraints { make in
             make.top.equalTo(categoryButtonsScrollView.snp.bottom).offset(15)
-            make.leading.trailing.equalToSuperview().inset(22.5)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(self.safeAreaLayoutGuide)
         }
         
@@ -194,5 +194,7 @@ class SocialView: UIView {
     public func forEachButton(_ action: (UIButton) -> Void) {
         categoryButtonsStackView.arrangedSubviews.compactMap { $0 as? UIButton }.forEach(action)
     }
+    
+    
     
 }

@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: 소셜 조회에서 이미지가 있는 경우
 class ImageViewCell: UITableViewCell {
     
     static let identifier = "ImageViewCell"
@@ -25,7 +26,7 @@ class ImageViewCell: UITableViewCell {
         stackView.addArrangedSubview(subContentStackView)
         
         stackView.axis = .vertical
-        stackView.spacing = 7
+        stackView.spacing = 8
         stackView.distribution = .fill
         stackView.alignment = .leading
     }
@@ -49,7 +50,7 @@ class ImageViewCell: UITableViewCell {
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textAlignment = .left
         label.textColor = .gray01
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         // label.setLineSpacing(lineSpacing: 3)
     }
     
@@ -58,7 +59,7 @@ class ImageViewCell: UITableViewCell {
         imageView.tintColor = .gray02
         
         imageView.snp.makeConstraints { make in
-            make.width.height.equalTo(14)
+            make.width.height.equalTo(15)
         }
     }
     
@@ -71,7 +72,7 @@ class ImageViewCell: UITableViewCell {
     private func setSubLabel(title: String) -> UILabel {
         let label = UILabel()
         label.text = title
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 11)
         label.textColor = .gray01
     
         return label
@@ -106,7 +107,7 @@ class ImageViewCell: UITableViewCell {
         
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(20)
-            make.leading.equalToSuperview().inset(5)
+            make.leading.equalToSuperview().inset(27.5)
             make.width.equalTo(230)
         }
         
@@ -116,14 +117,23 @@ class ImageViewCell: UITableViewCell {
         postImageView.snp.makeConstraints { make in
             make.width.height.equalTo(100)
             make.top.equalTo(contentStackView)
-            make.trailing.equalToSuperview().inset(5)
+            make.trailing.equalToSuperview().inset(27.5)
         }
         
         underlineView.snp.makeConstraints { make in
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(22.5)
             make.height.equalTo(1)
         }
         
-        
+    }
+    
+    
+    func configure(with post: PostItem) {
+        categoryLabel.text = post.postCategory
+        titleLabel.text = post.title
+        contentLabel.text = post.content
+        likeCountLabel.text = "\(post.likeNum)"
+        postImageView.image = UIImage(named: post.imageKeyName!)
     }
 }

@@ -11,26 +11,51 @@ import Alamofire
 // Post 관련 API
 class SocialPostService {
     
-    func postPostToServer(title: String, postCategory: String, content: String, postImageList: [URL], completion: @escaping (Bool) -> Void) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-        let parameters = postSocialRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+    func getPostListFromServer(
+        search: String?,
+        postRequestCategory: String,
+        cursor: Int,
+        size: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<PostListResponse>, AFError>) -> Void) {
         
-        APIClient.postRequest(endpoint: "/", parameters: parameters, token: token) { (result :  Result<HaruResponse<postSocialResponse>, AFError>) in
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-                    print("Successfully posted")
-
-                    if let result = response.result {
-                        print("postID: \(result.postId)")
-                    }
-                } else {
-                    print("Response 실패: \(response.message)")
-                }
-            case .failure(let error):
-                print("Failed to posted : \(error.localizedDescription)")
-            }
+        let endpoint = "/api/v1/posts"
+        var parameters: [String: Any] = [
+            "postRequestCategory": postRequestCategory,
+            "cursor": cursor,
+            "size": size
+        ]
             
+        if let search = search {
+            parameters["search"] = search
         }
+        
+        print("게시글 조회 body: \(parameters)")
+        APIClient.getRequest(endpoint: endpoint, parameters: parameters, token: token, completion: completion)
+    }
+    
+    
+    func sendPostToServer(
+        postCategory: String,
+        title: String,
+        content: String,
+        postImageList: [String],
+        token: String,
+        completion: @escaping (Result<HaruResponse<AddPostResponse>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts"
+        let body = AddPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+        
+        print("게시글 생성 body: \(body)")
+        APIClient.postRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
+    }
+    
+    func getPostDetailsFromServer(
+        postId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<PostDetailResponse>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts/\(postId)"
+        APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
     }
 }
