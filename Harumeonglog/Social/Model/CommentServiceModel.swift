@@ -9,26 +9,26 @@ import Foundation
 
 
 //MARK: 댓글 조회 API
-struct commentRequest: Codable {
+struct CommentRequest: Codable {
     let postId : Int
     let cursor : Int
     let size : Int
 }
 
-struct commentResponse: Codable {
-    let items : [commentItem]
+struct CommentResponse: Codable {
+    let items : [CommentItem]
     let hasNext : Bool
     let cursor : Int
 }
 
-struct commentItem: Codable {
+struct CommentItem: Codable {
     let commentId : Int
     let content : String
     let memberInfoResponse: MemberInfoResponse
-    let commentcommentResponseList : [commentcommentResponse]   // 대댓글 리스트
+    let commentcommentResponseList : [CommentcommentResponse]   // 대댓글 리스트
 }
 
-struct commentcommentResponse : Codable {
+struct CommentcommentResponse : Codable {
     let commentId : Int
     let content : String
     let memberInfoResponse: MemberInfoResponse
@@ -36,13 +36,13 @@ struct commentcommentResponse : Codable {
 
 
 // MARK: 댓글 생성 API
-struct addCommentRequest: Codable {
+struct AddCommentRequest: Codable {
     let content : String
     let parentId : String
     //  parentId가 null이면 댓글 Long 값이 들어가면 대댓글(해당 parentId의 댓글에 종속되는)
 }
 
-struct addCommentResponse: Decodable {
+struct AddCommentResponse: Decodable {
     let commentId : Int
     let createdAt : String
     let updateAt : String

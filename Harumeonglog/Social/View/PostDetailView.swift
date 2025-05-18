@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Then
+import SDWebImage
 
 class PostDetailView: UIView {
     
@@ -221,5 +222,31 @@ class PostDetailView: UIView {
             make.centerY.equalTo(likeButton)
         }
         
+    }
+    
+    func configure(with postDetail: PostDetailResponse, member: MemberInfoResponse) {
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        accountName.text = member.nickname
+    
+        postCategory.text = postDetail.postCategory
+        postTitle.text = postDetail.title
+        postContent.text = postDetail.content
+        
+        print("\(postDetail.content)")
+        likeCount.text = "\(postDetail.likeNum)"
+        commentCount.text = "\(postDetail.commentNum)"
+        // postTimeLabel.text = postDetail.time
+        
+        let validImageURLs = postDetail.postImageList.compactMap { $0 }.filter { !$0.isEmpty }
+
+//        if validImageURLs.isEmpty {
+//             postImageScrollView.isHidden = true
+//             postImagePageControl.isHidden = true
+//             postImagePageControl.numberOfPages = 0
+//         } else {
+//             postImageScrollView.isHidden = false
+//             postImagePageControl.isHidden = false
+//             postImagePageControl.numberOfPages = validImageURLs.count
+//         }
     }
 }

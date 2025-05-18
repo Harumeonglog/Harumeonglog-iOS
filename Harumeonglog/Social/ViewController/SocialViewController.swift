@@ -42,7 +42,6 @@ class SocialViewController: UIViewController {
         self.view = socialView
         hideKeyboardWhenTappedAround()
         fetchPostsFromServer(reset: true)
-
     }
     
 
@@ -172,14 +171,14 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
         let post = posts[indexPath.row]
         
         if let imageKey = post.imageKeyName, !imageKey.isEmpty {
-            // 이미지가 있는 경우 ImageViewCell 사용
+            // 이미지가 있는 경우
             let cell = tableView.dequeueReusableCell(withIdentifier: "ImageViewCell", for: indexPath) as! ImageViewCell
             cell.selectionStyle = .none
-            //cell.configure(with: post)
+            cell.configure(with: post)
             
             return cell
         } else {
-            // 이미지가 없는 경우 TextOnlyCell 사용
+            // 이미지가 없는 경우
             let cell = tableView.dequeueReusableCell(withIdentifier: "TextOnlyCell", for: indexPath) as! TextOnlyCell
             cell.selectionStyle = .none
             cell.configure(with: post)
@@ -197,7 +196,10 @@ extension SocialViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let post = posts[indexPath.row]
         let postDetailVC = PostDetailViewController()
+        postDetailVC.postId = post.postId
+        print("\(post.postId)")
         postDetailVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(postDetailVC, animated: true)
     }

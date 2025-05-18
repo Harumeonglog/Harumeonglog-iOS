@@ -39,25 +39,25 @@ struct MemberInfoResponse : Codable {
 // MARK: 게시글 상세 조회 API
 struct PostDetailResponse : Codable {
     let postId : Int
-    let content : String
+    let content : String?
     let title : String
     let likeNum : Int
     let commentNum : Int
     let postCategory : String
     let memberInfoResponse : MemberInfoResponse
-    let postImageList : [String]
+    let postImageList : [String?]
 }
 
 
 // MARK: 게시글 생성 API
-struct addPostRequest : Encodable {
+struct AddPostRequest : Encodable {
     let postCategory : String
     let title: String
     let content : String
     let postImageList : [String]
 }
 
-struct addPostResponse: Codable {
+struct AddPostResponse: Codable {
     let postId : Int
     let createAt : String
     let updateAt : String

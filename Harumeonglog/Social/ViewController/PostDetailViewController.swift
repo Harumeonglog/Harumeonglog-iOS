@@ -6,11 +6,17 @@
 //
 
 import UIKit
+import SDWebImage
 
 class PostDetailViewController: UIViewController {
     
+    let socialPostService = SocialPostService()
+
+    var postId : Int?
     private var isLiked: Bool = false
     private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
+    private var postDetail: [PostDetailResponse] = []
+    private var memberInfo: [MemberInfoResponse] = []
 
 
     private lazy var postDetailView: PostDetailView = {
@@ -34,6 +40,7 @@ class PostDetailViewController: UIViewController {
         self.view = postDetailView
         setCustomNavigationBarConstraints()
         postSettingButton()
+        fetchPostDetailsFromServer()
     }
     
     override func viewDidLayoutSubviews() {
@@ -47,6 +54,51 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+    private func fetchPostDetailsFromServer() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let postDetail = response.result {
+                        print("게시글 조회 성공")
+                        
+                        // self.photos.removeAll()
+                        
+                        for urlString in postDetail.postImageList {
+                            if let urlString = urlString, let url = URL(string: urlString) {
+                                URLSession.shared.dataTask(with: url) { data, _, _ in
+                                    if let data = data, let image = UIImage(data: data) {
+                                        DispatchQueue.main.async {
+                                            self.photos.append(image)
+                                        }
+                                    }
+                                }.resume()
+                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.postDetailView.configure(
+                                with: postDetail, member: postDetail.memberInfoResponse)
+                        }
+                    } else {
+                        print("결과 데이터가 비어있습니다.")
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 조회 실패: \(error.localizedDescription)")
+            }
+        }
+
+    }
     
     @objc
     private func didTapBackButton() {

@@ -41,12 +41,21 @@ class SocialPostService {
         content: String,
         postImageList: [String],
         token: String,
-        completion: @escaping (Result<HaruResponse<addPostResponse>, AFError>) -> Void
+        completion: @escaping (Result<HaruResponse<AddPostResponse>, AFError>) -> Void
     ) {
         let endpoint = "/api/v1/posts"
-        let body = addPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+        let body = AddPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
         
         print("게시글 생성 body: \(body)")
         APIClient.postRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
+    }
+    
+    func getPostDetailsFromServer(
+        postId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<PostDetailResponse>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts/\(postId)"
+        APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
     }
 }
