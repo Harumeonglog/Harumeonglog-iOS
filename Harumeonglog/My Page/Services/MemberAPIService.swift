@@ -145,7 +145,7 @@ class MemberAPIService {
                 "image": param.image,
                 "nickname": param.nickname,
             ],
-            token: accessToken,
+            token: accessToken
         ) { (response: Result<HaruResponse<InfoResult>, AFError>) in
             switch response {
             case .success(let apiResponse):

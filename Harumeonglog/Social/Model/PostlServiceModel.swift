@@ -22,6 +22,7 @@ struct PostItem : Codable {
     let content : String
     let likeNum : Int
     let commentNum : Int
+    let createdAt : String?
     let postCategory : String
     let memberInfoResponse : MemberInfoResponse?
     let imageKeyName: String?

@@ -9,6 +9,10 @@ import UIKit
 
 class CommentViewController: UIViewController, UITextViewDelegate {
     
+    let socialCommentService = SocialCommentService()
+    var postId : Int?
+    var commentText : String = ""
+    
     private lazy var commentView: CommentView = {
         let view = CommentView()
         view.backgroundColor = .background
@@ -27,11 +31,15 @@ class CommentViewController: UIViewController, UITextViewDelegate {
         self.view = commentView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+    
+        commentView.commentUploadButton.addTarget(self, action: #selector(commentUploadButtonTapped), for: .touchUpInside)
     }
     
     internal func textViewDidChange(_ textView: UITextView) {
         
         let isEmpty = commentView.commentTextView.text.isEmpty
+        let commentText = commentView.commentTextView.text
+        
         commentView.placeholderLabel.isHidden = !isEmpty
         commentView.commentUploadButton.isHidden = isEmpty
         
@@ -54,8 +62,39 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     }
     
     @objc
-    private func didTapBackButton(){
+    private func didTapBackButton() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc
+    private func commentUploadButtonTapped() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+
+        socialCommentService.postCommentToServer(postId: postId!, content: commentText, token: token)
+        { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let postList = response.result {
+                        print("댓글 생성 성공")
+                        
+                        commentView.commentTextView.text = ""
+                        
+                    } else {
+                        print("결과 데이터가 비어있습니다.")
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("댓글 생성 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 
@@ -96,7 +135,6 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             commentView.commentTextView.attributedText = attributedString
             commentView.commentTextView.becomeFirstResponder() // 키보드 올리기
             
-            // 사용자가 입력할 텍스트 스타일은 기본 스타일로 설정
             commentView.commentTextView.typingAttributes = [
                 .foregroundColor: UIColor.gray00,
                 .font: UIFont.body

@@ -107,6 +107,7 @@ class PostDetailViewController: UIViewController {
     
     @objc func commentButtonTapped() {
         let commentVC = CommentViewController()
+        commentVC.postId = postId
         commentVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(commentVC, animated: true)
     }

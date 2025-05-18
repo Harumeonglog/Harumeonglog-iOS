@@ -232,7 +232,6 @@ class PostDetailView: UIView {
         postTitle.text = postDetail.title
         postContent.text = postDetail.content
         
-        print("\(postDetail.content)")
         likeCount.text = "\(postDetail.likeNum)"
         commentCount.text = "\(postDetail.commentNum)"
         // postTimeLabel.text = postDetail.time

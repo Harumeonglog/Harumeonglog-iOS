@@ -16,14 +16,14 @@ struct CommentRequest: Codable {
 }
 
 struct CommentResponse: Codable {
-    let items : [CommentItem]
+    let items : [CommentItem?]
     let hasNext : Bool
-    let cursor : Int
+    let cursor : Int?
 }
 
 struct CommentItem: Codable {
     let commentId : Int
-    let content : String
+    let content : String?
     let memberInfoResponse: MemberInfoResponse
     let commentcommentResponseList : [CommentcommentResponse]   // 대댓글 리스트
 }
@@ -37,14 +37,14 @@ struct CommentcommentResponse : Codable {
 
 // MARK: 댓글 생성 API
 struct AddCommentRequest: Codable {
-    let content : String
-    let parentId : String
+    let content : String?
+    let parentId : Int?
     //  parentId가 null이면 댓글 Long 값이 들어가면 대댓글(해당 parentId의 댓글에 종속되는)
 }
 
-struct AddCommentResponse: Decodable {
+struct AddCommentResponse: Codable {
     let commentId : Int
-    let createdAt : String
+    let createAt : String
     let updateAt : String
 }
 
