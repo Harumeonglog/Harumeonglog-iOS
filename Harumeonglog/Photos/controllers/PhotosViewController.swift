@@ -102,10 +102,21 @@ class PhotosViewController: UIViewController {
         photosView.navigationBar.configureRightButton(text: newTitle)
         photosView.bottomActionBar.isHidden = !isSelecting
         photosView.PhotosCollectionView.allowsMultipleSelection = isSelecting
-        selectedIndexPaths.removeAll()
-        updateSelectedCountLabel()
+
+        if !isSelecting {
+            // 선택 모드 종료 시 선택 상태 초기화
+            for indexPath in selectedIndexPaths {
+                if let cell = photosView.PhotosCollectionView.cellForItem(at: indexPath) as? PictureCell {
+                    cell.setSelectedBorder(false)
+                }
+                photosView.PhotosCollectionView.deselectItem(at: indexPath, animated: false)
+            }
+            selectedIndexPaths.removeAll()
+            updateSelectedCountLabel()
+        }
+
         photosView.PhotosCollectionView.reloadData()
-        
+
         if let addCell = photosView.PhotosCollectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? PictureCell {
             addCell.addButton.isUserInteractionEnabled = !isSelecting
         }
@@ -299,43 +310,47 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
     // 셀 선택 시 선택 모드일 경우 선택 처리, 아닐 경우 상세 화면으로 이동
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? PictureCell else { return }
-        cell.setSelectedBorder(true)
+
+        // + 버튼 셀은 무조건 선택 취소 처리
+        if indexPath.item == 0 {
+            collectionView.deselectItem(at: indexPath, animated: false)
+            return
+        }
+
         guard isSelecting else {
-            if indexPath.item == 0 {
-                addImageButtonTapped()
-            } else {
-                let imageId = album.imageInfos[indexPath.item - 1].imageId
-                let image = album.uiImages[indexPath.item - 1]
-                guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-                PhotoService.fetchImageDetail(imageId: imageId, token: token) { result in
-                    switch result {
-                    case .success(let response):
-                        print("단일 이미지 조회 성공")
-                        guard response.isSuccess else { return }
-                        switch response.result {
-                        case .result(let detail):
-                            DispatchQueue.main.async {
-                                let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
-                                self.navigationController?.pushViewController(detailVC, animated: true)
-                            }
-                        case .message(let message):
-                            print("이미지 정보 오류: \(message)")
+            let imageId = album.imageInfos[indexPath.item - 1].imageId
+            let image = album.uiImages[indexPath.item - 1]
+            guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+            PhotoService.fetchImageDetail(imageId: imageId, token: token) { result in
+                switch result {
+                case .success(let response):
+                    print("단일 이미지 조회 성공")
+                    guard response.isSuccess else { return }
+                    switch response.result {
+                    case .result(let detail):
+                        DispatchQueue.main.async {
+                            let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
+                            self.navigationController?.pushViewController(detailVC, animated: true)
                         }
-                    case .failure(let error):
-                        print("단일 이미지 조회 실패: \(error)")
+                    case .message(let message):
+                        print("이미지 정보 오류: \(message)")
                     }
+                case .failure(let error):
+                    print("단일 이미지 조회 실패: \(error)")
                 }
             }
             return
         }
-        if indexPath.item != 0 {
-            selectedIndexPaths.append(indexPath)
-            updateSelectedCountLabel()
-        }
+
+        // 선택 모드에서만 셀 테두리 적용
+        cell.setSelectedBorder(true)
+        selectedIndexPaths.append(indexPath)
+        updateSelectedCountLabel()
     }
 
     // 셀 선택 해제 시 선택 목록에서 삭제
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard indexPath.item != 0 else { return } // + 버튼 무시
         guard let cell = collectionView.cellForItem(at: indexPath) as? PictureCell else { return }
         cell.setSelectedBorder(false)
         if let index = selectedIndexPaths.firstIndex(of: indexPath) {
