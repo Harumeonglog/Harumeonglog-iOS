@@ -58,4 +58,23 @@ class SocialPostService {
         let endpoint = "/api/v1/posts/\(postId)"
         APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
     }
+    
+    func likePostToServer(
+        postId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts/\(postId)/likes"
+        
+        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+    }
+    
+    func deletePostToServer(
+        postId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts/\(postId)"
+        APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
+    }
 }
