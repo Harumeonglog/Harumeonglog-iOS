@@ -160,6 +160,13 @@ class PhotosViewController: UIViewController {
                             self.album.uiImages.remove(at: index)
                             self.album.imageInfos.remove(at: index)
                         }
+                        // 먼저 셀 테두리 및 선택 해제 처리
+                        for indexPath in self.selectedIndexPaths {
+                            self.photosView.PhotosCollectionView.deselectItem(at: indexPath, animated: false)
+                            if let cell = self.photosView.PhotosCollectionView.cellForItem(at: indexPath) as? PictureCell {
+                                cell.setSelectedBorder(false)
+                            }
+                        }
                         self.selectedIndexPaths.removeAll()
                         self.updateSelectedCountLabel()
                         self.photosView.PhotosCollectionView.reloadData()
@@ -263,6 +270,13 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
                                     )
                                     self.album.imageInfos.append(newPetImage)
                                     self.album.uiImages.append(image)
+                                    // 선택 해제 및 테두리 제거
+                                    for indexPath in self.photosView.PhotosCollectionView.indexPathsForSelectedItems ?? [] {
+                                        self.photosView.PhotosCollectionView.deselectItem(at: indexPath, animated: false)
+                                        if let cell = self.photosView.PhotosCollectionView.cellForItem(at: indexPath) as? PictureCell {
+                                            cell.setSelectedBorder(false)
+                                        }
+                                    }
                                     self.photosView.PhotosCollectionView.reloadData()
                                     print("이미지 저장 성공")
                                 }
@@ -282,7 +296,6 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     }
 }
 
-// MARK: imageCollectionview delegate, datasource
 // MARK: imageCollectionview delegate, datasource
 extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     
