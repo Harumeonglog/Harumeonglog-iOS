@@ -77,4 +77,19 @@ class SocialPostService {
         let endpoint = "/api/v1/posts/\(postId)"
         APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
     }
+    
+    func modifyPostToServer(
+        postId: Int,
+        postCategory: String,
+        title: String,
+        content: String,
+        postImageList: [String],
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void
+    ){
+        let endpoint = "/api/v1/posts/\(postId)"
+        let body = ModifyPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
+        
+        APIClient.patchRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
+    }
 }

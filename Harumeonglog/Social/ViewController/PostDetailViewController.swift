@@ -157,7 +157,7 @@ class PostDetailViewController: UIViewController {
             }
             
             if action.title == "삭제" {
-            
+                self.deletePost()
             }
         }
         
@@ -185,6 +185,33 @@ class PostDetailViewController: UIViewController {
         let menu = UIMenu(options: .displayInline, children: [modifyAction, deleteAction])
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
+    }
+    
+    private func deletePost() {
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.deletePostToServer(postId: postId!, token: token) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if response.message == "성공입니다." {
+                        print("게시글 삭제 성공")
+                        self.navigationController?.popViewController(animated: true)
+
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 좋아요 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

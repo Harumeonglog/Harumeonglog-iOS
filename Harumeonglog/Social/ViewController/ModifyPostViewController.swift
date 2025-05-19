@@ -10,6 +10,8 @@ import UIKit
 
 class ModifyPostViewController: UIViewController {
     
+    var postId: Int?
+    let socialPostService = SocialPostService()
     private var postImages: [UIImage] = []
 
     private lazy var addPostView: AddPostView = {
@@ -29,7 +31,7 @@ class ModifyPostViewController: UIViewController {
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
         
-        // postDetailView 서버에서 받아와서 업테이트 시켜놓기 
+        fetchPostDetailsFromServer()
     }
     
     private func setCustomNavigationBarConstraints() {
@@ -41,8 +43,38 @@ class ModifyPostViewController: UIViewController {
         navi.rightButton.addTarget(self, action: #selector(didTapRightButton), for: .touchUpInside)
     }
     
+    private func fetchPostDetailsFromServer() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let postDetail = response.result {
+                        print("게시글 조회 성공")
+            
+    
+                    } else {
+                        print("결과 데이터가 비어있습니다.")
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 조회 실패: \(error.localizedDescription)")
+            }
+        }
+
+    }
+    
+    
     @objc
-    private func didTapRightButton(){
+    private func didTapRightButton(){      // 수정 버튼 탭함
         navigationController?.popViewController(animated: true)
     }
     
