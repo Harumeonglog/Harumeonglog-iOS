@@ -54,7 +54,7 @@ class MyPageView: UIView {
     public lazy var sendQueryButton = goToDetailButton()
     public lazy var privacyPolicyButton = goToDetailButton()
     public lazy var termsOfServiceButton = goToDetailButton()
-    public lazy var goNotification = goToDetailButton()
+    //public lazy var goNotification = goToDetailButton()
     public lazy var revokeButton = UIButton().then {
         $0.setTitle("탈퇴하기", for: .normal)
         $0.setTitleColor(.gray01, for: .normal)

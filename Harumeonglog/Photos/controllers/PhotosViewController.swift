@@ -34,7 +34,7 @@ class PhotosViewController: UIViewController {
         setUpButtons()
     }
     
-    private lazy var photosView: PhotosView = {
+    lazy var photosView: PhotosView = {
         let view = PhotosView()
         return view
     }()
@@ -124,15 +124,50 @@ class PhotosViewController: UIViewController {
     
     // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신
     @objc private func deleteSelectedImages() {
+        guard !selectedIndexPaths.isEmpty else { return }
         let indices = selectedIndexPaths.map { $0.item - 1 }.sorted(by: >)
-        for index in indices {
-            album.uiImages.remove(at: index)
-            album.imageInfos.remove(at: index)
+        let imageIds = indices.map { album.imageInfos[$0].imageId }
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+            print("토큰이 없습니다.")
+            return
         }
-        selectedIndexPaths.removeAll()
-        updateSelectedCountLabel()
-        photosView.PhotosCollectionView.reloadData()
+        
+        let alert = UIAlertController(title: "삭제", message: "이미지를 삭제하시겠습니까?", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { _ in
+            PhotoService.deleteMultipleImage(
+                petId: self.album.petId,
+                imageIds: imageIds,
+                token: token
+            ) { result in
+                switch result {
+                case .success:
+                    DispatchQueue.main.async {
+                        for index in indices {
+                            self.album.uiImages.remove(at: index)
+                            self.album.imageInfos.remove(at: index)
+                        }
+                        self.selectedIndexPaths.removeAll()
+                        self.updateSelectedCountLabel()
+                        self.photosView.PhotosCollectionView.reloadData()
+                        print("이미지 다중 삭제 성공")
+                        
+                        self.isSelecting = false
+                        self.photosView.navigationBar.configureRightButton(text: "선택")
+                        self.photosView.bottomActionBar.isHidden = true
+                        self.photosView.PhotosCollectionView.allowsMultipleSelection = false
+                    }
+                case .failure(let error):
+                    print("이미지 삭제 실패: \(error)")
+                }
+            }
+        }
+        alert.addAction(deleteAction)
+        present(alert, animated: true, completion: nil)
     }
+        
 
     // 선택된 이미지를 사용자 사진 앨범에 저장
     @objc private func downloadSelectedImages() {
@@ -218,6 +253,7 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
                                     self.album.imageInfos.append(newPetImage)
                                     self.album.uiImages.append(image)
                                     self.photosView.PhotosCollectionView.reloadData()
+                                    print("이미지 저장 성공")
                                 }
                             }
                         case .failure(let error):
