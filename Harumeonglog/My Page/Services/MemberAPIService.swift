@@ -119,6 +119,7 @@ class MemberAPIService {
             case .success(let apiResponse):
                 switch apiResponse.code {
                 case MemberCode.COMMON200.rawValue:
+                    print(apiResponse.result)
                     completion(.COMMON200, apiResponse.result)
                     self.userInfo = apiResponse.result
                 case MemberCode.AUTH400.rawValue:
