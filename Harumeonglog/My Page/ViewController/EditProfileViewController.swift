@@ -112,9 +112,10 @@ class EditProfileViewController: UIViewController {
                 self.imageKey = presigned.imageKey
                 self.uploadImageToS3(imageData: imageData, presignedUrl: presignedUrl) { result in
                     switch result {
-                    case .success(let success):
+                    case .success :
                         self.updateProfile(image: self.imageKey, nickname: self.editProfileView.nicknameTextField.text!)
-                    case .failure(let failure):
+                    case .failure(let error) :
+                        print("#PresignedUrlService.fetchPresignedUrl ", error)
                         break
                     }
                 }
