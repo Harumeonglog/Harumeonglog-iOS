@@ -8,38 +8,41 @@ import Alamofire
 
 enum EventService {
     
-    //MARK: GET /events/{eventId} 일정 상세 조회
+    //MARK: GET /api/v1/events/{eventId} 일정 단일 조회
     static func getEventDetail(eventId: Int, token: String? = nil, completion: @escaping (Result<EventDetailResponse, AFError>) -> Void) {
         let endpoint = "/events/\(eventId)"
         APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
     }
 
-    //MARK: DELETE /events/{eventId} 일정 삭제
-    static func deleteEvent(eventId: Int, token: String? = nil, completion:@escaping (Result<BaseStringResponse, AFError>) -> Void) {
+    //MARK: DELETE /api/v1/events/{eventId} 일정 삭제
+    static func deleteEvent(eventId: Int, token: String? = nil, completion: @escaping (Result<EventDeleteResponse, AFError>) -> Void) {
         let endpoint = "/events/\(eventId)"
         APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
     }
 
-    //MARK: PATCH /events/{eventId} 일정 완료
-    static func completeEvent(eventId: Int, token: String? = nil, completion:@escaping (Result<EventPatchResponse, AFError>) -> Void) {
+    //MARK: PATCH /api/v1/events/{eventId} 일정 체크
+    static func checkEvent(eventId: Int, token: String? = nil, completion: @escaping (Result<EventCheckResponse, AFError>) -> Void) {
+        let endpoint = "/events/\(eventId)/check"
+        APIClient.patchRequest(endpoint: endpoint, token: token, completion: completion)
+    }
+
+    //MARK: PUT /api/v1/events/{eventId} 일정 수정
+    static func updateEvent(eventId: Int, request: EventUpdateRequest, token: String, completion:@escaping (Result<EventUpdateResponse, AFError>) -> Void) {
         let endpoint = "/events/\(eventId)"
-        let empty = EmptyRequest()
-        APIClient.patchRequest(endpoint: endpoint, parameters: empty, token: token, completion: completion)
+        APIClient.putRequest(endpoint: endpoint, encodable: request, token: token, completion: completion)
     }
 
-    //MARK: PUT /events/{eventId} 일정 수정
-    static func updateEvent(eventId: Int, token: String? = nil, completion:@escaping (Result<EventPatchResponse, AFError>) -> Void) {
-        
-    }
+    //MARK: GET /api/v1/events/monthly-dates 한달에 일정 있는 날 조회
+        static func getEvents(year: Int, month: Int, token: String? = nil, completion: @escaping (Result<EventResponse, AFError>) -> Void) {
+            let endpoint = "/events/monthly-dates"
+            let parameters: [String: Any] = ["year": year, "month": month]
+            APIClient.getRequest(endpoint: endpoint, parameters: parameters, token: token, completion: completion)
+        }
 
-    //MARK: GET /events 날짜별 일정 조회
-    static func getEvents() -> Void {
-        
-    }
-
-    //MARK: POST /events 일정 등록
-    static func createEvent() -> Void {
-        
-    }
+    //MARK: POST /api/v1/events 일정 추가
+        static func createEvent(request: EventCreateRequest, token: String? = nil, completion: @escaping (Result<EventCreateResponse, AFError>) -> Void) {
+            let endpoint = "/events"
+            APIClient.postRequest(endpoint: endpoint, parameters: request, token: token, completion: completion)
+        }
 
 }
