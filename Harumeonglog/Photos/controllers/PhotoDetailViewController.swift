@@ -28,6 +28,8 @@ class PhotoDetailViewController: UIViewController {
         super.viewDidLoad()
         self.view = photoDetailView
         setCustomNavigationBarConstraints()
+        
+        photoDetailView.deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
     }
     
     //탭바 숨기기
@@ -56,5 +58,35 @@ class PhotoDetailViewController: UIViewController {
     @objc
     private func didTapBackButton(){
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc
+    private func didTapDeleteButton(){
+        let imageId = imageInfo.imageId
+        let alert = UIAlertController(title: "삭제", message: "이미지를 삭제하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title:"취소", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title:"삭제", style: .destructive, handler: { _ in
+            guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else {return}
+            
+            PhotoService.deleteImage(imageId: imageId, token: accessToken){ result in
+                switch result {
+                case .success:
+                    DispatchQueue.main.async {
+                        if let photosVC = self.navigationController?.viewControllers.compactMap({ $0 as? PhotosViewController }).last {
+                            if let index = photosVC.album.imageInfos.firstIndex(where: { $0.imageId == self.imageInfo.imageId }) {
+                                photosVC.album.imageInfos.remove(at: index)
+                                photosVC.album.uiImages.remove(at: index)
+                                photosVC.photosView.PhotosCollectionView.reloadData()
+                            }
+                        }
+                        self.navigationController?.popViewController(animated: true)
+                        print("이미지 삭제 성공")
+                    }
+                case .failure(let error):
+                    print ("이미지 삭제 실패: ", error)
+                }
+            }
+        }))
+        present(alert, animated: true, completion: nil)
     }
 }

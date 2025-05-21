@@ -29,16 +29,16 @@ class CategoryCell: UICollectionViewCell {
 
     private func setupLayout() {
         contentView.addSubview(titleLabel)
-
         titleLabel.snp.makeConstraints { make in
-            make.centerX.centerY.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(10) // 좌우 여백 추가
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(10)
         }
-        
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
         contentView.layer.cornerRadius = 15
-        contentView.clipsToBounds = true
-        contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.brown02.cgColor
+        contentView.layer.masksToBounds = true
     }
 
     func configure(with text: String, isSelected: Bool) {
@@ -46,6 +46,32 @@ class CategoryCell: UICollectionViewCell {
         contentView.backgroundColor = isSelected ? .brown01 : .brown02
         titleLabel.textColor = isSelected ? .white : .gray00
         contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.brown02.cgColor
+        contentView.layer.borderWidth = 1
+    }
+}
 
+
+enum EventCategory: String, CaseIterable {
+    case all = "전체"
+    case bath = "목욕"
+    case walk = "산책"
+    case hospital = "진료"
+    case medicine = "약"
+    case general = "기타"
+    
+    var displayName: String {
+        return self.rawValue
+    }
+    
+    var serverKey: String {
+        switch self {
+        case .bath: return "BATH"
+        case .walk: return "WALK"
+        case .hospital: return "HOSPITAL"
+        case .medicine: return "MEDICINE"
+        case .general: return "GENERAL"
+        case .all:
+            return "ALL"
+        }
     }
 }

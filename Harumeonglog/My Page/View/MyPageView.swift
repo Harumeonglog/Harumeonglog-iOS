@@ -12,10 +12,9 @@ class MyPageView: UIView {
     
     private let labelLeading: CGFloat = 38
     private let leadingTrailingPadding: CGFloat = 28
-    
 
     public lazy var goNotification = UIButton().then {
-        $0.setImage(.alarmButton, for: .normal)
+        $0.setImage(.rightArrow , for: .normal)
     }
     private lazy var myProfileFrame = UIView()
     private lazy var myProfileImageView = UIImageView().then {
@@ -54,7 +53,8 @@ class MyPageView: UIView {
     public lazy var sendQueryButton = goToDetailButton()
     public lazy var privacyPolicyButton = goToDetailButton()
     public lazy var termsOfServiceButton = goToDetailButton()
-    // public lazy var goNotification = goToDetailButton()
+    //public lazy var goNotification = goToDetailButton()
+
     public lazy var revokeButton = UIButton().then {
         $0.setTitle("탈퇴하기", for: .normal)
         $0.setTitleColor(.gray01, for: .normal)
@@ -79,7 +79,7 @@ class MyPageView: UIView {
     public func configure(_ userInfo: UserInfo) {
         myProfileNameLabel.text = userInfo.nickname ?? ""
         if let urlString = userInfo.image {
-            myProfileImageView.kf.setImage(with: URL(string: urlString))
+            myProfileImageView.kf.setImage(with: URL(string: "https://harumeonglog-s3.s3.ap-northeast-2.amazonaws.com/" + urlString))
         }
     }
     

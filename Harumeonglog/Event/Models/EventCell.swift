@@ -28,6 +28,8 @@ class EventCell: UITableViewCell {
         imageView.tintColor = .brown01
         return imageView
     }()
+    
+    public var checkmarkTapped: (() -> Void)?
 
     private let EventLabel: UILabel = {
         let label = UILabel()
@@ -40,6 +42,7 @@ class EventCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         setupLayout()
+        
     }
     
     required init?(coder: NSCoder) {
@@ -58,6 +61,7 @@ class EventCell: UITableViewCell {
             make.top.bottom.equalToSuperview().inset(8)
         }
 
+
         checkmarkIcon.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
@@ -70,9 +74,43 @@ class EventCell: UITableViewCell {
             make.trailing.equalTo(checkmarkIcon.snp.leading).offset(-10)
         }
     }
-    func configure(Event: String, isChecked: Bool) {
-        EventLabel.text = Event
-        let iconName = isChecked ? "checkmark.circle.fill" : "checkmark.circle"
+    
+    @objc private func checkmarkTappedAction() {
+        checkmarkTapped?()
+    }
+
+    func configure(event: Event) {
+        let attributedText: NSAttributedString
+        if event.done {
+            attributedText = NSAttributedString(string: event.title, attributes: [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: UIColor.brown01
+            ])
+        } else {
+            attributedText = NSAttributedString(string: event.title, attributes: [
+                .strikethroughStyle: 0,
+                .foregroundColor: UIColor.gray00
+            ])
+        }
+        EventLabel.attributedText = attributedText
+        let iconName = event.done ? "checkmark.circle.fill" : "checkmark.circle"
         checkmarkIcon.image = UIImage(systemName: iconName)
+        if event.done {
+            containerView.layer.borderColor = UIColor.brown01.cgColor
+        } else {
+            containerView.layer.borderColor = UIColor.brown02.cgColor
+        }
+    }
+}
+
+// MARK: - 체크 아이콘 
+extension EventCell {
+    func checkmarkButtonTapped(_ target: Any?, action: Selector) {
+        checkmarkIcon.isUserInteractionEnabled = true
+        checkmarkIcon.gestureRecognizers?.forEach {
+            checkmarkIcon.removeGestureRecognizer($0)
+        }
+        let tapGesture = UITapGestureRecognizer(target: target, action: action)
+        checkmarkIcon.addGestureRecognizer(tapGesture)
     }
 }
