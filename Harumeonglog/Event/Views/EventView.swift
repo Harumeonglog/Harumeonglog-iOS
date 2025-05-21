@@ -5,7 +5,7 @@
 //  Created by Dana Lim on 4/11/25.
 // 카테고리 + 일정 목록 표시
 
-
+import Foundation
 import UIKit
 import SnapKit
 
@@ -18,15 +18,15 @@ class EventView: UIView {
 
     weak var delegate: EventViewDelegate?
     
-     var allEvents: [Event] = []
+    var allEvents: [Event] = []
 
-     let categories: [String] = ["전체", "산책", "목욕", "병원", "기타"]
+    let categories: [EventCategory] = EventCategory.allCases
     
     let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumInteritemSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 16)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
@@ -43,7 +43,7 @@ class EventView: UIView {
     }()
 
      var filteredEvents: [Event] = []
-     var selectedCategory: String? = "전체"
+     var selectedCategory: EventCategory = .all
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -72,19 +72,27 @@ class EventView: UIView {
         }
 
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(categoryCollectionView.snp.bottom).offset(22)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(categoryCollectionView.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(10)
         }
     }
 
 
     func updateEvents(_ events: [Event]) {
+        print("updateEvents 호출됨: \(events.count)건")
         self.allEvents = events
         applyCategoryFilter()
     }
 
-    private func applyCategoryFilter() {
-        filteredEvents = allEvents
+    func applyCategoryFilter() {
+        if selectedCategory == .all {
+            filteredEvents = allEvents
+        } else {
+            filteredEvents = allEvents.filter { $0.category == selectedCategory.serverKey }
+        }
+        print("필터된 이벤트 수: \(filteredEvents.count)")
+
         tableView.reloadData()
     }
 }

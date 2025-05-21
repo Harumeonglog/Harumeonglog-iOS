@@ -132,14 +132,21 @@ struct EventDateResponse : Decodable {
 
 
 struct EventDateResult: Decodable {
-    let events: [Event]?
+    let events: [EventDate]?
     let cursor: Int?
     let hasNext: Bool
 }
 
 
-struct Event: Decodable{
+struct EventDate: Decodable{
     let id: Int
     let title: String
+    let done: Bool
+}
+
+struct Event {
+    let id: Int
+    let title: String
+    let category: String
     let done: Bool
 }

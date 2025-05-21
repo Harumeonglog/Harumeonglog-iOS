@@ -22,7 +22,7 @@ enum EventService {
 
     //MARK: PATCH /api/v1/events/{eventId} 일정 체크
     static func checkEvent(eventId: Int, token: String? = nil, completion: @escaping (Result<EventCheckResponse, AFError>) -> Void) {
-        let endpoint = "/api/v1/events/\(eventId)/check"
+        let endpoint = "/api/v1/events/\(eventId)"
         APIClient.patchRequest(endpoint: endpoint, token: token, completion: completion)
     }
 
@@ -46,13 +46,16 @@ enum EventService {
     }
     
     //MARK: GET /api/v1/events 날짜별 일정 조회
-    static func getEventsByDate(date: String, token: String? = nil, completion: @escaping (Result<EventDateResponse, AFError>) -> Void) {
+    static func getEventsByDate(date: String, category: String? = nil, token: String? = nil, completion: @escaping (Result<EventDateResponse, AFError>) -> Void) {
         let endpoint = "/api/v1/events"
-        let parameters: [String: Any] = [
+        var parameters: [String: Any] = [
             "date": date,
             "cursor": 0,
             "size": 10
         ]
+        if let category = category {
+            parameters["category"] = category
+        }
         APIClient.getRequest(endpoint: endpoint, parameters: parameters, token: token, completion: completion)
     }
 

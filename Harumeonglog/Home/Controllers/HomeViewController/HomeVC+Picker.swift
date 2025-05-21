@@ -56,6 +56,7 @@ extension HomeViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
         if let date = Calendar.current.date(from: components) {
             setCalendarTo(date: date)
+            fetchEventDatesForCurrentMonth()
         }
     }
 

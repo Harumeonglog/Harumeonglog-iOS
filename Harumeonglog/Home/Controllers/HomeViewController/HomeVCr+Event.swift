@@ -35,7 +35,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
             switch result {
             case .success(let events):
                 DispatchQueue.main.async {
-                    self.homeView.eventView.updateEvents(events)
+                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done) }
+                    self.homeView.eventView.updateEvents(mappedEvents)
                     print("\(self.dateFormatter.string(from: date)) 일정 \(events.count)건 불러옴")
                 }
             case .failure(let error):
@@ -45,7 +46,10 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 
     func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-        return markedDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) ? 1 : 0
+        let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let dateString = formatter.string(from: date)
+            return markedDateStrings.contains(dateString) ? 1 : 0
     }
 }
 
