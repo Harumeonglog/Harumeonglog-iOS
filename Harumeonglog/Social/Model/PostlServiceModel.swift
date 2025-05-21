@@ -78,6 +78,6 @@ struct ModifyPostResponse : Codable {
     let title: String?
     let content : String?
     let postCategory : String
-    let postImageList : [String]
+    let postImageList : [String?]
     let updateAt : String
 }

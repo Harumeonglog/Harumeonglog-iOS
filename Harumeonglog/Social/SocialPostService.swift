@@ -85,7 +85,7 @@ class SocialPostService {
         content: String,
         postImageList: [String],
         token: String,
-        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void
+        completion: @escaping (Result<HaruResponse<ModifyPostResponse>, AFError>) -> Void
     ){
         let endpoint = "/api/v1/posts/\(postId)"
         let body = ModifyPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)

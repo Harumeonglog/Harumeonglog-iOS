@@ -40,7 +40,13 @@ class PostDetailViewController: UIViewController {
         self.view = postDetailView
         setCustomNavigationBarConstraints()
         postSettingButton()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         fetchPostDetailsFromServer()
+
     }
     
     
@@ -153,6 +159,7 @@ class PostDetailViewController: UIViewController {
         let popUpButtonClosure = { (action: UIAction) in
             if action.title == "수정" {
                 let modifyPostVC = ModifyPostViewController()
+                modifyPostVC.postId = self.postId
                 self.navigationController?.pushViewController(modifyPostVC, animated: true)
             }
             

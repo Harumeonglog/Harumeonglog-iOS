@@ -76,25 +76,10 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
                 } else {
                     print("서버 응답 에러: \(response.message)")
                 }
-
+                
             case .failure(let error):
-                if let afError = error as? AFError,
-                   let underlyingError = afError.underlyingError as? URLError,
-                   let data = underlyingError.userInfo["com.alamofire.serialization.response.error.data"] as? Data {
-                    // 경우 1: underlyingError에서 data 꺼낼 수 있을 때
-                    let jsonString = String(data: data, encoding: .utf8) ?? "응답 없음"
-                    print("🧾 서버 응답 JSON:\n\(jsonString)")
-                } else if let afError = error as? AFError,
-                          let data = afError.underlyingError as? Data {
-                    // 경우 2: 일반적인 경우
-                    let jsonString = String(data: data, encoding: .utf8) ?? "응답 없음"
-                    print("🧾 서버 응답 JSON:\n\(jsonString)")
-                } else {
-                    print("❗️ underlyingError 없음 또는 디코딩 불가")
-                }
-
-                print("❌ 게시글 전송 실패: \(error.localizedDescription)")
-
+                print("게시글 전송 실패: \(error.localizedDescription)")
+                
             }
         }
     }

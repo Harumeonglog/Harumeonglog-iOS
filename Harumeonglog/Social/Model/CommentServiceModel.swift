@@ -16,7 +16,7 @@ struct CommentRequest: Codable {
 }
 
 struct CommentResponse: Codable {
-    let items : [CommentItem?]
+    let items : [CommentItem]
     let hasNext : Bool
     let cursor : Int?
 }

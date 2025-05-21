@@ -65,7 +65,8 @@ class CommentView: UIView {
         self.addSubview(commentTableView)
         commentTableView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(5)
-            make.leading.trailing.bottom.equalToSuperview().inset(25)
+            make.leading.trailing.equalToSuperview().inset(25)
+            make.bottom.equalToSuperview().inset(90)
             make.height.lessThanOrEqualTo(620)
         }
         

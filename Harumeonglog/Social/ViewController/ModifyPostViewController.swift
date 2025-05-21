@@ -12,6 +12,9 @@ class ModifyPostViewController: UIViewController {
     
     var postId: Int?
     let socialPostService = SocialPostService()
+    var postTitle: String = ""
+    var selectedCategory: String?
+    var postContent: String = ""
     private var postImages: [UIImage] = []
 
     private lazy var addPostView: AddPostView = {
@@ -57,7 +60,11 @@ class ModifyPostViewController: UIViewController {
                 if response.isSuccess {
                     if let postDetail = response.result {
                         print("게시글 조회 성공")
-            
+                        
+                        addPostView.titleTextField.text = postDetail.title
+                        addPostView.categoryButton.titleLabel?.text = postDetail.postCategory
+                        addPostView.contentTextView.text = postDetail.content
+                        addPostView.addImageCount.text = "\(postDetail.postImageList.count) / 5"
     
                     } else {
                         print("결과 데이터가 비어있습니다.")
@@ -75,8 +82,40 @@ class ModifyPostViewController: UIViewController {
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
-        navigationController?.popViewController(animated: true)
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.modifyPostToServer(
+            postId: self.postId!,
+            postCategory: self.selectedCategory!,
+            title: self.postTitle,
+            content: self.postContent,
+            postImageList: [],
+            token: token) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let response):
+                    if response.isSuccess {
+                        if let postDetail = response.result {
+                            print("게시글 수정 성공")
+        
+                            navigationController?.popViewController(animated: true)
+
+                        } else {
+                            print("결과 데이터가 비어있습니다.")
+                        }
+                    } else {
+                        print("서버 응답 에러: \(response.message)")
+                    }
+                case .failure(let error):
+                    print("게시글 조회 실패: \(error.localizedDescription)")
+                }
+            }
     }
+    
     
     @objc private func addImageButtonTapped() {
         let imagePickerController = UIImagePickerController()

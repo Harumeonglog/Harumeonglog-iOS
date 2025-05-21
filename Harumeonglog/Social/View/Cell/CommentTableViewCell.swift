@@ -52,7 +52,7 @@ class CommentTableViewCell: UITableViewCell {
         label.font = UIFont(name: "Pretendard-Regular", size: 13)
         label.textAlignment = .left
         label.textColor = .gray00
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         label.setLineSpacing(lineSpacing: 5)
     }
     
@@ -131,6 +131,14 @@ class CommentTableViewCell: UITableViewCell {
             make.top.equalTo(commentContent.snp.bottom)
             make.leading.equalTo(commentContent)
         }
+        
+    }
+    
+    func configure(with comment: CommentItem, member: MemberInfoResponse) {
+        commentContent.text = comment.content
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+
+        accountName.text = member.nickname
         
     }
 }

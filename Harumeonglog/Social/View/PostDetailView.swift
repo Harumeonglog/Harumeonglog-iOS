@@ -14,6 +14,8 @@ class PostDetailView: UIView {
     
     public lazy var navigationBar = CustomNavigationBar()
 
+    private var likeAnchorView: UIView!
+
     private let topLeftView = UIView().then { view in
     }
     
@@ -60,6 +62,7 @@ class PostDetailView: UIView {
         scrollView.layer.cornerRadius = 10
         scrollView.clipsToBounds = true
         scrollView.isPagingEnabled = true
+        scrollView.isHidden = true
     }
     
     public lazy var postImagePageControl = UIPageControl().then { pageControl in
@@ -68,6 +71,7 @@ class PostDetailView: UIView {
         pageControl.currentPageIndicatorTintColor = .blue01
         pageControl.currentPage = 0
         pageControl.numberOfPages = 3
+        pageControl.isHidden = true
     }
 
 
@@ -187,14 +191,44 @@ class PostDetailView: UIView {
             make.top.equalTo(postImageScrollView.snp.bottom).offset(5)
         }
         
+        likeAnchorView = postContent
+        
         self.addSubview(likeButton)
         self.addSubview(likeCount)
         self.addSubview(commentButton)
         self.addSubview(commentCount)
+        self.addSubview(postTimeLabel)
         
-        likeButton.snp.makeConstraints { make in
+    }
+    
+    func configure(with postDetail: PostDetailResponse, member: MemberInfoResponse) {
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        accountName.text = member.nickname
+    
+        postCategory.text = postDetail.postCategory
+        postTitle.text = postDetail.title
+        postContent.text = postDetail.content
+        
+        likeCount.text = "\(postDetail.likeNum)"
+        commentCount.text = "\(postDetail.commentNum)"
+        // postTimeLabel.text = postDetail.time
+        
+        let validImageURLs = postDetail.postImageList.compactMap { $0 }.filter { !$0.isEmpty }
+
+        if !validImageURLs.isEmpty {
+            postImageScrollView.isHidden = false
+            postImagePageControl.isHidden = false
+            postImagePageControl.numberOfPages = validImageURLs.count
+            likeAnchorView = postImageScrollView
+        } else {
+            likeAnchorView = postContent
+        }
+
+
+        // 기존 제약 제거 후 재설정
+        likeButton.snp.remakeConstraints { make in
             make.leading.equalTo(topLeftView)
-            make.top.equalTo(postImageScrollView.snp.bottom).offset(20)
+            make.top.equalTo(likeAnchorView.snp.bottom).offset(20)
             make.width.height.equalTo(24)
         }
         
@@ -213,39 +247,10 @@ class PostDetailView: UIView {
             make.leading.equalTo(commentButton.snp.trailing).offset(3)
             make.centerY.equalTo(commentButton)
         }
-        
-        
-        self.addSubview(postTimeLabel)
-        
-        postTimeLabel.snp.makeConstraints { make in
+
+        postTimeLabel.snp.remakeConstraints { make in
             make.trailing.equalToSuperview().inset(25)
             make.centerY.equalTo(likeButton)
         }
-        
-    }
-    
-    func configure(with postDetail: PostDetailResponse, member: MemberInfoResponse) {
-        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
-        accountName.text = member.nickname
-    
-        postCategory.text = postDetail.postCategory
-        postTitle.text = postDetail.title
-        postContent.text = postDetail.content
-        
-        likeCount.text = "\(postDetail.likeNum)"
-        commentCount.text = "\(postDetail.commentNum)"
-        // postTimeLabel.text = postDetail.time
-        
-        let validImageURLs = postDetail.postImageList.compactMap { $0 }.filter { !$0.isEmpty }
-
-//        if validImageURLs.isEmpty {
-//             postImageScrollView.isHidden = true
-//             postImagePageControl.isHidden = true
-//             postImagePageControl.numberOfPages = 0
-//         } else {
-//             postImageScrollView.isHidden = false
-//             postImagePageControl.isHidden = false
-//             postImagePageControl.numberOfPages = validImageURLs.count
-//         }
     }
 }
