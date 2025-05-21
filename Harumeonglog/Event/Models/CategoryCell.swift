@@ -29,16 +29,16 @@ class CategoryCell: UICollectionViewCell {
 
     private func setupLayout() {
         contentView.addSubview(titleLabel)
-
         titleLabel.snp.makeConstraints { make in
-            make.centerX.centerY.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(10) // 좌우 여백 추가
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(10)
         }
-        
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
         contentView.layer.cornerRadius = 15
-        contentView.clipsToBounds = true
-        contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.brown02.cgColor
+        contentView.layer.masksToBounds = true
     }
 
     func configure(with text: String, isSelected: Bool) {
@@ -46,9 +46,10 @@ class CategoryCell: UICollectionViewCell {
         contentView.backgroundColor = isSelected ? .brown01 : .brown02
         titleLabel.textColor = isSelected ? .white : .gray00
         contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.brown02.cgColor
-
+        contentView.layer.borderWidth = 1
     }
 }
+
 
 enum EventCategory: String, CaseIterable {
     case all = "전체"

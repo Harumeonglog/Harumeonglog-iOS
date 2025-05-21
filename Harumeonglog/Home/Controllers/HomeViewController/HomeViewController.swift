@@ -22,6 +22,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     private var hasLoadedEventDates = false
 
     var markedDates: [Date] = []
+    var markedDateStrings: Set<String> = []
     let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -136,6 +137,8 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
 
     func fetchEventDatesForCurrentMonth(completion: (() -> Void)? = nil) {
+        markedDateStrings = [] 
+
         let currentDate = homeView.calendarView.currentPage
         let calendar = Calendar.current
         let year = calendar.component(.year, from: currentDate)
@@ -149,12 +152,18 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
         eventViewModel.fetchEventDates(year: year, month: month, token: token) { result in
             switch result {
-            case .success(let dates):
-                self.markedDates = dates
-                DispatchQueue.main.async {
-                    self.homeView.calendarView.reloadData()
-                    print("이벤트 날짜 조회 성공")
-                    completion?()
+            case .success(let response):
+                if let dateStrings = response.result?.dates {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd"
+
+                    // 문자열 그대로 저장해서 비교 정확도 향상
+                    self.markedDateStrings = Set(dateStrings)
+
+                    DispatchQueue.main.async {
+                        self.homeView.calendarView.reloadData()
+                        completion?()
+                    }
                 }
             case .failure(let error):
                 print("이벤트 날짜 조회 실패: \(error)")

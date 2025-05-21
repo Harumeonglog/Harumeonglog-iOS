@@ -46,7 +46,10 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 
     func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-        return markedDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) ? 1 : 0
+        let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let dateString = formatter.string(from: date)
+            return markedDateStrings.contains(dateString) ? 1 : 0
     }
 }
 

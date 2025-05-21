@@ -16,17 +16,9 @@ class HomeEventViewModel {
         return formatter
     }()
 
-    func fetchEventDates(year: Int, month: Int, token: String, completion: @escaping (Result<[Date], AFError>) -> Void) {
+    func fetchEventDates(year: Int, month: Int, token: String, completion: @escaping (Result<EventResponse, AFError>) -> Void) {
         EventService.getEvents(year: year, month: month, token: token) { result in
-            switch result {
-            case .success(let response):
-                let dates = response.result?.dates.compactMap {
-                    self.dateFormatter.date(from: $0)
-                } ?? []
-                completion(.success(dates))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+            completion(result)
         }
     }
 
