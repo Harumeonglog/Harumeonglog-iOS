@@ -12,10 +12,9 @@ class MyPageView: UIView {
     
     private let labelLeading: CGFloat = 38
     private let leadingTrailingPadding: CGFloat = 28
-    
 
     public lazy var goNotification = UIButton().then {
-        $0.setImage(.alarmButton, for: .normal)
+        $0.setImage(.rightArrow , for: .normal)
     }
     private lazy var myProfileFrame = UIView()
     private lazy var myProfileImageView = UIImageView().then {
