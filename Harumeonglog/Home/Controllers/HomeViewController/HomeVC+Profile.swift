@@ -37,13 +37,14 @@ extension HomeViewController: ProfileSelectDelegate {
 
                 // ✅ 이벤트 날짜 업데이트 → reloadData 내부에서 처리되게 보장
                 self.fetchEventDatesForCurrentMonth {
-                    // ✅ 선택된 날짜 일정 다시 불러오기
+                    // 선택된 날짜 일정 다시 불러오기
                     if let selectedDate = self.homeView.calendarView.selectedDate {
                         self.eventViewModel.fetchEventsByDate(selectedDate, token: accessToken) { result in
                             switch result {
                             case .success(let events):
                                 DispatchQueue.main.async {
-                                    self.homeView.eventView.updateEvents(events)
+                                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: EventCategory.all.serverKey) }
+                                    self.homeView.eventView.updateEvents(mappedEvents)
                                 }
                             case .failure(let error):
                                 print("대표펫 변경 후 날짜 일정 불러오기 실패: \(error)")

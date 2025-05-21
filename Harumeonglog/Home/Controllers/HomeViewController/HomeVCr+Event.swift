@@ -35,7 +35,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
             switch result {
             case .success(let events):
                 DispatchQueue.main.async {
-                    self.homeView.eventView.updateEvents(events)
+                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: "GENERAL") }
+                    self.homeView.eventView.updateEvents(mappedEvents)
                     print("\(self.dateFormatter.string(from: date)) 일정 \(events.count)건 불러옴")
                 }
             case .failure(let error):

@@ -49,3 +49,28 @@ class CategoryCell: UICollectionViewCell {
 
     }
 }
+
+enum EventCategory: String, CaseIterable {
+    case all = "전체"
+    case bath = "목욕"
+    case walk = "산책"
+    case hospital = "진료"
+    case medicine = "약"
+    case general = "기타"
+    
+    var displayName: String {
+        return self.rawValue
+    }
+    
+    var serverKey: String {
+        switch self {
+        case .bath: return "BATH"
+        case .walk: return "WALK"
+        case .hospital: return "HOSPITAL"
+        case .medicine: return "MEDICINE"
+        case .general: return "GENERAL"
+        case .all:
+            return "ALL"
+        }
+    }
+}

@@ -30,7 +30,7 @@ class HomeEventViewModel {
         }
     }
 
-    func fetchEventsByDate(_ date: Date, token: String, completion: @escaping (Result<[Event], AFError>) -> Void) {
+    func fetchEventsByDate(_ date: Date, token: String, completion: @escaping (Result<[EventDate], AFError>) -> Void) {
         let selectedDate = dateFormatter.string(from: date)
         EventService.getEventsByDate(date: selectedDate, token: token) { result in
             switch result {

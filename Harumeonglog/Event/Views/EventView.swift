@@ -5,7 +5,7 @@
 //  Created by Dana Lim on 4/11/25.
 // 카테고리 + 일정 목록 표시
 
-
+import Foundation
 import UIKit
 import SnapKit
 
@@ -18,9 +18,9 @@ class EventView: UIView {
 
     weak var delegate: EventViewDelegate?
     
-     var allEvents: [Event] = []
+    var allEvents: [Event] = []
 
-     let categories: [String] = ["전체", "산책", "목욕", "병원", "기타"]
+    let categories: [EventCategory] = EventCategory.allCases
     
     let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -43,7 +43,7 @@ class EventView: UIView {
     }()
 
      var filteredEvents: [Event] = []
-     var selectedCategory: String? = "전체"
+     var selectedCategory: EventCategory = .all
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -79,12 +79,19 @@ class EventView: UIView {
 
 
     func updateEvents(_ events: [Event]) {
+        print("updateEvents 호출됨: \(events.count)건")
         self.allEvents = events
         applyCategoryFilter()
     }
 
     private func applyCategoryFilter() {
-        filteredEvents = allEvents
+        if selectedCategory == .all {
+            filteredEvents = allEvents
+        } else {
+            filteredEvents = allEvents.filter { $0.category == selectedCategory.serverKey }
+        }
+        print("필터된 이벤트 수: \(filteredEvents.count)")
+
         tableView.reloadData()
     }
 }
