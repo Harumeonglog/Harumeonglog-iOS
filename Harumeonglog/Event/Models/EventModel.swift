@@ -11,10 +11,10 @@ struct EventDetailResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: EventDetail
+    let result: EventDetailResult?
 }
 
-struct EventDetail: Decodable {
+struct EventDetailResult: Decodable {
     let id: Int
     let title: String
     let date: String
@@ -39,7 +39,7 @@ struct EventDeleteResponse : Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: String
+    let result: String?
 }
 
 //MARK: PATCH /api/v1/events/{eventId} 일정 체크
@@ -47,7 +47,7 @@ struct EventCheckResponse : Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: EventCheck
+    let result: EventCheck?
 }
 
 struct EventCheck: Decodable {
@@ -58,7 +58,7 @@ struct EventCheck: Decodable {
 
 
 //MARK: PUT /api/v1/events/{eventId} 일정 수정
-struct EventUpdateRequest: Codable {
+struct EventRequest: Codable {
     let title: String
     let date: String
     let isRepeated: Bool
@@ -80,7 +80,7 @@ struct EventUpdateResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: UpdatedEvent
+    let result: UpdatedEvent?
 }
 struct UpdatedEvent: Decodable {
     let id: Int
@@ -101,7 +101,7 @@ struct EventResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: EventResult
+    let result: EventResult?
 }
 struct EventResult: Decodable {
     let dates: [String]
@@ -109,29 +109,37 @@ struct EventResult: Decodable {
 
 
 //MARK: POST /api/v1/events 일정 추가
-struct EventCreateRequest: Codable {
-    let title: String
-    let date: String
-    let isRepeated: Bool
-    let expiredDate: String
-    let repeateDays: [String]
-    let hasNotice: Bool
-    let time: String
-    let category: String
-    let hospitalName: String
-    let department: String
-    let cost: Int
-    let details: String
-}
 
 struct EventCreateResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: EventCreateResult
+    let result: EventCreateResult?
 }
 struct EventCreateResult: Decodable {
     let eventId: Int
     let createdAt: String
     let updatedAt: String
+}
+
+//MARK: GET /api/v1/events 날짜별 일정 조회
+struct EventDateResponse : Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: EventDateResult?
+}
+
+
+struct EventDateResult: Decodable {
+    let events: [Event]?
+    let cursor: Int?
+    let hasNext: Bool
+}
+
+
+struct Event: Decodable{
+    let id: Int
+    let title: String
+    let done: Bool
 }

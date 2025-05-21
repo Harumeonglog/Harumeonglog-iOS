@@ -57,6 +57,7 @@ class EventModalView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        delegate?.didSelectCategory(selectedCategory)
     }
 
     required init?(coder: NSCoder) {
@@ -100,7 +101,7 @@ extension EventModalView: UICollectionViewDelegate, UICollectionViewDataSource, 
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let category = categories[indexPath.item]
-        selectedCategory = (selectedCategory == category) ? "전체" : category // 선택 해제 시 전체 보기
+        selectedCategory = category
         collectionView.reloadData()
         delegate?.didSelectCategory(selectedCategory) // 선택된 카테고리 전달
     }
