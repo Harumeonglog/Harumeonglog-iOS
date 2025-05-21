@@ -135,7 +135,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.headerLabel.text = getCurrentMonthString(for: homeView.calendarView.currentPage)
     }
 
-    func fetchEventDatesForCurrentMonth() {
+    func fetchEventDatesForCurrentMonth(completion: (() -> Void)? = nil) {
         let currentDate = homeView.calendarView.currentPage
         let calendar = Calendar.current
         let year = calendar.component(.year, from: currentDate)
@@ -143,22 +143,26 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             print("AccessToken이 없음")
+            completion?()
             return
         }
 
-        self.eventViewModel.fetchEventDates(year: year, month: month, token: token) { result in
+        eventViewModel.fetchEventDates(year: year, month: month, token: token) { result in
             switch result {
             case .success(let dates):
                 self.markedDates = dates
                 DispatchQueue.main.async {
                     self.homeView.calendarView.reloadData()
                     print("이벤트 날짜 조회 성공")
+                    completion?()
                 }
             case .failure(let error):
                 print("이벤트 날짜 조회 실패: \(error)")
+                completion?()
             }
         }
     }
+    
 
     func setCalendarTo(date: Date) {
         homeView.calendarView.setCurrentPage(date, animated: true)
