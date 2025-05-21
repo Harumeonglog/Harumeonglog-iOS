@@ -131,4 +131,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
 //        }
         
     }
+    
+    func configure(with commentComment: [CommentcommentResponse], member: MemberInfoResponse) {
+    }
 }

@@ -40,8 +40,15 @@ class PostDetailViewController: UIViewController {
         self.view = postDetailView
         setCustomNavigationBarConstraints()
         postSettingButton()
-        fetchPostDetailsFromServer()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        fetchPostDetailsFromServer()
+
+    }
+    
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -107,6 +114,7 @@ class PostDetailViewController: UIViewController {
     
     @objc func commentButtonTapped() {
         let commentVC = CommentViewController()
+        commentVC.postId = postId
         commentVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(commentVC, animated: true)
     }
@@ -118,19 +126,45 @@ class PostDetailViewController: UIViewController {
         let imageName = isLiked ? "heart.fill" : "heart"
         let tintColor = isLiked ? UIColor.red00 : UIColor.gray02
         
-        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
-        postDetailView.likeButton.tintColor = tintColor
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.likePostToServer(postId: postId!, token: token){ [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if response.message == "성공입니다." {
+                        print("게시글 좋아요 성공")
+                        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
+                        postDetailView.likeButton.tintColor = tintColor
+                        
+                        fetchPostDetailsFromServer()
+
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 좋아요 실패: \(error.localizedDescription)")
+            }
+        }
     }
+    
     
     private func postSettingButton() {
         let popUpButtonClosure = { (action: UIAction) in
             if action.title == "수정" {
                 let modifyPostVC = ModifyPostViewController()
+                modifyPostVC.postId = self.postId
                 self.navigationController?.pushViewController(modifyPostVC, animated: true)
             }
             
             if action.title == "삭제" {
-            
+                self.deletePost()
             }
         }
         
@@ -158,6 +192,33 @@ class PostDetailViewController: UIViewController {
         let menu = UIMenu(options: .displayInline, children: [modifyAction, deleteAction])
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
+    }
+    
+    private func deletePost() {
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialPostService.deletePostToServer(postId: postId!, token: token) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if response.message == "성공입니다." {
+                        print("게시글 삭제 성공")
+                        self.navigationController?.popViewController(animated: true)
+
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 좋아요 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

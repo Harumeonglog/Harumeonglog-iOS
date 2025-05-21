@@ -22,6 +22,7 @@ struct PostItem : Codable {
     let content : String
     let likeNum : Int
     let commentNum : Int
+    let createdAt : String?
     let postCategory : String
     let memberInfoResponse : MemberInfoResponse?
     let imageKeyName: String?
@@ -52,8 +53,8 @@ struct PostDetailResponse : Codable {
 // MARK: 게시글 생성 API
 struct AddPostRequest : Encodable {
     let postCategory : String
-    let title: String
-    let content : String
+    let title: String?
+    let content : String?
     let postImageList : [String]
 }
 
@@ -63,3 +64,20 @@ struct AddPostResponse: Codable {
     let updateAt : String
 }
 
+
+// MARK: 게시글 수정 API
+struct ModifyPostRequest : Encodable {
+    let postCategory : String
+    let title: String
+    let content : String
+    let postImageList : [String]
+}
+
+struct ModifyPostResponse : Codable {
+    let postId: Int
+    let title: String?
+    let content : String?
+    let postCategory : String
+    let postImageList : [String?]
+    let updateAt : String
+}
