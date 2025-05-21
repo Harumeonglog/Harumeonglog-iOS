@@ -98,6 +98,7 @@ class EditProfileViewController: UIViewController {
         PresignedUrlService.fetchPresignedUrl(
             filename: filename,
             contentType: "image/jpeg",
+            domain: .pet,
             entityId: entityId,
             token: accessToken
         ) { result in
