@@ -3,18 +3,24 @@
 //  Harumeonglog
 //
 //  Created by Dana Lim on 4/11/25.
-//
+// 카테고리 + 일정 목록 표시
+
 
 import UIKit
 import SnapKit
 
 protocol EventViewDelegate: AnyObject {
     func didSelectEvent(_ event: Event)
+    func didSelectCategory(_ category: String)
 }
 
 class EventView: UIView {
 
     weak var delegate: EventViewDelegate?
+    
+     var allEvents: [Event] = []
+
+     let categories: [String] = ["전체", "산책", "목욕", "병원", "기타"]
     
     let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -36,18 +42,8 @@ class EventView: UIView {
         return tableView
     }()
 
-    private var allEvents: [Event] = [
-        Event(id: 0, title: "목욕하기", done: false, category: "위생"),
-        Event(id: 1, title: "산책하기", done: false, category: "산책"),
-        Event(id: 2, title: "병원가기", done: false, category: "건강"),
-        Event(id: 3, title: "목욕하기", done: false, category: "기타")
-        
-    ]
-
-    private var filteredEvents: [Event] = []
-    private var selectedCategory: String? = "전체"
-
-    private var categories: [String] { return ["전체"] + Array(Set(allEvents.map { $0.category })).sorted()}
+     var filteredEvents: [Event] = []
+     var selectedCategory: String? = "전체"
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -81,59 +77,14 @@ class EventView: UIView {
         }
     }
 
-    /*func updateEvents(for date: Date) {
-        filteredEvents = allEvents.filter { Calendar.current.isDate($0.date, inSameDayAs: date) }
+
+    func updateEvents(_ events: [Event]) {
+        self.allEvents = events
         applyCategoryFilter()
-    }*/
+    }
 
     private func applyCategoryFilter() {
-        if selectedCategory == "전체" || selectedCategory == nil {
-            filteredEvents = allEvents
-        } else {
-            filteredEvents = allEvents.filter { $0.category == selectedCategory }
-        }
+        filteredEvents = allEvents
         tableView.reloadData()
-        categoryCollectionView.reloadData()
-    }
-}
-
-extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return categories.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as? CategoryCell else {
-            return UICollectionViewCell()
-        }
-        let category = categories[indexPath.item]
-        let isSelected = category == selectedCategory
-        cell.configure(with: category, isSelected: isSelected)
-        return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedCategory = categories[indexPath.item]
-        applyCategoryFilter()
-    }
-}
-
-extension EventView : UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredEvents.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: EventCell.identifier, for: indexPath) as? EventCell else {
-            return UITableViewCell()
-        }
-        let Event = filteredEvents[indexPath.row]
-        cell.configure(Event: Event.title, isChecked: false)
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedEvent = filteredEvents[indexPath.row]
-        delegate?.didSelectEvent(selectedEvent)
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 
 struct EventDetailData {
     let category: CategoryType
-    let fields: [String: String] // 예: ["distance": "2.0", "detail": "공원 산책"]
+    let fields: [String: String]
 }
 
 protocol EventDetailReceivable {

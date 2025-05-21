@@ -14,8 +14,8 @@ class EventModalView: UIView {
     
     weak var delegate: EventModalViewDelegate?
 
-    private let categories = ["전체", "위생", "건강", "산책", "기타"]
-    private var selectedCategory: String? = "전체"
+     let categories = ["전체", "위생", "건강", "산책", "기타"]
+     var selectedCategory: String? = "전체"
 
     // 일정 데이터 (외부에서 설정 가능)**
     var Events: [String] = [] {
@@ -57,6 +57,7 @@ class EventModalView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        delegate?.didSelectCategory(selectedCategory)
     }
 
     required init?(coder: NSCoder) {
@@ -80,53 +81,5 @@ class EventModalView: UIView {
         }
         bringSubviewToFront(categoryCollectionView)
 
-    }
-}
-
-extension EventModalView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
-    // MARK: - UICollectionViewDelegate & DataSource
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return categories.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
-        let category = categories[indexPath.item]
-        cell.configure(with: category, isSelected: category == selectedCategory)
-        return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let category = categories[indexPath.item]
-        selectedCategory = (selectedCategory == category) ? "전체" : category // 선택 해제 시 전체 보기
-        collectionView.reloadData()
-        delegate?.didSelectCategory(selectedCategory) // 선택된 카테고리 전달
-    }
-
-    //  **카테고리 버튼 크기 조정**
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 65, height: 30)
-    }
-}
-
-extension EventModalView: UITableViewDelegate, UITableViewDataSource {
-    
-    // MARK: - UITableViewDelegate & DataSource
-    
-    // UITableView DataSource & Delegate (일정 리스트)
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Events.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: EventCell.identifier, for: indexPath) as! EventCell
-        cell.configure(Event: Events[indexPath.row], isChecked: false) // 기본 체크 해제 상태
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }

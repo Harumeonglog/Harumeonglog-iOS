@@ -84,14 +84,22 @@ extension APIClient {
     
     // PUT 요청 함수
     static func putRequest<T: Decodable>(endpoint: String, parameters: Parameters? = nil, token: String, completion: @escaping (Result<T, AFError>) -> Void) {
-       
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
-
-        
         AF.request(url, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).validate().responseDecodable(of: T.self) { response in
             completion(response.result)
         }
+    }
+
+    // 공통 PUT 요청 함수 (Encodable 파라미터 버전)
+    static func putRequest<T: Decodable, U: Encodable>(endpoint: String, encodable: U, token: String, completion: @escaping (Result<T, AFError>) -> Void) {
+        let url = "\(baseURL)\(endpoint)"
+        let headers = getHeaders(withToken: token)
+        AF.request(url, method: .put, parameters: encodable, encoder: JSONParameterEncoder.default, headers: headers)
+            .validate()
+            .responseDecodable(of: T.self) { response in
+                completion(response.result)
+            }
     }
     
     // 공통 DELETE 요청 함수
@@ -146,4 +154,3 @@ extension APIClient {
             }
     }
 }
-
