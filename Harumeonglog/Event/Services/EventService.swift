@@ -22,7 +22,7 @@ enum EventService {
 
     //MARK: PATCH /api/v1/events/{eventId} 일정 체크
     static func checkEvent(eventId: Int, token: String? = nil, completion: @escaping (Result<EventCheckResponse, AFError>) -> Void) {
-        let endpoint = "/api/v1/events/\(eventId)/check"
+        let endpoint = "/api/v1/events/\(eventId)"
         APIClient.patchRequest(endpoint: endpoint, token: token, completion: completion)
     }
 

@@ -85,7 +85,7 @@ class EventView: UIView {
         applyCategoryFilter()
     }
 
-    private func applyCategoryFilter() {
+    func applyCategoryFilter() {
         if selectedCategory == .all {
             filteredEvents = allEvents
         } else {

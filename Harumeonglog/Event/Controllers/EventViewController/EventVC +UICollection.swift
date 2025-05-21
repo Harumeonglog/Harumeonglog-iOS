@@ -52,7 +52,7 @@ extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
                 switch result {
                 case .success(let response):
                     let events = response.result?.events?.map {
-                        Event(id: $0.id, title: $0.title, category: category.serverKey)
+                        Event(id: $0.id, title: $0.title, category: category.serverKey, done:$0.done)
                     } ?? []
                     DispatchQueue.main.async {
                         parentVC.homeView.eventView.updateEvents(events)

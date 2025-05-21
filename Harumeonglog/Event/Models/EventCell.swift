@@ -70,9 +70,28 @@ class EventCell: UITableViewCell {
             make.trailing.equalTo(checkmarkIcon.snp.leading).offset(-10)
         }
     }
-    func configure(Event: String, isChecked: Bool) {
-        EventLabel.text = Event
-        let iconName = isChecked ? "checkmark.circle.fill" : "checkmark.circle"
+    func configure(event: Event) {
+        let attributedText: NSAttributedString
+        if event.done {
+            attributedText = NSAttributedString(string: event.title, attributes: [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: UIColor.brown01
+            ])
+        } else {
+            attributedText = NSAttributedString(string: event.title, attributes: [
+                .strikethroughStyle: 0,
+                .foregroundColor: UIColor.gray00
+            ])
+        }
+        EventLabel.attributedText = attributedText
+        let iconName = event.done ? "checkmark.circle.fill" : "checkmark.circle"
         checkmarkIcon.image = UIImage(systemName: iconName)
+        if event.done {
+            containerView.layer.borderColor = UIColor.brown01.cgColor
+            // EventLabel.textColor = .brown01
+        } else {
+            containerView.layer.borderColor = UIColor.brown02.cgColor
+            // EventLabel.textColor = .gray00
+        }
     }
 }

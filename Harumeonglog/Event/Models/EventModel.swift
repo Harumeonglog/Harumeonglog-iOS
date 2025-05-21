@@ -148,4 +148,5 @@ struct Event {
     let id: Int
     let title: String
     let category: String
+    let done: Bool
 }
