@@ -19,4 +19,18 @@ extension UIViewController {
         view.endEditing(true)
     }
     
+    
+    func makeAction(title: String, color: UIColor, handler: @escaping UIActionHandler) -> UIAction {
+        let action = UIAction(title: title, handler: handler)
+        let attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .foregroundColor: color,
+                .font: UIFont.headline
+            ]
+        )
+        action.setValue(attributedTitle, forKey: "attributedTitle")
+        return action
+    }
+    
 }

@@ -211,7 +211,7 @@ class PostDetailView: UIView {
         
         likeCount.text = "\(postDetail.likeNum)"
         commentCount.text = "\(postDetail.commentNum)"
-        // postTimeLabel.text = postDetail.time
+        postTimeLabel.text = timeAgoString(from: postDetail.createdAt!)
         
         let validImageURLs = postDetail.postImageList.compactMap { $0 }.filter { !$0.isEmpty }
 

@@ -156,46 +156,61 @@ class PostDetailViewController: UIViewController {
     
     
     private func postSettingButton() {
-        let popUpButtonClosure = { (action: UIAction) in
-            if action.title == "수정" {
-                let modifyPostVC = ModifyPostViewController()
-                modifyPostVC.postId = self.postId
-                self.navigationController?.pushViewController(modifyPostVC, animated: true)
-            }
-            
-            if action.title == "삭제" {
+        let handler: UIActionHandler = { [weak self] action in
+            guard let self else { return }
+
+            switch action.title {
+            case "수정":
+                let modifyVC = ModifyPostViewController()
+                modifyVC.postId = self.postId
+                self.navigationController?.pushViewController(modifyVC, animated: true)
+            case "신고":
+                self.reportPost()
+            case "삭제":
                 self.deletePost()
+            default:
+                break
             }
         }
         
-        let modifyTitle = NSAttributedString(
-            string: "수정",
-            attributes: [
-                .foregroundColor: UIColor.gray00,
-                .font: UIFont.headline
-            ]
-        )
-        
-        let deleteTitle = NSAttributedString(
-            string: "삭제",
-            attributes: [
-                .foregroundColor: UIColor.red00,
-                .font: UIFont.headline
-            ]
-        )
-        
-        let modifyAction = UIAction(title: "수정", handler: popUpButtonClosure)
-        let deleteAction = UIAction(title: "삭제", handler: popUpButtonClosure)
-        modifyAction.setValue(modifyTitle, forKey: "attributedTitle")
-        deleteAction.setValue(deleteTitle, forKey: "attributedTitle") // 삭제 버튼의 색상을 변경
+        let modifyAction = makeAction(title: "수정", color: .gray00, handler: handler)
+        let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
+        let deleteAction = makeAction(title: "삭제", color: .red00, handler: handler)
 
-        let menu = UIMenu(options: .displayInline, children: [modifyAction, deleteAction])
+        let menu = UIMenu(options: .displayInline, children: [modifyAction, reportAction, deleteAction])
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }
     
-    private func deletePost() {
+    
+    private func reportPost() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
         
+        socialPostService.reportPostToServer(postId: postId!, token: token) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if response.message == "성공입니다." {
+                        print("게시글 신고 성공")
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 신고 실패: \(error.localizedDescription)")
+            }
+        }
+        
+        
+    }
+    
+    private func deletePost() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
@@ -210,7 +225,6 @@ class PostDetailViewController: UIViewController {
                     if response.message == "성공입니다." {
                         print("게시글 삭제 성공")
                         self.navigationController?.popViewController(animated: true)
-
                     }
                 } else {
                     print("서버 응답 에러: \(response.message)")

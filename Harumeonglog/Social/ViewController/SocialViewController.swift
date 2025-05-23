@@ -118,7 +118,7 @@ class SocialViewController: UIViewController {
     
     @objc private func categoryButtonTapped(_ sender: UIButton) {
         let senderTitle = sender.titleLabel?.text ?? ""
-        let tappedCategory = socialCategoryKey.tagsMap[senderTitle] ?? "unknown"
+        let tappedCategory = socialCategoryKey.tagsKortoEng[senderTitle] ?? "unknown"
         
         if selectedCategory == tappedCategory {
             // 버튼 스타일 초기화

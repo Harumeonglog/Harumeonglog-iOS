@@ -69,6 +69,15 @@ class SocialPostService {
         APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
     
+    func reportPostToServer(
+        postId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void
+    ) {
+        let endpoint = "/api/v1/posts/\(postId)/reports"
+        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+    }
+    
     func deletePostToServer(
         postId: Int,
         token: String,
@@ -92,4 +101,5 @@ class SocialPostService {
         
         APIClient.patchRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
     }
+    
 }

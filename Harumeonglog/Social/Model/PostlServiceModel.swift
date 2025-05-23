@@ -42,6 +42,7 @@ struct PostDetailResponse : Codable {
     let postId : Int
     let content : String?
     let title : String
+    let createdAt: String?
     let likeNum : Int
     let commentNum : Int
     let postCategory : String

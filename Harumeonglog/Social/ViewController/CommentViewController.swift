@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol MenuConfigurableCell {
+    var settingButton: UIButton { get }
+}
+
 class CommentViewController: UIViewController, UITextViewDelegate {
-    
+
+
     let socialCommentService = SocialCommentService()
     var postId : Int?
     var commentText : String = ""
@@ -160,6 +165,8 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell", for: indexPath) as! CommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: comment, member: comment.memberInfoResponse)
+            configureSettingMenu(for: cell)
+ 
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
@@ -192,6 +199,33 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
                 .font: UIFont.body
             ]
         }
+    }
+    
+    func likeButtonTapped(in: CommentTableViewCell) {
+    }
+    
+    func configureSettingMenu(for cell: MenuConfigurableCell) {
+        let handler: UIActionHandler = { [weak self] action in
+            guard let self else { return }
+
+            switch action.title {
+            case "신고":
+                print("신고")
+                // self.reportComment()
+            case "차단":
+                print("차단")
+                // self.blockComment()
+            default:
+                break
+            }
+        }
+        
+        let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
+        let blockAction = makeAction(title: "차단", color: .gray00, handler: handler)
+
+        let menu = UIMenu(options: .displayInline, children: [reportAction, blockAction])
+        cell.settingButton.menu = menu
+        cell.settingButton.showsMenuAsPrimaryAction = true
     }
     
     // cell 의 갯수

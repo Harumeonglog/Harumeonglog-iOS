@@ -98,7 +98,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     func didSelectCategory(_ category: String) {
         print("선택된 카테고리: \(category)")
-        selectedCategory = socialCategoryKey.tagsMap[category] ?? "unkonwn"
+        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unkonwn"
     }
 
 }
