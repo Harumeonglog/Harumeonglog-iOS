@@ -16,6 +16,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
 
     let socialCommentService = SocialCommentService()
     var postId : Int?
+    var commentId : Int?
     var commentText : String = ""
     private var comments: [CommentItem] = []
     private var cursor: Int = 0
@@ -83,8 +84,6 @@ class CommentViewController: UIViewController, UITextViewDelegate {
                         DispatchQueue.main.async {
                             self.commentView.commentTableView.reloadData()
                         }
-                    } else {
-                        print("결과 데이터가 비어있습니다.")
                     }
                 } else {
                     print("서버 응답 에러: \(response.message)")
@@ -211,10 +210,10 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             switch action.title {
             case "신고":
                 print("신고")
-                // self.reportComment()
+                self.reportComment()
             case "차단":
                 print("차단")
-                // self.blockComment()
+                self.blockComment()
             default:
                 break
             }
@@ -226,6 +225,52 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
         let menu = UIMenu(options: .displayInline, children: [reportAction, blockAction])
         cell.settingButton.menu = menu
         cell.settingButton.showsMenuAsPrimaryAction = true
+    }
+    
+    func reportComment() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialCommentService.reportCommentToServer(commentId: self.commentId!, token: token){ [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("댓글 신고 성공")
+                    
+                    
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("댓글 생성 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func blockComment() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        socialCommentService.blockCommentToServer(commentId: self.commentId!, token: token){ [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("댓글 차단 성공")
+                    
+                    
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("댓글 생성 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
     // cell 의 갯수
