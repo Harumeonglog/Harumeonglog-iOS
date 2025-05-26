@@ -111,7 +111,7 @@ class SocialViewController: UIViewController {
 
     @objc private func searchButtonTapped() {
         self.searchText = socialView.searchBar.text ?? ""
-        print("검색단어: \(self.searchText)")
+        print("검색단어: \(self.searchText ?? "")")
         
         fetchPostsFromServer(reset: true, search: self.searchText)
     }

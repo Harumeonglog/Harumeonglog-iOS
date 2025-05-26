@@ -11,14 +11,23 @@ protocol MenuConfigurableCell {
     var settingButton: UIButton { get }
 }
 
+enum CommentDisplayItem {
+    case comment(CommentItem)
+    case reply(CommentcommentResponse)
+}
+
+
 class CommentViewController: UIViewController, UITextViewDelegate {
 
-
+    private var commentDisplayItems: [CommentDisplayItem] = []
+    private var comments: [CommentItem] = []
+    private var replyComments : [CommentcommentResponse] = []
+    
     let socialCommentService = SocialCommentService()
     var postId : Int?
     var commentId : Int?
     var commentText : String = ""
-    private var comments: [CommentItem] = []
+
     private var cursor: Int = 0
     private var hasNext: Bool = true
     private var isFetching: Bool = false
@@ -76,11 +85,18 @@ class CommentViewController: UIViewController, UITextViewDelegate {
                 if response.isSuccess {
                     if let commentList = response.result {
                         self.comments.append(contentsOf: commentList.items)
-
+                    
                         print("댓글 조회 성공: \(commentList.items.count)")
                         self.cursor = commentList.cursor ?? 0
                         self.hasNext = commentList.hasNext
                         
+                        for comment in commentList.items {
+                            commentDisplayItems.append(.comment(comment))
+                            for reply in comment.commentcommentResponseList {
+                                commentDisplayItems.append(.reply(reply))
+                            }
+                        }
+
                         DispatchQueue.main.async {
                             self.commentView.commentTableView.reloadData()
                         }
@@ -156,24 +172,24 @@ class CommentViewController: UIViewController, UITextViewDelegate {
 extension CommentViewController: UITableViewDelegate, UITableViewDataSource, CommentTableViewCellDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = commentDisplayItems[indexPath.row]
         
-        let comment = comments[indexPath.row]
-        let commentReplies = comment.commentcommentResponseList
-        
-        if commentReplies.isEmpty {
+        switch item {
+        case .comment(let comment):
             let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell", for: indexPath) as! CommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: comment, member: comment.memberInfoResponse)
             configureSettingMenu(for: cell, commentId: comment.commentId)
- 
             return cell
-        } else {
+            
+        case .reply(let reply):
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
             cell.selectionStyle = .none
-            cell.configure(with: comment.commentcommentResponseList, member: comment.memberInfoResponse)
+            cell.configure(with: reply, member: reply.memberInfoResponse)
             return cell
         }
     }
+
     
     func replyButtonTapped(in cell: CommentTableViewCell) {
         
@@ -187,7 +203,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             let attributedString = NSMutableAttributedString(string: mentionText)
             attributedString.addAttributes([
                 .foregroundColor: UIColor.gray02,
-                .font: UIFont(name: FontName.pretendard_light.rawValue, size: 12)
+                .font: UIFont(name: FontName.pretendard_light.rawValue, size: 12) as Any
             ], range: NSRange(location: 0, length: mentionText.count))
             
             commentView.commentTextView.attributedText = attributedString
@@ -274,7 +290,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     
     // cell 의 갯수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        comments.count
+        return commentDisplayItems.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

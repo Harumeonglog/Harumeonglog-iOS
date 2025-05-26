@@ -14,7 +14,8 @@ class PostDetailViewController: UIViewController {
 
     var postId : Int?
     private var isLiked: Bool = false
-    private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
+    private var postImages: [String] = []
+    // private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
     private var postDetail: [PostDetailResponse] = []
     private var memberInfo: [MemberInfoResponse] = []
 
@@ -75,21 +76,9 @@ class PostDetailViewController: UIViewController {
                 if response.isSuccess {
                     if let postDetail = response.result {
                         print("게시글 조회 성공")
-                        
-                        // self.photos.removeAll()
-                        
-                        for urlString in postDetail.postImageList {
-                            if let urlString = urlString, let url = URL(string: urlString) {
-                                URLSession.shared.dataTask(with: url) { data, _, _ in
-                                    if let data = data, let image = UIImage(data: data) {
-                                        DispatchQueue.main.async {
-                                            self.photos.append(image)
-                                        }
-                                    }
-                                }.resume()
-                            }
-                        }
-                        
+                                                
+                        self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
+ 
                         DispatchQueue.main.async {
                             self.postDetailView.configure(
                                 with: postDetail, member: postDetail.memberInfoResponse)
@@ -242,26 +231,31 @@ extension PostDetailViewController: UIScrollViewDelegate {
     func contentScrollView() {
         postDetailView.postImageScrollView.layoutIfNeeded()
 
-        for i in 0..<photos.count {
+        for i in 0..<postImages.count {
             let imageView = UIImageView()
             let positionX = postDetailView.postImageScrollView.frame.width * CGFloat(i)
-            
+
             imageView.frame = CGRect(x: positionX, y: 0, width: postDetailView.postImageScrollView.frame.width, height: postDetailView.postImageScrollView.frame.height)
-            imageView.image = photos[i]
             imageView.contentMode = .scaleAspectFit
-            
+
+            //  String → URL 변환 후 SDWebImage로 이미지 비동기 로드
+            if let url = URL(string: postImages[i]) {
+                imageView.sd_setImage(with: url)
+            }
+
             postDetailView.postImageScrollView.addSubview(imageView)
+
         }
         
         // 전체 컨텐츠 크기를 설정하여 스크롤을 가능하게 만듦
-        postDetailView.postImageScrollView.contentSize = CGSize(width: postDetailView.postImageScrollView.frame.width * CGFloat(photos.count), height: postDetailView.postImageScrollView.frame.height)
+        postDetailView.postImageScrollView.contentSize = CGSize(width: postDetailView.postImageScrollView.frame.width * CGFloat(postImages.count), height: postDetailView.postImageScrollView.frame.height)
         
         // 페이지 컨트롤 설정
-        postDetailView.postImagePageControl.numberOfPages = photos.count
+        postDetailView.postImagePageControl.numberOfPages = postImages.count
         postDetailView.postImagePageControl.currentPage = 0
         
         // 이미지가 1개면 pageControl 숨김
-        postDetailView.postImagePageControl.isHidden = photos.count == 1 ? true : false
+        postDetailView.postImagePageControl.isHidden = postImages.count == 1 ? true : false
     }
     
     // 스크롤할 때 페이지 변경

@@ -117,7 +117,6 @@ class TextOnlyCell: UITableViewCell {
     }
     
     func configure(with post: PostItem) {
-        categoryLabel.text = post.postCategory
         categoryLabel.text = socialCategoryKey.tagsEngKorto[post.postCategory] ?? "unkonwn"
         titleLabel.text = post.title
         contentLabel.text = post.content

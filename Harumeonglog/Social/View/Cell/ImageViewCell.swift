@@ -130,11 +130,10 @@ class ImageViewCell: UITableViewCell {
     
     
     func configure(with post: PostItem) {
-        categoryLabel.text = post.postCategory
+        categoryLabel.text = socialCategoryKey.tagsEngKorto[post.postCategory]
         titleLabel.text = post.title
         contentLabel.text = post.content
         likeCountLabel.text = "\(post.likeNum)"
         postTime.text = timeAgoString(from: post.createdAt!)
-        postImageView.image = UIImage(named: post.imageKeyName!)
     }
 }

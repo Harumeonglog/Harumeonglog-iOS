@@ -205,7 +205,7 @@ class PostDetailView: UIView {
         accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
         accountName.text = member.nickname
     
-        postCategory.text = postDetail.postCategory
+        postCategory.text = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
         postTitle.text = postDetail.title
         postContent.text = postDetail.content
         

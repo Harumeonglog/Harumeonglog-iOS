@@ -131,7 +131,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
             }
             
             PresignedUrlService.fetchPresignedUrl(
-                filename: UUID().uuidString + ".jpg",
+                filename: "\(self.postTitle)",      // post 제목으로 fileName 보냄
                 contentType: "image/jpeg",
                 domain: .post,
                 entityId: 0,
@@ -141,8 +141,8 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 case .success(let response):
                     switch response.result {
                     case .result(let presignedUrlResult):
-                        print("Presigned URL 발급 성공: \(presignedUrlResult.presignedUrl)")
-                        self?.presignedURLResult.append(presignedUrlResult.presignedUrl)
+                        print("Presigned URL 발급 성공: \(presignedUrlResult.imageKey)")
+                        self?.presignedURLResult.append(presignedUrlResult.imageKey)
                     case .message(let message):
                         print("Error: \(message)")
                     }

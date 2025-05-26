@@ -122,7 +122,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(90)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
-            make.trailing.equalTo(settingButton.snp.leading)
+            make.trailing.equalTo(settingButton.snp.leading).offset(5)
         }
         
 //        replyButton.snp.makeConstraints { make in
@@ -132,7 +132,11 @@ class ReplyCommentTableViewCell: UITableViewCell {
         
     }
     
-    func configure(with commentComment: [CommentcommentResponse], member: MemberInfoResponse) {
+    func configure(with commentReplies: CommentcommentResponse, member: MemberInfoResponse) {
+        commentContent.text = commentReplies.content
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+
+        accountName.text = member.nickname
     }
 }
 
