@@ -10,8 +10,9 @@ import UIKit
 class SocialViewController: UIViewController {
 
     let socialPostService = SocialPostService()
-    private var selectedBtn: UIButton?      // 이전에 눌린 카테고리 버튼 저장
+    private var searchText: String? = nil
     
+    private var selectedBtn: UIButton?      // 이전에 눌린 카테고리 버튼 저장
     private var selectedCategory: String = "ALL"
     private var posts: [PostItem] = []
     private var cursor: Int = 0
@@ -27,6 +28,7 @@ class SocialViewController: UIViewController {
         view.postTableView.dataSource = self
         
         view.searchBar.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        view.searchButton.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
         view.searchCancelButton.addTarget(self, action: #selector(searchCancelButtonTapped), for: .touchUpInside)
         view.forEachButton { button in
             button.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
@@ -51,7 +53,7 @@ class SocialViewController: UIViewController {
     
 
     
-    private func fetchPostsFromServer(reset: Bool = false) {
+    private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
                 
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
@@ -69,7 +71,7 @@ class SocialViewController: UIViewController {
         }
         
         socialPostService.getPostListFromServer(
-            search: nil,
+            search: search,
             postRequestCategory: selectedCategory,
             cursor: cursor,
             size: 5,
@@ -107,13 +109,20 @@ class SocialViewController: UIViewController {
         socialView.searchCancelButton.isHidden = isEmpty
     }
 
+    @objc private func searchButtonTapped() {
+        self.searchText = socialView.searchBar.text ?? ""
+        print("검색단어: \(self.searchText)")
+        
+        fetchPostsFromServer(reset: true, search: self.searchText)
+    }
+    
     @objc private func searchCancelButtonTapped() {
         socialView.searchBar.text = ""
         socialView.searchCancelButton.isHidden = true
         hideKeyboardWhenTappedAround()
         
         // 검색 결과 초기화 !! 필요함 
-        socialView.postTableView.reloadData()       // UI 업데이트
+        fetchPostsFromServer(reset: true)
     }
     
     @objc private func categoryButtonTapped(_ sender: UIButton) {
@@ -131,7 +140,7 @@ class SocialViewController: UIViewController {
             // 선택 해제 처리
             selectedBtn = nil
             selectedCategory = "ALL"
-            fetchPostsFromServer(reset: true)
+            fetchPostsFromServer(reset: true, search: self.searchText)
             return
         }
         
@@ -149,7 +158,7 @@ class SocialViewController: UIViewController {
         selectedBtn = sender
         selectedCategory = tappedCategory
 
-        fetchPostsFromServer(reset: true)
+        fetchPostsFromServer(reset: true, search: self.searchText)
         
     }
     

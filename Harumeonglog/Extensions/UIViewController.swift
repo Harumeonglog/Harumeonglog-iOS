@@ -19,7 +19,7 @@ extension UIViewController {
         view.endEditing(true)
     }
     
-    
+    // MARK: UIAction string 설정
     func makeAction(title: String, color: UIColor, handler: @escaping UIActionHandler) -> UIAction {
         let action = UIAction(title: title, handler: handler)
         let attributedTitle = NSAttributedString(
