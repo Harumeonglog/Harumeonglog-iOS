@@ -164,7 +164,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell", for: indexPath) as! CommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: comment, member: comment.memberInfoResponse)
-            configureSettingMenu(for: cell)
+            configureSettingMenu(for: cell, commentId: comment.commentId)
  
             return cell
         } else {
@@ -203,17 +203,17 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     func likeButtonTapped(in: CommentTableViewCell) {
     }
     
-    func configureSettingMenu(for cell: MenuConfigurableCell) {
+    func configureSettingMenu(for cell: MenuConfigurableCell, commentId: Int) {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
 
             switch action.title {
             case "신고":
                 print("신고")
-                self.reportComment()
+                self.reportComment(commentId: commentId)
             case "차단":
                 print("차단")
-                self.blockComment()
+                self.blockComment(commentId: commentId)
             default:
                 break
             }
@@ -227,19 +227,18 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
         cell.settingButton.showsMenuAsPrimaryAction = true
     }
     
-    func reportComment() {
+    func reportComment(commentId: Int) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
          }
         
-        socialCommentService.reportCommentToServer(commentId: self.commentId!, token: token){ [weak self] result in
-            guard let self = self else { return }
+        socialCommentService.reportCommentToServer(commentId: commentId, token: token){ [weak self] result in
+            guard self != nil else { return }
             switch result {
             case .success(let response):
                 if response.isSuccess {
                     print("댓글 신고 성공")
-                    
                     
                 } else {
                     print("서버 응답 에러: \(response.message)")
@@ -250,19 +249,19 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
         }
     }
     
-    func blockComment() {
+    func blockComment(commentId: Int) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
          }
         
-        socialCommentService.blockCommentToServer(commentId: self.commentId!, token: token){ [weak self] result in
-            guard let self = self else { return }
+        socialCommentService.blockCommentToServer(commentId:  commentId, token: token){ [weak self] result in
+            guard self != nil else { return }
             switch result {
             case .success(let response):
                 if response.isSuccess {
                     print("댓글 차단 성공")
-                    
+                    self!.fetchCommentsFromServer(reset: true)
                     
                 } else {
                     print("서버 응답 에러: \(response.message)")
