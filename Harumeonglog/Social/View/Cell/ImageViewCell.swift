@@ -135,5 +135,6 @@ class ImageViewCell: UITableViewCell {
         contentLabel.text = post.content
         likeCountLabel.text = "\(post.likeNum)"
         postTime.text = timeAgoString(from: post.createdAt!)
+        postImageView.sd_setImage(with: URL(string: post.imageKeyName!))
     }
 }

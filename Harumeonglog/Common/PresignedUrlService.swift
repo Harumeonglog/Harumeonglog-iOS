@@ -6,6 +6,7 @@
 //
 
 import Alamofire
+import UIKit
 
 enum PresignedURLDomain: String {
     case pet = "PET"
@@ -101,5 +102,42 @@ struct PresignedUrlBatchResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let presignedUrls: [PresignedUrlResult]
+    let result: PresignedUrlBatchResult
+}
+
+struct PresignedUrlBatchResult: Codable {
+    let images: [PresignedUrlResult]
+}
+
+
+
+// MARK: presignedURL에 이미지 업로드하기 위한 메서드
+extension UIViewController {
+    func uploadImageToS3(imageData: Data, presignedUrl: URL, completion: @escaping (Result<Bool, Error>) -> Void) {
+        var request = URLRequest(url: presignedUrl)
+        request.httpMethod = "PUT" // S3 Presigned URL은 PUT 메소드 사용
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type") // 이미지 타입에 맞게 설정
+        
+        AF.upload(imageData, with: request)
+            .response { response in
+                if let error = response.error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                if let statusCode = response.response?.statusCode,
+                   (200...299).contains(statusCode) {
+                    print("#uploadImageToS3: successful")
+                    completion(.success(true))
+                } else {
+                    let error = NSError(
+                        domain: "S3UploadError",
+                        code: response.response?.statusCode ?? -1,
+                        userInfo: [NSLocalizedDescriptionKey: "업로드 실패"]
+                    )
+                    print("#uploadImageToS3: \(error)")
+                    completion(.failure(error))
+                }
+            }
+    }
 }
