@@ -14,7 +14,8 @@ class PostDetailViewController: UIViewController {
 
     var postId : Int?
     private var isLiked: Bool = false
-    private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
+    private var postImages: [String] = []
+    // private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
     private var postDetail: [PostDetailResponse] = []
     private var memberInfo: [MemberInfoResponse] = []
 
@@ -75,21 +76,9 @@ class PostDetailViewController: UIViewController {
                 if response.isSuccess {
                     if let postDetail = response.result {
                         print("게시글 조회 성공")
-                        
-                        // self.photos.removeAll()
-                        
-                        for urlString in postDetail.postImageList {
-                            if let urlString = urlString, let url = URL(string: urlString) {
-                                URLSession.shared.dataTask(with: url) { data, _, _ in
-                                    if let data = data, let image = UIImage(data: data) {
-                                        DispatchQueue.main.async {
-                                            self.photos.append(image)
-                                        }
-                                    }
-                                }.resume()
-                            }
-                        }
-                        
+                                                
+                        self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
+ 
                         DispatchQueue.main.async {
                             self.postDetailView.configure(
                                 with: postDetail, member: postDetail.memberInfoResponse)
@@ -156,46 +145,61 @@ class PostDetailViewController: UIViewController {
     
     
     private func postSettingButton() {
-        let popUpButtonClosure = { (action: UIAction) in
-            if action.title == "수정" {
-                let modifyPostVC = ModifyPostViewController()
-                modifyPostVC.postId = self.postId
-                self.navigationController?.pushViewController(modifyPostVC, animated: true)
-            }
-            
-            if action.title == "삭제" {
+        let handler: UIActionHandler = { [weak self] action in
+            guard let self else { return }
+
+            switch action.title {
+            case "수정":
+                let modifyVC = ModifyPostViewController()
+                modifyVC.postId = self.postId
+                self.navigationController?.pushViewController(modifyVC, animated: true)
+            case "신고":
+                self.reportPost()
+            case "삭제":
                 self.deletePost()
+            default:
+                break
             }
         }
         
-        let modifyTitle = NSAttributedString(
-            string: "수정",
-            attributes: [
-                .foregroundColor: UIColor.gray00,
-                .font: UIFont.headline
-            ]
-        )
-        
-        let deleteTitle = NSAttributedString(
-            string: "삭제",
-            attributes: [
-                .foregroundColor: UIColor.red00,
-                .font: UIFont.headline
-            ]
-        )
-        
-        let modifyAction = UIAction(title: "수정", handler: popUpButtonClosure)
-        let deleteAction = UIAction(title: "삭제", handler: popUpButtonClosure)
-        modifyAction.setValue(modifyTitle, forKey: "attributedTitle")
-        deleteAction.setValue(deleteTitle, forKey: "attributedTitle") // 삭제 버튼의 색상을 변경
+        let modifyAction = makeAction(title: "수정", color: .gray00, handler: handler)
+        let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
+        let deleteAction = makeAction(title: "삭제", color: .red00, handler: handler)
 
-        let menu = UIMenu(options: .displayInline, children: [modifyAction, deleteAction])
+        let menu = UIMenu(options: .displayInline, children: [modifyAction, reportAction, deleteAction])
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }
     
-    private func deletePost() {
+    
+    private func reportPost() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
         
+        socialPostService.reportPostToServer(postId: postId!, token: token) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if response.message == "성공입니다." {
+                        print("게시글 신고 성공")
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 신고 실패: \(error.localizedDescription)")
+            }
+        }
+        
+        
+    }
+    
+    private func deletePost() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
@@ -210,7 +214,6 @@ class PostDetailViewController: UIViewController {
                     if response.message == "성공입니다." {
                         print("게시글 삭제 성공")
                         self.navigationController?.popViewController(animated: true)
-
                     }
                 } else {
                     print("서버 응답 에러: \(response.message)")
@@ -228,26 +231,31 @@ extension PostDetailViewController: UIScrollViewDelegate {
     func contentScrollView() {
         postDetailView.postImageScrollView.layoutIfNeeded()
 
-        for i in 0..<photos.count {
+        for i in 0..<postImages.count {
             let imageView = UIImageView()
             let positionX = postDetailView.postImageScrollView.frame.width * CGFloat(i)
-            
+
             imageView.frame = CGRect(x: positionX, y: 0, width: postDetailView.postImageScrollView.frame.width, height: postDetailView.postImageScrollView.frame.height)
-            imageView.image = photos[i]
             imageView.contentMode = .scaleAspectFit
-            
+
+            //  String → URL 변환 후 SDWebImage로 이미지 비동기 로드
+            if let url = URL(string: postImages[i]) {
+                imageView.sd_setImage(with: url)
+            }
+
             postDetailView.postImageScrollView.addSubview(imageView)
+
         }
         
         // 전체 컨텐츠 크기를 설정하여 스크롤을 가능하게 만듦
-        postDetailView.postImageScrollView.contentSize = CGSize(width: postDetailView.postImageScrollView.frame.width * CGFloat(photos.count), height: postDetailView.postImageScrollView.frame.height)
+        postDetailView.postImageScrollView.contentSize = CGSize(width: postDetailView.postImageScrollView.frame.width * CGFloat(postImages.count), height: postDetailView.postImageScrollView.frame.height)
         
         // 페이지 컨트롤 설정
-        postDetailView.postImagePageControl.numberOfPages = photos.count
+        postDetailView.postImagePageControl.numberOfPages = postImages.count
         postDetailView.postImagePageControl.currentPage = 0
         
         // 이미지가 1개면 pageControl 숨김
-        postDetailView.postImagePageControl.isHidden = photos.count == 1 ? true : false
+        postDetailView.postImagePageControl.isHidden = postImages.count == 1 ? true : false
     }
     
     // 스크롤할 때 페이지 변경

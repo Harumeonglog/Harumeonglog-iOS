@@ -43,7 +43,7 @@ class SocialCommentService {
     }
     
     // 대댓글
-    func postCommentCommentToServer(
+    func postReplyCommentToServer(
         postId: Int,
         content: String,
         parentId: Int,
@@ -56,4 +56,23 @@ class SocialCommentService {
         APIClient.postRequest(endpoint: endpoint, parameters: requestBody, token: token, completion: completion)
     }
     
+    func reportCommentToServer(
+        commentId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void) {
+        
+        let endpoint = "/api/v1/comments/\(commentId)/reports"
+            
+        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+    }
+    
+    func blockCommentToServer(
+        commentId: Int,
+        token: String,
+        completion: @escaping (Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void) {
+            
+        let endpoint = "/api/v1/comments/\(commentId)/blocks"
+            
+        APIClient.postRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+    }
 }

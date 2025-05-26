@@ -11,6 +11,7 @@ import Then
 
 protocol CommentTableViewCellDelegate: AnyObject {
     func replyButtonTapped(in: CommentTableViewCell)
+    func likeButtonTapped(in: CommentTableViewCell)
 }
 
 class CommentTableViewCell: UITableViewCell {
@@ -42,7 +43,7 @@ class CommentTableViewCell: UITableViewCell {
         label.textAlignment = .left
     }
     
-    public lazy var commentSetting = UIButton().then { button in
+    public lazy var settingButton = UIButton().then { button in
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = .gray01
     }
@@ -80,9 +81,10 @@ class CommentTableViewCell: UITableViewCell {
     @objc private func replyButtonTapped() {
         print("✅ replyButtonTapped 실행됨")
 
-        delegate?.replyButtonTapped(in: self) // Delegate 호출
+        delegate?.replyButtonTapped(in: self)
     }
     
+
     private func addComponents() {
         self.addSubview(topLeftView)
         topLeftView.addSubview(accountImageView)
@@ -110,8 +112,8 @@ class CommentTableViewCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(4)
         }
         
-        contentView.addSubview(commentSetting)
-        commentSetting.snp.makeConstraints { make in
+        contentView.addSubview(settingButton)
+        settingButton.snp.makeConstraints { make in
             make.centerY.equalTo(topLeftView)
             make.width.equalTo(24)
             make.height.equalTo(22)
@@ -124,7 +126,7 @@ class CommentTableViewCell: UITableViewCell {
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(50)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
-            make.trailing.equalTo(commentSetting.snp.leading)
+            make.trailing.equalTo(settingButton.snp.leading)
         }
         
         replyButton.snp.makeConstraints { make in
@@ -141,4 +143,7 @@ class CommentTableViewCell: UITableViewCell {
         accountName.text = member.nickname
         
     }
+}
+
+extension CommentTableViewCell: MenuConfigurableCell {
 }

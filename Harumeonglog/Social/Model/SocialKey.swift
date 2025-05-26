@@ -12,11 +12,19 @@ import UIKit
 struct socialCategoryKey {
     static let tags = ["정보 공유", "유머", "Q&A", "SNS", "기타"]
     
-    static let tagsMap: [String: String] = [
+    static let tagsKortoEng: [String: String] = [
         "정보 공유": "INFO",
         "유머": "HUMOR",
         "Q&A": "QNA",
         "SNS": "SNS",
         "기타": "ETC"
+    ]
+    
+    static let tagsEngKorto: [String: String] = [
+        "INFO": "정보 공유",
+        "HUMOR": "유머",
+        "QNA": "Q&A",
+        "SNS": "SNS",
+        "ETC": "기타"
     ]
 }

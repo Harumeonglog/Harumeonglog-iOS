@@ -41,7 +41,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         label.textAlignment = .left
     }
     
-    public lazy var commentSetting = UIButton().then { button in
+    public lazy var settingButton: UIButton = UIButton().then { button in
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = .gray01
     }
@@ -108,8 +108,8 @@ class ReplyCommentTableViewCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(4)
         }
         
-        self.addSubview(commentSetting)
-        commentSetting.snp.makeConstraints { make in
+        self.addSubview(settingButton)
+        settingButton.snp.makeConstraints { make in
             make.centerY.equalTo(topLeftView)
             make.width.equalTo(24)
             make.height.equalTo(22)
@@ -122,7 +122,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(90)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
-            make.trailing.equalTo(commentSetting.snp.leading)
+            make.trailing.equalTo(settingButton.snp.leading).offset(5)
         }
         
 //        replyButton.snp.makeConstraints { make in
@@ -132,6 +132,14 @@ class ReplyCommentTableViewCell: UITableViewCell {
         
     }
     
-    func configure(with commentComment: [CommentcommentResponse], member: MemberInfoResponse) {
+    func configure(with commentReplies: CommentcommentResponse, member: MemberInfoResponse) {
+        commentContent.text = commentReplies.content
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+
+        accountName.text = member.nickname
     }
+}
+
+extension ReplyCommentTableViewCell: MenuConfigurableCell {
+    
 }
