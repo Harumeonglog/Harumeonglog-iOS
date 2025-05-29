@@ -69,8 +69,8 @@ struct AddPostResponse: Codable {
 // MARK: 게시글 수정 API
 struct ModifyPostRequest : Encodable {
     let postCategory : String
-    let title: String
-    let content : String
+    let title: String?
+    let content : String?
     let postImageList : [String]
 }
 

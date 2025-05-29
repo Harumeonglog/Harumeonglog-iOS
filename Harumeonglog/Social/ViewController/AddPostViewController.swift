@@ -53,7 +53,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     @objc func didTapRightButton() {
         
         let postTitle = addPostView.titleTextField.text ?? ""
-        let postContent = addPostView.contentTextView.text ?? ""
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
@@ -65,6 +64,8 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             )
         }
         
+        requestPresignedURLS(images: imageInfos, token: token)
+        
     
     }
     
@@ -73,7 +74,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             switch result {
             case .success(let response):
                 print("presignedURL 발급 성공")
-                
+                self?.uploadImagesToPresignedURL(response)
             case .failure(let error):
                 print("presignedURL 발급 실패: \(error)")
             }
@@ -117,12 +118,15 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     }
     
     private func createPost() {
+        postTitle = addPostView.titleTextField.text ?? ""
+        postContent = addPostView.contentTextView.text ?? ""
+        
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
         socialPostService.sendPostToServer(
-            postCategory: selectedCategory ?? "unknown",
-            title: postTitle,
-            content: postContent,
+            postCategory: selectedCategory!,
+            title: self.postTitle,
+            content: self.postContent,
             postImageList: imageKeys,
             token: token
         ) { result in

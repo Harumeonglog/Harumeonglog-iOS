@@ -16,6 +16,8 @@ class ModifyPostViewController: UIViewController {
     var selectedCategory: String?
     var postContent: String = ""
     private var postImages: [UIImage] = []
+    private var postImagesURL: [String] = []
+    private var imageKeys: [String] = []
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
@@ -61,13 +63,13 @@ class ModifyPostViewController: UIViewController {
                     if let postDetail = response.result {
                         print("게시글 조회 성공")
                         
-                        addPostView.titleTextField.text = postDetail.title
-                        addPostView.categoryButton.titleLabel?.text = postDetail.postCategory
-                        addPostView.contentTextView.text = postDetail.content
-                        addPostView.addImageCount.text = "\(postDetail.postImageList.count) / 5"
+                        self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
+                        self.downloadImages(from: self.postImagesURL)
+
+                        DispatchQueue.main.async {
+                            self.addPostView.configure(with: postDetail)
+                        }
     
-                    } else {
-                        print("결과 데이터가 비어있습니다.")
                     }
                 } else {
                     print("서버 응답 에러: \(response.message)")
@@ -79,43 +81,127 @@ class ModifyPostViewController: UIViewController {
 
     }
     
+    private func downloadImages(from urls: [String]) {
+        let dispatchGroup = DispatchGroup()
+        var downloadedImages: [UIImage] = []
+
+        for urlString in urls {
+            guard let url = URL(string: urlString) else { continue }
+
+            dispatchGroup.enter()
+            URLSession.shared.dataTask(with: url) { data, _, error in
+                defer { dispatchGroup.leave() }
+
+                if let data = data, let image = UIImage(data: data) {
+                    downloadedImages.append(image)
+                } else {
+                    print("이미지 다운로드 실패")
+                }
+            }.resume()
+        }
+
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            self?.postImages = downloadedImages
+            self?.addPostView.imageCollectionView.reloadData()
+        }
+    }
+
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
         
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        let postTitle = addPostView.titleTextField.text ?? ""
         
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        // presingedURL batch 요청을 이미지 정보 만들기
+        let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
+            return PresignedUrlImage(
+                filename: "\(postTitle)_\(index)",
+                contentType: "image/jpeg"
+            )
+        }
+        
+        requestPresignedURLS(images: imageInfos, token: token)
+        
+    
+    }
+    
+    private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
+        PresignedUrlService.fetchBatchPresignedUrls(images: images, domain: .post, entityId: self.postId!, token: token) { [weak self] result in
+            switch result {
+            case .success(let response):
+                print("presignedURL 발급 성공")
+                self?.uploadImagesToPresignedURL(response)
+            case .failure(let error):
+                print("presignedURL 발급 실패: \(error)")
+            }
+        }
+    }
+    
+    private func uploadImagesToPresignedURL(_ response: PresignedUrlBatchResponse) {
+        let presignedData = response.result.images
+        guard presignedData.count == postImages.count else { return }  // presingedURL에 올라간 이미지 개수가 맞는지 확인
+        
+        let dispatchGroup = DispatchGroup()
+        var uploadErrorOccurred = false
+        
+        for (index, image) in postImages.enumerated() {
+            dispatchGroup.enter()
+            guard let imageData = image.jpegData(compressionQuality: 0.8),         
+                  let url = URL(string: presignedData[index].presignedUrl) else {
+                dispatchGroup.leave()
+                continue
+            }
+            
+            uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.imageKeys.append(presignedData[index].imageKey)
+                case .failure(let error):
+                    print("이미지 업로드 실패: \(error)")
+                    uploadErrorOccurred = true
+                }
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) { [weak self] in
+                if uploadErrorOccurred {
+                    print("업로드 실패로 게시글 수정 중단")
+                } else {
+                    self?.modifyPost()
+                }
+            }
+        }
+    }
+    
+    private func modifyPost() {
+        
+        postTitle = addPostView.titleTextField.text ?? ""
+        postContent = addPostView.contentTextView.text ?? ""
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
+
         socialPostService.modifyPostToServer(
             postId: self.postId!,
-            postCategory: self.selectedCategory!,
+            postCategory: self.selectedCategory ?? "unknown",
             title: self.postTitle,
             content: self.postContent,
-            postImageList: [],
-            token: token) { [weak self] result in
-                guard let self = self else { return }
+            postImageList: imageKeys,
+            token: token) { result in
                 switch result {
                 case .success(let response):
                     if response.isSuccess {
-                        if let postDetail = response.result {
-                            print("게시글 수정 성공")
-        
-                            navigationController?.popViewController(animated: true)
-
-                        } else {
-                            print("결과 데이터가 비어있습니다.")
-                        }
+                        print("게시글 수정 성공")
+                        self.navigationController?.popViewController(animated: true)
                     } else {
                         print("서버 응답 에러: \(response.message)")
                     }
                 case .failure(let error):
-                    print("게시글 조회 실패: \(error.localizedDescription)")
+                    print("게시글 전송 실패: \(error.localizedDescription)")
                 }
             }
     }
-    
     
     @objc private func addImageButtonTapped() {
         let imagePickerController = UIImagePickerController()
@@ -125,6 +211,7 @@ class ModifyPostViewController: UIViewController {
     }
 
 }
+
 
 extension ModifyPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -164,13 +251,9 @@ extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDa
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddImageViewCell", for: indexPath) as? AddImageViewCell else {
             return UICollectionViewCell()
         }
-        
-        cell.imageView.image = postImages[indexPath.row]
-        print("이미지 설정됨: \(postImages[indexPath.row])")
 
-        // 컬렉션 뷰 업데이트
-        addPostView.imageCollectionView.reloadData()
-        addPostView.imageCollectionView.layoutIfNeeded()
+        cell.imageView.image = postImages[indexPath.row]
+
         
         return cell
     }
