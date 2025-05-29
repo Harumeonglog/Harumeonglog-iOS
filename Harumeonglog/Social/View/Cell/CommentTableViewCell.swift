@@ -140,7 +140,7 @@ class CommentTableViewCell: UITableViewCell {
         commentContent.text = comment.content
         accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
 
-        accountName.text = member.nickname
+        self.accountName.text = member.nickname
         
     }
 }
