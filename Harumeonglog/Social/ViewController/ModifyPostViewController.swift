@@ -72,13 +72,14 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                         
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         print("\(self.postImagesURL)")
-                        postImagesURLIntoUIImage()
                                                 
                         // 서버 (영어) -> 한국어로 저장
                         self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
                         DispatchQueue.main.async {
                             self.addPostView.configure(with: postDetail)
+                            self.addPostView.imageCollectionView.reloadData()
+
                         }
     
                     }
@@ -92,31 +93,6 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
 
     }
     
-    
-    private func postImagesURLIntoUIImage() {
-        postImages.removeAll()
-        
-        let dispatchGroup = DispatchGroup()
-        
-        for urlString in postImagesURL {
-            dispatchGroup.enter()
-            fetchImage(from: urlString) { [weak self] image in
-                if let image = image {
-                    self?.postImages.append(image)
-                }
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            print("모든 이미지 로딩 완료: \(self?.postImages.count ?? 0)개")
-            self?.addPostView.imageCollectionView.reloadData()
-            self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
-        }
-    }
-
-
-
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
@@ -162,7 +138,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         
         for (index, image) in postImages.enumerated() {
             dispatchGroup.enter()
-            guard let imageData = image.jpegData(compressionQuality: 0.8),         
+            guard let imageData = image.jpegData(compressionQuality: 0.8),
                   let url = URL(string: presignedData[index].presignedUrl) else {
                 dispatchGroup.leave()
                 continue
@@ -263,7 +239,7 @@ extension ModifyPostViewController: UIImagePickerControllerDelegate, UINavigatio
 
 extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return postImages.count
+        return postImages.count + postImagesURL.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -272,7 +248,16 @@ extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDa
         }
 
         cell.imageView.image = postImages[indexPath.row]
-
+        cell.configure(with: self.postImagesURL[indexPath.row])
+        
+        
+        // 삭제 버튼 눌렸을 때 동작
+          cell.onDelete = { [weak self] in
+              self?.postImages.remove(at: indexPath.row)
+              self?.addPostView.imageCollectionView.reloadData()
+              self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
+          }
+        
         
         return cell
     }

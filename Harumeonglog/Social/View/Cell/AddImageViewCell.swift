@@ -58,4 +58,8 @@ class AddImageViewCell: UICollectionViewCell {
             make.top.trailing.equalToSuperview().inset(5)
         }
     }
+    
+    func configure(with imageURL: String) {
+        imageView.sd_setImage(with: URL(string: imageURL))
+    }
 }
