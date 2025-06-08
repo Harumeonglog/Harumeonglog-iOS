@@ -122,6 +122,24 @@ class TextOnlyCell: UITableViewCell {
         contentLabel.text = post.content
         likeCountLabel.text = "\(post.likeNum)"
         postTime.text = timeAgoString(from: post.createdAt!)
+        isLiked = post.isLiked
+        
+        isLiked.toggle()
     }
+    
+
+    var isLiked: Bool = false {
+       didSet {
+           updateLikeButton()
+       }
+   }
+    
+    private func updateLikeButton() {
+        let imageName = isLiked ? "heart" : "heart.fill"
+        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
+        likeImageView.image = UIImage(systemName: imageName)
+        likeImageView.tintColor = tintColor
+    }
+
     
 }
