@@ -42,7 +42,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         button.layer.borderWidth = 1.0
         
         button.setTitle("카테고리 선택", for: .normal)
-        button.setTitleColor(.gray02, for: .normal)
+        button.setTitleColor(.gray00, for: .normal)
         button.titleLabel?.font = .body
         
         button.contentHorizontalAlignment = .left
@@ -84,7 +84,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         textView.layer.cornerRadius = 15
         textView.layer.borderColor = UIColor.brown02.cgColor
         textView.layer.borderWidth = 1.0
-        textView.textContainerInset = UIEdgeInsets(top: 25, left: 25, bottom: 25, right: 25)
+        textView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         textView.isScrollEnabled = true
     }
     
@@ -222,6 +222,15 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         dropdownTableView.isHidden = true
         
         delegate?.didSelectCategory(selectedCategory)
+    }
+    
+    
+    func configure(with postDetail: PostDetailResponse) {
+        titleTextField.text = postDetail.title
+        categoryButton.setTitle(socialCategoryKey.tagsEngKorto[postDetail.postCategory]!, for: .normal)
+        contentTextView.text = postDetail.content
+        addImageCount.text = "\(postDetail.postImageList.count) / 5"
+    
     }
 
 }

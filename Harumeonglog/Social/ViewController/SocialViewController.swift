@@ -18,7 +18,7 @@ class SocialViewController: UIViewController {
     private var cursor: Int = 0
     private var hasNext: Bool = true
     private var isFetching: Bool = false
-
+    
     
     private lazy var socialView: SocialView = {
         let view = SocialView()

@@ -143,10 +143,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     
     @objc
     private func commentUploadButtonTapped() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
         socialCommentService.postCommentToServer(postId: postId!, content: commentText, token: token)
         { [weak self] result in
@@ -244,11 +241,8 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     }
     
     func reportComment(commentId: Int) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
-        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
+
         socialCommentService.reportCommentToServer(commentId: commentId, token: token){ [weak self] result in
             guard self != nil else { return }
             switch result {
@@ -266,11 +260,8 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     }
     
     func blockComment(commentId: Int) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
-        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
+
         socialCommentService.blockCommentToServer(commentId:  commentId, token: token){ [weak self] result in
             guard self != nil else { return }
             switch result {

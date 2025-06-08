@@ -99,6 +99,7 @@ class SocialPostService {
         let endpoint = "/api/v1/posts/\(postId)"
         let body = ModifyPostRequest(postCategory: postCategory, title: title, content: content, postImageList: postImageList)
         
+        print("수정 api body: \(body)")
         APIClient.patchRequest(endpoint: endpoint, parameters: body, token: token, completion: completion)
     }
     

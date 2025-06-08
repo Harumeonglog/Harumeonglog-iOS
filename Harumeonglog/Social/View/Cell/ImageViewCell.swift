@@ -136,5 +136,21 @@ class ImageViewCell: UITableViewCell {
         likeCountLabel.text = "\(post.likeNum)"
         postTime.text = timeAgoString(from: post.createdAt!)
         postImageView.sd_setImage(with: URL(string: post.imageKeyName!))
+        isLiked = post.isLiked
+        
+        isLiked.toggle()
+    }
+    
+    var isLiked: Bool = false {
+       didSet {
+           updateLikeButton()
+       }
+   }
+    
+    private func updateLikeButton() {
+        let imageName = isLiked ? "heart" : "heart.fill"
+        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
+        likeImageView.image = UIImage(systemName: imageName)
+        likeImageView.tintColor = tintColor
     }
 }

@@ -13,9 +13,20 @@ class PostDetailViewController: UIViewController {
     let socialPostService = SocialPostService()
 
     var postId : Int?
-    private var isLiked: Bool = false
+    private var isLiked: Bool = false {
+        didSet {
+            updateLikeButton()
+        }
+    }
+
+    private func updateLikeButton() {
+        let imageName = isLiked ? "heart" : "heart.fill"
+        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
+        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
+        postDetailView.likeButton.tintColor = tintColor
+    }
+
     private var postImages: [String] = []
-    // private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
     private var postDetail: [PostDetailResponse] = []
     private var memberInfo: [MemberInfoResponse] = []
 
@@ -62,6 +73,7 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
@@ -78,6 +90,8 @@ class PostDetailViewController: UIViewController {
                         print("게시글 조회 성공")
                                                 
                         self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
+                        self.isLiked = postDetail.isLiked
+                        isLiked.toggle()
  
                         DispatchQueue.main.async {
                             self.postDetailView.configure(
@@ -110,11 +124,6 @@ class PostDetailViewController: UIViewController {
     
     // 좋아요 버튼 더블탭
     @objc func likeButtonDoubleTapped() {
-        isLiked.toggle()
-        
-        let imageName = isLiked ? "heart.fill" : "heart"
-        let tintColor = isLiked ? UIColor.red00 : UIColor.gray02
-        
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")
              return
@@ -128,8 +137,8 @@ class PostDetailViewController: UIViewController {
                 if response.isSuccess {
                     if response.message == "성공입니다." {
                         print("게시글 좋아요 성공")
-                        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
-                        postDetailView.likeButton.tintColor = tintColor
+
+                        isLiked.toggle()
                         
                         fetchPostDetailsFromServer()
 

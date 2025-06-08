@@ -33,4 +33,30 @@ extension UIViewController {
         return action
     }
     
+    // MARK: 이미지 URL -> UIImage로 변환
+    func fetchImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            print("잘못된 URL")
+            completion(nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("이미지 다운로드 실패: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let data = data, let image = UIImage(data: data) else {
+                print("데이터 변환 실패")
+                completion(nil)
+                return
+            }
+
+            completion(image)
+        }.resume()
+    }
+
+    
 }
