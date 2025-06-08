@@ -7,6 +7,8 @@
 
 
 import UIKit
+import SDWebImage
+
 
 protocol CategorySelectionDelegate: AnyObject {
     func didSelectCategory(_ category: String)
@@ -69,8 +71,9 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                         print("게시글 조회 성공")
                         
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
-                        self.downloadImages(from: self.postImagesURL)
-                        
+                        print("\(self.postImagesURL)")
+                        postImagesURLIntoUIImage()
+                                                
                         // 서버 (영어) -> 한국어로 저장
                         self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
@@ -89,30 +92,30 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
 
     }
     
-    private func downloadImages(from urls: [String]) {
+    
+    private func postImagesURLIntoUIImage() {
+        postImages.removeAll()
+        
         let dispatchGroup = DispatchGroup()
-        var downloadedImages: [UIImage] = []
-
-        for urlString in urls {
-            guard let url = URL(string: urlString) else { continue }
-
+        
+        for urlString in postImagesURL {
             dispatchGroup.enter()
-            URLSession.shared.dataTask(with: url) { data, _, error in
-                defer { dispatchGroup.leave() }
-
-                if let data = data, let image = UIImage(data: data) {
-                    downloadedImages.append(image)
-                } else {
-                    print("이미지 다운로드 실패")
+            fetchImage(from: urlString) { [weak self] image in
+                if let image = image {
+                    self?.postImages.append(image)
                 }
-            }.resume()
+                dispatchGroup.leave()
+            }
         }
-
+        
         dispatchGroup.notify(queue: .main) { [weak self] in
-            self?.postImages = downloadedImages
+            print("모든 이미지 로딩 완료: \(self?.postImages.count ?? 0)개")
             self?.addPostView.imageCollectionView.reloadData()
+            self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
         }
     }
+
+
 
     
     @objc
@@ -120,7 +123,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
-        if postImages.isEmpty {
+        if self.postImages.isEmpty {
             modifyPost()
             return
         }

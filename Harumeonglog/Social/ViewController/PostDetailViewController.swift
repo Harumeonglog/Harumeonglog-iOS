@@ -27,7 +27,6 @@ class PostDetailViewController: UIViewController {
     }
 
     private var postImages: [String] = []
-    // private var photos = [UIImage(named:"testImage"), UIImage(named: "testImage"), UIImage(named: "testImage")]
     private var postDetail: [PostDetailResponse] = []
     private var memberInfo: [MemberInfoResponse] = []
 
