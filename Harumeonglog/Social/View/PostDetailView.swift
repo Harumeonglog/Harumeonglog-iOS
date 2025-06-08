@@ -20,19 +20,19 @@ class PostDetailView: UIView {
     }
     
     public lazy var accountImageView = UIImageView().then { imageView in
-        imageView.image = UIImage(named: "testImage")
+        imageView.image = UIImage(named: "")
         imageView.layer.cornerRadius = 20
         imageView.clipsToBounds = true
     }
     
     public lazy var accountName = UILabel().then { label in
-        label.text = "샌디치먹고싶어"
+        label.text = ""
         label.font = UIFont(name: "Pretendard-Bold", size: 13)
         label.textColor = .gray00
     }
     
     public lazy var postCategory = UILabel().then { label in
-        label.text = "Q&A"
+        label.text = ""
         label.font = UIFont(name: "Pretendard-Medium", size: 13)
         label.textColor = .brown00
     }
@@ -43,14 +43,14 @@ class PostDetailView: UIView {
     }
     
     public lazy var postTitle = UILabel().then { label in
-        label.text = "간식 추천받아요"
+        label.text = ""
         label.font = UIFont(name: "Pretendard-Bold", size: 20)
         label.textColor = UIColor.gray00
         label.textAlignment = .left
     }
     
     public lazy var postContent = UILabel().then { label in
-        label.text = "주인이 뺏어먹어도 될 정도로 진짜 맛있는걸루 ,, 그럼 빵맛이 나는 간식은 없을까요 ????? 없겠지 ㅜㅜ 만약에 혹시나도 있으면 땅버맛으로 부탁할게요"
+        label.text = ""
         label.font = UIFont(name: "Pretendard-Regular", size: 13)
         label.textAlignment = .left
         label.textColor = .gray00

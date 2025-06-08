@@ -74,6 +74,7 @@ class PostDetailViewController: UIViewController {
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
+
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {
              print("토큰 없음")

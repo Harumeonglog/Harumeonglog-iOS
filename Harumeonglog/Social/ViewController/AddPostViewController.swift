@@ -8,10 +8,6 @@
 import UIKit
 import Alamofire
 
-protocol CategorySelectionDelegate: AnyObject {
-    func didSelectCategory(_ category: String)
-}
-
 
 class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
@@ -55,6 +51,11 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         let postTitle = addPostView.titleTextField.text ?? ""
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        if postImages.isEmpty {
+            createPost()
+            return
+        }
         
         // presingedURL batch 요청을 이미지 정보 만들기
         let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
@@ -159,7 +160,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     func didSelectCategory(_ category: String) {
         print("선택된 카테고리: \(category)")
-        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unkonwn"
+        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
     }
     
     

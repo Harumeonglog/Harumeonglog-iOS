@@ -8,7 +8,11 @@
 
 import UIKit
 
-class ModifyPostViewController: UIViewController {
+protocol CategorySelectionDelegate: AnyObject {
+    func didSelectCategory(_ category: String)
+}
+
+class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
     
     var postId: Int?
     let socialPostService = SocialPostService()
@@ -22,6 +26,7 @@ class ModifyPostViewController: UIViewController {
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
         view.backgroundColor = .background
+        view.delegate = self
         view.imageCollectionView.delegate = self
         view.imageCollectionView.dataSource = self
         
@@ -65,6 +70,9 @@ class ModifyPostViewController: UIViewController {
                         
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         self.downloadImages(from: self.postImagesURL)
+                        
+                        // 서버 (영어) -> 한국어로 저장
+                        self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
                         DispatchQueue.main.async {
                             self.addPostView.configure(with: postDetail)
@@ -109,10 +117,13 @@ class ModifyPostViewController: UIViewController {
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
-        
-        let postTitle = addPostView.titleTextField.text ?? ""
-        
+                
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        if postImages.isEmpty {
+            modifyPost()
+            return
+        }
         
         // presingedURL batch 요청을 이미지 정보 만들기
         let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
@@ -179,12 +190,12 @@ class ModifyPostViewController: UIViewController {
         
         postTitle = addPostView.titleTextField.text ?? ""
         postContent = addPostView.contentTextView.text ?? ""
-        
+
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
         socialPostService.modifyPostToServer(
             postId: self.postId!,
-            postCategory: self.selectedCategory ?? "unknown",
+            postCategory: socialCategoryKey.tagsKortoEng[self.selectedCategory!] ?? "unknown",
             title: self.postTitle,
             content: self.postContent,
             postImageList: imageKeys,
@@ -208,6 +219,11 @@ class ModifyPostViewController: UIViewController {
         imagePickerController.allowsEditing = true
         imagePickerController.delegate = self
         self.present(imagePickerController, animated: true)
+    }
+    
+    func didSelectCategory(_ category: String) {
+        print("선택된 카테고리: \(category)")
+        selectedCategory = category
     }
 
 }
