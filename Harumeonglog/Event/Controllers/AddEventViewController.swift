@@ -209,31 +209,7 @@ extension AddEventViewController: AddEventViewDelegate {
     }
 
     private func updateCategoryInputView(for category: CategoryType) {
-        categoryInputView?.removeFromSuperview()
-        
-        switch category {
-        case .bath:
-            categoryInputView = BathView()
-        case .walk:
-            categoryInputView = WalkView()
-        case .medicine:
-            categoryInputView = MedicineView()
-        case .checkup:
-            categoryInputView = CheckupView()
-        case .other:
-            categoryInputView = OtherView()
-        }
-        
-        if let newView = categoryInputView {
-            view.addSubview(newView)
-            view.bringSubviewToFront(newView)
-            newView.snp.makeConstraints { make in
-                make.top.equalTo(addEventView.categoryButton.snp.bottom).offset(20)
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(300)
-            }
-        }
-        view.bringSubviewToFront(addEventView.dropdownTableView)
+        addEventView.updateCategoryInputView(for: category)
     }
 
     func getSelectedWeekdays() -> [String] {

@@ -19,27 +19,33 @@ protocol EventDetailReceivable {
 
 class EditEventViewController: UIViewController {
     
+    private var event: EventDetailResult?
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     //수정할 이벤트 아이디
     var eventId: Int
+    private var isEditable: Bool
     
     init(eventId: Int){
         self.eventId = eventId
+        self.isEditable = true
         super.init(nibName: nil, bundle: nil)
     }
 
-    init(event: EventDetailResult) {
+    init(event: EventDetailResult, isEditable: Bool) {
         self.eventId = event.id
+        self.isEditable = isEditable
+        self.event = event
         super.init(nibName: nil, bundle: nil)
-        //TODO
+        // TODO: 추후 event 내용 세팅
     }
     
     private lazy var editEventView: AddEventView = {
         let view = AddEventView()
-        view.isEditable = true
+        view.isEditable = self.isEditable
         view.delegate = self
         return view
     }()
@@ -49,10 +55,16 @@ class EditEventViewController: UIViewController {
         self.view = editEventView
         setCustomNavigationBarConstraints()
         
-        editEventView.deleteEventButton.isHidden = false
-        editEventView.deleteEventButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        editEventView.deleteEventButton.isHidden = !isEditable
+        if isEditable {
+            editEventView.deleteEventButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        }
         
-        fetchEventData()
+        if let event = event {
+            configureData(with: event)
+        } else {
+            fetchEventData()
+        }
     }
     
     //탭바 숨기기
@@ -68,12 +80,17 @@ class EditEventViewController: UIViewController {
     private func setCustomNavigationBarConstraints() {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = editEventView.navigationBar
-        navi.configureTitle(title: "일정 수정")
-        navi.configureRightButton(text: "저장")
-        navi.rightButton.setTitleColor(.blue01, for: .normal)
-        navi.rightButton.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
+        if isEditable {
+            navi.configureTitle(title: "일정 수정")
+            navi.configureRightButton(text: "저장")
+            navi.rightButton.setTitleColor(.blue01, for: .normal)
+            navi.rightButton.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
+            navi.rightButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        } else {
+            navi.configureTitle(title: "일정 상세")
+            navi.rightButton.isHidden = true
+        }
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
-        navi.rightButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
     }
     
     @objc
@@ -112,6 +129,69 @@ class EditEventViewController: UIViewController {
         }
 
         populateUI(date: "2025.4.16 수요일", time: "10:30", alarm: "30분 전 팝업", weekdays: ["월", "수"], detail: detail)
+    }
+    
+    private func configureData(with event: EventDetailResult) {
+        editEventView.titleTextField.text = event.title
+        editEventView.dateButton.setTitle(event.date, for: .normal)
+        editEventView.timeButton.setTitle(event.time, for: .normal)
+        editEventView.categoryButton.setTitle(event.category, for: .normal)
+        editEventView.categoryButton.setTitleColor(.gray00, for: .normal)
+
+        let weekdayMap: [String: String] = [
+            "MON": "월", "TUE": "화", "WED": "수",
+            "THU": "목", "FRI": "금", "SAT": "토", "SUN": "일"
+        ]
+
+        event.repeatDays.forEach { code in
+            if let koreanDay = weekdayMap[code] {
+                for button in self.editEventView.weekButtons {
+                    if button.titleLabel?.text == koreanDay {
+                        // 선택 토글이 아닌 선택된 상태로 강제 설정
+                        button.isSelected = true
+                        button.backgroundColor = .brown01
+                        button.setTitleColor(.white, for: .normal)
+                    }
+                }
+            }
+        }
+
+        if let categoryType = CategoryType.fromServerValue(event.category) {
+            editEventView.updateCategoryInputView(for: categoryType)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            switch event.category {
+            case "HOSPITAL":
+                if let view = self.editEventView.categoryInputView as? CheckupView {
+                    view.hospitalTextField.text = event.hospitalName
+                    view.departmentTextField.text = event.department
+                    view.costTextField.text = "\(event.cost ?? 0)"
+                    view.detailTextView.text = event.details
+                }
+            case "MEDICINE":
+                if let view = self.editEventView.categoryInputView as? MedicineView {
+                    view.medicineNameTextField.text = event.medicineName
+                    view.detailTextView.text = event.details
+                }
+            case "WALK":
+                if let view = self.editEventView.categoryInputView as? WalkView {
+                    view.distanceTextField.text = event.distance
+                    view.timeTextField.text = event.duration
+                    view.detailTextView.text = event.details
+                }
+            case "BATH":
+                if let view = self.editEventView.categoryInputView as? BathView {
+                    view.detailTextView.text = event.details
+                }
+            case "OTHER":
+                if let view = self.editEventView.categoryInputView as? OtherView {
+                    view.detailTextView.text = event.details
+                }
+            default:
+                break
+            }
+        }
     }
     
     private func populateUI(date: String, time: String, alarm: String, weekdays: [String], detail: EventDetailData) {

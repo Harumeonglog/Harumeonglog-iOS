@@ -42,9 +42,9 @@ extension EventView : UITableViewDelegate, UITableViewDataSource {
                 DispatchQueue.main.async {
                     if let eventDetail = response.result {
                         print("단일 일정 조회 성공: \(eventDetail.title)")
-                        let detailVC = EventDetailViewController(event: eventDetail)
+                        let editVC = EditEventViewController(event: eventDetail, isEditable: true)
                         if let viewController = self.findViewController() {
-                            viewController.navigationController?.pushViewController(detailVC, animated: true)
+                            viewController.navigationController?.pushViewController(editVC, animated: true)
                         }
                     }
                 }

@@ -131,7 +131,7 @@ class CheckupView: UIView {
         hospitalTextField.snp.makeConstraints { make in
             make.top.equalTo(hospitalLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(362)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(45)
         }
         
@@ -143,7 +143,7 @@ class CheckupView: UIView {
         departmentTextField.snp.makeConstraints { make in
             make.top.equalTo(departmentLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(170)
+            make.trailing.equalTo(costTextField.snp.leading).offset(-32)
             make.height.equalTo(45)
         }
         
@@ -166,9 +166,9 @@ class CheckupView: UIView {
         }
         detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(10)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(126)
-            make.centerX.equalToSuperview()
         }
     }
 }

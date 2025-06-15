@@ -315,9 +315,13 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.centerX.equalToSuperview()
         }
         
-        deleteEventButton.snp.makeConstraints { make in
+        deleteEventButton.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(21)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
+            if let newView = categoryInputView {
+                make.top.equalTo(newView.snp.bottom).offset(20)
+            } else {
+                make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
+            }
             make.height.equalTo(50)
         }
 
@@ -352,6 +356,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     func updateCategoryInputView(for category: CategoryType) {
         //이전 뷰 제거
+        print("[AddEventView] 기존 categoryInputView 제거 시도")
         categoryInputView?.removeFromSuperview()
 
         //새로운 카테고리 뷰 설정
@@ -367,20 +372,26 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         case .other:
             categoryInputView = OtherView()
         }
+        print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
 
         // 새로운 뷰가 존재하면 추가
         if let newView = categoryInputView {
-            addSubview(newView)
-            newView.snp.makeConstraints { make in
-                make.top.equalTo(categoryButton.snp.bottom).offset(20)
-                make.width.equalTo(362)
-                make.centerX.equalToSuperview()
+            if newView.superview == nil {
+                insertSubview(newView, belowSubview: dropdownTableView)
+                newView.snp.makeConstraints { make in
+                    make.top.equalTo(categoryButton.snp.bottom).offset(20)
+                    make.leading.trailing.equalToSuperview()
+                    make.height.equalTo(300)
+                }
+                print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
+                print("새로운 카테고리 뷰 추가됨: \(category)")
+            } else {
+                print("이미 추가된 뷰: \(category)")
             }
-            // 디버깅용 코드
-            print("새로운 카테고리 뷰 추가됨: \(category)")
-            print("현재 뷰의 서브뷰 수: \(self.subviews.count)")
+
             newView.isHidden = false
             self.layoutIfNeeded()
+            print(" [AddEventView] 카테고리 뷰 적용 완료")
         } else {
             print("❌ 카테고리 뷰가 nil입니다: \(category)")
         }
