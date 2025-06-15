@@ -42,7 +42,7 @@ struct InfoResult: Codable {
 typealias UserInfo = InfoResult
 
 struct InfoParameters {
-    let image: String?
+    let imageKey: String?
     let nickname: String?
 }
 
@@ -143,7 +143,7 @@ class MemberAPIService {
         APIClient.patchRequest(
             endpoint: "/api/v1/members/info",
             parameters: [
-                "image": param.image,
+                "imageKey": param.imageKey,
                 "nickname": param.nickname,
             ],
             token: accessToken

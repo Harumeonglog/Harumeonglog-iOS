@@ -79,7 +79,7 @@ class MyPageView: UIView {
     public func configure(_ userInfo: UserInfo) {
         myProfileNameLabel.text = userInfo.nickname ?? ""
         if let urlString = userInfo.image {
-            myProfileImageView.kf.setImage(with: URL(string: "https://harumeonglog-s3.s3.ap-northeast-2.amazonaws.com/" + urlString))
+            myProfileImageView.kf.setImage(with: URL(string: urlString))
         }
     }
     
