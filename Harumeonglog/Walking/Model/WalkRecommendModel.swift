@@ -28,3 +28,26 @@ struct WalkRecommendLikeResponse: Codable {
     let walkLikeNum: Int
     let updatedAt: String
 }
+
+
+struct WalkRecommendDetailResponse: Codable {
+    let id: Int
+    let title: String
+    let walkLikeNum: Int
+    let distance: String
+    let time: Int
+    let memberNickname: String
+    let isLike: Bool
+    let tracks: [WalkRecommendTrack]
+}
+
+struct WalkRecommendTrack: Codable {
+    let trackId: Int
+    let positions: [WalkRecommendPosition]
+    
+    struct WalkRecommendPosition: Codable {
+        let latitude: Double
+        let longitude: Double
+    }
+}
+

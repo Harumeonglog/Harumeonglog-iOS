@@ -7,24 +7,29 @@
 
 import Foundation
 
-struct WalkPetResposne: Decodable {
+struct WalkPetResposne: Codable {
     let pets: [WalkPets]
     let size: Int
+    
+    struct WalkPets: Codable {
+        let petId: Int
+        let name: String
+        let image : String
+    }
+
 }
 
-struct WalkPets: Decodable {
-    let petId: Int
-    let name: String
-    let image : String
+struct WalkMemberRequest: Codable {
+    let petId: [Int]
 }
 
-struct WalkMemberResponse : Decodable {
+struct WalkMemberResponse : Codable {
     let members: [WalkMembers]
     let size: Int
-}
-
-struct WalkMembers: Decodable {
-    let memberId: Int
-    let nickname: String
-    let image : String
+    
+    struct WalkMembers: Codable {
+        let memberId: Int
+        let nickname: String
+        let image : String
+    }
 }
