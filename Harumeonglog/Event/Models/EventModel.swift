@@ -58,22 +58,30 @@ struct EventCheck: Decodable {
 
 
 //MARK: PUT /api/v1/events/{eventId} 일정 수정
+
+struct EventTimeRequest: Codable {
+    let hour: Int
+    let minute: Int
+    let second: Int
+    let nano: Int
+}
+
 struct EventRequest: Codable {
-    let title: String
-    let date: String
-    let isRepeated: Bool
-    let expiredDate: String
-    let repeatDays: [String]
-    let hasNotice: Bool
-    let time: String
-    let category: String
-    let details: String?
-    let hospitalName: String?
-    let department: String?
-    let cost: Int?
-    let medicineName: String?
-    let distance: String?
-    let duration: String?
+    var title: String
+    var date: String
+    var isRepeated: Bool
+    var expiredDate: String
+    var repeatDays: [String]
+    var hasNotice: Bool
+    var time: String
+    var category: String
+    var details: String?
+    var hospitalName: String?
+    var department: String?
+    var cost: Int?
+    var medicineName: String?
+    var distance: String?
+    var duration: String?
 }
 
 struct EventUpdateResponse: Decodable {

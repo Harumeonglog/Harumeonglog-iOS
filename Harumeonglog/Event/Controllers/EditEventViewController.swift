@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Alamofire
 
 protocol EditEventViewControllerDelegate: AnyObject {
     func didDeleteEvent(eventId: Int)
@@ -26,6 +27,8 @@ class EditEventViewController: UIViewController {
     weak var delegate: EditEventViewControllerDelegate?
     
     private var event: EventDetailResult?
+
+    private var selectedWeekdays: Set<String> = []
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -69,7 +72,9 @@ class EditEventViewController: UIViewController {
         if let event = event {
             configureData(with: event)
         }
+        
     }
+
     
     //탭바 숨기기
     override func viewWillAppear(_ animated: Bool) {
@@ -85,11 +90,11 @@ class EditEventViewController: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = editEventView.navigationBar
         if isEditable {
-            navi.configureTitle(title: "일정 수정")
-            navi.configureRightButton(text: "저장")
+            navi.configureTitle(title: "일정 상세")
+            navi.configureRightButton(text: "수정")
             navi.rightButton.setTitleColor(.blue01, for: .normal)
             navi.rightButton.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
-            navi.rightButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+            navi.rightButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
         } else {
             navi.configureTitle(title: "일정 상세")
             navi.rightButton.isHidden = true
@@ -102,10 +107,148 @@ class EditEventViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    //저장버튼 누르면 실행되는 함수
+    //수정버튼 누르면 실행되는 함수
     @objc
-    private func saveButtonTapped(){
-        //api에 전달, pop navigator controller
+    private func editButtonTapped() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+            print("AccessToken 없음")
+            return
+        }
+        let request = generateRequestFromView()
+        print("=== 수정 요청 파라미터 확인 ===")
+        print("title:", request.title)
+        print("date:", request.date)
+        print("time:", request.time)
+        print("alarm:", request.hasNotice ? "알람 있음" : "없음")
+        print("category:", request.category)
+        print("repeatDays:", request.repeatDays)
+        print("isRepeated:", request.isRepeated)
+        print("hasNotice:", request.hasNotice)
+        print("expiredDate:", request.expiredDate)
+        print("details:", request.details ?? "nil")
+        print("hospitalName:", request.hospitalName ?? "nil")
+        print("department:", request.department ?? "nil")
+        print("cost:", request.cost ?? 0)
+        print("medicineName:", request.medicineName ?? "nil")
+        print("distance:", request.distance ?? "nil")
+        print("duration:", request.duration ?? "nil")
+        print("===================================")
+        EventService.updateEvent(eventId: self.eventId, request: request, token: token) { result in
+            switch result {
+            case .success(let response):
+                print("일정 수정 성공: \(response.message)")
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            case .failure(let error):
+                if let afError = error.underlyingError as? AFError {
+                    switch afError {
+                    case .responseValidationFailed(reason: let reason):
+                        switch reason {
+                        case .unacceptableStatusCode(let code):
+                            print("상태 코드 에러: \(code)")
+                        default:
+                            print("기타 응답 검증 실패: \(reason)")
+                        }
+                    case .responseSerializationFailed(reason: let reason):
+                        print("응답 직렬화 실패: \(reason)")
+                    default:
+                        print("AFError: \(afError.localizedDescription)")
+                    }
+                } else {
+                    print("기타 오류: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    // 새롭게 추가된 메서드: 뷰에서 EventRequest 생성 (fallback logic 포함)
+    private func generateRequestFromView() -> EventRequest {
+        // 1. 입력값이 비어있으면 기존 event 데이터로 fallback
+        let title = editEventView.titleTextField.text?.isEmpty == false
+            ? editEventView.titleTextField.text!
+            : (event?.title ?? "")
+
+        let date = (editEventView.dateButton.title(for: .normal) != nil && editEventView.dateButton.title(for: .normal) != "")
+            ? editEventView.dateButton.title(for: .normal)!
+            : (event?.date ?? "")
+
+        let time = (editEventView.timeButton.title(for: .normal) != nil && editEventView.timeButton.title(for: .normal) != "")
+            ? editEventView.timeButton.title(for: .normal)!
+            : (event?.time ?? "")
+
+        let alarm = (editEventView.alarmButton.title(for: .normal) != nil && editEventView.alarmButton.title(for: .normal) != "")
+            ? editEventView.alarmButton.title(for: .normal)!
+            : "없음"
+        let hasNotice = alarm != "없음"
+
+        // 2. 카테고리도 기존 event category fallback
+        let categoryTitle = editEventView.categoryButton.title(for: .normal) ?? ""
+        let category = EventCategory.allCases.first { $0.displayName == categoryTitle }?.serverKey ?? event?.category ?? ""
+
+        // 3. 반복 요일도 선택하지 않았을 경우 기존 값 사용
+        let repeatDays: [String]
+        if selectedWeekdays.isEmpty, let existingRepeatDays = self.event?.repeatDays {
+            repeatDays = existingRepeatDays
+        } else {
+            let weekdayMap: [String: String] = [
+                "월": "MON", "화": "TUE", "수": "WED",
+                "목": "THU", "금": "FRI", "토": "SAT", "일": "SUN"
+            ]
+            repeatDays = selectedWeekdays.compactMap { weekdayMap[$0] }
+        }
+        let isRepeated = !repeatDays.isEmpty
+        let expiredDate = date
+
+        var request = EventRequest(
+            title: title,
+            date: date,
+            isRepeated: isRepeated,
+            expiredDate: expiredDate,
+            repeatDays: repeatDays,
+            hasNotice: hasNotice,
+            time: time,
+            category: category,
+            details: nil,
+            hospitalName: nil,
+            department: nil,
+            cost: nil,
+            medicineName: nil,
+            distance: nil,
+            duration: nil
+        )
+
+        switch category {
+        case "HOSPITAL":
+            if let view = editEventView.categoryInputView as? CheckupView {
+                request.hospitalName = view.hospitalTextField.text
+                request.department = view.departmentTextField.text
+                request.cost = Int(view.costTextField.text ?? "")
+                request.details = view.detailTextView.text
+            }
+        case "MEDICINE":
+            if let view = editEventView.categoryInputView as? MedicineView {
+                request.medicineName = view.medicineNameTextField.text
+                request.details = view.detailTextView.text
+            }
+        case "WALK":
+            if let view = editEventView.categoryInputView as? WalkView {
+                request.distance = view.distanceTextField.text
+                request.duration = view.timeTextField.text
+                request.details = view.detailTextView.text
+            }
+        case "BATH":
+            if let view = editEventView.categoryInputView as? BathView {
+                request.details = view.detailTextView.text
+            }
+        case "OTHER":
+            if let view = editEventView.categoryInputView as? OtherView {
+                request.details = view.detailTextView.text
+            }
+        default:
+            break
+        }
+        return request
     }
     
     //삭제 버튼 누르면 실행되는 함수
@@ -141,7 +284,7 @@ class EditEventViewController: UIViewController {
 
         //api에 전달, pop navigator controller, 삭제된거 없어져있어야함
     }
-    
+        
     
     private func configureData(with event: EventDetailResult) {
         editEventView.titleTextField.text = event.title
@@ -227,13 +370,71 @@ class EditEventViewController: UIViewController {
 }
 
 extension EditEventViewController: AddEventViewDelegate {
-    func dateButtonTapped() {}
-    func timeButtonTapped() {}
-    func alarmButtonTapped() {}
-    func weekdayTapped(_ weekday: String, isSelected: Bool) {}
+    func dateButtonTapped() {
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .wheels
+        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        alert.view.addSubview(datePicker)
+        datePicker.frame = CGRect(x: 0, y: 20, width: alert.view.bounds.width - 20, height: 200)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let dateString = formatter.string(from: datePicker.date)
+            self.editEventView.dateButton.setTitle(dateString, for: .normal)
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    func timeButtonTapped() {
+        let timePicker = UIDatePicker()
+        timePicker.datePickerMode = .time
+        timePicker.preferredDatePickerStyle = .wheels
+        let alert = UIAlertController(title: "시간 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        alert.view.addSubview(timePicker)
+        timePicker.frame = CGRect(x: 0, y: 20, width: alert.view.bounds.width - 20, height: 200)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            let timeString = formatter.string(from: timePicker.date)
+            self.editEventView.timeButton.setTitle(timeString, for: .normal)
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    func alarmButtonTapped() {
+        let alert = UIAlertController(title: "알람 설정", message: "알람 시간을 선택하세요", preferredStyle: .actionSheet)
+        
+        let options = ["없음", "5분 전", "10분 전", "30분 전", "1시간 전"]
+        
+        for option in options {
+            alert.addAction(UIAlertAction(title: option, style: .default, handler: { _ in
+                self.editEventView.alarmButton.setTitle(option, for: .normal)
+            }))
+        }
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    func weekdayTapped(_ weekday: String, isSelected: Bool) {
+        if isSelected {
+            self.selectedWeekdays.insert(weekday)
+        } else {
+            self.selectedWeekdays.remove(weekday)
+        }
+
+        for button in editEventView.weekButtons {
+            if button.titleLabel?.text == weekday {
+                button.backgroundColor = isSelected ? .brown01 : .white
+                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
+            }
+        }
+    }
     func categoryDidSelect(_ category: CategoryType) {
         editEventView.updateCategoryInputView(for: category)
     }
-    func getSelectedWeekdays() -> [String] { return [] }
+    func getSelectedWeekdays() -> [String] {
+        return Array(self.selectedWeekdays)
+    }
     func alarmOptionSelected(_ option: String) {}
 }
