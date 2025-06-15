@@ -49,3 +49,48 @@ enum PetService {
     }
     
 }
+
+extension PetService {
+    
+    //MARK: GET/api/v1/pets 펫 목록 조회
+    static func getPets(cursor: Int, token: String, completion: @escaping(Result<HaruResponse<PetListResponse>, AFError>) -> Void) {
+        let endpoint = "/api/v1/pets?cursor=\(cursor)&size=10"
+        APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
+    }
+    
+    //MARK: POST/api/v1/pets 펫 추가
+    static func postPet(newInfo: PetParameter, token: String, completion: @escaping(Result<HaruResponse<Pet>, AFError>) -> Void) {
+        let endpoint = "/api/v1/pets"
+        APIClient.postRequest(endpoint: endpoint,
+                              parameters: ["name": newInfo.name,
+                                           "size": newInfo.size,
+                                           "type": newInfo.type,
+                                           "gender": newInfo.gender,
+                                           "birth": newInfo.birth,
+                                           "mainImageKey": newInfo.imageKey],
+                              token: token,
+                              completion: completion)
+    }
+    
+    //MARK: PATCH/api/v1/pets/{petId} 펫 정보 수정
+    static func patchPet(petId: Int, token: String, newInfo: PetParameter, completion: @escaping(Result<HaruResponse<Pet>, AFError>) -> Void) {
+        let endpoint = "/api/v1/pets/\(petId)"
+        APIClient.patchRequest(endpoint: endpoint,
+                               parameters: ["name": newInfo.name,
+                                            "size": newInfo.size,
+                                            "type": newInfo.type,
+                                            "gender": newInfo.gender,
+                                            "birth": newInfo.birth,
+                                            "newMainImageKey": newInfo.imageKey],
+                               token: token,
+                               completion: completion)
+    }
+    
+    //MARK: DELETE/api/v1/pets/{petId} 펫 삭제
+    static func deletePet(petId: Int, token: String, completion: @escaping(Result<HaruResponse<String>, AFError>) -> Void) {
+        let endpoint = "/api/v1/pets/\(petId)"
+        APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
+    }
+}
+
+
