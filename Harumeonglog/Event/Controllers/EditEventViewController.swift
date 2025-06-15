@@ -8,6 +8,10 @@
 import UIKit
 import SnapKit
 
+protocol EditEventViewControllerDelegate: AnyObject {
+    func didDeleteEvent(eventId: Int)
+}
+
 struct EventDetailData {
     let category: CategoryType
     let fields: [String: String]
@@ -18,6 +22,8 @@ protocol EventDetailReceivable {
 }
 
 class EditEventViewController: UIViewController {
+    
+    weak var delegate: EditEventViewControllerDelegate?
     
     private var event: EventDetailResult?
     
@@ -62,8 +68,6 @@ class EditEventViewController: UIViewController {
         
         if let event = event {
             configureData(with: event)
-        } else {
-            fetchEventData()
         }
     }
     
@@ -98,38 +102,46 @@ class EditEventViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    //저장버튼 누르면 실행되는 함수
     @objc
     private func saveButtonTapped(){
-        //저장버튼 누르면 실행되는 함수
         //api에 전달, pop navigator controller
     }
     
+    //삭제 버튼 누르면 실행되는 함수
     @objc
     private func deleteButtonTapped(){
-        //삭제 버튼 누르면 실행되는 함수
+        let alertController = UIAlertController(title: "일정 삭제", message: "일정을 정말 삭제하시겠습니까?", preferredStyle: .alert)
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler:nil)
+        let deleteAction = UIAlertAction(title:"삭제", style: .destructive) { _ in
+            guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+                print("AccessToken 없음")
+                return
+            }
+            
+            EventService.deleteEvent(eventId: self.eventId, token: token){ result in
+                switch result {
+                case .success(let response):
+                    print("일정 삭제 성공: \(response.message)")
+                    DispatchQueue.main.async {
+                        //삭제 후 delegate 호출
+                        self.delegate?.didDeleteEvent(eventId: self.eventId)
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                case .failure(let error):
+                    print("일정 삭제 실패: \(error)")
+                }
+            }
+        }
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(deleteAction)
+        present(alertController, animated: true, completion: nil)
+
         //api에 전달, pop navigator controller, 삭제된거 없어져있어야함
     }
     
-    
-    private func fetchEventData() {
-        // 테스트용 더미 데이터
-        var detail: EventDetailData
-
-        switch eventId {
-        case 0:
-            detail = EventDetailData(category: .bath, fields: ["detail": "따뜻한 물로 반신욕"])
-        case 1:
-            detail = EventDetailData(category: .walk, fields: ["distance": "1.5", "time": "30", "detail": "공원 산책"])
-        case 2:
-            detail = EventDetailData(category: .checkup, fields: ["hospital": "우리동물병원", "department": "피부", "cost": "15000", "detail": "피부 알러지 검진"])
-        case 3:
-            detail = EventDetailData(category: .other, fields: ["detail": "목욕 겸 놀이시간"])
-        default:
-            detail = EventDetailData(category: .other, fields: ["detail": ""])
-        }
-
-        populateUI(date: "2025.4.16 수요일", time: "10:30", alarm: "30분 전 팝업", weekdays: ["월", "수"], detail: detail)
-    }
     
     private func configureData(with event: EventDetailResult) {
         editEventView.titleTextField.text = event.title

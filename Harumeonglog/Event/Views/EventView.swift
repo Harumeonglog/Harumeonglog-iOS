@@ -95,4 +95,13 @@ class EventView: UIView {
 
         tableView.reloadData()
     }
+    
+    func removeEvent(withId id: Int) {
+        if let index = allEvents.firstIndex(where: { $0.id == id }) {
+            allEvents.remove(at: index)
+            applyCategoryFilter()
+        } else {
+            print("삭제할 이벤트가 allEvents에 없음: \(id)")
+        }
+    }
 }

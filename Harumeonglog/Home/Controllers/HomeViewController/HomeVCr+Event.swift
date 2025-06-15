@@ -53,3 +53,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 }
 
+extension HomeViewController: EditEventViewControllerDelegate {
+    func didDeleteEvent(eventId: Int) {
+        homeView.eventView.removeEvent(withId: eventId)
+    }
+}

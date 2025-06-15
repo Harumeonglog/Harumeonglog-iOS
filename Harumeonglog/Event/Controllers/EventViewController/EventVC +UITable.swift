@@ -36,13 +36,14 @@ extension EventView : UITableViewDelegate, UITableViewDataSource {
             return
         }
 
-        EventService.getEventDetail(eventId: selectedEvent.id, token: token) { result in
+        EventService.getEventDetail(eventId: selectedEvent.id, token: token) { [self] result in
             switch result {
             case .success(let response):
                 DispatchQueue.main.async {
                     if let eventDetail = response.result {
                         print("단일 일정 조회 성공: \(eventDetail.title)")
                         let editVC = EditEventViewController(event: eventDetail, isEditable: true)
+                        editVC.delegate = self.findViewController() as? EditEventViewControllerDelegate
                         if let viewController = self.findViewController() {
                             viewController.navigationController?.pushViewController(editVC, animated: true)
                         }
