@@ -90,8 +90,8 @@ class AuthAPIService {
     }
     
     static func reissue(completion: @escaping (AuthCode) -> Void) {
-        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
-        guard let refreshToken = KeychainService.get(key: K.Keys.refreshToken) else { return }
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { completion(.AUTH400); return }
+        guard let refreshToken = KeychainService.get(key: K.Keys.refreshToken) else { completion(.AUTH400); return }
         APIClient.postRequest(
             endpoint: "/api/v1/auth/reissue",
             parameters: ["refreshToken": refreshToken],
