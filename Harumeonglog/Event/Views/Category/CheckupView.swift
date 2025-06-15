@@ -173,6 +173,19 @@ class CheckupView: UIView {
     }
 }
 
+//MARK: 사용자가 입력한 세부 내용을 가져오는 메서드
+extension CheckupView {
+    func getInput() -> (hospitalName: String, department: String, cost: String, details: String){
+        return (
+            hospitalName: hospitalTextField.text ?? "",
+            department: departmentTextField.text ?? "",
+            cost: costTextField.text ?? "",
+            details: detailTextView.text ?? ""
+        )
+    }
+}
+
+//MARK: 서버에서 받은 일정 데이터를 UI에 반영
 extension CheckupView: EventDetailReceivable {
     func applyContent(from data: EventDetailData) {
         hospitalTextField.text = data.fields["hospital"]

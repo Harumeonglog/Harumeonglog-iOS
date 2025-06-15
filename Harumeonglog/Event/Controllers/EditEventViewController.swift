@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 struct EventDetailData {
     let category: CategoryType
@@ -29,9 +30,16 @@ class EditEventViewController: UIViewController {
         self.eventId = eventId
         super.init(nibName: nil, bundle: nil)
     }
+
+    init(event: EventDetailResult) {
+        self.eventId = event.id
+        super.init(nibName: nil, bundle: nil)
+        //TODO
+    }
     
     private lazy var editEventView: AddEventView = {
         let view = AddEventView()
+        view.isEditable = true
         view.delegate = self
         return view
     }()

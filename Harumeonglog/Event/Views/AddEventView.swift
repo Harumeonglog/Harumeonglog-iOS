@@ -20,6 +20,20 @@ protocol AddEventViewDelegate: AnyObject {
 class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     weak var delegate: AddEventViewDelegate?  // Delegate 선언
+
+    var isEditable: Bool = true {
+        didSet {
+            titleTextField.isUserInteractionEnabled = isEditable
+            dateButton.isUserInteractionEnabled = isEditable
+            timeButton.isUserInteractionEnabled = isEditable
+            alarmButton.isUserInteractionEnabled = isEditable
+            weekButtons.forEach { $0.isUserInteractionEnabled = isEditable }
+            categoryButton.isUserInteractionEnabled = isEditable
+        }
+    }
+    
+    // 선택된 카테고리를 저장하는 프로퍼티
+    public private(set) var selectedCategory: CategoryType?
     
     public private(set) var categoryInputView: UIView?
     
@@ -274,7 +288,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         titleTextField.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(130)
+            make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
@@ -337,8 +351,10 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
 
     func updateCategoryInputView(for category: CategoryType) {
+        //이전 뷰 제거
         categoryInputView?.removeFromSuperview()
 
+        //새로운 카테고리 뷰 설정
         switch category {
         case .bath:
             categoryInputView = BathView()
@@ -352,14 +368,21 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             categoryInputView = OtherView()
         }
 
+        // 새로운 뷰가 존재하면 추가
         if let newView = categoryInputView {
             addSubview(newView)
-            bringSubviewToFront(dropdownTableView)
             newView.snp.makeConstraints { make in
                 make.top.equalTo(categoryButton.snp.bottom).offset(20)
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(300)
+                make.width.equalTo(362)
+                make.centerX.equalToSuperview()
             }
+            // 디버깅용 코드
+            print("새로운 카테고리 뷰 추가됨: \(category)")
+            print("현재 뷰의 서브뷰 수: \(self.subviews.count)")
+            newView.isHidden = false
+            self.layoutIfNeeded()
+        } else {
+            print("❌ 카테고리 뷰가 nil입니다: \(category)")
         }
     }
 
@@ -386,6 +409,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             }
 
         let selectedCategory = categories[indexPath.row]
+        self.selectedCategory = selectedCategory
         categoryButton.setTitle("\(selectedCategory.rawValue)", for: .normal)
         categoryButton.setTitleColor(.gray00, for: .normal)
         

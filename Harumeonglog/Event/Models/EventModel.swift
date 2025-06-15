@@ -20,18 +20,18 @@ struct EventDetailResult: Decodable {
     let date: String
     let isRepeated: Bool
     let repeatDays: [String]
-    let expiredDate: String
+    let expiredDate: String?
     let hasNotice: Bool
     let category: String
-    let time: EventTime
+    let time: String
     let updatedAt: String
-}
-
-struct EventTime: Codable {
-    let hour: Int
-    let minute: Int
-    let second: Int
-    let nano: Int
+    let hospitalName: String?
+    let department: String?
+    let cost: Int?
+    let details: String?
+    let medicineName: String?
+    let distance: String?
+    let duration: String?
 }
 
 //MARK: DELETE /api/v1/events/{eventId} 일정 삭제
@@ -65,15 +65,15 @@ struct EventRequest: Codable {
     let expiredDate: String
     let repeatDays: [String]
     let hasNotice: Bool
-    let time: EventTime
+    let time: String
     let category: String
-    let details: String
-    let hospitalName: String
-    let department: String
-    let cost: Int
-    let medicineName: String
-    let distance: String
-    let duration: String
+    let details: String?
+    let hospitalName: String?
+    let department: String?
+    let cost: Int?
+    let medicineName: String?
+    let distance: String?
+    let duration: String?
 }
 
 struct EventUpdateResponse: Decodable {
@@ -88,11 +88,18 @@ struct UpdatedEvent: Decodable {
     let date: String
     let isRepeated: Bool
     let repeatDays: [String]
-    let expiredDate: String
+    let expiredDate: String?
     let hasNotice: Bool
     let category: String
-    let time: EventTime
+    let time: String
     let updatedAt: String
+    let hospitalName: String?
+    let department: String?
+    let cost: Int?
+    let details: String?
+    let medicineName: String?
+    let distance: String?
+    let duration: String?
 }
 
 
@@ -117,9 +124,9 @@ struct EventCreateResponse: Decodable {
     let result: EventCreateResult?
 }
 struct EventCreateResult: Decodable {
-    let eventId: Int
-    let createdAt: String
-    let updatedAt: String
+    let eventId: Int?
+    let createdAt: String?
+    let updatedAt: String?
 }
 
 //MARK: GET /api/v1/events 날짜별 일정 조회
