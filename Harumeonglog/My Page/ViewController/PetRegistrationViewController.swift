@@ -9,7 +9,7 @@ import UIKit
 
 class PetRegistrationViewController: UIViewController {
     
-    private let petRegistrationView = PetRegistrationView()
+    private let petRegistrationView = EditOrRegistPetView()
     private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     private let datePicker = UIDatePicker()
     
@@ -40,7 +40,7 @@ class PetRegistrationViewController: UIViewController {
            petRegistrationView.selectedDogGender != nil,
            self.petRegistrationView.birthday != nil
         {
-            petRegistrationView.registButton.available()
+            petRegistrationView.confirmButton.available()
         }
     }
     
@@ -147,7 +147,7 @@ extension PetRegistrationViewController {
             self.petRegistrationView.birthday = birthday
             let formattedDate = dateFormatter.string(from: birthday)
             self.petRegistrationView.birthdateSelectButton.setTitle(formattedDate, for: .normal)
-            self.petRegistrationView.registButton.available()
+            self.petRegistrationView.confirmButton.available()
         })
         alert.addAction(ok)
         
@@ -162,7 +162,7 @@ extension PetRegistrationViewController {
 // 등록하기
 extension PetRegistrationViewController {
     private func setPetRegistrationButtonAction() {
-        self.petRegistrationView.registButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
+        self.petRegistrationView.confirmButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
     }
     
     @objc

@@ -9,10 +9,11 @@ import UIKit
 import SnapKit
 import Then
 
-class PetRegistrationView: UIView {
+class EditOrRegistPetView: UIView {
     
     public var selectedDogSize: DogSizeEnum?
     public var selectedDogGender: DogGenderEnum?
+    public var petInfo: Pet?
     public var birthday: Date?
     private let labelLeadingPadding: CGFloat = 41
     private let leadingTrailingPadding: CGFloat = 28
@@ -59,14 +60,34 @@ class PetRegistrationView: UIView {
         $0.contentMode = .scaleAspectFit
     }
     
-    private lazy var birthdateLabel = commonLabel(text: "나이")
+    private lazy var birthdateLabel = commonLabel(text: "생일")
     public lazy var birthdateSelectButton = commonButton()
     
-    public lazy var registButton = ConfirmButton()
+    public lazy var confirmButton = ConfirmButton()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .background
+    }
+    
+    public func configure(pet: Pet) {
+        self.petInfo = pet
+        self.petNameTextField.text = pet.name
+        self.dogTypeTextField.text = pet.type
+        switch pet.size {
+        case "BIG":
+            bigPetSizeButton.setSelectedImage()
+        case "SMALL":
+            smallPetSizeButton.setSelectedImage()
+        case "MIDDLE":
+            middlePetSizeButton.setSelectedImage()
+        default :
+            break
+        }
+        self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
+        
+        self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
+        self.confirmButton.setTitle("수정하기", for: .normal)
     }
     
     public func setConstraints() {
@@ -90,12 +111,12 @@ class PetRegistrationView: UIView {
     
     private func setScrollViewConstraints() {
         self.addSubview(scrollView)
-        self.addSubview(registButton) // 등록 버튼을 메인 뷰에 직접 추가
+        self.addSubview(confirmButton) // 등록 버튼을 메인 뷰에 직접 추가
         scrollView.addSubview(contentView)
         
         // 등록 버튼을 먼저 설정하여 스크롤뷰가 그 위쪽까지만 차지하도록 함
-        registButton.configure(labelText: "등록하기")
-        registButton.snp.makeConstraints { make in
+        confirmButton.configure(labelText: "등록하기")
+        confirmButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
             make.height.equalTo(50)
             make.bottom.equalToSuperview().offset(-53)
@@ -104,7 +125,7 @@ class PetRegistrationView: UIView {
         scrollView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(registButton.snp.top).offset(-10)
+            make.bottom.equalTo(confirmButton.snp.top).offset(-10)
         }
         
         contentView.snp.makeConstraints { make in
