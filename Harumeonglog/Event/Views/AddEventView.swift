@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-
+//사용자가 버튼 눌렀을때 이벤트 처리할 수 있게
 protocol AddEventViewDelegate: AnyObject {
     func categoryDidSelect(_ category: CategoryType)
     func dateButtonTapped()
@@ -35,7 +35,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     // 선택된 카테고리를 저장하는 프로퍼티
     public private(set) var selectedCategory: CategoryType?
     
-    public private(set) var categoryInputView: UIView?
+    public var categoryInputView: UIView?
     
     public lazy var navigationBar = CustomNavigationBar()
 
