@@ -20,7 +20,7 @@ class EventView: UIView {
     
     var allEvents: [Event] = []
 
-    let categories: [EventCategory] = EventCategory.allCases
+    let categories: [CategoryType?] = CategoryType.allCasesWithAll
     
     let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -43,7 +43,7 @@ class EventView: UIView {
     }()
 
      var filteredEvents: [Event] = []
-     var selectedCategory: EventCategory = .all
+     var selectedCategory: CategoryType? = nil
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -86,10 +86,10 @@ class EventView: UIView {
     }
 
     func applyCategoryFilter() {
-        if selectedCategory == .all {
+        if selectedCategory == nil {
             filteredEvents = allEvents
         } else {
-            filteredEvents = allEvents.filter { $0.category == selectedCategory.serverKey }
+            filteredEvents = allEvents.filter { $0.category == selectedCategory?.serverKey }
         }
         print("필터된 이벤트 수: \(filteredEvents.count)")
 

@@ -105,10 +105,10 @@ class MedicineView: UIView {
 //MARK: 사용자가 입력한 세부 내용을 가져오는 메서드
 extension MedicineView {
     func getInput() -> (medicineName: String, details: String ){
-        return (
-            medicineName: medicineNameTextField.text ?? "",
-            details: detailTextView.text ?? ""
-        )
+        let name = medicineNameTextField.text ?? ""
+        let detail = detailTextView.text ?? ""
+        print("getInput() 호출됨 — name: '\(name)', details: '\(detail)'")
+        return (medicineName: name, details: detail)
     }
     
 }

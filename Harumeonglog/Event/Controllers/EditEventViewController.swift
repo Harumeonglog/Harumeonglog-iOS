@@ -11,6 +11,7 @@ import Alamofire
 
 protocol EditEventViewControllerDelegate: AnyObject {
     func didDeleteEvent(eventId: Int)
+    func didUpdateEvent(_ updatedEventId: Int)
 }
 
 struct EventDetailData {
@@ -72,7 +73,6 @@ class EditEventViewController: UIViewController {
         if let event = event {
             configureData(with: event)
         }
-        
     }
 
     
@@ -138,6 +138,7 @@ class EditEventViewController: UIViewController {
             case .success(let response):
                 print("일정 수정 성공: \(response.message)")
                 DispatchQueue.main.async {
+                    self.delegate?.didUpdateEvent(self.eventId)
                     self.navigationController?.popViewController(animated: true)
                 }
             case .failure(let error):
@@ -184,7 +185,7 @@ class EditEventViewController: UIViewController {
 
         // 2. 카테고리도 기존 event category fallback
         let categoryTitle = editEventView.categoryButton.title(for: .normal) ?? ""
-        let category = EventCategory.allCases.first { $0.displayName == categoryTitle }?.serverKey ?? event?.category ?? ""
+        let category = CategoryType.allCases.first { $0.displayName == categoryTitle }?.serverKey ?? event?.category ?? ""
 
         // 3. 반복 요일도 선택하지 않았을 경우 기존 값 사용
         let repeatDays: [String]
@@ -221,6 +222,11 @@ class EditEventViewController: UIViewController {
         switch category {
         case "HOSPITAL":
             if let view = editEventView.categoryInputView as? CheckupView {
+                print("📥 HOSPITAL 입력값 확인")
+                print("  병원명: \(view.hospitalTextField.text ?? "nil")")
+                print("  진료과: \(view.departmentTextField.text ?? "nil")")
+                print("  비용: \(view.costTextField.text ?? "nil")")
+                print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.hospitalName = view.hospitalTextField.text
                 request.department = view.departmentTextField.text
                 request.cost = Int(view.costTextField.text ?? "")
@@ -228,21 +234,32 @@ class EditEventViewController: UIViewController {
             }
         case "MEDICINE":
             if let view = editEventView.categoryInputView as? MedicineView {
+                print("📥 MEDICINE 입력값 확인")
+                print("  약 이름: \(view.medicineNameTextField.text ?? "nil")")
+                print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.medicineName = view.medicineNameTextField.text
                 request.details = view.detailTextView.text
             }
         case "WALK":
             if let view = editEventView.categoryInputView as? WalkView {
+                print("📥 WALK 입력값 확인")
+                print("  거리: \(view.distanceTextField.text ?? "nil")")
+                print("  소요시간: \(view.timeTextField.text ?? "nil")")
+                print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.distance = view.distanceTextField.text
                 request.duration = view.timeTextField.text
                 request.details = view.detailTextView.text
             }
         case "BATH":
             if let view = editEventView.categoryInputView as? BathView {
+                print("📥 BATH 입력값 확인")
+                print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.details = view.detailTextView.text
             }
         case "OTHER":
             if let view = editEventView.categoryInputView as? OtherView {
+                print("📥 OTHER 입력값 확인")
+                print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.details = view.detailTextView.text
             }
         default:
@@ -313,38 +330,38 @@ class EditEventViewController: UIViewController {
 
         if let categoryType = CategoryType.fromServerValue(event.category) {
             editEventView.updateCategoryInputView(for: categoryType)
-        }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            switch event.category {
-            case "HOSPITAL":
-                if let view = self.editEventView.categoryInputView as? CheckupView {
-                    view.hospitalTextField.text = event.hospitalName
-                    view.departmentTextField.text = event.department
-                    view.costTextField.text = "\(event.cost ?? 0)"
-                    view.detailTextView.text = event.details
+            DispatchQueue.main.async {
+                switch event.category {
+                case "HOSPITAL":
+                    if let view = self.editEventView.categoryInputView as? CheckupView {
+                        view.hospitalTextField.text = event.hospitalName
+                        view.departmentTextField.text = event.department
+                        view.costTextField.text = "\(event.cost ?? 0)"
+                        view.detailTextView.text = event.details
+                    }
+                case "MEDICINE":
+                    if let view = self.editEventView.categoryInputView as? MedicineView {
+                        view.medicineNameTextField.text = event.medicineName
+                        view.detailTextView.text = event.details
+                    }
+                case "WALK":
+                    if let view = self.editEventView.categoryInputView as? WalkView {
+                        view.distanceTextField.text = event.distance
+                        view.timeTextField.text = event.duration
+                        view.detailTextView.text = event.details
+                    }
+                case "BATH":
+                    if let view = self.editEventView.categoryInputView as? BathView {
+                        view.detailTextView.text = event.details
+                    }
+                case "OTHER":
+                    if let view = self.editEventView.categoryInputView as? OtherView {
+                        view.detailTextView.text = event.details
+                    }
+                default:
+                    break
                 }
-            case "MEDICINE":
-                if let view = self.editEventView.categoryInputView as? MedicineView {
-                    view.medicineNameTextField.text = event.medicineName
-                    view.detailTextView.text = event.details
-                }
-            case "WALK":
-                if let view = self.editEventView.categoryInputView as? WalkView {
-                    view.distanceTextField.text = event.distance
-                    view.timeTextField.text = event.duration
-                    view.detailTextView.text = event.details
-                }
-            case "BATH":
-                if let view = self.editEventView.categoryInputView as? BathView {
-                    view.detailTextView.text = event.details
-                }
-            case "OTHER":
-                if let view = self.editEventView.categoryInputView as? OtherView {
-                    view.detailTextView.text = event.details
-                }
-            default:
-                break
             }
         }
     }

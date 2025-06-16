@@ -359,42 +359,42 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         print("[AddEventView] 기존 categoryInputView 제거 시도")
         categoryInputView?.removeFromSuperview()
 
-        //새로운 카테고리 뷰 설정
+        // 새로운 카테고리 뷰 생성 및 명시적 할당
+        let newView: UIView
         switch category {
         case .bath:
-            categoryInputView = BathView()
+            newView = BathView()
         case .walk:
-            categoryInputView = WalkView()
+            newView = WalkView()
         case .medicine:
-            categoryInputView = MedicineView()
+            newView = MedicineView()
         case .checkup:
-            categoryInputView = CheckupView()
+            newView = CheckupView()
         case .other:
-            categoryInputView = OtherView()
+            newView = OtherView()
         }
+
         print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
 
-        // 새로운 뷰가 존재하면 추가
-        if let newView = categoryInputView {
-            if newView.superview == nil {
-                insertSubview(newView, belowSubview: dropdownTableView)
-                newView.snp.makeConstraints { make in
-                    make.top.equalTo(categoryButton.snp.bottom).offset(20)
-                    make.leading.trailing.equalToSuperview()
-                    make.height.equalTo(300)
-                }
-                print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
-                print("새로운 카테고리 뷰 추가됨: \(category)")
-            } else {
-                print("이미 추가된 뷰: \(category)")
+        if newView.superview == nil {
+            insertSubview(newView, belowSubview: dropdownTableView)
+            newView.snp.makeConstraints { make in
+                make.top.equalTo(categoryButton.snp.bottom).offset(20)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(300)
             }
-
-            newView.isHidden = false
-            self.layoutIfNeeded()
-            print(" [AddEventView] 카테고리 뷰 적용 완료")
+            print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
+            print("새로운 카테고리 뷰 추가됨: \(category)")
         } else {
-            print("❌ 카테고리 뷰가 nil입니다: \(category)")
+            print("이미 추가된 뷰: \(category)")
         }
+
+        newView.isHidden = false
+        self.layoutIfNeeded()
+
+        // 뷰 참조 갱신
+        self.categoryInputView = newView
+        print(" [AddEventView] 카테고리 뷰 적용 완료")
     }
 
     // UITableView DataSource & Delegate

@@ -21,7 +21,6 @@ class AddEventViewController: UIViewController {
         return view
     }()
 
-    private var categoryInputView: UIView?
     //선택된 요일 저장하는 배열
     private var selectedWeekdays: Set<String> = []
 
@@ -213,11 +212,11 @@ extension AddEventViewController: AddEventViewDelegate {
     }
 
     func getSelectedWeekdays() -> [String] {
-        return Array(selectedWeekdays)
+        return selectedWeekdays.toEnglishWeekdays()
     }
 
     func alarmOptionSelected(_ option: String) {
-        // 알람 옵션 선택 시 처리 로직 추가 가능
+        // TODO알람 옵션 선택 시 처리 로직 추가 가능
     }
 }
 
@@ -231,24 +230,24 @@ extension AddEventViewController {
         
         switch category {
         case .bath:
-            if let view = categoryInputView as? BathView {
+            if let view = addEventView.categoryInputView as? BathView {
                 details = view.getInput()
             }
         case .walk:
-            if let view = categoryInputView as? WalkView {
+            if let view = addEventView.categoryInputView as? WalkView {
                 let input = view.getInput()
                 distance = input.distance
                 duration = input.duration
                 details = input.details
             }
         case .medicine:
-            if let view = categoryInputView as? MedicineView {
+            if let view = addEventView.categoryInputView as? MedicineView {
                 let input = view.getInput()
                 medicineName = input.medicineName
                 details = input.details
             }
         case .checkup:
-            if let view = categoryInputView as? CheckupView {
+            if let view = addEventView.categoryInputView as? CheckupView {
                 let input = view.getInput()
                 hospitalName = input.hospitalName
                 department = input.department
@@ -256,7 +255,7 @@ extension AddEventViewController {
                 details = input.details
             }
         case .other:
-            if let view = categoryInputView as? OtherView {
+            if let view = addEventView.categoryInputView as? OtherView {
                 details = view.getInput()
             }
         }
@@ -298,6 +297,12 @@ extension AddEventViewController {
     
     //createEvent 불러오기
     private func postEvent(request: EventRequest, token: String) {
+        // JSON 로그 출력 추가
+        if let jsonData = try? JSONEncoder().encode(request),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("전송되는 JSON:\n\(jsonString)")
+        }
+
         EventService.createEvent(request: request, token: token) { result in
             switch result {
             case .success(let response):

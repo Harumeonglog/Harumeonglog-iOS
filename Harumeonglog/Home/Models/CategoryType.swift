@@ -11,7 +11,11 @@ enum CategoryType: String, CaseIterable {
     case medicine = "약"
     case checkup = "진료"
     case other = "기타"
-    
+
+    var displayName: String {
+        return self.rawValue
+    }
+
     var serverKey: String {
         switch self {
         case .bath: return "BATH"
@@ -21,7 +25,7 @@ enum CategoryType: String, CaseIterable {
         case .other: return "GENERAL"
         }
     }
-    
+
     static func fromServerValue(_ serverValue: String) -> CategoryType? {
         switch serverValue {
         case "BATH": return .bath
@@ -31,5 +35,9 @@ enum CategoryType: String, CaseIterable {
         case "GENERAL": return .other
         default: return nil
         }
+    }
+
+    static var allCasesWithAll: [CategoryType?] {
+        return [nil] + CategoryType.allCases
     }
 }
