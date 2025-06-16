@@ -20,12 +20,6 @@ class PetListViewModel: ObservableObject {
         
     }
     
-    func petListUpdated() {
-        self.petList = []
-        self.cursor = 0
-        self.hasNext = true
-    }
-    
     func getPetList(completion: @escaping (HaruResponse<PetListResponse>?) -> Void) {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
         guard hasNext else { print("반려동물 리스트 조회 hasNext false"); return }
@@ -68,6 +62,7 @@ class PetListViewModel: ObservableObject {
             case .success(let response):
                 if response.isSuccess {
                     print("반려동물 추가 상공")
+                    self.petList.insert(response.result!, at: 0)
                 } else {
                     print("반려동물 추가 예외 코드: \(response.code), message: \(response.message)")
                 }
@@ -88,6 +83,9 @@ class PetListViewModel: ObservableObject {
             case .success(let response):
                 if response.isSuccess {
                     print("반려동물 수정 상공")
+                    if let index = self.petList.firstIndex(where: { $0.petId == response.result!.petId }) {
+                        self.petList[index] = response.result!
+                    }
                 } else {
                     print("반려동물 수정 예외 코드: \(response.code), message: \(response.message)")
                 }
@@ -108,6 +106,7 @@ class PetListViewModel: ObservableObject {
             case .success(let response):
                 if response.isSuccess {
                     print("반려동물 삭제 상공")
+                    self.petList.removeAll { $0.petId == petId }
                 } else {
                     print("반려동물 삭제 예외 코드: \(response.code), message: \(response.message)")
                 }
