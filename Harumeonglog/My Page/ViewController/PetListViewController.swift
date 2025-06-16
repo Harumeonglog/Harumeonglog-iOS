@@ -6,12 +6,17 @@
 //
 
 import UIKit
+import Combine
 
-
-
-class PetListViewController: UIViewController, PetOwnerCellDelegate {
+class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCellDelegate {
     
-    var delegate: PetListViewControllerDelegate?
+    let petListViewModel = PetListViewModel()
+    var cancellables = Set<AnyCancellable>()
+    
+    var petListDelegate: PetListViewControllerDelegate?
+    var ownerCellDelegate: PetOwnerCellDelegate?
+    var guestCellDelegate: PetGuestCellDelegate?
+    
     public let showTabBar: (()->Void)? = nil
     private let petListView = PetListView()
     private let ownerLayout = UICollectionViewFlowLayout().then {
@@ -26,23 +31,30 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
         $0.minimumLineSpacing = 23
     }
     
-    let dataSource: [PetData] = [
-        PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: [PetDataPerson(level: .Owner, name: "하민혁")]),
-        PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: [PetDataPerson(level: .Owner, name: "하민혁"), PetDataPerson(level: .Owner, name: "하민혁")]),
-        PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Owner, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-        PetData(level: .Guest, image: nil, name: "덕구", gender: "남", size: .middle, birthday: "2007.02.11", people: nil),
-    ]
-    
     override func viewDidLoad() {
         self.view = petListView
         petListView.petListCollectionView.delegate = self
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
+        
+        petListViewModel.getPetList { result in
+            switch result {
+            case .none:
+                break
+            case .some(_):
+                DispatchQueue.main.async {
+                    self.petListView.petListCollectionView.reloadData()
+                }
+                break
+            }
+        }
+        
+        petListViewModel.$petList
+            .sink { [weak self] _ in
+                self?.petListView.petListCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     
     override func viewDidLayoutSubviews() {
@@ -52,14 +64,14 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
     
     @objc
     private func showPetRegistrationVC() {
-        let petRegistrationVC = PetRegistrationViewController()
+        let petRegistrationVC = EditOrRegistPetViewController()
         self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
     
     @objc
     private func dismissViewController() {
         self.navigationController?.popViewController(animated: true)
-        delegate?.showTabBar()
+        petListDelegate?.showTabBar()
     }
     
     func didTapInviteButton() {
@@ -68,32 +80,33 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate {
         present(invitationVC, animated: false)
     }
     
-    func didTapExitButton() {
-        
+    func didTapExitButton(petID: Int) {
+        petListViewModel.deletePet(petId: petID) { _ in }
     }
     
-    func didTapEditButton() {
-        let petRegistrationVC = PetRegistrationViewController()
-        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
+    func didTapEditButton(pet: Pet) {
+        let petEditViewController = EditOrRegistPetViewController()
+        // configure을 통해 뷰의 내용을 채우고, 어떤 pet에 대한 것인지 저장하기
+        self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
 }
 
 extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataSource.count
+        return self.petListViewModel.petList.count
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let data = dataSource[indexPath.row]
-        switch data.level {
-        case .Owner:
+        let data = self.petListViewModel.petList[indexPath.row]
+        switch data.role {
+        case "OWNER":
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetOwnerCell.self.identifier, for: indexPath) as! PetOwnerCell
             cell.configure(data, delegate: self)
             return cell
-        case .Guest:
+        default :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetGuestCell.self.identifier, for: indexPath) as! PetGuestCell
-            cell.configure(data)
+            cell.configure(data, delegate: self)
             return cell
         }
     }
@@ -103,30 +116,16 @@ extension PetListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let data = dataSource[indexPath.row]
-        switch data.level {
-        case .Owner:
+        let data = self.petListViewModel.petList[indexPath.row]
+        switch data.role {
+        case "OWNER":
             return CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
-        case .Guest:
+        default :
             return CGSize(width: UIScreen.main.bounds.width - 40, height: 120)
         }
     }
 }
 
-struct PetData {
-    let level: UserAcessLevelEnum
-    let image: UIImage?
-    let name: String
-    let gender: String
-    let size: DogSizeEnum
-    let birthday: String
-    let people: [PetDataPerson]?
-}
-
-struct PetDataPerson {
-    let level: UserAcessLevelEnum
-    let name: String
-}
 
 enum UserAcessLevelEnum: String {
     case Owner, Guest

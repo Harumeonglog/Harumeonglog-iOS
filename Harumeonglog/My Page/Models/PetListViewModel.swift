@@ -16,10 +16,6 @@ class PetListViewModel: ObservableObject {
     var hasNext: Bool = true
     var cancellables: Set<AnyCancellable> = []
     
-    init() {
-        
-    }
-    
     func getPetList(completion: @escaping (HaruResponse<PetListResponse>?) -> Void) {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
         guard hasNext else { print("반려동물 리스트 조회 hasNext false"); return }

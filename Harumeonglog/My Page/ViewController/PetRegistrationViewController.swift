@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PetRegistrationViewController: UIViewController {
+class EditOrRegistPetViewController: UIViewController {
     
     private let petRegistrationView = EditOrRegistPetView()
     private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -47,7 +47,7 @@ class PetRegistrationViewController: UIViewController {
 }
 
 // 네비게이션 바
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setNavigationBarButtonAction() {
         petRegistrationView.navigationBar.leftArrowButton.addTarget(self, action: #selector(handleNavigationBarLeftButton), for: .touchUpInside)
     }
@@ -59,7 +59,7 @@ extension PetRegistrationViewController {
 }
 
 // 반려견 크기 선택
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setDogSizeButtonActions() {
         for btn in [
             petRegistrationView.smallPetSizeButton,
@@ -89,7 +89,7 @@ extension PetRegistrationViewController {
 }
 
 // 텍스트 필드
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setTextFieldAction() {
         petRegistrationView.petNameTextField
             .addTarget(self, action: #selector(handlTextFieldAllEditingEvents), for: .allEditingEvents)
@@ -104,7 +104,7 @@ extension PetRegistrationViewController {
 }
 
 // 반려견 성별 선택
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setPetGenderButtonAction() {
         petRegistrationView.dogGenderSelectButton.addTarget(self, action: #selector(handlePetGenderButtonTap), for: .touchUpInside)
         let firstAction = UIAlertAction(title: "중성", style: .default, handler: {_ in
@@ -127,7 +127,7 @@ extension PetRegistrationViewController {
     }
 }
 
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setPetBirthdayButtonAction() {
         self.petRegistrationView.birthdateSelectButton.addTarget(self, action: #selector(handlePetBirthdayuttonTap), for: .touchUpInside)
     }
@@ -160,7 +160,7 @@ extension PetRegistrationViewController {
 }
 
 // 등록하기
-extension PetRegistrationViewController {
+extension EditOrRegistPetViewController {
     private func setPetRegistrationButtonAction() {
         self.petRegistrationView.confirmButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
     }
@@ -173,5 +173,5 @@ extension PetRegistrationViewController {
 
 import SwiftUI
 #Preview {
-    PetRegistrationViewController()
+    EditOrRegistPetViewController()
 }
