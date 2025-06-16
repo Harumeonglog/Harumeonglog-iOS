@@ -10,7 +10,7 @@ import SnapKit
 import Then
 
 class PetRegistrationView: UIView {
-        
+    
     public var selectedDogSize: DogSizeEnum?
     public var selectedDogGender: DogGenderEnum?
     public var birthday: Date?
@@ -19,6 +19,22 @@ class PetRegistrationView: UIView {
     private let stackSpacing: CGFloat = 20
     
     public let navigationBar = CustomNavigationBar()
+    private lazy var scrollView = UIScrollView().then {
+        $0.showsVerticalScrollIndicator = false
+        $0.showsHorizontalScrollIndicator = false
+    }
+    private lazy var contentView = UIView()
+    
+    private lazy var profileImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.layer.cornerRadius = 50
+        $0.clipsToBounds = true
+        $0.backgroundColor = .gray01
+    }
+    
+    public lazy var cameraButton = UIButton().then {
+        $0.setImage(.camera, for: .normal)
+    }
     
     private lazy var petNameLabel = commonLabel(text: "반려견 이름")
     public lazy var petNameTextField = UITextField.commonTextField()
@@ -55,31 +71,75 @@ class PetRegistrationView: UIView {
     
     public func setConstraints() {
         setCustomNavigationBarConstraints()
+        setScrollViewConstraints()
+        setPetImageConstraints()
         setTypeNameConstraints()
         setSelectPuppySizeConstraints()
         setDogTypeConstraints()
         setDogGenderConstraints()
         setBirthdateConstraints()
-        setRegistButtonConstraints()
     }
     
     private func setCustomNavigationBarConstraints() {
-        navigationBar.configureTitle(title: "반려견 정보를 추가해주세요")
-        
         self.addSubview(navigationBar)
-        
+        navigationBar.configureTitle(title: "반려견 정보를 추가해주세요")
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
         }
     }
     
+    private func setScrollViewConstraints() {
+        self.addSubview(scrollView)
+        self.addSubview(registButton) // 등록 버튼을 메인 뷰에 직접 추가
+        scrollView.addSubview(contentView)
+        
+        // 등록 버튼을 먼저 설정하여 스크롤뷰가 그 위쪽까지만 차지하도록 함
+        registButton.configure(labelText: "등록하기")
+        registButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
+            make.height.equalTo(50)
+            make.bottom.equalToSuperview().offset(-53)
+        }
+        
+        scrollView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.bottom.equalTo(registButton.snp.top).offset(-10)
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView)
+            make.width.equalTo(scrollView)
+        }
+    }
+    
+    private func setPetImageConstraints() {
+        contentView.addSubview(profileImageView)
+        contentView.addSubview(cameraButton)
+        
+        profileImageView.snp.makeConstraints { make in
+            make.height.width.equalTo(100)
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(40)
+        }
+        
+        cameraButton.snp.makeConstraints { make in
+            make.center.equalTo(profileImageView.snp.center).offset(30)
+            make.width.height.equalTo(40)
+        }
+        
+        cameraButton.imageView?.snp.makeConstraints { make in
+            make.width.height.equalTo(40)
+        }
+    }
+    
     private func setTypeNameConstraints() {
-        self.addSubview(petNameLabel)
-        self.addSubview(petNameTextField)
+        contentView.addSubview(petNameLabel)
+        contentView.addSubview(petNameTextField)
         
         petNameLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(labelLeadingPadding)
-            make.top.equalTo(navigationBar.snp.bottom).offset(39)
+            make.top.equalTo(profileImageView.snp.bottom).offset(39)
         }
         
         petNameTextField.snp.makeConstraints { make in
@@ -92,8 +152,8 @@ class PetRegistrationView: UIView {
     private func setSelectPuppySizeConstraints() {
         let buttonWidth = (UIScreen.main.bounds.width - (leadingTrailingPadding * 2) - (stackSpacing * 2)) / 3
         
-        self.addSubview(selectPetSizeLabel)
-        self.addSubview(petSizeStackView)
+        contentView.addSubview(selectPetSizeLabel)
+        contentView.addSubview(petSizeStackView)
         
         selectPetSizeLabel.snp.makeConstraints { make in
             make.top.equalTo(petNameTextField.snp.bottom).offset(32)
@@ -120,8 +180,8 @@ class PetRegistrationView: UIView {
     }
     
     private func setDogTypeConstraints() {
-        self.addSubview(dogTypeLabel)
-        self.addSubview(dogTypeTextField)
+        contentView.addSubview(dogTypeLabel)
+        contentView.addSubview(dogTypeTextField)
         
         dogTypeLabel.snp.makeConstraints { make in
             make.top.equalTo(petSizeStackView.snp.bottom).offset(32)
@@ -136,9 +196,9 @@ class PetRegistrationView: UIView {
     }
     
     private func setDogGenderConstraints() {
-        self.addSubview(dogGenderLabel)
-        self.addSubview(dogGenderSelectButton)
-        self.addSubview(triangleImage)
+        contentView.addSubview(dogGenderLabel)
+        contentView.addSubview(dogGenderSelectButton)
+        contentView.addSubview(triangleImage)
         
         dogGenderLabel.snp.makeConstraints { make in
             make.top.equalTo(dogTypeTextField.snp.bottom).offset(32)
@@ -165,8 +225,8 @@ class PetRegistrationView: UIView {
     }
     
     private func setBirthdateConstraints() {
-        self.addSubview(birthdateLabel)
-        self.addSubview(birthdateSelectButton)
+        contentView.addSubview(birthdateLabel)
+        contentView.addSubview(birthdateSelectButton)
         
         birthdateLabel.snp.makeConstraints { make in
             make.top.equalTo(dogGenderSelectButton.snp.bottom).offset(32)
@@ -178,24 +238,26 @@ class PetRegistrationView: UIView {
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
             make.top.equalTo(birthdateLabel.snp.bottom).offset(10)
             make.height.equalTo(40)
+            make.bottom.equalToSuperview().offset(-20)
         }
         
         birthdateSelectButton.titleLabel?.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(30)
             make.centerY.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-20)
         }
     }
     
-    private func setRegistButtonConstraints() {
-        self.addSubview(registButton)
-        
-        registButton.configure(labelText: "등록하기")
-        registButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
-            make.height.equalTo(50)
-            make.bottom.equalToSuperview().offset(-53)
-        }
-    }
+//    private func setRegistButtonConstraints() {
+//        self.addSubview(registButton)
+//        
+//        registButton.configure(labelText: "등록하기")
+//        registButton.snp.makeConstraints { make in
+//            make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
+//            make.height.equalTo(50)
+//            make.bottom.equalToSuperview().offset(-53)
+//        }
+//    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
