@@ -43,7 +43,7 @@ extension HomeViewController: ProfileSelectDelegate {
                             switch result {
                             case .success(let events):
                                 DispatchQueue.main.async {
-                                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: EventCategory.all.serverKey, done: $0.done) }
+                                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: CategoryType.other.serverKey, done: $0.done) }
                                     self.homeView.eventView.updateEvents(mappedEvents)
                                 }
                             case .failure(let error):

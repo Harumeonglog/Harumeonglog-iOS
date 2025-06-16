@@ -20,6 +20,20 @@ protocol AddEventViewDelegate: AnyObject {
 class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     weak var delegate: AddEventViewDelegate?  // Delegate 선언
+
+    var isEditable: Bool = true {
+        didSet {
+            titleTextField.isUserInteractionEnabled = isEditable
+            dateButton.isUserInteractionEnabled = isEditable
+            timeButton.isUserInteractionEnabled = isEditable
+            alarmButton.isUserInteractionEnabled = isEditable
+            weekButtons.forEach { $0.isUserInteractionEnabled = isEditable }
+            categoryButton.isUserInteractionEnabled = isEditable
+        }
+    }
+    
+    // 선택된 카테고리를 저장하는 프로퍼티
+    public private(set) var selectedCategory: CategoryType?
     
     public private(set) var categoryInputView: UIView?
     
@@ -274,7 +288,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         titleTextField.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(130)
+            make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
@@ -301,9 +315,13 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.centerX.equalToSuperview()
         }
         
-        deleteEventButton.snp.makeConstraints { make in
+        deleteEventButton.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(21)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
+            if let newView = categoryInputView {
+                make.top.equalTo(newView.snp.bottom).offset(20)
+            } else {
+                make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
+            }
             make.height.equalTo(50)
         }
 
@@ -337,30 +355,46 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
 
     func updateCategoryInputView(for category: CategoryType) {
+        //이전 뷰 제거
+        print("[AddEventView] 기존 categoryInputView 제거 시도")
         categoryInputView?.removeFromSuperview()
 
+        // 새로운 카테고리 뷰 생성 및 명시적 할당
+        let newView: UIView
         switch category {
         case .bath:
-            categoryInputView = BathView()
+            newView = BathView()
         case .walk:
-            categoryInputView = WalkView()
+            newView = WalkView()
         case .medicine:
-            categoryInputView = MedicineView()
+            newView = MedicineView()
         case .checkup:
-            categoryInputView = CheckupView()
+            newView = CheckupView()
         case .other:
-            categoryInputView = OtherView()
+            newView = OtherView()
         }
 
-        if let newView = categoryInputView {
-            addSubview(newView)
-            bringSubviewToFront(dropdownTableView)
+        print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
+
+        if newView.superview == nil {
+            insertSubview(newView, belowSubview: dropdownTableView)
             newView.snp.makeConstraints { make in
                 make.top.equalTo(categoryButton.snp.bottom).offset(20)
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(300)
             }
+            print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
+            print("새로운 카테고리 뷰 추가됨: \(category)")
+        } else {
+            print("이미 추가된 뷰: \(category)")
         }
+
+        newView.isHidden = false
+        self.layoutIfNeeded()
+
+        // 뷰 참조 갱신
+        self.categoryInputView = newView
+        print(" [AddEventView] 카테고리 뷰 적용 완료")
     }
 
     // UITableView DataSource & Delegate
@@ -386,6 +420,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             }
 
         let selectedCategory = categories[indexPath.row]
+        self.selectedCategory = selectedCategory
         categoryButton.setTitle("\(selectedCategory.rawValue)", for: .normal)
         categoryButton.setTitleColor(.gray00, for: .normal)
         

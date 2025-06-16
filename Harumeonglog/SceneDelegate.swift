@@ -17,15 +17,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
         window?.makeKeyAndVisible()
-        AuthAPIService.reissue() { code in
-            switch code {
-            case .COMMON200:
-                self.window?.rootViewController = BaseViewController()
-                MemberAPIService.getInfo { code, info in }
-            case .AUTH400:
-                self.window?.rootViewController = LoginViewController()
-            }
-        }
+//        AuthAPIService.reissue() { code in
+//            switch code {
+//            case .COMMON200:
+//                self.window?.rootViewController = BaseViewController()
+//                MemberAPIService.getInfo { code, info in }
+//            case .AUTH400:
+//                self.window?.rootViewController = LoginViewController()
+//            }
+//        }
+        self.window?.rootViewController = LoginViewController()
         
     }
     

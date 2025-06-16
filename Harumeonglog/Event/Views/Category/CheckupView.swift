@@ -131,7 +131,7 @@ class CheckupView: UIView {
         hospitalTextField.snp.makeConstraints { make in
             make.top.equalTo(hospitalLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(362)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(45)
         }
         
@@ -143,7 +143,7 @@ class CheckupView: UIView {
         departmentTextField.snp.makeConstraints { make in
             make.top.equalTo(departmentLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(170)
+            make.trailing.equalTo(costTextField.snp.leading).offset(-32)
             make.height.equalTo(45)
         }
         
@@ -166,13 +166,26 @@ class CheckupView: UIView {
         }
         detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(10)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(126)
-            make.centerX.equalToSuperview()
         }
     }
 }
 
+//MARK: 사용자가 입력한 세부 내용을 가져오는 메서드
+extension CheckupView {
+    func getInput() -> (hospitalName: String, department: String, cost: String, details: String){
+        return (
+            hospitalName: hospitalTextField.text ?? "",
+            department: departmentTextField.text ?? "",
+            cost: costTextField.text ?? "",
+            details: detailTextView.text ?? ""
+        )
+    }
+}
+
+//MARK: 서버에서 받은 일정 데이터를 UI에 반영
 extension CheckupView: EventDetailReceivable {
     func applyContent(from data: EventDetailData) {
         hospitalTextField.text = data.fields["hospital"]
