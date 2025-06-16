@@ -11,8 +11,15 @@ class DogSizeButton: UIButton {
     
     public var size: DogSizeEnum?
     
+    // 기존 init 유지
     override init(frame: CGRect) {
         super.init(frame: frame)
+    }
+    
+    // 새 init 추가
+    convenience init(_ size: DogSizeEnum) {
+        self.init(frame: .zero)
+        configure(size: size)
     }
     
     required init?(coder: NSCoder) {
@@ -20,23 +27,17 @@ class DogSizeButton: UIButton {
     }
     
     public func configure(size: DogSizeEnum) {
-        switch size {
-        case .small:
-            self.size = .small
-        case .middle:
-            self.size = .middle
-        case .big:
-            self.size = .big
-        }
+        self.size = size
         setUnselectedImage()
     }
     
     public func setSelectedImage() {
-        self.setImage(size!.selectedImage(), for: .normal)
+        guard let size = size else { return }
+        self.setImage(size.selectedImage(), for: .normal)
     }
     
     public func setUnselectedImage() {
-        self.setImage(size!.unselectedImage(), for: .normal)
+        guard let size = size else { return }
+        self.setImage(size.unselectedImage(), for: .normal)
     }
-    
 }

@@ -9,19 +9,20 @@ import UIKit
 
 class EditOrRegistPetViewController: UIViewController {
     
-    private let petRegistrationView = EditOrRegistPetView()
+    private var pet: Pet?
+    private let editOrRegistPetView = EditOrRegistPetView()
     private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     private let datePicker = UIDatePicker()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = petRegistrationView
+        self.view = editOrRegistPetView
         hideKeyboardWhenTappedAround()
         setButtonActions()
     }
     
     override func viewDidLayoutSubviews() {
-        petRegistrationView.setConstraints()
+        editOrRegistPetView.setConstraints()
     }
     
     private func setButtonActions() {
@@ -34,22 +35,26 @@ class EditOrRegistPetViewController: UIViewController {
     }
     
     private func isAllInfosFilled() {
-        if petRegistrationView.petNameTextField.text != "",
-           petRegistrationView.dogTypeTextField.text != "",
-           petRegistrationView.selectedDogSize != nil,
-           petRegistrationView.selectedDogGender != nil,
-           self.petRegistrationView.birthday != nil
+        if editOrRegistPetView.petNameTextField.text != "",
+           editOrRegistPetView.dogTypeTextField.text != "",
+           editOrRegistPetView.selectedDogSize != nil,
+           editOrRegistPetView.selectedDogGender != nil,
+           self.editOrRegistPetView.birthday != nil
         {
-            petRegistrationView.confirmButton.available()
+            editOrRegistPetView.confirmButton.available()
         }
     }
     
+    public func configure(pet: Pet) {
+        self.pet = pet
+        self.editOrRegistPetView.configure(pet: pet)
+    }
 }
 
 // 네비게이션 바
 extension EditOrRegistPetViewController {
     private func setNavigationBarButtonAction() {
-        petRegistrationView.navigationBar.leftArrowButton.addTarget(self, action: #selector(handleNavigationBarLeftButton), for: .touchUpInside)
+        editOrRegistPetView.navigationBar.leftArrowButton.addTarget(self, action: #selector(handleNavigationBarLeftButton), for: .touchUpInside)
     }
     
     @objc
@@ -62,9 +67,9 @@ extension EditOrRegistPetViewController {
 extension EditOrRegistPetViewController {
     private func setDogSizeButtonActions() {
         for btn in [
-            petRegistrationView.smallPetSizeButton,
-            petRegistrationView.middlePetSizeButton,
-            petRegistrationView.bigPetSizeButton,
+            editOrRegistPetView.smallPetSizeButton,
+            editOrRegistPetView.middlePetSizeButton,
+            editOrRegistPetView.bigPetSizeButton,
         ] {
             btn.addTarget(self, action: #selector(selectDogSize), for: .touchUpInside)
         }
@@ -73,13 +78,13 @@ extension EditOrRegistPetViewController {
     @objc
     private func selectDogSize(_ sender: DogSizeButton) {
         for btn in [
-            petRegistrationView.smallPetSizeButton,
-            petRegistrationView.middlePetSizeButton,
-            petRegistrationView.bigPetSizeButton,
+            editOrRegistPetView.smallPetSizeButton,
+            editOrRegistPetView.middlePetSizeButton,
+            editOrRegistPetView.bigPetSizeButton,
         ] {
             if btn == sender {
                 btn.setSelectedImage()
-                petRegistrationView.selectedDogSize = btn.size
+                editOrRegistPetView.selectedDogSize = btn.size
             } else {
                 btn.setUnselectedImage()
             }
@@ -91,9 +96,9 @@ extension EditOrRegistPetViewController {
 // 텍스트 필드
 extension EditOrRegistPetViewController {
     private func setTextFieldAction() {
-        petRegistrationView.petNameTextField
+        editOrRegistPetView.petNameTextField
             .addTarget(self, action: #selector(handlTextFieldAllEditingEvents), for: .allEditingEvents)
-        petRegistrationView.dogTypeTextField
+        editOrRegistPetView.dogTypeTextField
             .addTarget(self, action: #selector(handlTextFieldAllEditingEvents), for: .allEditingEvents)
     }
     
@@ -106,15 +111,15 @@ extension EditOrRegistPetViewController {
 // 반려견 성별 선택
 extension EditOrRegistPetViewController {
     private func setPetGenderButtonAction() {
-        petRegistrationView.dogGenderSelectButton.addTarget(self, action: #selector(handlePetGenderButtonTap), for: .touchUpInside)
+        editOrRegistPetView.dogGenderSelectButton.addTarget(self, action: #selector(handlePetGenderButtonTap), for: .touchUpInside)
         let firstAction = UIAlertAction(title: "중성", style: .default, handler: {_ in
-            self.petRegistrationView.selectDogGender(.neutered)
+            self.editOrRegistPetView.selectDogGender(.NEUTER)
             self.isAllInfosFilled() })
         let secondAction = UIAlertAction(title: "수컷", style: .default, handler: {_ in
-            self.petRegistrationView.selectDogGender(.male)
+            self.editOrRegistPetView.selectDogGender(.MALE)
             self.isAllInfosFilled() })
         let thirdAction = UIAlertAction(title: "암컷", style: .default, handler: {_ in
-            self.petRegistrationView.selectDogGender(.female)
+            self.editOrRegistPetView.selectDogGender(.FEMALE)
             self.isAllInfosFilled() })
         actionSheet.addAction(firstAction)
         actionSheet.addAction(secondAction)
@@ -129,7 +134,7 @@ extension EditOrRegistPetViewController {
 
 extension EditOrRegistPetViewController {
     private func setPetBirthdayButtonAction() {
-        self.petRegistrationView.birthdateSelectButton.addTarget(self, action: #selector(handlePetBirthdayuttonTap), for: .touchUpInside)
+        self.editOrRegistPetView.birthdateSelectButton.addTarget(self, action: #selector(handlePetBirthdayuttonTap), for: .touchUpInside)
     }
     
     @objc
@@ -144,10 +149,10 @@ extension EditOrRegistPetViewController {
         dateFormatter.dateFormat = "yyyy.MM.dd"
         let ok = UIAlertAction(title: "선택 완료", style: .cancel, handler: { _ in
             let birthday = datePicker.date
-            self.petRegistrationView.birthday = birthday
+            self.editOrRegistPetView.birthday = birthday
             let formattedDate = dateFormatter.string(from: birthday)
-            self.petRegistrationView.birthdateSelectButton.setTitle(formattedDate, for: .normal)
-            self.petRegistrationView.confirmButton.available()
+            self.editOrRegistPetView.birthdateSelectButton.setTitle(formattedDate, for: .normal)
+            self.editOrRegistPetView.confirmButton.available()
         })
         alert.addAction(ok)
         
@@ -159,10 +164,10 @@ extension EditOrRegistPetViewController {
     }
 }
 
-// 등록하기
+// 등록하기 or 수정하기
 extension EditOrRegistPetViewController {
     private func setPetRegistrationButtonAction() {
-        self.petRegistrationView.confirmButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
+        self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
     }
     
     @objc

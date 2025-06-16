@@ -86,7 +86,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     
     func didTapEditButton(pet: Pet) {
         let petEditViewController = EditOrRegistPetViewController()
-        // configure을 통해 뷰의 내용을 채우고, 어떤 pet에 대한 것인지 저장하기
+        petEditViewController.configure(pet: pet)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
 }

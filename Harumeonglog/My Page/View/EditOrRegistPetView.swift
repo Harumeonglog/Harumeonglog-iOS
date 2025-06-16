@@ -23,6 +23,7 @@ class EditOrRegistPetView: UIView {
     private lazy var scrollView = UIScrollView().then {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
+        $0.alwaysBounceVertical = true
     }
     private lazy var contentView = UIView()
     
@@ -45,15 +46,17 @@ class EditOrRegistPetView: UIView {
         $0.spacing = stackSpacing
     }
     
-    public lazy var smallPetSizeButton = DogSizeButton()
-    public lazy var middlePetSizeButton = DogSizeButton()
-    public lazy var bigPetSizeButton = DogSizeButton()
+    public lazy var smallPetSizeButton = DogSizeButton(.SMALL)
+    public lazy var middlePetSizeButton = DogSizeButton(.MEDIUM)
+    public lazy var bigPetSizeButton = DogSizeButton(.BIG)
     
     private lazy var dogTypeLabel = commonLabel(text: "견종")
     public lazy var dogTypeTextField = UITextField.commonTextField()
     
     private lazy var dogGenderLabel = commonLabel(text: "성별")
-    public lazy var dogGenderSelectButton = commonButton()
+    public lazy var dogGenderSelectButton = commonButton().then {
+        $0.setTitle("성별", for: .normal)
+    }
     
     private lazy var triangleImage = UIImageView().then {
         $0.image = .reverseTriangle
@@ -61,7 +64,10 @@ class EditOrRegistPetView: UIView {
     }
     
     private lazy var birthdateLabel = commonLabel(text: "생일")
-    public lazy var birthdateSelectButton = commonButton()
+    public lazy var birthdateSelectButton = commonButton().then {
+        $0.setTitleColor(.black, for: .normal)
+        $0.titleLabel?.textAlignment = .left
+    }
     
     public lazy var confirmButton = ConfirmButton()
     
@@ -76,18 +82,31 @@ class EditOrRegistPetView: UIView {
         self.dogTypeTextField.text = pet.type
         switch pet.size {
         case "BIG":
+            self.selectedDogSize = .BIG
             bigPetSizeButton.setSelectedImage()
         case "SMALL":
+            self.selectedDogSize = .SMALL
             smallPetSizeButton.setSelectedImage()
         case "MIDDLE":
+            self.selectedDogSize = .MEDIUM
             middlePetSizeButton.setSelectedImage()
         default :
             break
         }
-        self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
         
+        // 성별 설정 수정 - selectDogGender 메서드 사용
+        switch pet.gender {
+        case "MALE":
+            self.selectDogGender(.MALE)
+        case "FEMALE":
+            self.selectDogGender(.FEMALE)
+        default:
+            self.selectDogGender(.NEUTER)
+        }
+        
+        self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
         self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
-        self.confirmButton.setTitle("수정하기", for: .normal)
+        self.confirmButton.configure(labelText: "수정하기")
     }
     
     public func setConstraints() {
@@ -111,10 +130,10 @@ class EditOrRegistPetView: UIView {
     
     private func setScrollViewConstraints() {
         self.addSubview(scrollView)
-        self.addSubview(confirmButton) // 등록 버튼을 메인 뷰에 직접 추가
+        self.addSubview(confirmButton)
         scrollView.addSubview(contentView)
         
-        // 등록 버튼을 먼저 설정하여 스크롤뷰가 그 위쪽까지만 차지하도록 함
+        // 등록 버튼 설정
         confirmButton.configure(labelText: "등록하기")
         confirmButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
@@ -122,14 +141,17 @@ class EditOrRegistPetView: UIView {
             make.bottom.equalToSuperview().offset(-53)
         }
         
+        // 스크롤뷰 설정 (bottom 제약조건 중복 제거)
         scrollView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
+            // bottom 제약조건을 하나만 설정
             make.bottom.equalTo(confirmButton.snp.top).offset(-10)
         }
         
+        // contentView 설정
         contentView.snp.makeConstraints { make in
-            make.edges.equalTo(scrollView)
+            make.top.bottom.leading.trailing.equalTo(scrollView)
             make.width.equalTo(scrollView)
         }
     }
@@ -186,10 +208,6 @@ class EditOrRegistPetView: UIView {
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
         }
         
-        smallPetSizeButton.configure(size: .small)
-        middlePetSizeButton.configure(size: .middle)
-        bigPetSizeButton.configure(size: .big)
-        
         let buttons = [smallPetSizeButton, middlePetSizeButton, bigPetSizeButton]
         
         for button in buttons {
@@ -226,7 +244,6 @@ class EditOrRegistPetView: UIView {
             make.leading.equalToSuperview().offset(labelLeadingPadding)
         }
         
-        dogGenderSelectButton.setTitle("성별", for: .normal)
         dogGenderSelectButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
             make.top.equalTo(dogGenderLabel.snp.bottom).offset(10)
@@ -254,7 +271,6 @@ class EditOrRegistPetView: UIView {
             make.leading.equalToSuperview().offset(labelLeadingPadding)
         }
         
-        birthdateSelectButton.setTitle("생일", for: .normal)
         birthdateSelectButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
             make.top.equalTo(birthdateLabel.snp.bottom).offset(10)
@@ -262,24 +278,13 @@ class EditOrRegistPetView: UIView {
             make.bottom.equalToSuperview().offset(-20)
         }
         
-        birthdateSelectButton.titleLabel?.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(30)
-            make.centerY.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-20)
-        }
-    }
-    
-//    private func setRegistButtonConstraints() {
-//        self.addSubview(registButton)
-//        
-//        registButton.configure(labelText: "등록하기")
-//        registButton.snp.makeConstraints { make in
-//            make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
-//            make.height.equalTo(50)
-//            make.bottom.equalToSuperview().offset(-53)
+//        birthdateSelectButton.titleLabel?.snp.makeConstraints { make in
+//            make.leading.equalToSuperview().offset(30)
+//            make.centerY.equalToSuperview()
+//            make.bottom.equalToSuperview().offset(-20)
 //        }
-//    }
-    
+    }
+        
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -310,16 +315,15 @@ class EditOrRegistPetView: UIView {
         selectedDogGender = gender
     }
     
-    enum DogGenderEnum {
-        case male, female, neutered
-        
+    enum DogGenderEnum: String, Codable {
+        case MALE, FEMALE, NEUTER
         func inKorean() -> String {
             switch self {
-            case .male:
+            case .MALE:
                 return "수컷"
-            case .female:
+            case .FEMALE:
                 return "암컷"
-            case .neutered:
+            case .NEUTER:
                 return "중성화"
             }
         }

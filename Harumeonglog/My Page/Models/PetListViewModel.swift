@@ -30,6 +30,7 @@ class PetListViewModel: ObservableObject {
                 if response.isSuccess {
                     if let result = response.result {
                         DispatchQueue.main.async {
+                            print("pet list : ", result.pets ?? [])
                             self.petList.append(contentsOf: result.pets ?? [])
                             self.cursor = result.cursor ?? 0
                             self.hasNext = result.hasNext
