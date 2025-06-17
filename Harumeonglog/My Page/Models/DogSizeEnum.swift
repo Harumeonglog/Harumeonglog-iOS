@@ -7,38 +7,38 @@
 
 import UIKit
 
-enum DogSizeEnum {
-    case small, middle, big
+enum DogSizeEnum: String, Codable {
+    case SMALL, MEDIUM, BIG
     
     func unselectedImage() -> UIImage {
         switch self {
-        case .small:
+        case .SMALL:
             return .smallDogButton
-        case .middle:
+        case .MEDIUM:
             return .middleDogButton
-        case .big:
+        case .BIG:
             return .bigDogButton
         }
     }
     
     func selectedImage() -> UIImage {
         switch self {
-        case .small:
+        case .SMALL:
             return .smallDogButtonSelected
-        case .middle:
+        case .MEDIUM:
             return .middleDogButtonSelected
-        case .big:
+        case .BIG:
             return .bigDogButtonSelected
         }
     }
     
     func inKorean() -> String {
         switch self {
-        case .small:
+        case .SMALL:
             return "소형견"
-        case .middle:
+        case .MEDIUM:
             return "중형견"
-        case .big:
+        case .BIG:
             return "대형견"
         }
     }

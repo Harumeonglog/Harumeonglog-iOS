@@ -16,7 +16,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
         super.viewDidLoad()
         self.view = myPageView
         setButtonActions()
-        petListVC.delegate = self
+        petListVC.petListDelegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
@@ -41,6 +41,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
                 break
             }
         }
+        showTabBar()
     }
     
     private func setButtonActions() {

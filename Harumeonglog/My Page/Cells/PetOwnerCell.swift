@@ -9,12 +9,13 @@ import UIKit
 
 protocol PetOwnerCellDelegate: AnyObject {
     func didTapInviteButton()
-    func didTapExitButton()
-    func didTapEditButton()
+    func didTapExitButton(petID: Int)
+    func didTapEditButton(pet: Pet)
 }
 
 class PetOwnerCell: UICollectionViewCell {
     
+    private var pet: Pet?
     private var overlayView: UIView?
     private weak var delegate: PetOwnerCellDelegate?
     static let identifier = "PetOwnerCell"
@@ -84,14 +85,15 @@ class PetOwnerCell: UICollectionViewCell {
         $0.imageView?.contentMode = .scaleAspectFit
     }
     
-    public func configure(_ petData: PetData, delegate: PetOwnerCellDelegate?) {
+    public func configure(_ pet: Pet, delegate: PetOwnerCellDelegate?) {
+        self.pet = pet
         self.delegate = delegate
         setDefaultConstraints()
-        profileImage.image = petData.image
-        nameLabel.text = petData.name
-        genderLabel.text = petData.gender
-        dogSizeLabel.text = petData.size.inKorean()
-        birthdayLabel.text = "🎂 " + petData.birthday
+        profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""))
+        nameLabel.text = pet.name
+        genderLabel.text = pet.gender
+        dogSizeLabel.text = pet.size
+        birthdayLabel.text = "🎂 " + (pet.birth ?? "")
     }
     
     private func setDefaultConstraints() {
@@ -107,7 +109,6 @@ class PetOwnerCell: UICollectionViewCell {
         self.addSubview(birthdayLabel)
         self.addSubview(accessLevelTagImageView)
         self.addSubview(meatballButton)
-        self.addSubview(editPuppyInfoButton)
         self.addSubview(memberTableView)
         self.addSubview(sendInviationButton)
         self.addSubview(editMenuFrameView)
@@ -142,7 +143,6 @@ class PetOwnerCell: UICollectionViewCell {
             make.bottom.leading.trailing.equalToSuperview()
             make.top.equalTo(editMenuFrameLine.snp.bottom)
         }
-        editPuppyInfoButton.isHidden = true
         
         nameLabel.snp.makeConstraints { make in
             make.leading.equalTo(profileImage.snp.trailing).offset(16)
@@ -211,12 +211,20 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func didTapEditButton() {
-        delegate?.didTapEditButton()
+        guard let pet = pet else {
+            print("cell 안의 pet이 비어있습니다.")
+            return
+        }
+        delegate?.didTapEditButton(pet: pet)
     }
     
     @objc
     private func didTapExitButton() {
-        delegate?.didTapExitButton()
+        guard let pet = pet else {
+            print("cell 안의 pet이 비어있습니다.")
+            return
+        }
+        delegate?.didTapExitButton(petID: pet.petId)
     }
     
     // EditMenuFrameView 관련 동작

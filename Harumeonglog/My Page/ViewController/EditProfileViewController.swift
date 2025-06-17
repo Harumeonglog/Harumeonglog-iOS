@@ -181,7 +181,6 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     }
     
     private func updateProfile(image: String?, nickname: String) {
-        print("image: ", image)
         MemberAPIService.patchInfo(
             param: InfoParameters(imageKey: image, nickname: nickname)
         ) { [weak self] code in
