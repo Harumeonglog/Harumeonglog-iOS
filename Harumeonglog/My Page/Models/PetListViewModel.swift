@@ -49,7 +49,7 @@ class PetListViewModel: ObservableObject {
         }
     }
     
-    func postPet(newInfo: PetParameter, completion: @escaping (HaruResponse<Pet>?) -> Void) {
+    func postPet(newInfo: PetParameter, completion: @escaping (HaruResponse<PetPostResponse>?) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             completion(nil)
             return
@@ -59,18 +59,20 @@ class PetListViewModel: ObservableObject {
             case .success(let response):
                 if response.isSuccess {
                     print("반려동물 추가 상공")
-                    self.petList.insert(response.result!, at: 0)
+                    self.petList = []
+                    self.hasNext = true
+                    self.getPetList{_ in}
                 } else {
                     print("반려동물 추가 예외 코드: \(response.code), message: \(response.message)")
                 }
             case .failure(let error):
-                print("반려동물 수정 에러: \(error)")
+                print("반려동물 추가 에러: \(error)")
                 completion(nil)
             }
         }
     }
     
-    func patchPet(petId: Int, newInfo: PetParameter, completion: @escaping (HaruResponse<Pet>?) -> Void) {
+    func patchPet(petId: Int, newInfo: PetParameter, completion: @escaping (HaruResponse<PetPatchResponse>?) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             completion(nil)
             return
@@ -80,9 +82,9 @@ class PetListViewModel: ObservableObject {
             case .success(let response):
                 if response.isSuccess {
                     print("반려동물 수정 상공")
-                    if let index = self.petList.firstIndex(where: { $0.petId == response.result!.petId }) {
-                        self.petList[index] = response.result!
-                    }
+                    self.petList = []
+                    self.hasNext = true
+                    self.getPetList{_ in}
                 } else {
                     print("반려동물 수정 예외 코드: \(response.code), message: \(response.message)")
                 }

@@ -280,8 +280,6 @@ class EditOrRegistPetView: UIView {
         
 //        birthdateSelectButton.titleLabel?.snp.makeConstraints { make in
 //            make.leading.equalToSuperview().offset(30)
-//            make.centerY.equalToSuperview()
-//            make.bottom.equalToSuperview().offset(-20)
 //        }
     }
         
@@ -309,6 +307,10 @@ class EditOrRegistPetView: UIView {
         }
     }
     
+    public func setProfileImage(_ image: UIImage) {
+        profileImageView.image = image
+    }
+    
     public func selectDogGender(_ gender: DogGenderEnum) {
         dogGenderSelectButton.setTitle(gender.inKorean(), for: .normal)
         dogGenderSelectButton.setTitleColor(.black, for: .normal)
@@ -332,5 +334,6 @@ class EditOrRegistPetView: UIView {
 
 import SwiftUI
 #Preview {
+    let petListViewModel = PetListViewModel()
     EditOrRegistPetViewController()
 }

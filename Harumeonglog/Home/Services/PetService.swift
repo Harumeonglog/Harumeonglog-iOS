@@ -59,7 +59,7 @@ extension PetService {
     }
     
     //MARK: POST/api/v1/pets 펫 추가
-    static func postPet(newInfo: PetParameter, token: String, completion: @escaping(Result<HaruResponse<Pet>, AFError>) -> Void) {
+    static func postPet(newInfo: PetParameter, token: String, completion: @escaping(Result<HaruResponse<PetPostResponse?>, AFError>) -> Void) {
         let endpoint = "/api/v1/pets"
         APIClient.postRequest(endpoint: endpoint,
                               parameters: ["name": newInfo.name,
@@ -73,7 +73,7 @@ extension PetService {
     }
     
     //MARK: PATCH/api/v1/pets/{petId} 펫 정보 수정
-    static func patchPet(petId: Int, token: String, newInfo: PetParameter, completion: @escaping(Result<HaruResponse<Pet>, AFError>) -> Void) {
+    static func patchPet(petId: Int, token: String, newInfo: PetParameter, completion: @escaping(Result<HaruResponse<PetPatchResponse>, AFError>) -> Void) {
         let endpoint = "/api/v1/pets/\(petId)"
         APIClient.patchRequest(endpoint: endpoint,
                                parameters: ["name": newInfo.name,

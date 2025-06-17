@@ -41,6 +41,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
                 break
             }
         }
+        showTabBar()
     }
     
     private func setButtonActions() {

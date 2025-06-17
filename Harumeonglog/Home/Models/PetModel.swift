@@ -129,6 +129,24 @@ struct PetParameter {
     let imageKey: String
 }
 
+struct PetPostResponse : Codable {
+    let petId: Int?
+    let createdAt: String?
+    let updatedAt: String?
+}
+
+struct PetPatchResponse : Codable {
+    let petId: Int
+    let name: String
+    let size: String
+    let type: String
+    let gender: String
+    let role: String
+    let birth: String
+    let mainImage: String
+    let updatedAt: String
+}
+
 //MARK: GET/api/v1/pets 펫 목록 조회
 struct PetListResponse: Codable {
     let pets: [Pet]?

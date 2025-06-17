@@ -65,6 +65,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     @objc
     private func showPetRegistrationVC() {
         let petRegistrationVC = EditOrRegistPetViewController()
+        petRegistrationVC.configure(pet: nil, petListViewModel: petListViewModel, mode: .Regist)
         self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
     
@@ -86,7 +87,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     
     func didTapEditButton(pet: Pet) {
         let petEditViewController = EditOrRegistPetViewController()
-        petEditViewController.configure(pet: pet)
+        petEditViewController.configure(pet: pet, petListViewModel: petListViewModel, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
 }

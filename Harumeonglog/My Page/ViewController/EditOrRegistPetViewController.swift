@@ -9,14 +9,35 @@ import UIKit
 
 class EditOrRegistPetViewController: UIViewController {
     
+    private var petListViewModel: PetListViewModel?
     private var pet: Pet?
+    private var mode: ViewControllerMode?
     private let editOrRegistPetView = EditOrRegistPetView()
-    private let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private let actionSheetForGender = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private let actionSheetForPhoto = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     private let datePicker = UIDatePicker()
+    
+    // 이미지 관련 프로퍼티
+    private var selectedImage: UIImage?
+    private var imageKey: String?
+    private lazy var picker: UIImagePickerController = {
+        let picker = UIImagePickerController()
+        return picker
+    }()
+    
+    func configure(pet: Pet?, petListViewModel: PetListViewModel, mode: ViewControllerMode ) {
+        self.petListViewModel = petListViewModel
+        self.pet = pet
+        self.mode = mode
+        guard let pet = pet else { return }
+        self.editOrRegistPetView.configure(pet: pet)
+        print(pet.petId)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = editOrRegistPetView
+        picker.delegate = self
         hideKeyboardWhenTappedAround()
         setButtonActions()
     }
@@ -32,6 +53,7 @@ class EditOrRegistPetViewController: UIViewController {
         setPetRegistrationButtonAction()
         setPetGenderButtonAction()
         setPetBirthdayButtonAction()
+        setImageButtonAction()
     }
     
     private func isAllInfosFilled() {
@@ -45,10 +67,6 @@ class EditOrRegistPetViewController: UIViewController {
         }
     }
     
-    public func configure(pet: Pet) {
-        self.pet = pet
-        self.editOrRegistPetView.configure(pet: pet)
-    }
 }
 
 // 네비게이션 바
@@ -121,17 +139,18 @@ extension EditOrRegistPetViewController {
         let thirdAction = UIAlertAction(title: "암컷", style: .default, handler: {_ in
             self.editOrRegistPetView.selectDogGender(.FEMALE)
             self.isAllInfosFilled() })
-        actionSheet.addAction(firstAction)
-        actionSheet.addAction(secondAction)
-        actionSheet.addAction(thirdAction)
+        actionSheetForGender.addAction(firstAction)
+        actionSheetForGender.addAction(secondAction)
+        actionSheetForGender.addAction(thirdAction)
     }
     
     @objc
     private func handlePetGenderButtonTap() {
-        self.present(actionSheet, animated: true, completion: nil)
+        self.present(actionSheetForGender, animated: true, completion: nil)
     }
 }
 
+// 생일 선택
 extension EditOrRegistPetViewController {
     private func setPetBirthdayButtonAction() {
         self.editOrRegistPetView.birthdateSelectButton.addTarget(self, action: #selector(handlePetBirthdayuttonTap), for: .touchUpInside)
@@ -146,7 +165,7 @@ extension EditOrRegistPetViewController {
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.locale = Locale(identifier: "ko_KR")
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy.MM.dd"
+        dateFormatter.dateFormat = "yyyy-MM-dd"
         let ok = UIAlertAction(title: "선택 완료", style: .cancel, handler: { _ in
             let birthday = datePicker.date
             self.editOrRegistPetView.birthday = birthday
@@ -167,13 +186,124 @@ extension EditOrRegistPetViewController {
 // 등록하기 or 수정하기
 extension EditOrRegistPetViewController {
     private func setPetRegistrationButtonAction() {
-        self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(handleRegistrationButtonTap), for: .touchUpInside)
+        self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(completionButtonPressed), for: .touchUpInside)
     }
     
     @objc
     private func handleRegistrationButtonTap() {
         self.navigationController?.popViewController(animated: true)
     }
+}
+
+extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func setImageButtonAction() {
+        editOrRegistPetView.cameraButton.addTarget(self, action: #selector(handleCameraButtonTap), for: .touchUpInside)
+        
+        let firstAction = UIAlertAction(title: "카메라", style: .default, handler: {_ in
+            self.showCameraVC()})
+        let secondAction = UIAlertAction(title: "이미지 불러오기", style: .default, handler: {_ in
+            self.showPhotoLibrary()})
+        actionSheetForPhoto.addAction(firstAction)
+        actionSheetForPhoto.addAction(secondAction)
+    }
+    
+    @objc
+    private func handleCameraButtonTap() {
+        self.present(actionSheetForPhoto, animated: true, completion: nil)
+    }
+    
+    @objc
+    private func showCameraVC() {
+        picker.sourceType = .camera // 카메라를 통해 가져온다
+        picker.allowsEditing = false // 수정 true면 허용
+        picker.cameraDevice = .rear // 후면 카메라
+        picker.cameraCaptureMode = .photo //사진 (영상X)
+        present(picker, animated: true, completion: nil)
+    }
+    
+    @objc
+    private func showPhotoLibrary() {
+        picker.sourceType = .photoLibrary // 카메라를 통해 가져온다
+        picker.allowsEditing = false // 수정 true면 허용
+        present(picker, animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            self.editOrRegistPetView.setProfileImage(image)
+            self.selectedImage = image  // 선택된 이미지 저장
+            print("선택된 이미지 저장 완료")
+        }
+        dismiss(animated: true)
+    }
+    
+    @objc
+    private func completionButtonPressed() {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+        guard let selectedImage = self.selectedImage,
+              let imageData = selectedImage.jpegData(compressionQuality: 0.6) else {
+            print("No Image")
+            return
+        }
+        // 필요한 내용이 다 있는지 검사
+        
+        let filename = UUID().uuidString + ".jpg"
+        guard let entityId = MemberAPIService.userInfo?.memberId else {
+            print("No Entity ID")
+            return
+        }
+        
+        // Presigned URL 요청 후 이미지 업로드
+        PresignedUrlService.fetchPresignedUrl(
+            filename: filename,
+            contentType: "image/jpeg",
+            domain: .pet,
+            entityId: entityId,
+            token: accessToken
+        ) { result in
+            switch result {
+            case .success(let apiResponse):
+                print("이미지 업로드 성공: \(apiResponse)")
+                guard case .result(let presigned) = apiResponse.result,
+                      let presignedUrl = URL(string: presigned.presignedUrl) else {
+                    print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
+                    return
+                }
+                self.imageKey = presigned.imageKey
+                self.uploadImageToS3(imageData: imageData, presignedUrl: presignedUrl) { result in
+                    switch result {
+                    case .success :
+                        let petParameter = PetParameter(
+                            name: self.editOrRegistPetView.petNameTextField.text!,
+                            size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+                            type: self.editOrRegistPetView.dogTypeTextField.text!,
+                            gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+                            birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+                            imageKey: self.imageKey!)
+                        // 강아지 프로필 올리기 or 수정하기
+                        if self.mode == .Edit { // 있으면 수정
+                            self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
+                        } else if self.mode == .Regist { // 없으면 새로운 강아지
+                            self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
+                        }
+                        self.navigationController?.popViewController(animated: true)
+                        break
+                    case .failure(let error) :
+                        print("#PresignedUrlService.fetchPresignedUrl ", error)
+                        break
+                    }
+                }
+            case .failure(let error):
+                print("Presigned URL 요청 실패: \(error)")
+            }
+        }
+    }
+    
+    enum ViewControllerMode {
+        case Edit, Regist
+    }
+    
 }
 
 import SwiftUI
