@@ -41,25 +41,25 @@ class NotiCollectionViewCell: UICollectionViewCell {
     }
     
     public func configure(_ data: NoticeModel) {
-        let type = data.type, userNickName = data.userNickname
+        let type = data.noticeType
         typeImageView.image = type.typeImage()
-        userNameLabel.text = userNickName
-        titleLabel.text = type.typeMessage()
-        if type == .comment || type == .liked {
-            timeLabel.text = data.date
+        titleLabel.text = data.content
+        if type == .COMMENT || type == .ARTICLE {
+            // timeLabel.text = data.date
             timeLabel.isHidden = false
         } else {
             timeLabel.isHidden = true
         }
-        if data.userNickname != nil {
-            userNameLabel.snp.makeConstraints { make in
-                make.width.greaterThanOrEqualTo(50)
-            }
-        } else {
-            userNameLabel.snp.makeConstraints { make in
-                make.width.equalTo(0)
-            }
-        }
+        // 유저 닉네임이 있는 경우
+//        if data.userNickname != nil {
+//            userNameLabel.snp.makeConstraints { make in
+//                make.width.greaterThanOrEqualTo(50)
+//            }
+//        } else {
+//            userNameLabel.snp.makeConstraints { make in
+//                make.width.equalTo(0)
+//            }
+//        }
     }
     
     override init(frame: CGRect) {
