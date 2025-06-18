@@ -8,11 +8,11 @@
 import UIKit
 
 enum NotiTypeEnum: Codable {
-    case todo, comment, morning, liked
+    case EVENT, comment, morning, liked
     
     func typeImage() -> UIImage {
         switch self {
-        case .todo:
+        case .EVENT:
             return .edit
         case .comment, .liked:
             return .comment
@@ -23,7 +23,7 @@ enum NotiTypeEnum: Codable {
     
     func typeMessage() -> String {
         switch self {
-        case .todo:
+        case .EVENT:
             return "일정 알림"
         case .comment:
             return "님이 회원님의 게시글에 댓글을 작성했습니다."

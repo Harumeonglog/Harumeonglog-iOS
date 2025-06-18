@@ -40,7 +40,7 @@ class NotiCollectionViewCell: UICollectionViewCell {
         $0.font = .systemFont(ofSize: 12)
     }
     
-    public func configure(_ data: NotiModel) {
+    public func configure(_ data: NoticeModel) {
         let type = data.type, userNickName = data.userNickname
         typeImageView.image = type.typeImage()
         userNameLabel.text = userNickName
