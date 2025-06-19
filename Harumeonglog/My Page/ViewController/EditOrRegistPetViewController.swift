@@ -25,7 +25,7 @@ class EditOrRegistPetViewController: UIViewController {
         return picker
     }()
     
-    func configure(pet: Pet?, petListViewModel: PetListViewModel, mode: ViewControllerMode ) {
+    func configure(pet: Pet?, petListViewModel: PetListViewModel?, mode: ViewControllerMode ) {
         self.petListViewModel = petListViewModel
         self.pet = pet
         self.mode = mode

@@ -6,17 +6,18 @@
 //
 
 import UIKit
+import Combine
 
 class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetListViewControllerDelegate {
     
     private let myPageView = MyPageView()
-    private let petListVC = PetListViewController()
+    private let petListViewModel = PetListViewModel()
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPageView
         setButtonActions()
-        petListVC.petListDelegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
@@ -28,6 +29,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        petListViewModel.getPetList{ _ in }
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
@@ -41,6 +43,12 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
                 break
             }
         }
+        petListViewModel.$petList
+            .sink { _ in
+                self.myPageView.previewPetListTableView.reloadData()
+            }
+            .store (in: &cancellables)
+            
         showTabBar()
     }
     
@@ -67,6 +75,9 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     @objc
     private func handlePetLisstButtonTapped() {
+        let petListVC = PetListViewController()
+        petListVC.configure(petListViewModel: petListViewModel)
+        petListVC.petListDelegate = self
         self.navigationController?.pushViewController(petListVC, animated: true)
     }
     
@@ -100,6 +111,21 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     func showTabBar() {
         self.tabBarController?.tabBar.isHidden = false
+    }
+    
+}
+
+extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return petListViewModel.petList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let data = petListViewModel.petList[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: PreviewPetCell.identifier) as! PreviewPetCell
+        cell.configure(with: data)
+        return cell
     }
     
 }

@@ -39,7 +39,7 @@ class MyPageView: UIView {
     
     private lazy var myPetsLabel = commonLabel(text: "반려견 목록")
     public lazy var goToPetListButton = goToDetailButton()
-    public lazy var petListPreviewTable = UITableView().then {
+    public lazy var previewPetListTableView = UITableView().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
         $0.backgroundColor = .brown02
@@ -166,7 +166,7 @@ class MyPageView: UIView {
     private func setPuppyListPreviewConstraints() {
         self.addSubview(myPetsLabel)
         self.addSubview(goToPetListButton)
-        self.addSubview(petListPreviewTable)
+        self.addSubview(previewPetListTableView)
         
         myPetsLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(labelLeading)
@@ -180,7 +180,7 @@ class MyPageView: UIView {
             make.width.equalTo(48)
         }
         
-        petListPreviewTable.snp.makeConstraints { make in
+        previewPetListTableView.snp.makeConstraints { make in
             make.top.equalTo(myPetsLabel.snp.bottom).offset(10)
             make.height.equalTo(150)
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
@@ -191,7 +191,7 @@ class MyPageView: UIView {
         self.addSubview(helpLabel)
         
         helpLabel.snp.makeConstraints { make in
-            make.top.equalTo(petListPreviewTable.snp.bottom).offset(24)
+            make.top.equalTo(previewPetListTableView.snp.bottom).offset(24)
             make.leading.equalTo(labelLeading)
         }
         
