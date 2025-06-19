@@ -13,7 +13,7 @@ class PreviewPetCell: UITableViewCell {
     private var pet: Pet?
     
     private lazy var petImage = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
     }
@@ -37,13 +37,10 @@ class PreviewPetCell: UITableViewCell {
     }
     
     func constraints() {
+        self.backgroundColor = .brown02
         self.addSubview(petImage)
         self.addSubview(nameLabel)
         self.addSubview(roleLabel)
-        
-        self.snp.makeConstraints { make in
-            make.height.equalTo(50)
-        }
         
         petImage.snp.makeConstraints { make in
             make.width.height.equalTo(30)

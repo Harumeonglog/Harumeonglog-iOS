@@ -14,7 +14,6 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     var cancellables = Set<AnyCancellable>()
     private var workItem: DispatchWorkItem?
     
-    var petListDelegate: PetListViewControllerDelegate?
     var ownerCellDelegate: PetOwnerCellDelegate?
     var guestCellDelegate: PetGuestCellDelegate?
     
@@ -63,7 +62,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.tabBarController?.tabBar.isHidden = true
     }
     
-    func configure(petListViewModel: PetListViewModel) {
+    func configure(petListViewModel: PetListViewModel?) {
         self.petListViewModel = petListViewModel
     }
     
@@ -77,7 +76,6 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     @objc
     private func dismissViewController() {
         self.navigationController?.popViewController(animated: true)
-        petListDelegate?.showTabBar()
     }
     
     func didTapInviteButton() {
@@ -153,10 +151,6 @@ extension PetListViewController: UIScrollViewDelegate {
 
 enum UserAcessLevelEnum: String {
     case Owner, Guest
-}
-
-protocol PetListViewControllerDelegate {
-    func showTabBar()
 }
 
 import SwiftUI

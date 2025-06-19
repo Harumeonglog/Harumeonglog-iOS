@@ -43,6 +43,7 @@ class MyPageView: UIView {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
         $0.backgroundColor = .brown02
+        $0.allowsSelection = false
     }
     
     private lazy var helpLabel = commonLabel(text: "도움")
@@ -150,7 +151,7 @@ class MyPageView: UIView {
         for divider in dividers {
             divider.snp.makeConstraints { make in
                 make.width.equalTo(1)
-                make.top.bottom.equalTo(myActiveStack).inset(myStackHeight/6)
+                make.top.bottom.equalTo(myActiveStack).inset(myStackHeight/6).priority(.high) // 우선순위를 999로 설정
                 make.centerY.equalToSuperview()
             }
         }
@@ -293,6 +294,8 @@ class MyPageView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .background
+        previewPetListTableView.register(PreviewPetCell.self, forCellReuseIdentifier: PreviewPetCell.identifier)
+        previewPetListTableView.rowHeight = 50
     }
     
     required init?(coder: NSCoder) {
