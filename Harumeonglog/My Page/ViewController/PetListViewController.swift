@@ -12,6 +12,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     
     let petListViewModel = PetListViewModel()
     var cancellables = Set<AnyCancellable>()
+    private var workItem: DispatchWorkItem?
     
     var petListDelegate: PetListViewControllerDelegate?
     var ownerCellDelegate: PetOwnerCellDelegate?
@@ -135,7 +136,11 @@ extension PetListViewController: UIScrollViewDelegate {
         let height = scrollView.frame.size.height
 
         if offsetY > contentHeight - height * 1.5 {
-            petListViewModel.getPetList { _ in }
+            workItem?.cancel()
+            workItem = DispatchWorkItem { [weak self] in
+                self?.petListViewModel.getPetList{ _ in}
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
         }
     }
     

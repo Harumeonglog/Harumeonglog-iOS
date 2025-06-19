@@ -13,6 +13,7 @@ class NotiViewController: UIViewController {
     private let notificationsView = NotiView()
     private let noticeViewModel = NoticeViewModel()
     private var cancellables: [AnyCancellable] = []
+    private var workItem: DispatchWorkItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +77,11 @@ extension NotiViewController: UIScrollViewDelegate {
         let height = scrollView.frame.size.height
 
         if offsetY > contentHeight - height * 1.5 {
-            noticeViewModel.getNotices { _ in }
+            workItem?.cancel()
+            workItem = DispatchWorkItem { [weak self] in
+                self?.noticeViewModel.getNotices{ _ in}
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
         }
     }
     
