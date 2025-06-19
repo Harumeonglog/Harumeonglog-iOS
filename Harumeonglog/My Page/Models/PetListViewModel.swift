@@ -116,4 +116,33 @@ class PetListViewModel: ObservableObject {
         }
     }
     
+    func deletePetMember(memberId: Int, petId: Int, completion: @escaping (Bool) -> Void) {
+            guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+                completion(false)
+                return
+            }
+            
+            // API 호출 (실제 API 엔드포인트에 맞게 수정 필요)
+            PetService.deletePetMember(memberId: memberId, petId: petId, token: token) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    if response.isSuccess {
+                        DispatchQueue.main.async {
+                            // 로컬 데이터 업데이트
+                            if let petIndex = self?.petList.firstIndex(where: { $0.petId == petId }) {
+                                self?.petList[petIndex].people?.removeAll { $0.id == memberId }
+                            }
+                            completion(true)
+                        }
+                    } else {
+                        print("멤버 삭제 실패: \(response.message)")
+                        completion(false)
+                    }
+                case .failure(let error):
+                    print("멤버 삭제 에러: \(error)")
+                    completion(false)
+                }
+            }
+        }
+    
 }

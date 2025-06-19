@@ -106,7 +106,7 @@ extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataS
         switch data.role {
         case "OWNER":
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetOwnerCell.self.identifier, for: indexPath) as! PetOwnerCell
-            cell.configure(data, delegate: self)
+            cell.configure(data, delegate: self, petListViewModel: petListViewModel)
             return cell
         default :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetGuestCell.self.identifier, for: indexPath) as! PetGuestCell
@@ -118,13 +118,17 @@ extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension PetListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+                           layout collectionViewLayout: UICollectionViewLayout,
+                           sizeForItemAt indexPath: IndexPath) -> CGSize {
         let data = self.petListViewModel!.petList[indexPath.row]
         switch data.role {
         case "OWNER":
-            return CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
-        default :
+            let memberCount = data.people?.count ?? 0
+            let memberTableHeight = min(CGFloat(memberCount) * 52, 157)
+            let baseHeight: CGFloat = 200 // 기본 높이 조정
+            let totalHeight = baseHeight + memberTableHeight
+            return CGSize(width: UIScreen.main.bounds.width - 40, height: totalHeight)
+        default:
             return CGSize(width: UIScreen.main.bounds.width - 40, height: 120)
         }
     }

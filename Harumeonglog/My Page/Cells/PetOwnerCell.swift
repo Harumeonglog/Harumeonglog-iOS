@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol PetOwnerCellDelegate: AnyObject {
     func didTapInviteButton()
@@ -14,10 +15,13 @@ protocol PetOwnerCellDelegate: AnyObject {
 }
 
 class PetOwnerCell: UICollectionViewCell {
-    
     private var pet: Pet?
+    private var members: [PetMember] = []
     private var overlayView: UIView?
     private weak var delegate: PetOwnerCellDelegate?
+    private weak var petListViewModel: PetListViewModel? // ViewModel 의존성 추가
+    private var cancellables = Set<AnyCancellable>()
+    
     static let identifier = "PetOwnerCell"
     
     private lazy var profileImage = UIImageView().then {
@@ -85,15 +89,68 @@ class PetOwnerCell: UICollectionViewCell {
         $0.imageView?.contentMode = .scaleAspectFit
     }
     
-    public func configure(_ pet: Pet, delegate: PetOwnerCellDelegate?) {
-        self.pet = pet
-        self.delegate = delegate
-        setDefaultConstraints()
-        profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""))
-        nameLabel.text = pet.name
-        genderLabel.text = pet.gender
-        dogSizeLabel.text = pet.size
-        birthdayLabel.text = "🎂 " + (pet.birth ?? "")
+    public func configure(_ pet: Pet, delegate: PetOwnerCellDelegate?, petListViewModel: PetListViewModel?) {
+            self.pet = pet
+            self.delegate = delegate
+            self.petListViewModel = petListViewModel
+            self.members = pet.people ?? []
+            
+            setDefaultConstraints()
+            profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""))
+            nameLabel.text = pet.name
+            genderLabel.text = pet.gender
+            dogSizeLabel.text = pet.size
+            birthdayLabel.text = "🎂 " + (pet.birth ?? "")
+            
+            setupTableView()
+            setupViewModelBinding()
+    }
+        
+    private func setupTableView() {
+        memberTableView.dataSource = self
+        memberTableView.delegate = self
+        memberTableView.register(MemberInPetCell.self, forCellReuseIdentifier: MemberInPetCell.identifier)
+        memberTableView.separatorStyle = .none
+        memberTableView.isScrollEnabled = false
+        memberTableView.reloadData()
+        updateTableViewHeight()
+    }
+    
+    private func setupViewModelBinding() {
+        guard let petListViewModel = petListViewModel else { return }
+        
+        petListViewModel.$petList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updatedPets in
+                guard let self = self, let pet = self.pet else { return }
+                
+                // 현재 펫의 업데이트된 정보 찾기
+                if let updatedPet = updatedPets.first(where: { $0.petId == pet.petId }) {
+                    self.members = updatedPet.people ?? []
+                    self.memberTableView.reloadData()
+                    self.updateTableViewHeight()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateTableViewHeight() {
+        let cellHeight: CGFloat = 52
+        let tableHeight = CGFloat(members.count) * cellHeight
+        
+        memberTableView.snp.updateConstraints { make in
+            make.height.equalTo(min(tableHeight, 157))
+        }
+        
+        // 부모 컬렉션뷰에 레이아웃 업데이트 알림
+        if let collectionView = self.superview as? UICollectionView {
+            collectionView.collectionViewLayout.invalidateLayout()
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cancellables.removeAll()
     }
     
     private func setDefaultConstraints() {
@@ -277,6 +334,57 @@ class PetOwnerCell: UICollectionViewCell {
     }
     
 }
+
+extension PetOwnerCell: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return members.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: MemberInPetCell.identifier, for: indexPath) as! MemberInPetCell
+        let member = members[indexPath.row]
+        cell.configure(with: member, at: indexPath, delegate: self)
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 52
+    }
+}
+
+extension PetOwnerCell: MemberInPetCellDelegate {
+    
+    func didTapEditMemberButton(for member: PetMember, at indexPath: IndexPath) {
+        showMemberEditMenu(for: member, at: indexPath)
+    }
+    
+    func didTapDeleteMember(member: PetMember, petId: Int) {
+        petListViewModel?.deletePetMember(memberId: member.id, petId: petId) { [weak self] result in
+            DispatchQueue.main.async {
+                // ViewModel의 petList가 업데이트되면 자동으로 UI가 갱신됨
+                print("멤버 삭제 완료")
+            }
+        }
+    }
+    
+    private func showMemberEditMenu(for member: PetMember, at indexPath: IndexPath) {
+        guard let pet = pet else { return }
+        
+        let alert = UIAlertController(title: "\(member.name)", message: "작업을 선택하세요", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.didTapDeleteMember(member: member, petId: pet.petId)
+        })
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        // 현재 뷰컨트롤러 찾기
+        if let viewController = self.findViewController() {
+            viewController.present(alert, animated: true)
+        }
+    }
+}
+
 
 import SwiftUI
 #Preview {
