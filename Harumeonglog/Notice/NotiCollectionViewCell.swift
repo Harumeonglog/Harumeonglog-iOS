@@ -40,18 +40,18 @@ class NotiCollectionViewCell: UICollectionViewCell {
         $0.font = .systemFont(ofSize: 12)
     }
     
-    public func configure(_ data: NotiModel) {
-        let type = data.type, userNickName = data.userNickname
+    public func configure(_ data: NoticeModel) {
+        let type = data.noticeType
         typeImageView.image = type.typeImage()
-        userNameLabel.text = userNickName
-        titleLabel.text = type.typeMessage()
-        if type == .comment || type == .liked {
-            timeLabel.text = data.date
+        titleLabel.text = data.content
+        if type == .COMMENT || type == .ARTICLE {
+            // timeLabel.text = data.date
             timeLabel.isHidden = false
         } else {
             timeLabel.isHidden = true
         }
-        if data.userNickname != nil {
+        // 유저 닉네임이 있는 경우
+        if data.senderName != nil {
             userNameLabel.snp.makeConstraints { make in
                 make.width.greaterThanOrEqualTo(50)
             }
@@ -60,6 +60,9 @@ class NotiCollectionViewCell: UICollectionViewCell {
                 make.width.equalTo(0)
             }
         }
+        
+        // 시간
+        timeLabel.text = DateFormatter.stringToString(from: data.createdAt ?? "")
     }
     
     override init(frame: CGRect) {

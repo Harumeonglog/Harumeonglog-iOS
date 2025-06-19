@@ -12,6 +12,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     
     let petListViewModel = PetListViewModel()
     var cancellables = Set<AnyCancellable>()
+    private var workItem: DispatchWorkItem?
     
     var petListDelegate: PetListViewControllerDelegate?
     var ownerCellDelegate: PetOwnerCellDelegate?
@@ -125,6 +126,24 @@ extension PetListViewController: UICollectionViewDelegateFlowLayout {
             return CGSize(width: UIScreen.main.bounds.width - 40, height: 120)
         }
     }
+}
+
+extension PetListViewController: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height * 1.5 {
+            workItem?.cancel()
+            workItem = DispatchWorkItem { [weak self] in
+                self?.petListViewModel.getPetList{ _ in}
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
+        }
+    }
+    
 }
 
 
