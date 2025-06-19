@@ -19,4 +19,6 @@ struct NoticeModel: Codable {
     let content: String
     let noticeType: NotiTypeEnum
     let targetId: Int
+    let senderName: String?
+    let createdAt: String?
 }

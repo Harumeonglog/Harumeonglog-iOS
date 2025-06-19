@@ -51,15 +51,18 @@ class NotiCollectionViewCell: UICollectionViewCell {
             timeLabel.isHidden = true
         }
         // 유저 닉네임이 있는 경우
-//        if data.userNickname != nil {
-//            userNameLabel.snp.makeConstraints { make in
-//                make.width.greaterThanOrEqualTo(50)
-//            }
-//        } else {
-//            userNameLabel.snp.makeConstraints { make in
-//                make.width.equalTo(0)
-//            }
-//        }
+        if data.senderName != nil {
+            userNameLabel.snp.makeConstraints { make in
+                make.width.greaterThanOrEqualTo(50)
+            }
+        } else {
+            userNameLabel.snp.makeConstraints { make in
+                make.width.equalTo(0)
+            }
+        }
+        
+        // 시간
+        timeLabel.text = DateFormatter.stringToString(from: data.createdAt ?? "")
     }
     
     override init(frame: CGRect) {
