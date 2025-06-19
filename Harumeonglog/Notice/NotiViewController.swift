@@ -54,6 +54,7 @@ class NotiViewController: UIViewController {
 }
 
 extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return noticeViewModel.notices.count
     }
@@ -64,7 +65,20 @@ extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSour
         cell.configure(data)
         return cell
     }
+       
+}
+
+extension NotiViewController: UIScrollViewDelegate {
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height * 1.5 {
+            noticeViewModel.getNotices { _ in }
+        }
+    }
     
 }
 

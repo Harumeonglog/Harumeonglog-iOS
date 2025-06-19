@@ -127,6 +127,20 @@ extension PetListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+extension PetListViewController: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height * 1.5 {
+            petListViewModel.getPetList { _ in }
+        }
+    }
+    
+}
+
 
 enum UserAcessLevelEnum: String {
     case Owner, Guest
