@@ -9,7 +9,6 @@ import Alamofire
 
 enum NoticeService {
     
-    //MARK:
     static func getNoticies(cursor: Int, token: String, completion: @escaping(Result<HaruResponse<NoticesResult>, AFError>) -> Void) {
         let endpoint = "/api/v1/noticies?cursor=\(cursor)&size=10"
         APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
