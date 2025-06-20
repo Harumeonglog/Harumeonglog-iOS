@@ -47,7 +47,7 @@ struct Pet: Codable {
     let gender: String
     let birth: String?
     let mainImage: String?
-    let people: [PetMember]?
+    var people: [PetMember]?
 }
 
 struct PetMember: Codable {

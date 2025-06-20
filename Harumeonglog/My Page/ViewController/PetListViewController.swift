@@ -10,11 +10,10 @@ import Combine
 
 class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCellDelegate {
     
-    let petListViewModel = PetListViewModel()
+    var petListViewModel: PetListViewModel?
     var cancellables = Set<AnyCancellable>()
     private var workItem: DispatchWorkItem?
     
-    var petListDelegate: PetListViewControllerDelegate?
     var ownerCellDelegate: PetOwnerCellDelegate?
     var guestCellDelegate: PetGuestCellDelegate?
     
@@ -39,7 +38,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
         
-        petListViewModel.getPetList { result in
+        petListViewModel!.getPetList { result in
             switch result {
             case .none:
                 break
@@ -51,9 +50,9 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
             }
         }
         
-        petListViewModel.$petList
-            .sink { [weak self] _ in
-                self?.petListView.petListCollectionView.reloadData()
+        petListViewModel!.$petList
+            .sink { _ in
+                self.petListView.petListCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
@@ -63,17 +62,20 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.tabBarController?.tabBar.isHidden = true
     }
     
+    func configure(petListViewModel: PetListViewModel?) {
+        self.petListViewModel = petListViewModel
+    }
+    
     @objc
     private func showPetRegistrationVC() {
         let petRegistrationVC = EditOrRegistPetViewController()
-        petRegistrationVC.configure(pet: nil, petListViewModel: petListViewModel, mode: .Regist)
+        petRegistrationVC.configure(pet: nil, petListViewModel: petListViewModel!, mode: .Regist)
         self.navigationController?.pushViewController(petRegistrationVC, animated: true)
     }
     
     @objc
     private func dismissViewController() {
         self.navigationController?.popViewController(animated: true)
-        petListDelegate?.showTabBar()
     }
     
     func didTapInviteButton() {
@@ -83,28 +85,28 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     }
     
     func didTapExitButton(petID: Int) {
-        petListViewModel.deletePet(petId: petID) { _ in }
+        petListViewModel!.deletePet(petId: petID) { _ in }
     }
     
     func didTapEditButton(pet: Pet) {
         let petEditViewController = EditOrRegistPetViewController()
-        petEditViewController.configure(pet: pet, petListViewModel: petListViewModel, mode: .Edit)
+        petEditViewController.configure(pet: pet, petListViewModel: petListViewModel!, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
 }
 
 extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.petListViewModel.petList.count
+        return self.petListViewModel!.petList.count
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let data = self.petListViewModel.petList[indexPath.row]
+        let data = self.petListViewModel!.petList[indexPath.row]
         switch data.role {
         case "OWNER":
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetOwnerCell.self.identifier, for: indexPath) as! PetOwnerCell
-            cell.configure(data, delegate: self)
+            cell.configure(data, delegate: self, petListViewModel: petListViewModel)
             return cell
         default :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PetGuestCell.self.identifier, for: indexPath) as! PetGuestCell
@@ -116,13 +118,17 @@ extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension PetListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let data = self.petListViewModel.petList[indexPath.row]
+                           layout collectionViewLayout: UICollectionViewLayout,
+                           sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let data = self.petListViewModel!.petList[indexPath.row]
         switch data.role {
         case "OWNER":
-            return CGSize(width: UIScreen.main.bounds.width - 40, height: 330)
-        default :
+            let memberCount = data.people?.count ?? 0
+            let memberTableHeight = min(CGFloat(memberCount) * 52, 157)
+            let baseHeight: CGFloat = 200 // 기본 높이 조정
+            let totalHeight = baseHeight + memberTableHeight
+            return CGSize(width: UIScreen.main.bounds.width - 40, height: totalHeight)
+        default:
             return CGSize(width: UIScreen.main.bounds.width - 40, height: 120)
         }
     }
@@ -138,7 +144,7 @@ extension PetListViewController: UIScrollViewDelegate {
         if offsetY > contentHeight - height * 1.5 {
             workItem?.cancel()
             workItem = DispatchWorkItem { [weak self] in
-                self?.petListViewModel.getPetList{ _ in}
+                self?.petListViewModel!.getPetList{ _ in}
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
         }
@@ -149,10 +155,6 @@ extension PetListViewController: UIScrollViewDelegate {
 
 enum UserAcessLevelEnum: String {
     case Owner, Guest
-}
-
-protocol PetListViewControllerDelegate {
-    func showTabBar()
 }
 
 import SwiftUI

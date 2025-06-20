@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DateFormatter {
+extension DateFormatter {
     
     static let formatter = ISO8601DateFormatter()
     

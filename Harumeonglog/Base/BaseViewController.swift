@@ -32,13 +32,17 @@ class BaseViewController: UITabBarController {
     private let walkingVC = UINavigationController(rootViewController: MapViewController())
     private lazy var photosVC = UINavigationController(rootViewController: PhotoAlbumsViewController())
     private let socialVC = UINavigationController(rootViewController: SocialViewController())
-    private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
-        
+    private let myPageVC = MyPageViewController()
+    
+    private let petListViewModel = PetListViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBarItems()
         setupTabBar()
-        self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageVC]
+        setupPetListViewModel()
+        let myPageWithNavigationBar = UINavigationController(rootViewController: myPageVC)
+        self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageWithNavigationBar]
     }
     
     override func loadView() {
@@ -79,6 +83,11 @@ class BaseViewController: UITabBarController {
         
         // 배경 색상
         tabBar.backgroundColor = .bg
+    }
+    
+    private func setupPetListViewModel() {
+        myPageVC.configure(petListViewModel: petListViewModel)
+        petListViewModel.getPetList { _ in }
     }
 
 }
