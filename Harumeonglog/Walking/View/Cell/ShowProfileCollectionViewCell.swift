@@ -50,4 +50,5 @@ class ShowProfileCollectionViewCell: UICollectionViewCell {
             make.leading.trailing.equalToSuperview()
         }
     }
+    
 }

@@ -10,14 +10,14 @@ import Foundation
 struct WalkRecommendResponse: Codable {
     let items : [WalkRecommendItem]
     let hasNext : Bool
-    let cursor: Int
+    let cursor: Int?
 }
 
 struct WalkRecommendItem: Codable {
     let id: Int
     let title: String
     let walkLikeNum: Int
-    let distance: Int
+    let distance: String
     let time: Int
     let memberNickname: String
     let isLike: Bool

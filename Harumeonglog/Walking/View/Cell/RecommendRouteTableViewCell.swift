@@ -8,9 +8,15 @@
 import UIKit
 import Then
 
+protocol RecommendRouteTableViewCellDelegate: AnyObject {
+    func likeButtonTapped(in: RecommendRouteTableViewCell)
+}
+
 class RecommendRouteTableViewCell: UITableViewCell {
     
     static let identifier = "RecommendRouteTableViewCell"
+    
+    weak  var delegate: RecommendRouteTableViewCellDelegate?
     
     public lazy var titleLabel = UILabel().then { label in
         label.text = "상명대에서 경복궁까지"
@@ -22,13 +28,16 @@ class RecommendRouteTableViewCell: UITableViewCell {
     private lazy var leftContainer = UIView().then { view in
     }
     public lazy var userLabel = commonTextColorFont(text: "크크님의 산책로")
-    private lazy var thumbsUpImageView = UIImageView().then { imageView in
-        imageView.image = UIImage(named: "thumbsUp")
-        imageView.frame.size = CGSize(width: 15, height: 15)
+    
+    
+    public lazy var likeButton = UIButton().then { button in
+        button.setImage(UIImage(systemName: "hand.thumbsup"), for: .normal)
+        button.tintColor = UIColor.gray01
+        button.frame = CGRect(x: 0, y: 0, width: 12, height: 12)
     }
+    
     public lazy var likeCountLabel = commonTextColorFont(text: "123")
-    
-    
+
     
     private lazy var rightContainer = UIView().then { view in
         view.contentMode = .left
@@ -55,8 +64,9 @@ class RecommendRouteTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = UIColor.background
         self.addComponents()
+        
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
     }
-    
 
     private func addComponents() {
         self.addSubview(titleLabel)
@@ -68,7 +78,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
         
         self.addSubview(leftContainer)
         leftContainer.addSubview(userLabel)
-        leftContainer.addSubview(thumbsUpImageView)
+        leftContainer.addSubview(likeButton)
         leftContainer.addSubview(likeCountLabel)
         
         leftContainer.snp.makeConstraints { make in
@@ -82,13 +92,13 @@ class RecommendRouteTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
         
-        thumbsUpImageView.snp.makeConstraints { make in
+        likeButton.snp.makeConstraints { make in
             make.leading.equalTo(userLabel.snp.trailing).offset(5)
             make.centerY.equalToSuperview()
         }
         
         likeCountLabel.snp.makeConstraints { make in
-            make.leading.equalTo(thumbsUpImageView.snp.trailing)
+            make.leading.equalTo(likeButton.snp.trailing).offset(2)
             make.centerY.equalToSuperview()
         }
         
@@ -113,7 +123,6 @@ class RecommendRouteTableViewCell: UITableViewCell {
             make.leading.greaterThanOrEqualToSuperview()
         }
         
-        
         self.addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
@@ -123,5 +132,38 @@ class RecommendRouteTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func likeButtonTapped() {
+        print("추천 경로 좋아요 버튼 실행됨")
+        
+        delegate?.likeButtonTapped(in: self)
+        
+        likeButton.setImage(UIImage(systemName:  "hand.thumbsup.fill"), for: .normal)
+        likeButton.tintColor = UIColor.gray01
+        isLiked = true
+    }
+    
+    var isLiked: Bool = false {
+        didSet {
+            updateLikeButton()
+        }
+    }
+    
+
+    private func updateLikeButton() {
+        let imageName = isLiked ? "hand.thumbsup.fill" : "hand.thumbsup"
+        likeButton.setImage(UIImage(systemName: imageName), for: .normal)
+        likeButton.tintColor = UIColor.gray01
+    }
+    
+    func configure(with route: WalkRecommendItem) {
+        titleLabel.text = route.title
+        likeCountLabel.text = "\(route.walkLikeNum)"
+        distanceLabel.text = route.distance
+        timeLabel.text = "\(route.time)분"
+        userLabel.text = "\(route.memberNickname)님의 산책로"
+        isLiked = route.isLike
+        
     }
 }

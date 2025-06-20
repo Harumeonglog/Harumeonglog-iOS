@@ -11,12 +11,19 @@ import CoreLocation
 
 class MapViewController: UIViewController {
     
+    private var recommendRoutes: [WalkRecommendItem] = []
+    
     var chooseDogView = ChooseDogView()
     var choosePersonView = ChoosePersonView()
+    let walkRecommendService = WalkRecommendService()
     
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
     private let maxHeight: CGFloat = 750
+
+    private var cursor: Int = 0
+    private var hasNext: Bool = true
+    private var isFetching: Bool = false 
     
     private var locationManager = CLLocationManager()
     private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
@@ -78,12 +85,15 @@ class MapViewController: UIViewController {
     
     
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-          let translation = gesture.translation(in: mapView.recommendRouteView)
-          
+        
           switch gesture.state {
           
           // 제스처가 끝났을때 확장/축소 결정
           case .ended:
+              if !isExpanded {
+                  fetchRouteData(reset: true, sort: "RECOMMEND")
+              }
+              
               let velocity = gesture.velocity(in: mapView.recommendRouteView).y  // 초당 픽셀 이동 속도
               if velocity < -500 { // 위로 빠르게 스와이프 -> 확장
                   isExpanded = true
@@ -134,6 +144,50 @@ class MapViewController: UIViewController {
         ])
         
         mapView.routeFilterButton.showsMenuAsPrimaryAction = true
+    }
+    
+    
+    private func fetchRouteData(reset: Bool = false, sort: String) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
+             print("토큰 없음")
+             return
+         }
+        
+        if isFetching { return }
+        isFetching = true
+        
+        if reset {
+            cursor = 0
+            hasNext = true
+            recommendRoutes.removeAll()
+            mapView.recommendRouteTableView.reloadData()
+        }
+        
+        walkRecommendService.fetchWalkRecommends(sort: sort, cursor: cursor, size: 10, token: token){ [weak self] result in
+            guard let self = self else { return }
+            self.isFetching = false
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let routeList = response.result {
+                        self.recommendRoutes.append(contentsOf: routeList.items)
+                        
+                        print("추천 경로 조회 성공: \(recommendRoutes.count)")
+                        self.cursor = routeList.cursor ?? 0
+                        self.hasNext = routeList.hasNext
+                        DispatchQueue.main.async {
+                            self.mapView.recommendRouteTableView.reloadData()
+                        }
+                        
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("추천 경로 조회 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 
@@ -232,18 +286,31 @@ extension MapViewController: CLLocationManagerDelegate {
 }
 
 // MARK: 추천 경로에 대한 tableView
-extension MapViewController: UITableViewDelegate, UITableViewDataSource {
+extension MapViewController: UITableViewDelegate, UITableViewDataSource, RecommendRouteTableViewCellDelegate {
+    
+    
     // 셀 등록
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell") as? RecommendRouteTableViewCell else {
-            return UITableViewCell()
-        }
+        let recommendRoutes = recommendRoutes[indexPath.row]
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell", for: indexPath) as! RecommendRouteTableViewCell
+        cell.selectionStyle = .none
+        cell.configure(with: recommendRoutes)
+        cell.delegate = self
+        
+
         return cell
+    }
+    
+    func likeButtonTapped(in cell: RecommendRouteTableViewCell) {
+        if let indexPath = mapView.recommendRouteTableView.indexPath(for: cell) {
+            print("좋아요버튼 클릭됨")
+        }
     }
     
     // 셀 갯수 설정
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        5
+        recommendRoutes.count
     }
     
     // 셀 높이 설정
