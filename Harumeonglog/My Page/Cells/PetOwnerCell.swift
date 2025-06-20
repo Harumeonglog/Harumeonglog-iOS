@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 import Combine
 
 protocol PetOwnerCellDelegate: AnyObject {
@@ -21,6 +22,7 @@ class PetOwnerCell: UICollectionViewCell {
     private weak var delegate: PetOwnerCellDelegate?
     private weak var petListViewModel: PetListViewModel? // ViewModel 의존성 추가
     private var cancellables = Set<AnyCancellable>()
+    private var tableViewHeightConstraint: Constraint?
     
     static let identifier = "PetOwnerCell"
     
@@ -135,18 +137,28 @@ class PetOwnerCell: UICollectionViewCell {
     }
     
     private func updateTableViewHeight() {
-        let cellHeight: CGFloat = 52
-        let tableHeight = CGFloat(members.count) * cellHeight
-        
-        memberTableView.snp.updateConstraints { make in
-            make.height.equalTo(min(tableHeight, 157))
+            let cellHeight: CGFloat = 52
+            let tableHeight = CGFloat(members.count) * cellHeight
+            let finalHeight = min(tableHeight, 157)
+            
+            // updateConstraints 사용하여 기존 제약 조건 업데이트
+            tableViewHeightConstraint?.update(offset: finalHeight)
+            
+            // 또는 updateConstraints 메서드 사용
+            memberTableView.snp.updateConstraints { make in
+                make.height.equalTo(finalHeight)
+            }
+            
+            // 레이아웃 업데이트
+            self.layoutIfNeeded()
+            
+            // 부모 컬렉션뷰에 레이아웃 업데이트 알림
+            if let collectionView = self.superview as? UICollectionView {
+                DispatchQueue.main.async {
+                    collectionView.collectionViewLayout.invalidateLayout()
+                }
+            }
         }
-        
-        // 부모 컬렉션뷰에 레이아웃 업데이트 알림
-        if let collectionView = self.superview as? UICollectionView {
-            collectionView.collectionViewLayout.invalidateLayout()
-        }
-    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -242,9 +254,10 @@ class PetOwnerCell: UICollectionViewCell {
         }
         
         memberTableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(8)
-            make.top.equalTo(profileImage.snp.bottom).offset(24)
-            make.height.equalTo(157)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalTo(birthdayLabel.snp.bottom).offset(16)
+            // 초기 높이 설정 시 constraint 참조 저장
+            self.tableViewHeightConstraint = make.height.equalTo(52).constraint
         }
         
         sendInviationButton.snp.makeConstraints { make in
@@ -387,6 +400,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
 
 
 import SwiftUI
+import SnapKit
 #Preview {
     PetListViewController()
 }
