@@ -53,7 +53,7 @@ class InviteMemberViewController: UIViewController {
     }
         
     private func setupActions() {
-        self.inviteUserView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        self.inviteMemberView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     @objc
