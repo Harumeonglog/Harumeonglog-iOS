@@ -43,6 +43,10 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
     
     public lazy var searchTableView: UITableView = {
         let tv = UITableView()
+        tv.layer.cornerRadius = 20
+        tv.clipsToBounds = true
+        tv.layer.borderWidth = 1
+        tv.layer.borderColor = UIColor.brown02.cgColor
         tv.backgroundColor = .white
         tv.separatorStyle = .none
         tv.showsHorizontalScrollIndicator = false
@@ -95,8 +99,8 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         
         searchTableView.snp.makeConstraints { make in
             make.top.equalTo(searchTextField.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(inviteButton.snp.top).offset(-20)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(300)
         }
     }
     

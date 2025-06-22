@@ -17,6 +17,7 @@ class InviteUserViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = inviteUserView
+        self.hideKeyboardWhenTappedAround()
         setupBindings()
         setupDelegates()
         setupActions()
@@ -27,6 +28,18 @@ class InviteUserViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isVisible in
                 self?.inviteUserView.searchTableView.isHidden = !isVisible
+            }
+            .store(in: &cancellables)
+        viewModel.$searched
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.inviteUserView.searchTableView.reloadData()
+            }
+            .store(in: &cancellables)
+        viewModel.$stage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.inviteUserView.userStageCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
@@ -50,6 +63,7 @@ class InviteUserViewController: UIViewController {
 }
 
 extension InviteUserViewController: UITextFieldDelegate {
+    
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewModel.isSearching = true
     }
@@ -93,18 +107,24 @@ extension InviteUserViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UserSearchCell.identifier, for: indexPath) as! UserSearchCell
         let member = viewModel.searched[indexPath.row]
-        // cell.configure(member: member) // 실제 Member 데이터로 구성
+        cell.configure(with: member)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedMember = viewModel.searched[indexPath.row]
-        viewModel.stage.append(selectedMember)
+        
+        if !viewModel.stage.contains(where: { $0.memberId == selectedMember.memberId }) {
+            viewModel.stage.append(selectedMember)
+        }
         
         // 검색 텍스트 필드 초기화 및 키보드 숨기기
         inviteUserView.searchTextField.text = ""
         inviteUserView.searchTextField.resignFirstResponder()
+        
+        // searchTableView 숨기기
+        inviteUserView.searchTableView.isHidden = true
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
