@@ -84,5 +84,5 @@ class UserStageCell: UICollectionViewCell {
 
 import SwiftUI
 #Preview {
-    InviteUserViewController()
+    InviteMemberViewController()
 }

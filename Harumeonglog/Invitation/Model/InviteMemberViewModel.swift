@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import UIKit
 
-class InviteUserViewModel: ObservableObject {
+class InviteMemberViewModel: ObservableObject {
     
     @Published var stage: [Member] = []
     @Published var searched: [Member] = []

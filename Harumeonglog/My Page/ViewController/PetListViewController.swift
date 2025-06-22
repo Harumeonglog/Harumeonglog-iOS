@@ -79,7 +79,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     }
     
     func didTapInviteButton() {
-        let invitationVC = InviteUserViewController()
+        let invitationVC = InviteMemberViewController()
         invitationVC.modalPresentationStyle = .overFullScreen
         present(invitationVC, animated: false)
     }

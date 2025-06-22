@@ -8,15 +8,15 @@
 import UIKit
 import Combine
 
-class InviteUserViewController: UIViewController {
+class InviteMemberViewController: UIViewController {
     
-    private let inviteUserView = InviteUserView()
-    private let viewModel = InviteUserViewModel()
+    private let inviteMemberView = InviteMemberView()
+    private let viewModel = InviteMemberViewModel()
     private var cancellables: Set<AnyCancellable> = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = inviteUserView
+        self.view = inviteMemberView
         self.hideKeyboardWhenTappedAround()
         setupBindings()
         setupDelegates()
@@ -27,29 +27,29 @@ class InviteUserViewController: UIViewController {
         viewModel.$isKeyboardVisible
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isVisible in
-                self?.inviteUserView.searchTableView.isHidden = !isVisible
+                self?.inviteMemberView.searchTableView.isHidden = !isVisible
             }
             .store(in: &cancellables)
         viewModel.$searched
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.inviteUserView.searchTableView.reloadData()
+                self?.inviteMemberView.searchTableView.reloadData()
             }
             .store(in: &cancellables)
         viewModel.$stage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.inviteUserView.userStageCollectionView.reloadData()
+                self?.inviteMemberView.userStageCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
         
     private func setupDelegates() {
-        self.inviteUserView.searchTextField.delegate = self
-        self.inviteUserView.userStageCollectionView.delegate = self
-        self.inviteUserView.userStageCollectionView.dataSource = self
-        self.inviteUserView.searchTableView.delegate = self
-        self.inviteUserView.searchTableView.dataSource = self
+        self.inviteMemberView.searchTextField.delegate = self
+        self.inviteMemberView.userStageCollectionView.delegate = self
+        self.inviteMemberView.userStageCollectionView.dataSource = self
+        self.inviteMemberView.searchTableView.delegate = self
+        self.inviteMemberView.searchTableView.dataSource = self
     }
         
     private func setupActions() {
@@ -62,7 +62,7 @@ class InviteUserViewController: UIViewController {
     }
 }
 
-extension InviteUserViewController: UITextFieldDelegate {
+extension InviteMemberViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewModel.isSearching = true
@@ -78,7 +78,7 @@ extension InviteUserViewController: UITextFieldDelegate {
     }
 }
 
-extension InviteUserViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension InviteMemberViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.stage.count
     }
@@ -91,7 +91,7 @@ extension InviteUserViewController: UICollectionViewDelegate, UICollectionViewDa
     }
 }
 
-extension InviteUserViewController: UICollectionViewDelegateFlowLayout {
+extension InviteMemberViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -99,7 +99,7 @@ extension InviteUserViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension InviteUserViewController: UITableViewDelegate, UITableViewDataSource {
+extension InviteMemberViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.searched.count
     }
@@ -120,11 +120,11 @@ extension InviteUserViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         // 검색 텍스트 필드 초기화 및 키보드 숨기기
-        inviteUserView.searchTextField.text = ""
-        inviteUserView.searchTextField.resignFirstResponder()
+        inviteMemberView.searchTextField.text = ""
+        inviteMemberView.searchTextField.resignFirstResponder()
         
         // searchTableView 숨기기
-        inviteUserView.searchTableView.isHidden = true
+        inviteMemberView.searchTableView.isHidden = true
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -134,5 +134,5 @@ extension InviteUserViewController: UITableViewDelegate, UITableViewDataSource {
 
 import SwiftUI
 #Preview {
-    InviteUserViewController()
+    InviteMemberViewController()
 }

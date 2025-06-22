@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
+class InviteMemberView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
     public lazy var navigationBar = CustomNavigationBar()
     
@@ -140,5 +140,5 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
 
 import SwiftUI
 #Preview {
-    InviteUserViewController()
+    InviteMemberViewController()
 }
