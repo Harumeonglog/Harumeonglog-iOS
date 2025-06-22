@@ -40,6 +40,16 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         return cv
     }()
     
+    public lazy var searchTableView: UITableView = {
+        let tv = UITableView()
+        tv.backgroundColor = .white
+        tv.separatorStyle = .none
+        tv.showsHorizontalScrollIndicator = false
+        tv.register(UserSearchCell.self,
+                    forCellReuseIdentifier: UserSearchCell.identifier)
+        return tv
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .background
@@ -51,6 +61,7 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         self.addSubview(searchTextField)
         self.addSubview(inviteButton)
         self.addSubview(userStageCollectionView)
+        self.addSubview(searchTableView)
         
         navigationBar.configureTitle(title: "초대하기")
         navigationBar.snp.makeConstraints { make in
@@ -78,6 +89,11 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
             make.trailing.equalToSuperview()
             make.top.equalTo(searchTextField.snp.bottom).offset(40)
             make.bottom.equalTo(inviteButton.snp.top).inset(-20)
+        }
+        
+        searchTableView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(searchTextField.snp.bottom)
+            make.bottom.equalTo(inviteButton.snp.top).offset(20)
         }
     }
     

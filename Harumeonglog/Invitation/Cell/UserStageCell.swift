@@ -29,10 +29,10 @@ class UserStageCell: UICollectionViewCell {
         $0.setImage(.cancel, for: .normal)
     }
     
-    public func configure(data: UserStageData) {
-        profileImageView.image = data.userProfile
-        nicknameLabel.text = data.username
-        userLevelToggleButton.setUserLevel(data.userLevel)
+    public func configure(data: Member) {
+        profileImageView.kf.setImage(with: URL(string: data.image)!)
+        nicknameLabel.text = data.name
+        userLevelToggleButton.setUserLevel(.guest)
     }
     
     private func setConstraints() {
