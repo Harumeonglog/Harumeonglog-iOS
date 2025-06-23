@@ -12,10 +12,13 @@ import CoreLocation
 class MapViewController: UIViewController {
     
     private var recommendRoutes: [WalkRecommendItem] = []
+    private var petList: [WalkPets] = []
+    private var memberList: [WalkMembers] = []
     
     var chooseDogView = ChooseDogView()
     var choosePersonView = ChoosePersonView()
     let walkRecommendService = WalkRecommendService()
+    let walkMemberSercice = WalkMemberService()
     
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
@@ -61,7 +64,26 @@ class MapViewController: UIViewController {
         chooseDogView.dogCollectionView.dataSource = self
         chooseDogView.dogCollectionView.allowsMultipleSelection = true
 
-        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        walkMemberSercice.fetchWalkAvailablePet(token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    self.petList = response.result!.pets
+                    self.chooseDogView.dogCollectionView.reloadData()
+                    chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 가능한 펫 조회 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+        
     }
     
     
@@ -73,7 +95,28 @@ class MapViewController: UIViewController {
         choosePersonView.personCollectionView.dataSource = self
         choosePersonView.personCollectionView.allowsMultipleSelection = true
         
-        choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        // 선택된 펫 id 추출 (petList에서)
+        let selectedPetIDs = chooseDogView.dogCollectionView.indexPathsForSelectedItems?.compactMap {
+            petList[$0.item].petId
+        } ?? []
+            
+            
+        walkMemberSercice.fetchWalkAvailableMember(petId: selectedPetIDs, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    self.choosePersonView.personCollectionView.reloadData()
+                    choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("산책 가능한 멤버 조회 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
     @objc private func savePersonBtnTapped() {
@@ -83,112 +126,8 @@ class MapViewController: UIViewController {
         navigationController?.pushViewController(walkingVC, animated: true)
     }
     
-    
-    @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        
-          switch gesture.state {
-          
-          // 제스처가 끝났을때 확장/축소 결정
-          case .ended:
-              if !isExpanded {
-                  fetchRouteData(reset: true, sort: "RECOMMEND")
-              }
-              
-              let velocity = gesture.velocity(in: mapView.recommendRouteView).y  // 초당 픽셀 이동 속도
-              if velocity < -500 { // 위로 빠르게 스와이프 -> 확장
-                  isExpanded = true
-              } else if velocity > 500 { // 아래로 빠르게 스와이프 -> 축소
-                  isExpanded = false
-              }
-              
-              let finalHeight = isExpanded ? maxHeight : minHeight
-              mapView.recommendRouteView.snp.updateConstraints { make in
-                  make.height.equalTo(finalHeight)
-              }
-              
-              // 높이에 따라 버튼 숨기기
-              mapView.petStoreButton.isHidden = isExpanded
-              mapView.vetButton.isHidden = isExpanded
-              mapView.recommendRouteLabel.isHidden = !isExpanded
-              mapView.routeFilterButton.isHidden = !isExpanded
-              mapView.recommendRouteTableView.isHidden = !isExpanded
-              
-              UIView.animate(withDuration: 0.3) {
-                  self.view.layoutIfNeeded()
-              }
-          default:
-              break
-          }
-      }
-    
-    // 정렬을 위한 팝업버튼
-    private func configRouteFilterButton() {
-        let popUpButtonClosure = { (action: UIAction) in
-            if action.title == "추천순" {
-                self.mapView.routeFilterButton.setTitle("추천순", for: .normal)
-                
-            } else if action.title == "거리순" {
-                self.mapView.routeFilterButton.setTitle("거리순", for: .normal)
-                
-            } else if action.title == "소요 시간순" {
-                self.mapView.routeFilterButton.setTitle("소요 시간순", for: .normal)
-            }
-            
-            self.mapView.recommendRouteTableView.reloadData()
-        }
-        
-        mapView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
-            UIAction(title: "추천순", handler: popUpButtonClosure),
-            UIAction(title: "거리순", handler: popUpButtonClosure),
-            UIAction(title: "소요 시간순", handler: popUpButtonClosure),
-        ])
-        
-        mapView.routeFilterButton.showsMenuAsPrimaryAction = true
-    }
-    
-    
-    private func fetchRouteData(reset: Bool = false, sort: String) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
-        
-        if isFetching { return }
-        isFetching = true
-        
-        if reset {
-            cursor = 0
-            hasNext = true
-            recommendRoutes.removeAll()
-            mapView.recommendRouteTableView.reloadData()
-        }
-        
-        walkRecommendService.fetchWalkRecommends(sort: sort, cursor: cursor, size: 10, token: token){ [weak self] result in
-            guard let self = self else { return }
-            self.isFetching = false
 
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-                    if let routeList = response.result {
-                        self.recommendRoutes.append(contentsOf: routeList.items)
-                        
-                        print("추천 경로 조회 성공: \(recommendRoutes.count)")
-                        self.cursor = routeList.cursor ?? 0
-                        self.hasNext = routeList.hasNext
-                        DispatchQueue.main.async {
-                            self.mapView.recommendRouteTableView.reloadData()
-                        }
-                        
-                    }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                }
-            case .failure(let error):
-                print("추천 경로 조회 실패: \(error.localizedDescription)")
-            }
-        }
-    }
+    
 }
 
 
@@ -285,9 +224,114 @@ extension MapViewController: CLLocationManagerDelegate {
     }
 }
 
+
+// MARK: 추천 경로에 대한 메소드
+extension MapViewController {
+    @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+          switch gesture.state {
+          
+          // 제스처가 끝났을때 확장/축소 결정
+          case .ended:
+              if !isExpanded {
+                  fetchRouteData(reset: true, sort: "RECOMMEND")
+              }
+              
+              let velocity = gesture.velocity(in: mapView.recommendRouteView).y  // 초당 픽셀 이동 속도
+              if velocity < -500 { // 위로 빠르게 스와이프 -> 확장
+                  isExpanded = true
+              } else if velocity > 500 { // 아래로 빠르게 스와이프 -> 축소
+                  isExpanded = false
+              }
+              
+              let finalHeight = isExpanded ? maxHeight : minHeight
+              mapView.recommendRouteView.snp.updateConstraints { make in
+                  make.height.equalTo(finalHeight)
+              }
+              
+              // 높이에 따라 버튼 숨기기
+              mapView.petStoreButton.isHidden = isExpanded
+              mapView.vetButton.isHidden = isExpanded
+              mapView.recommendRouteLabel.isHidden = !isExpanded
+              mapView.routeFilterButton.isHidden = !isExpanded
+              mapView.recommendRouteTableView.isHidden = !isExpanded
+              
+              UIView.animate(withDuration: 0.3) {
+                  self.view.layoutIfNeeded()
+              }
+          default:
+              break
+          }
+      }
+    
+    // 정렬을 위한 팝업버튼
+    private func configRouteFilterButton() {
+        let popUpButtonClosure = { (action: UIAction) in
+            if action.title == "추천순" {
+                self.mapView.routeFilterButton.setTitle("추천순", for: .normal)
+                
+            } else if action.title == "거리순" {
+                self.mapView.routeFilterButton.setTitle("거리순", for: .normal)
+                
+            } else if action.title == "소요 시간순" {
+                self.mapView.routeFilterButton.setTitle("소요 시간순", for: .normal)
+            }
+            
+            self.mapView.recommendRouteTableView.reloadData()
+        }
+        
+        mapView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
+            UIAction(title: "추천순", handler: popUpButtonClosure),
+            UIAction(title: "거리순", handler: popUpButtonClosure),
+            UIAction(title: "소요 시간순", handler: popUpButtonClosure),
+        ])
+        
+        mapView.routeFilterButton.showsMenuAsPrimaryAction = true
+    }
+    
+    
+    private func fetchRouteData(reset: Bool = false, sort: String) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        if isFetching { return }
+        isFetching = true
+        
+        if reset {
+            cursor = 0
+            hasNext = true
+            recommendRoutes.removeAll()
+            mapView.recommendRouteTableView.reloadData()
+        }
+        
+        walkRecommendService.fetchWalkRecommends(sort: sort, cursor: cursor, size: 10, token: token){ [weak self] result in
+            guard let self = self else { return }
+            self.isFetching = false
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let routeList = response.result {
+                        self.recommendRoutes.append(contentsOf: routeList.items)
+                        
+                        print("추천 경로 조회 성공: \(recommendRoutes.count)")
+                        self.cursor = routeList.cursor ?? 0
+                        self.hasNext = routeList.hasNext
+                        DispatchQueue.main.async {
+                            self.mapView.recommendRouteTableView.reloadData()
+                        }
+                        
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("추천 경로 조회 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
 // MARK: 추천 경로에 대한 tableView
 extension MapViewController: UITableViewDelegate, UITableViewDataSource, RecommendRouteTableViewCellDelegate {
-    
     
     // 셀 등록
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -303,9 +347,31 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
     }
     
     func likeButtonTapped(in cell: RecommendRouteTableViewCell) {
-        if let indexPath = mapView.recommendRouteTableView.indexPath(for: cell) {
-            print("좋아요버튼 클릭됨")
+        guard let indexPath = mapView.recommendRouteTableView.indexPath(for: cell) else { return }
+
+        let route = recommendRoutes[indexPath.row]
+        print("\(route.id)")
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        walkRecommendService.likeWalkRecommend(walkId: route.id, token: token){ [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+
+                    DispatchQueue.main.async {
+                        self.mapView.recommendRouteTableView.reloadRows(at: [indexPath], with: .none)
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 좋아요 실패: \(error.localizedDescription)")
+            }
         }
+        
     }
     
     // 셀 갯수 설정
@@ -324,13 +390,25 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
     }
 }
 
+
+
 // MARK: 산책 멤버 선택에 대한 collectionView
 extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell else {
+            return UICollectionViewCell()
+        }
+
+        if collectionView == chooseDogView.dogCollectionView {
+            let pet = petList[indexPath.item]
+            cell.configurePet(with: pet)
+        } else if collectionView == choosePersonView.personCollectionView {
+            let member = memberList[indexPath.item]
+            cell.configureMember(with: member)
+        }
         
-        return cell!
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -353,7 +431,12 @@ extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSourc
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
+        if collectionView == chooseDogView.dogCollectionView {
+            return petList.count
+        } else if collectionView == choosePersonView.personCollectionView {
+            return memberList.count
+        }
+        return 0
     }
     
     // 셀선택.해제시 다음 버튼 활성화 함수

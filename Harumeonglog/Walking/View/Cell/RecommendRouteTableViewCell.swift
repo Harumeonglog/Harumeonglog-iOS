@@ -76,7 +76,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
             make.top.equalToSuperview().inset(20)
         }
         
-        self.addSubview(leftContainer)
+        contentView.addSubview(leftContainer)
         leftContainer.addSubview(userLabel)
         leftContainer.addSubview(likeButton)
         leftContainer.addSubview(likeCountLabel)
@@ -118,7 +118,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
         }
 
         timeLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(distanceLabel.snp.leading).offset(-15)
+            make.trailing.equalTo(distanceLabel.snp.leading).offset(-10)
             make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualToSuperview()
         }
@@ -134,14 +134,8 @@ class RecommendRouteTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc private func likeButtonTapped() {
-        print("추천 경로 좋아요 버튼 실행됨")
-        
+    @objc private func likeButtonTapped() {        
         delegate?.likeButtonTapped(in: self)
-        
-        likeButton.setImage(UIImage(systemName:  "hand.thumbsup.fill"), for: .normal)
-        likeButton.tintColor = UIColor.gray01
-        isLiked = true
     }
     
     var isLiked: Bool = false {
@@ -153,6 +147,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
 
     private func updateLikeButton() {
         let imageName = isLiked ? "hand.thumbsup.fill" : "hand.thumbsup"
+        // let color = isLiked ? UIColor.red01 : UIColor.gray01
         likeButton.setImage(UIImage(systemName: imageName), for: .normal)
         likeButton.tintColor = UIColor.gray01
     }
@@ -162,7 +157,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
         likeCountLabel.text = "\(route.walkLikeNum)"
         distanceLabel.text = route.distance
         timeLabel.text = "\(route.time)분"
-        userLabel.text = "\(route.memberNickname)님의 산책로"
+        userLabel.text = "\(route.memberNickname) 님의 산책로"
         isLiked = route.isLike
         
     }
