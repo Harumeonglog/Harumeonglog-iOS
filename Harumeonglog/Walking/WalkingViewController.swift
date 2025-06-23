@@ -9,6 +9,8 @@ import UIKit
 
 
 class WalkingViewController: UIViewController {
+    var petList: [WalkPets] = []
+    var memberList: [WalkMembers] = []
     
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간

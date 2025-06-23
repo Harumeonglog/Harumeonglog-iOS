@@ -19,6 +19,7 @@ class MapViewController: UIViewController {
     var choosePersonView = ChoosePersonView()
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
+    let walkService = WalkService()
     
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
@@ -60,9 +61,9 @@ class MapViewController: UIViewController {
     @objc func walkingStartButtonTapped() {
         chooseDogView = showDimmedView(ChooseDogView.self)
         
+        chooseDogView.dogCollectionView.allowsMultipleSelection = true
         chooseDogView.dogCollectionView.delegate = self
         chooseDogView.dogCollectionView.dataSource = self
-        chooseDogView.dogCollectionView.allowsMultipleSelection = true
 
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
@@ -91,9 +92,9 @@ class MapViewController: UIViewController {
         removeView(ChooseDogView.self)
         choosePersonView = showDimmedView(ChoosePersonView.self)
         
+        choosePersonView.personCollectionView.allowsMultipleSelection = true
         choosePersonView.personCollectionView.delegate = self
         choosePersonView.personCollectionView.dataSource = self
-        choosePersonView.personCollectionView.allowsMultipleSelection = true
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
@@ -102,12 +103,14 @@ class MapViewController: UIViewController {
             petList[$0.item].petId
         } ?? []
             
-            
+        print("선택된 펫 id: \(selectedPetIDs)")
+        
         walkMemberSercice.fetchWalkAvailableMember(petId: selectedPetIDs, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
                 if response.isSuccess {
+                    self.memberList = response.result!.members
                     self.choosePersonView.personCollectionView.reloadData()
                     choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
                 } else {
@@ -119,9 +122,16 @@ class MapViewController: UIViewController {
         }
     }
     
+
+    // 산책 시작 화면으로 넘어감
     @objc private func savePersonBtnTapped() {
         removeView(ChoosePersonView.self)
         let walkingVC = WalkingViewController()
+        
+        // 산책멤버, 펫 id 같이 넘겨줌
+        walkingVC.petList = self.petList
+        walkingVC.memberList = self.memberList
+        
         walkingVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(walkingVC, animated: true)
     }
@@ -412,23 +422,17 @@ extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSourc
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
-        
-        // 선택된 셀 상태를 업데이트
-        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
-            cell.isSelected = true
-            updateSaveBtn(isEnabled: true)
-        }
+        // 셀을 선택하면 자동으로 cell.isSelected = true로 설정하고 셀 네부의 isSelected의 didSet이 실행되기 때문에
+        // indexPathsForSelectedItems 로 선택된 셀 확인 가능
+        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        updateSaveBtn(isEnabled: hasSelection)
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
-            cell.isSelected = false
-            
-            let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
-            updateSaveBtn(isEnabled: hasSelection)
-        }
+        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        updateSaveBtn(isEnabled: hasSelection)
     }
+
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == chooseDogView.dogCollectionView {
