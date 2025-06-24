@@ -29,10 +29,10 @@ class MapViewController: UIViewController {
     private var hasNext: Bool = true
     private var isFetching: Bool = false 
     
-    private var locationManager = CLLocationManager()
+    internal var locationManager = CLLocationManager()
     private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
 
-    private lazy var mapView: MapView = {
+    internal lazy var mapView: MapView = {
         let view = MapView()
         
         view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
@@ -142,7 +142,7 @@ class MapViewController: UIViewController {
 
 
 // MARK: 네이버지도
-extension MapViewController: CLLocationManagerDelegate {
+extension MapViewController: CLLocationManagerDelegate, LocationHandling {
     
     // 현재 위치로 이동하는 함수
     @objc func moveToUserLocationButtonTapped() {
@@ -186,52 +186,11 @@ extension MapViewController: CLLocationManagerDelegate {
         }
     }
 
-    // 위치 정보를 기반으로 카메라 이동 & 마커 이동
-    func moveCameraToCurrentLocation() {
-        if let location = locationManager.location {
-            print("위도: \(location.coordinate.latitude), 경도: \(location.coordinate.longitude)")
-            
-            let userLatLng = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
-            
-            let marker = NMFMarker()
-            marker.width = 30
-            marker.height = 30
-            marker.position = userLatLng
-            marker.iconImage = NMFOverlayImage(image: UIImage(named: "currentLocation")!)
-            marker.mapView = mapView.naverMapView.mapView
-            
-        } else {
-            print("위치 정보가 없습니다.")
-            // 위치 정보가 없으면 기본 위치로 이동
-            let userLatLng = NMGLatLng(lat: 37.5665, lng: 126.9780)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
-        }
-    }
-
     // 위도 경도 받아오기 에러
      func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
          print(error)
      }
-    
-    // 위치 접근 권한 허용안한 경우 설정에 들어가도록 유도
-    func showLocationPermissionAlert() {
-        let alert = UIAlertController(title: "위치 권한 필요",
-                                      message: "현재 위치를 사용하려면 설정에서\n 위치 접근을 허용해 주세요.",
-                                      preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default, handler: { _ in
-            if let appSettings = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(appSettings)
-            }
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-        
-        self.present(alert, animated: true, completion: nil)
-    }
+
 }
 
 

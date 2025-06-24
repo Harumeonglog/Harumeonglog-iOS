@@ -194,6 +194,8 @@ extension WalkingViewController {
 
 
 
+
+
 // MARK: View 띄우기 및 삭제
 extension WalkingViewController {
     // view를 띄운걸 삭제하기 위한 공통 함수
