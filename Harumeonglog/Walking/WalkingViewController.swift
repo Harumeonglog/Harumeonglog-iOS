@@ -6,17 +6,29 @@
 //
 
 import UIKit
-
+import CoreLocation
+import NMapsMap
 
 class WalkingViewController: UIViewController {
+    
     var petList: [WalkPets] = []
     var memberList: [WalkMembers] = []
     
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
     
+    internal var locationManager = CLLocationManager()
+    private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
+
+    
     private lazy var walkingView: WalkingView = {
         let view = WalkingView()
+        
+        view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
+        view.endBtn.addTarget(self, action: #selector(endBtnTapped), for: .touchUpInside)
+        view.playBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
+        view.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
+        
         
         return view
     }()
@@ -24,11 +36,8 @@ class WalkingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = walkingView
+        locationManager.delegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        
-        walkingView.endBtn.addTarget(self, action: #selector(endBtnTapped), for: .touchUpInside)
-        walkingView.playBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
-        walkingView.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
         
     }
     
@@ -114,6 +123,7 @@ extension WalkingViewController {
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
 }
+
 
 // MARK: 사진 촬영 후 이미지 받아오기
 extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -230,3 +240,32 @@ extension WalkingViewController {
 }
 
 
+// MARK: 네이버지도
+extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
+    
+    var mapContainer: WalkingView { walkingView }
+    
+    
+    // 현재 위치로 이동하는 함수
+    @objc func moveToUserLocationButtonTapped() {
+        handleUserLocationAuthorization()
+    }
+    
+    // 위치가 이동할 때마다 위치 정보 업데이트
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("didUpdateLocations")
+        // 가장 최근에 받아온 위치
+        if let location = locations.first {
+            let latitude = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            
+            print("위도: \(latitude), 경도: \(longitude)")
+        }
+    }
+
+    // 위도 경도 받아오기 에러
+     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+         print(error)
+     }
+
+}

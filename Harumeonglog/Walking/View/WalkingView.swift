@@ -15,6 +15,10 @@ class WalkingView: UIView {
     
     public lazy var naverMapView = NMFNaverMapView()
     
+    public lazy var moveToUserLocationButton = UIButton().then { button in
+        button.setImage(UIImage(named: "userLocation"), for: .normal)
+    }
+    
     public lazy var recordView = UIView().then { view in
         view.backgroundColor = UIColor.background
         view.layer.cornerRadius = 45
@@ -144,6 +148,13 @@ class WalkingView: UIView {
         btnStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(50)
+        }
+        
+        naverMapView.addSubview(moveToUserLocationButton)
+        moveToUserLocationButton.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().inset(266)
+            make.leading.equalToSuperview().inset(16)
+            make.width.height.equalTo(40)
         }
     }
 

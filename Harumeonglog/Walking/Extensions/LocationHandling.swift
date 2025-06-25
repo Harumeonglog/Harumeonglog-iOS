@@ -11,39 +11,90 @@ import CoreLocation
 import NMapsMap
 
 
-protocol LocationHandling where Self: UIViewController {
-    var locationManager: CLLocationManager { get }
-    var mapView: MapView { get }
 
+protocol LocationHandling: CLLocationManagerDelegate where Self: UIViewController {
+    associatedtype MapContainerType
+    var locationManager: CLLocationManager { get }
+    var mapContainer: MapContainerType { get }
+
+    func handleUserLocationAuthorization()
+    func showLocationPermissionAlert()
     func moveCameraToCurrentLocation()
 }
 
 extension LocationHandling {
-    // 위치 정보를 기반으로 카메라 이동 & 마커 이동
-    func moveCameraToCurrentLocation() {
-        if let location = locationManager.location {
-            print("위도: \(location.coordinate.latitude), 경도: \(location.coordinate.longitude)")
-            
-            let userLatLng = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
-            
-            let marker = NMFMarker()
-            marker.width = 30
-            marker.height = 30
-            marker.position = userLatLng
-            marker.iconImage = NMFOverlayImage(image: UIImage(named: "currentLocation")!)
-            marker.mapView = mapView.naverMapView.mapView
-            
+    
+    func handleUserLocationAuthorization() {
+        if CLLocationManager.locationServicesEnabled() {
+            print("위치 서비스 on 상태")
+
+            let status = locationManager.authorizationStatus
+
+            switch status {
+            case .notDetermined:
+                locationManager.requestWhenInUseAuthorization()
+
+            case .denied, .restricted:
+                showLocationPermissionAlert()
+
+            case .authorizedWhenInUse, .authorizedAlways:
+                if locationManager.location == nil {
+                    locationManager.startUpdatingLocation()
+                }
+                moveCameraToCurrentLocation()
+
+            @unknown default:
+                break
+            }
         } else {
-            print("위치 정보가 없습니다.")
-            // 위치 정보가 없으면 기본 위치로 이동
-            let userLatLng = NMGLatLng(lat: 37.5665, lng: 126.9780)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
+            print("위치 서비스 off 상태")
+            showLocationPermissionAlert()
+        }
+    }
+    
+    
+    func showLocationPermissionAlert() {
+        let alert = UIAlertController(title: "위치 권한 필요",
+                                      message: "현재 위치를 사용하려면 설정에서\n 위치 접근을 허용해 주세요.",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default, handler: { _ in
+            if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(appSettings)
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+
+}
+
+// 위치 정보를 기반으로 카메라 이동 & 마커 이동
+extension LocationHandling where MapContainerType: UIView {
+    func moveCameraToCurrentLocation() {
+        let naverMapView: NMFNaverMapView?
+        
+        // MapContainerType 아래에 있는 네이버 맵 뷰를 안전하게 추출
+        if let walking = mapContainer as? WalkingView {
+            naverMapView = walking.naverMapView
+        } else if let map = mapContainer as? MapView {
+            naverMapView = map.naverMapView
+        } else {
+            naverMapView = nil
+        }
+
+        guard let mapView = naverMapView else {
+            print("mapView를 찾을 수 없음")
+            return
+        }
+
+        if let loc = locationManager.location {
+            let latLng = NMGLatLng(lat: loc.coordinate.latitude, lng: loc.coordinate.longitude)
+            let upd = NMFCameraUpdate(scrollTo: latLng)
+            upd.animation = .easeIn
+            mapView.mapView.moveCamera(upd)
+            
+            let marker = NMFMarker(position: latLng)
+            marker.mapView = mapView.mapView
         }
     }
 }
-

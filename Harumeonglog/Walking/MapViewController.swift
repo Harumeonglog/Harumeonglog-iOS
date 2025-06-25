@@ -143,35 +143,11 @@ class MapViewController: UIViewController {
 
 // MARK: 네이버지도
 extension MapViewController: CLLocationManagerDelegate, LocationHandling {
-    
+    var mapContainer: MapView { mapView }
+
     // 현재 위치로 이동하는 함수
     @objc func moveToUserLocationButtonTapped() {
-        if CLLocationManager.locationServicesEnabled() {
-            print("위치 서비스 on 상태")
-            
-            let status = locationManager.authorizationStatus
-            
-            switch status {
-            case .notDetermined:
-                locationManager.requestWhenInUseAuthorization()     // 최초 요청
-            case .denied, .restricted:
-                showLocationPermissionAlert()                       // 설정으로 이동하도록 유도
-            case .authorizedWhenInUse, .authorizedAlways:
-                // 위치 업데이트가 아직 시작되지 않았다면 시작
-                if locationManager.location == nil {
-                    locationManager.startUpdatingLocation()  // 처음 위치를 받아오기 시작
-                }
-                // 위치 업데이트 없이 현재 위치로 이동하는 함수 호출
-                moveCameraToCurrentLocation()
-
-            @unknown default:
-                break
-            }
-        } else {
-            print("위치 서비스 off 상태")
-            // 위치 서비스 자체가 꺼진 경우 (기기 설정에서 GPS OFF)
-            showLocationPermissionAlert()
-        }
+        handleUserLocationAuthorization()
     }
     
     // 위치가 이동할 때마다 위치 정보 업데이트
