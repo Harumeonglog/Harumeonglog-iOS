@@ -9,7 +9,7 @@ import UIKit
 
 class UserLevelToggleButton: UIButton {
     
-    private var userLevel: UserLevelEnum = .guest
+    private var userLevel: UserLevelEnum = .GUEST
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -19,9 +19,9 @@ class UserLevelToggleButton: UIButton {
     
     public func setUserLevel(_ userLevel: UserLevelEnum) {
         switch userLevel {
-        case .guest:
+        case .GUEST:
             self.setImage(.guestSelected, for: .normal)
-        case .owner:
+        case .OWNER:
             self.setImage(.ownerSelected, for: .normal)
         }
         self.userLevel = userLevel
@@ -29,12 +29,12 @@ class UserLevelToggleButton: UIButton {
     
     public func toggleUserLevel() -> UserLevelEnum {
         switch userLevel {
-        case .guest:
+        case .GUEST:
             self.setImage(.ownerSelected, for: .normal)
-            userLevel = .owner
-        case .owner:
+            userLevel = .OWNER
+        case .OWNER:
             self.setImage(.guestSelected, for: .normal)
-            userLevel = .guest
+            userLevel = .GUEST
         }
         return userLevel
     }

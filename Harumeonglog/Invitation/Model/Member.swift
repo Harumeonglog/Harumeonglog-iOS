@@ -12,6 +12,7 @@ struct Member: Codable {
     let email: String
     let name: String
     let image: String
+    var level: UserLevelEnum?
 }
 
 struct SearchMemberResult: Codable {

@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol UserStageCellDelegate: AnyObject {
+    func userStageCell(_ cell: UserStageCell, didTapDeletionButtonFor member: Member)
+    func userStageCell(_ cell: UserStageCell, didChangeUserLevelFor member: Member)
+}
+
 class UserStageCell: UICollectionViewCell {
     
-    public var userLevel: UserLevelEnum = .guest
+    public var member: Member?
+    private weak var delegate: UserStageCellDelegate?
     static let identifier: String = "UserStageCell"
     
     private lazy var profileImageView = UIImageView().then {
@@ -29,10 +35,11 @@ class UserStageCell: UICollectionViewCell {
         $0.setImage(.cancel, for: .normal)
     }
     
-    public func configure(data: Member) {
+    public func configure(data: Member, delegate: UserStageCellDelegate) {
+        self.member = data
         profileImageView.kf.setImage(with: URL(string: data.image)!)
         nicknameLabel.text = data.name
-        userLevelToggleButton.setUserLevel(.guest)
+        userLevelToggleButton.setUserLevel(data.level ?? .GUEST)
     }
     
     private func setConstraints() {
@@ -67,7 +74,8 @@ class UserStageCell: UICollectionViewCell {
     
     @objc
     private func toggleUserLevel() {
-        userLevel = userLevelToggleButton.toggleUserLevel()
+        member?.level = userLevelToggleButton.toggleUserLevel()
+        delegate?.userStageCell(self, didChangeUserLevelFor: member!)
     }
     
     override init(frame: CGRect) {
