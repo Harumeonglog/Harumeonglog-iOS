@@ -16,6 +16,7 @@ class InviteMemberView: UIView, UICollectionViewDataSource, UICollectionViewDele
         $0.clipsToBounds = true
         $0.font = UIFont.body
         
+        $0.textColor = .black
         $0.backgroundColor = .white
         $0.tintColor = .gray02
         
