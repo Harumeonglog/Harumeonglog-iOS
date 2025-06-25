@@ -10,6 +10,7 @@ import Combine
 
 class InviteMemberViewController: UIViewController {
     
+    private var petID: Int?
     private let inviteMemberView = InviteMemberView()
     private let viewModel = InviteMemberViewModel()
     private var cancellables: Set<AnyCancellable> = []
@@ -21,6 +22,10 @@ class InviteMemberViewController: UIViewController {
         setupBindings()
         setupDelegates()
         setupActions()
+    }
+    
+    func configure(petID: Int) {
+        self.petID = petID
     }
     
     private func setupBindings() {
@@ -54,11 +59,17 @@ class InviteMemberViewController: UIViewController {
     
     private func setupActions() {
         self.inviteMemberView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        self.inviteMemberView.inviteButton.addTarget(self, action: #selector(invite), for: .touchUpInside)
     }
     
     @objc
     private func popVC() {
         dismiss(animated: false)
+    }
+    
+    @objc
+    private func invite() {
+        viewModel.inviteUsers(petID: petID!)
     }
     
 }
@@ -128,9 +139,7 @@ extension InviteMemberViewController: UITableViewDelegate, UITableViewDataSource
         let selectedMember = viewModel.searched[indexPath.row]
         
         // 초대 대기 멤버로 추가
-        if !viewModel.stage.contains(where: { $0.memberId == selectedMember.memberId }) {
-            viewModel.stage.append((selectedMember))
-        }
+        viewModel.addToStage(selectedMember)
         
         // 검색 텍스트 필드 초기화 및 키보드 숨기기
         inviteMemberView.searchTextField.text = ""

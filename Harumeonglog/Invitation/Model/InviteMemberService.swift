@@ -26,6 +26,7 @@ enum InviteMemberService {
             let role: String
         }
         
+        print(users)
         let inviteMembers = users.map { InviteMember(memberId: $0.memberId, role: $0.level!.rawValue) }
         let requestBody = InviteRequest(requests: inviteMembers)
         

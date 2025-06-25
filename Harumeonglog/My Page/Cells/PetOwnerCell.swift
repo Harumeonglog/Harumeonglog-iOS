@@ -10,7 +10,7 @@ import SnapKit
 import Combine
 
 protocol PetOwnerCellDelegate: AnyObject {
-    func didTapInviteButton()
+    func didTapInviteButton(petID: Int)
     func didTapExitButton(petID: Int)
     func didTapEditButton(pet: Pet)
 }
@@ -276,7 +276,7 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func showInvitaionVC() {
-        delegate?.didTapInviteButton()
+        delegate?.didTapInviteButton(petID: pet!.petId)
     }
     
     @objc

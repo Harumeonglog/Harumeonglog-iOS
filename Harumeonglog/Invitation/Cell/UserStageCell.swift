@@ -74,8 +74,8 @@ class UserStageCell: UICollectionViewCell {
     
     @objc
     private func toggleUserLevel() {
-        member?.level = userLevelToggleButton.toggleUserLevel()
-        delegate?.userStageCell(self, didChangeUserLevelFor: member!)
+        self.member?.level = userLevelToggleButton.toggleUserLevel()
+        delegate?.userStageCell(self, didChangeUserLevelFor: self.member!)
     }
     
     override init(frame: CGRect) {

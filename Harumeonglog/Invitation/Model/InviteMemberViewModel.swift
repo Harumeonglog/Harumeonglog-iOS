@@ -77,12 +77,17 @@ class InviteMemberViewModel: ObservableObject {
         }
     }
     
+    func addToStage(_ member: Member) {
+        if !stage.contains(where: { $0.memberId == member.memberId }) {
+            stage.append((member))
+            stage[stage.count - 1].level = .GUEST
+        }
+    }
+    
     func update(member: Member) {
         if let index = stage.firstIndex(where: { $0.memberId == member.memberId }) {
-            // 이미 stage에 있으면 제거
             stage[index] = member
         } else {
-            // 없으면 추가
             stage.append(member)
         }
     }
