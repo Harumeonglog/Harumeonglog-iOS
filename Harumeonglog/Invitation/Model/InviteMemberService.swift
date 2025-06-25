@@ -10,12 +10,12 @@ import Alamofire
 enum InviteMemberService {
     
     static func searchUsers(keyword: String, cursor: Int, token: String, completion: @escaping (Result<HaruResponse<SearchMemberResult>, AFError>) -> Void) {
-        let url = K.haruURL + "/api/v1/members?emil=\(keyword)&cursor=\(cursor)&siz=10"
-        APIClient.getRequestWithoutParameters(endpoint: url, token: token, completion: completion)
+        let endpoint = "/api/v1/pets/members?email=\(keyword)&cursor=\(cursor)&size=10"
+        APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
     
     static func inviteUser(petID: Int, users: [Member], token: String, completion: @escaping (Result<HaruResponse<String>, AFError>) -> Void) {
-        let url = K.haruURL + "/api/v1/pets/\(petID)/members"
+        let endpoint = "/api/v1/pets/\(petID)/members"
         
         struct InviteRequest: Encodable {
             let requests: [InviteMember]
@@ -29,7 +29,7 @@ enum InviteMemberService {
         let inviteMembers = users.map { InviteMember(memberId: $0.memberId, role: $0.level!.rawValue) }
         let requestBody = InviteRequest(requests: inviteMembers)
         
-        APIClient.postRequest(endpoint: url,
+        APIClient.postRequest(endpoint: endpoint,
                               parameters: requestBody,
                               token: token,
                               completion: completion)

@@ -49,7 +49,7 @@ class InviteMemberViewModel: ObservableObject {
                 self?.isLoading = false
                 switch result {
                 case .success(let response):
-                    self?.searched = response.result?.memebers ?? []
+                    self?.searched = response.result?.members ?? []
                 case .failure(let error):
                     print("Search error:", error.localizedDescription)
                 }

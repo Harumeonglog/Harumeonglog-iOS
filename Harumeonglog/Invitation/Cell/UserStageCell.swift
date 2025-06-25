@@ -37,7 +37,7 @@ class UserStageCell: UICollectionViewCell {
     
     public func configure(data: Member, delegate: UserStageCellDelegate) {
         self.member = data
-        profileImageView.kf.setImage(with: URL(string: data.image)!)
+        profileImageView.kf.setImage(with: URL(string: data.image ?? ""))
         nicknameLabel.text = data.name
         userLevelToggleButton.setUserLevel(data.level ?? .GUEST)
     }

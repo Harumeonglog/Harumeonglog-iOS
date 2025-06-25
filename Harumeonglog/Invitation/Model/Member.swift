@@ -11,12 +11,12 @@ struct Member: Codable {
     let memberId: Int
     let email: String
     let name: String
-    let image: String
+    let image: String?
     var level: UserLevelEnum?
 }
 
 struct SearchMemberResult: Codable {
-    let memebers: [Member]
-    let cursor: Int
-    let hasNext: Bool
+    let members: [Member]
+    let cursor: Int?
+    let hasNext: Bool?
 }

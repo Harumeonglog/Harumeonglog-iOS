@@ -80,7 +80,6 @@ extension InviteMemberViewController: UITextFieldDelegate {
     
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
         viewModel.search(textField.text ?? "")
         return true
     }
