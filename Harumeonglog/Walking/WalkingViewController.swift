@@ -14,12 +14,17 @@ class WalkingViewController: UIViewController {
     var petList: [WalkPets] = []
     var memberList: [WalkMembers] = []
     
+    var walkId: Int = 0
+    
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
     
     internal var locationManager = CLLocationManager()
     private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
 
+    let walkRecommendService = WalkRecommendService()
+    let walkMemberSercice = WalkMemberService()
+    let walkService = WalkService()
     
     private lazy var walkingView: WalkingView = {
         let view = WalkingView()
@@ -45,15 +50,63 @@ class WalkingViewController: UIViewController {
         showAlertView()
     }
     
+    
+    // MARK: 산책 일시 정지
     @objc private func stopBtnTapped() {
         if timer == nil {
+            // 산책 재게
+            sendResumeWalkToServer()
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)            
         } else {
+            // 산책 정지
+            sendStopWalkToServer()
             stopTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
         }
     }
+    
+    private func sendResumeWalkToServer() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        walkService.walkResume(walkId: self.walkId, latitude: <#T##Double#>, longitude: <#T##Double#>, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 재게 전송 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+    }
+    
+    
+    private func sendStopWalkToServer() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        walkService.walkPause(walkId: self.walkId, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 일시 정지 전송 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+    }
+    
     
     @objc private func cameraBtnTapped() {
         let picker = UIImagePickerController()
@@ -87,9 +140,32 @@ class WalkingViewController: UIViewController {
         alertView.cancelBtn.addTarget(self, action: #selector(cancelBtnTapped), for: .touchUpInside)
     }
     
+    // 산책 종료
     @objc private func confirmBtnTapped() {
-        removeView(AlertView.self)
-        showRecordWalkingView()
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        let endTime: Int = walkingView.recordTime.text.flatMap { Int($0) } ?? 0
+        let endDistance: Int = Int(walkingView.recordDistance.text.flatMap { Double($0) } ?? 0.0)
+        
+        
+        walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    removeView(AlertView.self)
+                    showRecordWalkingView()
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 종료 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+        
     }
     
     @objc private func cancelBtnTapped() {
@@ -97,6 +173,10 @@ class WalkingViewController: UIViewController {
         startTimer()
     }
 }
+
+
+
+
 
 
 // MARK: 타이머 관련 메소드
@@ -123,6 +203,8 @@ extension WalkingViewController {
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
 }
+
+
 
 
 // MARK: 사진 촬영 후 이미지 받아오기
@@ -194,11 +276,27 @@ extension WalkingViewController {
         navigationController!.popToRootViewController(animated: true)
     }
     
+    
     @objc private func shareBtnTapped() {
-        removeView(ShareRecordView.self)
-        navigationController!.popToRootViewController(animated: true)
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        walkService.walkShare(walkId: self.walkId, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    removeView(ShareRecordView.self)
+                    navigationController!.popToRootViewController(animated: true)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 공유 실패: \(error.localizedDescription)")
+                return
+            }
+        }
         
-        // 서버로 데이터 전송 !!
     }
 }
 
