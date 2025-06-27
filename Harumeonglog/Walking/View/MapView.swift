@@ -21,9 +21,6 @@ class MapView: UIView {
     
     public lazy var moveToUserLocationButton = UIButton().then { button in
         button.setImage(UIImage(named: "userLocation"), for: .normal)
-//        button.layer.cornerRadius = 20
-//        button.layer.borderColor = UIColor(named: "blue01")?.cgColor
-//        button.layer.borderWidth = 2
     }
     
     public lazy var walkingStartButton = UIButton().then { button in

@@ -33,19 +33,31 @@ class RecordView: UIView {
         label.font = .init(name: "Pretendard-Regular", size: 13)
     }
     
-    public lazy var walkingTextField = UITextField().then { textfield in
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.gray02,
-            .font: UIFont(name: "Pretendard-Regular", size: 13)!,
-        ]
-        let attributedPlaceholder = NSAttributedString(string: "망원한강공원 한바퀴", attributes: attributes)
-
-        textfield.attributedPlaceholder = attributedPlaceholder
-        textfield.textColor = .gray01
+    public lazy var walkingTextField: UITextField = {
+        let textfield = UITextField()
+        
+        let font = UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13)
+        let placeholder = NSAttributedString(
+            string: "망원한강공원 한바퀴",
+            attributes: [
+                .foregroundColor: UIColor.gray02,
+                .font: font,
+            ]
+        )
+        
+        textfield.font = font
+        textfield.attributedPlaceholder = placeholder
+        textfield.textColor = .gray00
         textfield.layer.cornerRadius = 15
         textfield.layer.borderColor = UIColor.brown02.cgColor
         textfield.layer.borderWidth = 1
-    }
+        
+        textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
+        textfield.leftViewMode = .always
+
+        return textfield
+    }()
+
     
     private lazy var mapImageRecordStackView = UIStackView().then { stackView in
         stackView.addArrangedSubview(mapImageView)
@@ -90,7 +102,7 @@ class RecordView: UIView {
     public lazy var startAdddress = UILabel().then { label in
         label.text = "망원역 3번출구"
         label.textColor = .gray00
-        label.font = .init(name: "Pretendard-Bold", size: 20)
+        label.font = .init(name: "Pretendard-Bold", size: 18)
         label.numberOfLines = 2
     }
     
@@ -124,7 +136,8 @@ class RecordView: UIView {
         layout.minimumInteritemSpacing = 3
         layout.itemSize = CGSize(width: 50, height: 70)
     }).then { collectionView in
-        collectionView.register(ShowProfileCollectionViewCell.self, forCellWithReuseIdentifier: "ShowProfileCollectionViewCell")
+        collectionView.register(ShowPetProfileCell.self, forCellWithReuseIdentifier: "ShowPetProfileCell")
+        collectionView.register(ShowMemberProfileCell.self, forCellWithReuseIdentifier: "ShowMemberProfileCell")
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
     }
@@ -161,7 +174,7 @@ class RecordView: UIView {
         self.addSubview(recordCancelBtn)
         
         titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(50)
+            make.top.equalToSuperview().inset(40)
             make.centerX.equalToSuperview()
         }
         
@@ -175,6 +188,7 @@ class RecordView: UIView {
         conatinerView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(27)
             make.leading.trailing.equalToSuperview().inset(25)
+            make.height.lessThanOrEqualTo(400)
         }
         
         conatinerView.addSubview(walkingTitleLabel)
@@ -215,7 +229,7 @@ class RecordView: UIView {
         self.addSubview(recordSaveBtn)
         
         recordSaveBtn.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(50)
+            make.bottom.equalToSuperview().inset(40)
             make.width.lessThanOrEqualTo(130)
             make.height.equalTo(50)
             make.leading.trailing.equalToSuperview().inset(110)

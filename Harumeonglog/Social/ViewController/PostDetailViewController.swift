@@ -58,7 +58,6 @@ class PostDetailViewController: UIViewController {
         super.viewWillAppear(animated)
 
         fetchPostDetailsFromServer()
-
     }
     
     
@@ -75,14 +74,11 @@ class PostDetailViewController: UIViewController {
     
 
     private func fetchPostDetailsFromServer() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
         
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
-
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -124,10 +120,7 @@ class PostDetailViewController: UIViewController {
     
     // 좋아요 버튼 더블탭
     @objc func likeButtonDoubleTapped() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
         socialPostService.likePostToServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
@@ -137,11 +130,8 @@ class PostDetailViewController: UIViewController {
                 if response.isSuccess {
                     if response.message == "성공입니다." {
                         print("게시글 좋아요 성공")
-
                         isLiked.toggle()
-                        
                         fetchPostDetailsFromServer()
-
                     }
                 } else {
                     print("서버 응답 에러: \(response.message)")

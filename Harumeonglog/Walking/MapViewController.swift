@@ -11,17 +11,30 @@ import CoreLocation
 
 class MapViewController: UIViewController {
     
+    private var recommendRoutes: [WalkRecommendItem] = []
+    private var petList: [WalkPets] = []
+    private var memberList: [WalkMembers] = []
+    private var selectedPets : [WalkPets] = []
+    private var selectedMembers : [WalkMembers] = []
+    
     var chooseDogView = ChooseDogView()
     var choosePersonView = ChoosePersonView()
+    let walkRecommendService = WalkRecommendService()
+    let walkMemberSercice = WalkMemberService()
+    let walkService = WalkService()
     
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
     private let maxHeight: CGFloat = 750
+
+    private var cursor: Int = 0
+    private var hasNext: Bool = true
+    private var isFetching: Bool = false 
     
-    private var locationManager = CLLocationManager()
+    internal var locationManager = CLLocationManager()
     private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
 
-    private lazy var mapView: MapView = {
+    internal lazy var mapView: MapView = {
         let view = MapView()
         
         view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
@@ -50,11 +63,30 @@ class MapViewController: UIViewController {
     @objc func walkingStartButtonTapped() {
         chooseDogView = showDimmedView(ChooseDogView.self)
         
+        chooseDogView.dogCollectionView.allowsMultipleSelection = true
         chooseDogView.dogCollectionView.delegate = self
         chooseDogView.dogCollectionView.dataSource = self
-        chooseDogView.dogCollectionView.allowsMultipleSelection = true
 
-        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        walkMemberSercice.fetchWalkAvailablePet(token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    self.petList = response.result!.pets
+                    self.chooseDogView.dogCollectionView.reloadData()
+                    chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 가능한 펫 조회 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+        
     }
     
     
@@ -62,28 +94,106 @@ class MapViewController: UIViewController {
         removeView(ChooseDogView.self)
         choosePersonView = showDimmedView(ChoosePersonView.self)
         
+        choosePersonView.personCollectionView.allowsMultipleSelection = true
         choosePersonView.personCollectionView.delegate = self
         choosePersonView.personCollectionView.dataSource = self
-        choosePersonView.personCollectionView.allowsMultipleSelection = true
         
-        choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        
+        let selectedPets = chooseDogView.dogCollectionView.indexPathsForSelectedItems?
+            .compactMap { $0.item < petList.count ? petList[$0.item] : nil } ?? []
+
+        self.selectedPets = selectedPets
+        let selectedPetIds = selectedPets.map(\.petId)  // 선택한 pet id값만 추출
+        
+        
+        print("선택된 펫 id: \(selectedPetIds)")
+        
+        walkMemberSercice.fetchWalkAvailableMember(petId: selectedPetIds, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    self.memberList = response.result!.members
+                    self.choosePersonView.personCollectionView.reloadData()
+                    choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("산책 가능한 멤버 조회 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
+
+    // 산책 시작 화면으로 넘어감
     @objc private func savePersonBtnTapped() {
+        
+        self.selectedMembers = choosePersonView.personCollectionView.indexPathsForSelectedItems?
+            .compactMap { $0.item < memberList.count ? memberList[$0.item] : nil } ?? []
+        
+
         removeView(ChoosePersonView.self)
         let walkingVC = WalkingViewController()
+        
+        // 산책멤버, 펫 정보 같이 넘겨줌
+        walkingVC.selectedPets = self.selectedPets
+        walkingVC.selectedMembers = self.selectedMembers
+        walkingVC.selectedAllItems = selectedPets.map { SelectedAllItems.pet($0) } +
+                                     selectedMembers.map { SelectedAllItems.member($0) }
+        print("\(walkingVC.selectedAllItems)")
+        
         walkingVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(walkingVC, animated: true)
     }
     
+
     
+}
+
+
+// MARK: 네이버지도
+extension MapViewController: CLLocationManagerDelegate, LocationHandling {
+    var mapContainer: MapView { mapView }
+
+    // 현재 위치로 이동하는 함수
+    @objc func moveToUserLocationButtonTapped() {
+        handleUserLocationAuthorization()
+    }
+    
+    // 위치가 이동할 때마다 위치 정보 업데이트
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("didUpdateLocations")
+        // 가장 최근에 받아온 위치
+        if let location = locations.first {
+            let latitude = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            
+            print("위도: \(latitude), 경도: \(longitude)")
+        }
+    }
+
+    // 위도 경도 받아오기 에러
+     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+         print(error)
+     }
+
+}
+
+
+// MARK: 추천 경로에 대한 메소드
+extension MapViewController {
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-          let translation = gesture.translation(in: mapView.recommendRouteView)
-          
           switch gesture.state {
           
           // 제스처가 끝났을때 확장/축소 결정
           case .ended:
+              if !isExpanded {
+                  fetchRouteData(reset: true, sort: "RECOMMEND")
+              }
+              
               let velocity = gesture.velocity(in: mapView.recommendRouteView).y  // 초당 픽셀 이동 속도
               if velocity < -500 { // 위로 빠르게 스와이프 -> 확장
                   isExpanded = true
@@ -135,115 +245,96 @@ class MapViewController: UIViewController {
         
         mapView.routeFilterButton.showsMenuAsPrimaryAction = true
     }
-}
-
-
-// MARK: 네이버지도
-extension MapViewController: CLLocationManagerDelegate {
     
-    // 현재 위치로 이동하는 함수
-    @objc func moveToUserLocationButtonTapped() {
-        if CLLocationManager.locationServicesEnabled() {
-            print("위치 서비스 on 상태")
-            
-            let status = locationManager.authorizationStatus
-            
-            switch status {
-            case .notDetermined:
-                locationManager.requestWhenInUseAuthorization()     // 최초 요청
-            case .denied, .restricted:
-                showLocationPermissionAlert()                       // 설정으로 이동하도록 유도
-            case .authorizedWhenInUse, .authorizedAlways:
-                // 위치 업데이트가 아직 시작되지 않았다면 시작
-                if locationManager.location == nil {
-                    locationManager.startUpdatingLocation()  // 처음 위치를 받아오기 시작
-                }
-                // 위치 업데이트 없이 현재 위치로 이동하는 함수 호출
-                moveCameraToCurrentLocation()
-
-            @unknown default:
-                break
-            }
-        } else {
-            print("위치 서비스 off 상태")
-            // 위치 서비스 자체가 꺼진 경우 (기기 설정에서 GPS OFF)
-            showLocationPermissionAlert()
-        }
-    }
     
-    // 위치가 이동할 때마다 위치 정보 업데이트
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("didUpdateLocations")
-        // 가장 최근에 받아온 위치
-        if let location = locations.first {
-            let latitude = location.coordinate.latitude
-            let longitude = location.coordinate.longitude
-            
-            print("위도: \(latitude), 경도: \(longitude)")
-        }
-    }
-
-    // 위치 정보를 기반으로 카메라 이동 & 마커 이동
-    func moveCameraToCurrentLocation() {
-        if let location = locationManager.location {
-            print("위도: \(location.coordinate.latitude), 경도: \(location.coordinate.longitude)")
-            
-            let userLatLng = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
-            
-            let marker = NMFMarker()
-            marker.width = 30
-            marker.height = 30
-            marker.position = userLatLng
-            marker.iconImage = NMFOverlayImage(image: UIImage(named: "currentLocation")!)
-            marker.mapView = mapView.naverMapView.mapView
-            
-        } else {
-            print("위치 정보가 없습니다.")
-            // 위치 정보가 없으면 기본 위치로 이동
-            let userLatLng = NMGLatLng(lat: 37.5665, lng: 126.9780)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: userLatLng)
-            cameraUpdate.animation = .easeIn
-            mapView.naverMapView.mapView.moveCamera(cameraUpdate)
-        }
-    }
-
-    // 위도 경도 받아오기 에러
-     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-         print(error)
-     }
-    
-    // 위치 접근 권한 허용안한 경우 설정에 들어가도록 유도
-    func showLocationPermissionAlert() {
-        let alert = UIAlertController(title: "위치 권한 필요",
-                                      message: "현재 위치를 사용하려면 설정에서\n 위치 접근을 허용해 주세요.",
-                                      preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default, handler: { _ in
-            if let appSettings = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(appSettings)
-            }
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+    private func fetchRouteData(reset: Bool = false, sort: String) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
-        self.present(alert, animated: true, completion: nil)
+        if isFetching { return }
+        isFetching = true
+        
+        if reset {
+            cursor = 0
+            hasNext = true
+            recommendRoutes.removeAll()
+            mapView.recommendRouteTableView.reloadData()
+        }
+        
+        walkRecommendService.fetchWalkRecommends(sort: sort, cursor: cursor, size: 10, token: token){ [weak self] result in
+            guard let self = self else { return }
+            self.isFetching = false
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    if let routeList = response.result {
+                        self.recommendRoutes.append(contentsOf: routeList.items!)
+                        
+                        print("추천 경로 조회 성공: \(recommendRoutes.count)")
+                        self.cursor = routeList.cursor ?? 0
+                        self.hasNext = routeList.hasNext
+                        DispatchQueue.main.async {
+                            self.mapView.recommendRouteTableView.reloadData()
+                        }
+                        
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("추천 경로 조회 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 
 // MARK: 추천 경로에 대한 tableView
-extension MapViewController: UITableViewDelegate, UITableViewDataSource {
+extension MapViewController: UITableViewDelegate, UITableViewDataSource, RecommendRouteTableViewCellDelegate {
+    
     // 셀 등록
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell") as? RecommendRouteTableViewCell else {
-            return UITableViewCell()
-        }
+        let recommendRoutes = recommendRoutes[indexPath.row]
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell", for: indexPath) as! RecommendRouteTableViewCell
+        cell.selectionStyle = .none
+        cell.configure(with: recommendRoutes)
+        cell.delegate = self
+        
+
         return cell
+    }
+    
+    func likeButtonTapped(in cell: RecommendRouteTableViewCell) {
+        guard let indexPath = mapView.recommendRouteTableView.indexPath(for: cell) else { return }
+
+        let route = recommendRoutes[indexPath.row]
+        print("\(route.id)")
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        walkRecommendService.likeWalkRecommend(walkId: route.id, token: token){ [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+
+                    DispatchQueue.main.async {
+                        self.mapView.recommendRouteTableView.reloadRows(at: [indexPath], with: .none)
+                    }
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                }
+            case .failure(let error):
+                print("게시글 좋아요 실패: \(error.localizedDescription)")
+            }
+        }
+        
     }
     
     // 셀 갯수 설정
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        5
+        recommendRoutes.count
     }
     
     // 셀 높이 설정
@@ -257,36 +348,47 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+
+
 // MARK: 산책 멤버 선택에 대한 collectionView
 extension MapViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChooseProfileViewCell", for: indexPath) as? ChooseProfileViewCell else {
+            return UICollectionViewCell()
+        }
+
+        if collectionView == chooseDogView.dogCollectionView {
+            let pet = petList[indexPath.item]
+            cell.configurePet(with: pet)
+        } else if collectionView == choosePersonView.personCollectionView {
+            let member = memberList[indexPath.item]
+            cell.configureMember(with: member)
+        }
         
-        return cell!
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
-        
-        // 선택된 셀 상태를 업데이트
-        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
-            cell.isSelected = true
-            updateSaveBtn(isEnabled: true)
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? ChooseProfileViewCell {
-            cell.isSelected = false
-            
-            let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
-            updateSaveBtn(isEnabled: hasSelection)
-        }
+        // 셀을 선택하면 자동으로 cell.isSelected = true로 설정하고 셀 네부의 isSelected의 didSet이 실행되기 때문에
+        // indexPathsForSelectedItems 로 선택된 셀 확인 가능
+        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        updateSaveBtn(isEnabled: hasSelection)
     }
 
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        updateSaveBtn(isEnabled: hasSelection)
+    }
+
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
+        if collectionView == chooseDogView.dogCollectionView {
+            return petList.count
+        } else if collectionView == choosePersonView.personCollectionView {
+            return memberList.count
+        }
+        return 0
     }
     
     // 셀선택.해제시 다음 버튼 활성화 함수

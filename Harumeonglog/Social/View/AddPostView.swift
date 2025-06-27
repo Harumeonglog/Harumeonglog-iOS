@@ -33,6 +33,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         return textField
     }()
     
+    
     public lazy var categoryButton: UIButton = {
         let button = UIButton(type: .system)
         
