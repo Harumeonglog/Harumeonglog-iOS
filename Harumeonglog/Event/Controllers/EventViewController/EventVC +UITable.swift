@@ -27,10 +27,33 @@ extension EventView : UITableViewDelegate, UITableViewDataSource {
         return cell
     }
 
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedEvent = filteredEvents[indexPath.row]
-        // TODO: push or present the edit view controller for selectedEvent
-        print("Edit view로 이동: \(selectedEvent.title)")
+
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+            print("AccessToken이 없음")
+            return
+        }
+
+        EventService.getEventDetail(eventId: selectedEvent.id, token: token) { [self] result in
+            switch result {
+            case .success(let response):
+                DispatchQueue.main.async {
+                    if let eventDetail = response.result {
+                        print("단일 일정 조회 성공: \(eventDetail.title)")
+                        print("getEventDetail 응답 데이터: \(response)")
+                        let editVC = EditEventViewController(event: eventDetail, isEditable: true)
+                        editVC.delegate = self.findViewController() as? EditEventViewControllerDelegate
+                        if let viewController = self.findViewController() {
+                            viewController.navigationController?.pushViewController(editVC, animated: true)
+                        }
+                    }
+                }
+            case .failure(let error):
+                print("단일 일정 조회 실패: \(error)")
+            }
+        }
     }
 
     @objc func checkmarkIconTapped(_ sender: UITapGestureRecognizer) {

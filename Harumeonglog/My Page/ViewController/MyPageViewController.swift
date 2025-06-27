@@ -6,17 +6,23 @@
 //
 
 import UIKit
+import Combine
 
-class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetListViewControllerDelegate {
+class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let myPageView = MyPageView()
+    private var petListViewModel: PetListViewModel?
     private let petListVC = PetListViewController()
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPageView
+        self.myPageView.previewPetListTableView.delegate = self
+        self.myPageView.previewPetListTableView.dataSource = self
+        
+        self.petListVC.configure(petListViewModel: petListViewModel!)
         setButtonActions()
-        petListVC.delegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
@@ -28,6 +34,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        petListViewModel!.getPetList{ _ in }
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
@@ -41,6 +48,13 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
                 break
             }
         }
+        petListViewModel!.$petList
+            .sink { [weak self] _ in
+                self?.myPageView.previewPetListTableView.reloadData()
+            }
+            .store (in: &cancellables)
+            
+        showTabBar()
     }
     
     private func setButtonActions() {
@@ -49,6 +63,10 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
         myPageView.goToPetListButton.addTarget(self, action: #selector(handlePetLisstButtonTapped), for: .touchUpInside)
         myPageView.logoutButton.addTarget(self, action: #selector(handleLogoutButtonTapped), for: .touchUpInside)
         myPageView.revokeButton.addTarget(self, action: #selector(handleRevokeButtonTapped), for: .touchUpInside)
+    }
+    
+    func configure(petListViewModel: PetListViewModel) {
+        self.petListViewModel = petListViewModel
     }
     
     @objc
@@ -66,6 +84,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     @objc
     private func handlePetLisstButtonTapped() {
+        petListVC.configure(petListViewModel: petListViewModel)
         self.navigationController?.pushViewController(petListVC, animated: true)
     }
     
@@ -99,6 +118,23 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate, PetLi
     
     func showTabBar() {
         self.tabBarController?.tabBar.isHidden = false
+    }
+    
+}
+
+extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return petListViewModel!.petList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let data = petListViewModel!.petList[indexPath.row]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PreviewPetCell.identifier) as? PreviewPetCell else {
+            return UITableViewCell()
+        }
+        cell.configure(with: data)
+        return cell
     }
     
 }

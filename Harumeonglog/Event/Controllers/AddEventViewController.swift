@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Alamofire
 
 private enum PickerMode {
     case date
@@ -20,7 +21,6 @@ class AddEventViewController: UIViewController {
         return view
     }()
 
-    private var categoryInputView: UIView?
     //선택된 요일 저장하는 배열
     private var selectedWeekdays: Set<String> = []
 
@@ -62,8 +62,13 @@ class AddEventViewController: UIViewController {
     //저장버튼 동작 함수
     @objc
     private func saveButtonTapped(){
-        //내용 서버로 넘겨주기
-        navigationController?.popViewController(animated: true)
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken),
+              let selectedCategory = addEventView.selectedCategory else { return }
+        
+        let input = collectEventInput(for: selectedCategory)
+        let request = makeEventRequest(from: input, category: selectedCategory)
+        
+        postEvent(request: request, token: accessToken)
     }
     
     
@@ -153,7 +158,7 @@ class AddEventViewController: UIViewController {
      func getFormattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy.M.d EEEE" // 시간 없이 날짜만 표시
+        formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
 
@@ -166,7 +171,7 @@ class AddEventViewController: UIViewController {
     }
 }
 
-// Delegate 구현하여 선택된 카테고리에 따라 입력 필드 표시
+// MARK: Delegate 구현하여 선택된 카테고리에 따라 입력 필드 표시
 extension AddEventViewController: AddEventViewDelegate {
     func categoryDidSelect(_ category: CategoryType) {
         updateCategoryInputView(for: category)
@@ -203,38 +208,123 @@ extension AddEventViewController: AddEventViewDelegate {
     }
 
     private func updateCategoryInputView(for category: CategoryType) {
-        categoryInputView?.removeFromSuperview()
-        
-        switch category {
-        case .bath:
-            categoryInputView = BathView()
-        case .walk:
-            categoryInputView = WalkView()
-        case .medicine:
-            categoryInputView = MedicineView()
-        case .checkup:
-            categoryInputView = CheckupView()
-        case .other:
-            categoryInputView = OtherView()
-        }
-        
-        if let newView = categoryInputView {
-            view.addSubview(newView)
-            view.bringSubviewToFront(newView)
-            newView.snp.makeConstraints { make in
-                make.top.equalTo(addEventView.categoryButton.snp.bottom).offset(20)
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(300)
-            }
-        }
-        view.bringSubviewToFront(addEventView.dropdownTableView)
+        addEventView.updateCategoryInputView(for: category)
     }
 
     func getSelectedWeekdays() -> [String] {
-        return Array(selectedWeekdays)
+        return selectedWeekdays.toEnglishWeekdays()
     }
 
     func alarmOptionSelected(_ option: String) {
-        // 알람 옵션 선택 시 처리 로직 추가 가능
+        // TODO알람 옵션 선택 시 처리 로직 추가 가능
+    }
+}
+
+//MARK: 일정 추가 API 연결
+extension AddEventViewController {
+    
+    //사용자가 입력한 카테고리별로 정보 가져오는 메서드
+    private func collectEventInput(for category: CategoryType) -> (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String) {
+        var details = "", hospitalName = "", department = "", medicineName = "", distance = "", duration = ""
+        var cost = 0
+        
+        switch category {
+        case .walk:
+            if let view = addEventView.categoryInputView as? WalkView {
+                let input = view.getInput()
+                distance = input.distance
+                duration = input.duration
+                details = input.details
+            }
+        case .medicine:
+            if let view = addEventView.categoryInputView as? MedicineView {
+                let input = view.getInput()
+                medicineName = input.medicineName
+                details = input.details
+            }
+        case .checkup:
+            if let view = addEventView.categoryInputView as? CheckupView {
+                let input = view.getInput()
+                hospitalName = input.hospitalName
+                department = input.department
+                cost = Int(input.cost) ?? 0
+                details = input.details
+            }
+        case .bath:
+            break
+        case .other:
+            if let view = addEventView.categoryInputView as? OtherView {
+                details = view.getInput()
+            }
+        }
+        
+        return (details, hospitalName, department, cost, medicineName, distance, duration)
+    }
+    
+    //입력값 가지고 서버에 보낼 EventRequest 객체 만드는 메서드
+    private func makeEventRequest(from input: (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String), category: CategoryType) -> EventRequest {
+        
+        let dateText = addEventView.dateButton.title(for: .normal) ?? ""
+        let timeText = addEventView.timeButton.title(for: .normal) ?? "00.00"
+        let timeComponents = timeText.split(separator: ":")
+        let hour = Int(timeComponents[0]) ?? 0
+        let minute = Int(timeComponents[1]) ?? 0
+        
+        let formattedTime = String(format: "%02d:%02d:00", hour, minute)
+        
+        print("보내는 category 값: \(category.serverKey)")
+        
+        return EventRequest(
+            title: addEventView.titleTextField.text ?? "",
+            date: dateText,
+            isRepeated: !selectedWeekdays.isEmpty,
+            expiredDate: "2025-12-31",
+            repeatDays: getSelectedWeekdays(),
+            hasNotice: addEventView.alarmButton.title(for: .normal) != "설정 안 함",
+            time: formattedTime,
+            category: category.serverKey,
+            details: category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,
+            hospitalName: category == .checkup ? input.hospitalName : nil,
+            department: category == .checkup ? input.department : nil,
+            cost: category == .checkup ? input.cost : nil,
+            medicineName: category == .medicine ? input.medicineName : nil,
+            distance: category == .walk ? input.distance : nil,
+            duration: category == .walk ? input.duration : nil
+        )
+    }
+    
+    //createEvent 불러오기
+    private func postEvent(request: EventRequest, token: String) {
+        // JSON 로그 출력 추가
+        if let jsonData = try? JSONEncoder().encode(request),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("전송되는 JSON:\n\(jsonString)")
+        }
+        
+        EventService.createEvent(request: request, token: token) { result in
+            switch result {
+            case .success(let response):
+                print("일정 추가 성공 !!: \(response)")
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            case .failure(let error):
+                print("일정 추가 실패 ㅜㅜ: \(error)")
+                
+                if let afError = error.underlyingError as? AFError,
+                   case let .responseSerializationFailed(reason) = afError,
+                   case let .decodingFailed(decodingError) = reason {
+                    print("디코딩 오류 내용: \(decodingError)")
+                }
+                
+                if let underlyingError = error.underlyingError,
+                   let data = (underlyingError as NSError).userInfo["com.alamofire.serialization.response.error.data"] as? Data,
+                   let json = String(data: data, encoding: .utf8) {
+                    print("서버 응답 JSON 본문:\n\(json)")
+                } else {
+                    print("응답 데이터 없음")
+                }
+            }
+        }
     }
 }

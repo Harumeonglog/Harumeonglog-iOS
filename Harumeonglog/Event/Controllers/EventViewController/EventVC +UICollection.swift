@@ -10,29 +10,29 @@ import UIKit
 extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return EventCategory.allCases.count
+        return CategoryType.allCasesWithAll.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as? CategoryCell else {
             return UICollectionViewCell()
         }
-        let category = EventCategory.allCases[indexPath.item]
+        let category = CategoryType.allCasesWithAll[indexPath.item]
         let isSelected = category == selectedCategory
-        cell.configure(with: category.displayName, isSelected: isSelected)
+        cell.configure(with: category?.displayName ?? "전체", isSelected: isSelected)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let category = EventCategory.allCases[indexPath.item]
+        let category = CategoryType.allCasesWithAll[indexPath.item]
         selectedCategory = category
         collectionView.reloadData()
         collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
 
-        if category == .all {
+        if category == nil {
             delegate?.didSelectCategory("")
         } else {
-            delegate?.didSelectCategory(category.serverKey)
+            delegate?.didSelectCategory(category!.serverKey)
         }
 
         // 카테고리 선택 시 해당 카테고리에 맞는 일정 다시 호출
@@ -47,12 +47,12 @@ extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
                 return
             }
 
-            let categoryKey = (category == .all) ? nil : category.serverKey
+            let categoryKey = category?.serverKey
             EventService.getEventsByDate(date: dateString, category: categoryKey, token: token) { result in
                 switch result {
                 case .success(let response):
                     let events = response.result?.events?.map {
-                        Event(id: $0.id, title: $0.title, category: category.serverKey, done:$0.done)
+                        Event(id: $0.id, title: $0.title, category: category?.serverKey ?? "", done:$0.done)
                     } ?? []
                     DispatchQueue.main.async {
                         parentVC.homeView.eventView.updateEvents(events)

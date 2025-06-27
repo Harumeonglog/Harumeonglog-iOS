@@ -53,3 +53,30 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 }
 
+extension HomeViewController: EditEventViewControllerDelegate {
+    func didDeleteEvent(eventId: Int) {
+        homeView.eventView.removeEvent(withId: eventId)
+    }
+    
+    func didUpdateEvent(_ updatedEventId: Int) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+            print("AccessToken이 없음")
+            return
+        }
+
+        eventViewModel.fetchEventsByDate(Date(), token: token) { result in
+            switch result {
+            case .success(let events):
+                DispatchQueue.main.async {
+                    let mappedEvents = events.map {
+                        Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done)
+                    }
+                    self.homeView.eventView.updateEvents(mappedEvents)
+                    print("수정 반영 후 일정 \(events.count)건 갱신 완료")
+                }
+            case .failure(let error):
+                print("수정 후 일정 재조회 실패: \(error)")
+            }
+        }
+    }
+}

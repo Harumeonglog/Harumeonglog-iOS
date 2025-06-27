@@ -7,10 +7,15 @@
 
 import UIKit
 
+protocol PetGuestCellDelegate: AnyObject {
+    func didTapExitButton(petID: Int)
+}
+
 class PetGuestCell: UICollectionViewCell {
     
     static let identifier = "PetGuestCell"
-    
+    var delegate: PetGuestCellDelegate?
+    var pet: Pet?
     // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
@@ -28,6 +33,7 @@ class PetGuestCell: UICollectionViewCell {
     private lazy var divider = UIView().then {
         $0.backgroundColor = .gray01
     }
+    
     private lazy var dogSizeLabel = commonLabel()
     private lazy var birthdayLabel = commonLabel()
     
@@ -41,13 +47,15 @@ class PetGuestCell: UICollectionViewCell {
         $0.setImage(.exit, for: .normal)
     }
     
-    public func configure(_ petData: PetData) {
+    public func configure(_ pet: Pet, delegate: PetGuestCellDelegate) {
+        self.pet = pet
+        self.delegate = delegate
         setDefaultConstraints()
-        profileImage.image = petData.image
-        nameLabel.text = petData.name
-        genderLabel.text = petData.gender
-        dogSizeLabel.text = petData.size.inKorean()
-        birthdayLabel.text = "🎂 " + petData.birthday
+        profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""))
+        nameLabel.text = pet.name
+        genderLabel.text = pet.gender
+        dogSizeLabel.text = pet.size
+        birthdayLabel.text = "🎂 " + (pet.birth ?? "")
     }
     
     private func setDefaultConstraints() {
@@ -108,6 +116,15 @@ class PetGuestCell: UICollectionViewCell {
             make.height.equalTo(25)
             make.width.equalTo(70)
         }
+    }
+    
+    @objc
+    private func exitButtonTapped() {
+        guard let pet = pet else {
+            print("cell 안의 pet이 비어있습니다.")
+            return
+        }
+        delegate?.didTapExitButton(petID: pet.petId)
     }
     
     override init(frame: CGRect) {

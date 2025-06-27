@@ -114,7 +114,7 @@ class WalkView: UIView {
             make.height.equalTo(16)
         }
         distanceTextField.snp.makeConstraints { make in
-            make.top.equalTo(distanceLabel.snp.bottom).offset(10)
+            make.top.equalTo(distanceLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
             make.width.equalTo(170)
             make.height.equalTo(45)
@@ -142,7 +142,7 @@ class WalkView: UIView {
             make.height.equalTo(16)
         }
         detailTextView.snp.makeConstraints { make in
-            make.top.equalTo(detailLabel.snp.bottom).offset(10)
+            make.top.equalTo(detailLabel.snp.bottom).offset(8)
             make.width.equalTo(362)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
@@ -150,6 +150,18 @@ class WalkView: UIView {
     }
 }
 
+//MARK: 사용자가 입력한 세부 내용을 가져오는 메서드
+extension WalkView  {
+    func getInput() -> (distance: String, duration: String, details: String){
+        return (
+            distance: distanceTextField.text ?? "",
+            duration: timeTextField.text ?? "",
+            details: detailTextView.text ?? ""
+        )
+    }
+}
+
+//MARK: 서버에서 받은 일정 데이터를 UI에 반영
 extension WalkView: EventDetailReceivable {
     func applyContent(from data: EventDetailData) {
         distanceTextField.text = data.fields["distance"]

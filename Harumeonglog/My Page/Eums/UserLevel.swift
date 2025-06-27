@@ -7,14 +7,14 @@
 
 import UIKit
 
-enum UserLevelEnum {
-    case guest, owner
+enum UserLevelEnum: String, Codable {
+    case GUEST, OWNER
     
     func levelImage() -> UIImage {
         switch self {
-        case .guest:
+        case .GUEST:
             return .guestSelected
-        case .owner:
+        case .OWNER:
             return .ownerSelected
         }
     }

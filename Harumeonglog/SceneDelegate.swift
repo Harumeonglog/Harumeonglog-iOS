@@ -20,8 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         AuthAPIService.reissue() { code in
             switch code {
             case .COMMON200:
-                self.window?.rootViewController = BaseViewController()
                 MemberAPIService.getInfo { code, info in }
+                self.window?.rootViewController = BaseViewController()
             case .AUTH400:
                 self.window?.rootViewController = LoginViewController()
             }

@@ -38,7 +38,7 @@ struct PetResult: Decodable {
     let hasNext: Bool
 }
 
-struct Pet: Decodable {
+struct Pet: Codable {
     let role: String
     let petId: Int
     let name: String
@@ -47,10 +47,10 @@ struct Pet: Decodable {
     let gender: String
     let birth: String?
     let mainImage: String?
-    let people: [PetMember]?
+    var people: [PetMember]?
 }
 
-struct PetMember: Decodable {
+struct PetMember: Codable {
     let id: Int
     let name: String
     let role: String
@@ -116,4 +116,40 @@ struct ActivePetInfoResult: Decodable {
     let mainImage: String?
     let gender: String
     let birth: String
+}
+
+//MARK: POST/api/v1/pets 펫 추가
+//MARK: PATCH/api/v1/pets/{petId} 펫 정보 수정
+struct PetParameter {
+    let name: String
+    let size: String // SMALL, BIG, MIDDLE
+    let type: String
+    let gender: String // MALE, FEMALE
+    let birth: String
+    let imageKey: String
+}
+
+struct PetPostResponse : Codable {
+    let petId: Int?
+    let createdAt: String?
+    let updatedAt: String?
+}
+
+struct PetPatchResponse : Codable {
+    let petId: Int
+    let name: String
+    let size: String
+    let type: String
+    let gender: String
+    let role: String
+    let birth: String
+    let mainImage: String
+    let updatedAt: String
+}
+
+//MARK: GET/api/v1/pets 펫 목록 조회
+struct PetListResponse: Codable {
+    let pets: [Pet]?
+    let cursor: Int?
+    let hasNext: Bool
 }

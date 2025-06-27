@@ -182,18 +182,20 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     
     private func updateProfile(image: String?, nickname: String) {
         MemberAPIService.patchInfo(
-            param: InfoParameters(image: image, nickname: nickname)
+            param: InfoParameters(imageKey: image, nickname: nickname)
         ) { [weak self] code in
             guard let self = self else { return }
             switch code {
             case .COMMON200:
+                print("프로필 업데이트 성공")
                 self.navigationController?.popViewController(animated: true)
             case .AUTH401:
                 RootViewControllerService.toLoginViewController()
             case .ERROR500:
-                // 서버 에러 발생
+                print("프로필 업데이트 서버에러 발생")
                 break
             default:
+                print("프로필 업데이트 \(code)에러 발생")
                 break
             }
         }

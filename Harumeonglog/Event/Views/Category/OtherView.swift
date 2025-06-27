@@ -58,7 +58,7 @@ class OtherView: UIView {
         }
         
         detailTextView.snp.makeConstraints { make in
-            make.top.equalTo(detailLabel.snp.bottom).offset(10)
+            make.top.equalTo(detailLabel.snp.bottom).offset(8)
             make.width.equalTo(362)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
@@ -66,6 +66,14 @@ class OtherView: UIView {
     }
 }
 
+//MARK: 사용자가 입력한 세부 내용을 가져오는 메서드
+extension OtherView {
+    func getInput() -> String{
+        return detailTextView.text ?? ""
+    }
+}
+
+//MARK: 서버에서 받은 일정 데이터를 UI에 반영
 extension OtherView: EventDetailReceivable {
     func applyContent(from data: EventDetailData) {
         detailTextView.text = data.fields["detail"]
