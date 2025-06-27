@@ -21,7 +21,8 @@ extension APIClient {
     // 공통 헤더 생성 함수
     private static func getHeaders(withToken token: String? = nil) -> HTTPHeaders {
         var headers: HTTPHeaders = [
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"  // 없어도 되는데, 있으면 좋은 것
         ]
         // 토큰 값이 전달되면 인증 토큰 포함 (보안유지를 위해 매번 권한 확인)
         if let token = token {

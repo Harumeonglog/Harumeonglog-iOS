@@ -12,6 +12,7 @@ class InvitationViewController: UIViewController {
     private let invitationView = InvitationView()
     
     override func viewDidLoad() {
+        self.hideKeyboardWhenTappedAround()
         self.view = invitationView
         super.viewDidLoad()
     }
