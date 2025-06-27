@@ -114,7 +114,7 @@ class WalkView: UIView {
             make.height.equalTo(16)
         }
         distanceTextField.snp.makeConstraints { make in
-            make.top.equalTo(distanceLabel.snp.bottom).offset(10)
+            make.top.equalTo(distanceLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
             make.width.equalTo(170)
             make.height.equalTo(45)
@@ -142,7 +142,7 @@ class WalkView: UIView {
             make.height.equalTo(16)
         }
         detailTextView.snp.makeConstraints { make in
-            make.top.equalTo(detailLabel.snp.bottom).offset(10)
+            make.top.equalTo(detailLabel.snp.bottom).offset(8)
             make.width.equalTo(362)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
