@@ -141,6 +141,9 @@ class MapViewController: UIViewController {
         // 산책멤버, 펫 정보 같이 넘겨줌
         walkingVC.selectedPets = self.selectedPets
         walkingVC.selectedMembers = self.selectedMembers
+        walkingVC.selectedAllItems = selectedPets.map { SelectedAllItems.pet($0) } +
+                                     selectedMembers.map { SelectedAllItems.member($0) }
+        print("\(walkingVC.selectedAllItems)")
         
         walkingVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(walkingVC, animated: true)

@@ -9,17 +9,12 @@ import UIKit
 import CoreLocation
 import NMapsMap
 
-enum WalkState {
-    case notStarted
-    case walking
-    case paused
-}
-
 
 class WalkingViewController: UIViewController {
     
     var selectedPets: [WalkPets] = []
     var selectedMembers: [WalkMembers] = []
+    var selectedAllItems: [SelectedAllItems] = []
     
     var walkId: Int = 0
     
@@ -32,10 +27,13 @@ class WalkingViewController: UIViewController {
     private var userLocationMarker: NMFMarker?          // 현재 위치를 가르키는 마커
     private var locationCoordinates: [NMGLatLng] = []   // 사용자의 이동 경로 저장하는 배열
     private var pathOverlay : NMFPath?                  // 실시간으로 갱신되는 선
+    var startLocationCoordinates : [Double] = []
 
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
     let walkService = WalkService()
+    var recordView = RecordView()
+
     
     private lazy var walkingView: WalkingView = {
         let view = WalkingView()
@@ -71,6 +69,7 @@ class WalkingViewController: UIViewController {
         case .notStarted:
             // 산책 시작
             walkState = .walking
+            self.startLocationCoordinates = [latitude, longitude]
             sendStartWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
@@ -291,10 +290,19 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     private func showRecordWalkingView() {
         let recordView = showDimmedView(RecordView.self)
+        self.recordView = recordView
         
         recordView.profileCollectionView.delegate = self
         recordView.profileCollectionView.dataSource = self
+        recordView.profileCollectionView.reloadData()
         
+        recordView.totalDistance.text = walkingView.recordDistance.text
+        recordView.totalTime.text = walkingView.recordTime.text
+        getPlaceName(from: self.startLocationCoordinates) { address in
+            recordView.startAdddress.text = address
+            print("\(address)")
+        }
+
         recordView.recordCancelBtn.addTarget(self, action: #selector(cancelRecordBtnTapped), for: .touchUpInside)
         recordView.recordSaveBtn.addTarget(self, action: #selector(saveRecordBtnTapped), for: .touchUpInside)
     }
@@ -309,10 +317,9 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     // 산책 기록 저장
     @objc private func saveRecordBtnTapped() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-        
-        let recordView = RecordView()
+    
         let title = recordView.walkingTextField.text ?? ""
-        
+
         walkService.walkSave(walkId: self.walkId, title: title, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -337,15 +344,27 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     // 셀 등록
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowProfileCollectionViewCell", for: indexPath) as? ShowProfileCollectionViewCell else {
-            return UICollectionViewCell()
-        }
         
-        return cell
+        let item = selectedAllItems[indexPath.row]
+
+        switch item {
+        case .pet(let pet):
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowPetProfileCell", for: indexPath) as! ShowPetProfileCell
+            cell.configurePet(with: pet)
+            return cell
+
+        case .member(let member):
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowMemberProfileCell", for: indexPath) as! ShowMemberProfileCell
+            cell.configureMember(with: member)
+            return cell
+        }
+
     }
+
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        3
+        return selectedAllItems.count
     }
     
 }
