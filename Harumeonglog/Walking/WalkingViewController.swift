@@ -9,6 +9,13 @@ import UIKit
 import CoreLocation
 import NMapsMap
 
+enum WalkState {
+    case notStarted
+    case walking
+    case paused
+}
+
+
 class WalkingViewController: UIViewController {
     
     var petList: [WalkPets] = []
@@ -19,8 +26,12 @@ class WalkingViewController: UIViewController {
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
     
+    private var walkState: WalkState = .notStarted
+    
     internal var locationManager = CLLocationManager()
-    private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
+    private var userLocationMarker: NMFMarker?          // 현재 위치를 가르키는 마커
+    private var locationCoordinates: [NMGLatLng] = []   // 사용자의 이동 경로 저장하는 배열
+    private var pathOverlay : NMFPath?                  // 실시간으로 갱신되는 선
 
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
@@ -31,7 +42,7 @@ class WalkingViewController: UIViewController {
         
         view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
         view.endBtn.addTarget(self, action: #selector(endBtnTapped), for: .touchUpInside)
-        view.playBtn.addTarget(self, action: #selector(stopBtnTapped), for: .touchUpInside)
+        view.playBtn.addTarget(self, action: #selector(playBtnTapped), for: .touchUpInside)
         view.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
         
         
@@ -46,44 +57,54 @@ class WalkingViewController: UIViewController {
         
     }
     
-    @objc private func endBtnTapped() {
-        showAlertView()
-    }
     
-    
-    // MARK: 산책 일시 정지
-    @objc private func stopBtnTapped() {
-        if timer == nil {
-            // 산책 재게
-            sendResumeWalkToServer()
+    // MARK: 산책 재개 및 일시 정지
+    @objc private func playBtnTapped() {
+        switch walkState {
+        case .notStarted:
+            // 산책 시작
+            walkState = .walking
+            sendStartWalkToServer()
             startTimer()
-            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)            
-        } else {
-            // 산책 정지
+            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+        case .walking:
+            // 산책 일시정지
+            walkState = .paused
             sendStopWalkToServer()
             stopTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        case .paused:
+            // 산책 재개
+            walkState = .walking
+            sendResumeWalkToServer()
+            startTimer()
+            walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            
         }
+    }
+    
+    private func sendStartWalkToServer() {
+        
     }
     
     private func sendResumeWalkToServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
-        walkService.walkResume(walkId: self.walkId, latitude: <#T##Double#>, longitude: <#T##Double#>, token: token) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
-                }
-            case .failure(let error):
-                print("산책 재게 전송 실패: \(error.localizedDescription)")
-                return
-            }
-        }
+//        walkService.walkResume(walkId: self.walkId, latitude: <#T##Double#>, longitude: <#T##Double#>, token: token) { [weak self] result in
+//            guard self != nil else { return }
+//            switch result {
+//            case .success(let response):
+//                if response.isSuccess {
+//
+//                } else {
+//                    print("서버 응답 에러: \(response.message)")
+//                    return
+//                }
+//            case .failure(let error):
+//                print("산책 재게 전송 실패: \(error.localizedDescription)")
+//                return
+//            }
+//        }
     }
     
     
@@ -91,7 +112,7 @@ class WalkingViewController: UIViewController {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
         walkService.walkPause(walkId: self.walkId, token: token) { [weak self] result in
-            guard let self = self else { return }
+            guard self != nil else { return }
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -115,9 +136,14 @@ class WalkingViewController: UIViewController {
         self.present(picker, animated: true)
     }
 
-
+    
     
     // MARK: 산책 종료 확인 알람
+    @objc private func endBtnTapped() {
+        locationManager.stopUpdatingLocation()          // 위치 추적 중지
+        showAlertView()
+    }
+    
     private func showAlertView() {
         stopTimer()
         
@@ -171,6 +197,8 @@ class WalkingViewController: UIViewController {
     @objc private func cancelBtnTapped() {
         removeView(AlertView.self)
         startTimer()
+        locationManager.startUpdatingLocation()     // 위치 추적 재게
+        
     }
 }
 
@@ -351,15 +379,43 @@ extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
     
     // 위치가 이동할 때마다 위치 정보 업데이트
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("didUpdateLocations")
-        // 가장 최근에 받아온 위치
-        if let location = locations.first {
-            let latitude = location.coordinate.latitude
-            let longitude = location.coordinate.longitude
-            
-            print("위도: \(latitude), 경도: \(longitude)")
+        guard let location = locations.last else { return }
+
+        let lat = location.coordinate.latitude
+        let lng = location.coordinate.longitude
+        let currentCoord = NMGLatLng(lat: lat, lng: lng)
+
+        // 마커 업데이트
+        if userLocationMarker == nil {
+            userLocationMarker = NMFMarker(position: currentCoord)
+            userLocationMarker?.mapView = walkingView.naverMapView.mapView
+        } else {
+            userLocationMarker?.position = currentCoord
         }
+
+        // 처음 시작 시 카메라 위치 이동
+        if locationCoordinates.isEmpty {
+            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
+            cameraUpdate.animation = .easeIn
+            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
+        }
+
+        // 경로 배열에 추가
+        locationCoordinates.append(currentCoord)
+
+        // 선 업데이트
+        if pathOverlay == nil {
+            pathOverlay = NMFPath()
+            pathOverlay?.mapView = walkingView.naverMapView.mapView
+            
+            // pathOverlay ui 설정
+            pathOverlay?.color = UIColor.blue01
+            pathOverlay?.width = 5
+        }
+
+        pathOverlay?.path = NMGLineString(points: locationCoordinates)
     }
+
 
     // 위도 경도 받아오기 에러
      func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
