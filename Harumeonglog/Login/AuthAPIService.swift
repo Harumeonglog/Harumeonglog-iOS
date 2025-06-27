@@ -105,10 +105,11 @@ class AuthAPIService {
                     let _ = KeychainService.update(key: K.Keys.accessToken, value: success.result!.accessToken!)
                     completion(.COMMON200)
                 case AuthCode.AUTH400.rawValue:
+                    print("refresh token expired")
                     completion(.AUTH400)
                 default:
                     completion(.AUTH400)
-                    print("undefined code, \(success.code)")
+                    print("reissue undefined code, \(success.code)")
                 }
             case .failure(let failure):
                 completion(.AUTH400)

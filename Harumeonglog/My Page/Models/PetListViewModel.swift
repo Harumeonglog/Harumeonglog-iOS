@@ -40,8 +40,6 @@ class PetListViewModel: ObservableObject {
                                 filteredPet.people = self.filterOutCurrentUser(from: pet.people)
                                 return filteredPet
                             }
-                            
-                            print("pet list : ", result.pets ?? [])
                             self.petList.append(contentsOf: result.pets ?? [])
                             self.cursor = result.cursor ?? 0
                             self.hasNext = result.hasNext
