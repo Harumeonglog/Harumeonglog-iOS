@@ -320,7 +320,7 @@ class EditEventViewController: UIViewController {
         if let categoryType = CategoryType.fromServerValue(event.category) {
             editEventView.updateCategoryInputView(for: categoryType)
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 switch event.category {
                 case "HOSPITAL":
                     if let view = self.editEventView.categoryInputView as? CheckupView {
