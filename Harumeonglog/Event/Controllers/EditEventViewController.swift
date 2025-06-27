@@ -246,12 +246,6 @@ class EditEventViewController: UIViewController {
                 request.duration = view.timeTextField.text
                 request.details = view.detailTextView.text
             }
-        case "BATH":
-            if let view = editEventView.categoryInputView as? BathView {
-                print("📥 BATH 입력값 확인")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.details = view.detailTextView.text
-            }
         case "OTHER":
             if let view = editEventView.categoryInputView as? OtherView {
                 print("📥 OTHER 입력값 확인")
@@ -346,10 +340,7 @@ class EditEventViewController: UIViewController {
                         view.timeTextField.text = event.duration
                         view.detailTextView.text = event.details
                     }
-                case "BATH":
-                    if let view = self.editEventView.categoryInputView as? BathView {
-                        view.detailTextView.text = event.details
-                    }
+
                 case "OTHER":
                     if let view = self.editEventView.categoryInputView as? OtherView {
                         view.detailTextView.text = event.details
