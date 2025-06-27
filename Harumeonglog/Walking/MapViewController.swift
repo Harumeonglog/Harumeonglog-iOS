@@ -14,6 +14,8 @@ class MapViewController: UIViewController {
     private var recommendRoutes: [WalkRecommendItem] = []
     private var petList: [WalkPets] = []
     private var memberList: [WalkMembers] = []
+    private var selectedPets : [WalkPets] = []
+    private var selectedMembers : [WalkMembers] = []
     
     var chooseDogView = ChooseDogView()
     var choosePersonView = ChoosePersonView()
@@ -98,14 +100,17 @@ class MapViewController: UIViewController {
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
-        // 선택된 펫 id 추출 (petList에서)
-        let selectedPetIDs = chooseDogView.dogCollectionView.indexPathsForSelectedItems?.compactMap {
-            petList[$0.item].petId
-        } ?? []
-            
-        print("선택된 펫 id: \(selectedPetIDs)")
         
-        walkMemberSercice.fetchWalkAvailableMember(petId: selectedPetIDs, token: token) { [weak self] result in
+        let selectedPets = chooseDogView.dogCollectionView.indexPathsForSelectedItems?
+            .compactMap { $0.item < petList.count ? petList[$0.item] : nil } ?? []
+
+        self.selectedPets = selectedPets
+        let selectedPetIds = selectedPets.map(\.petId)  // 선택한 pet id값만 추출
+        
+        
+        print("선택된 펫 id: \(selectedPetIds)")
+        
+        walkMemberSercice.fetchWalkAvailableMember(petId: selectedPetIds, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
@@ -125,12 +130,17 @@ class MapViewController: UIViewController {
 
     // 산책 시작 화면으로 넘어감
     @objc private func savePersonBtnTapped() {
+        
+        self.selectedMembers = choosePersonView.personCollectionView.indexPathsForSelectedItems?
+            .compactMap { $0.item < memberList.count ? memberList[$0.item] : nil } ?? []
+        
+
         removeView(ChoosePersonView.self)
         let walkingVC = WalkingViewController()
         
-        // 산책멤버, 펫 id 같이 넘겨줌
-        walkingVC.petList = self.petList
-        walkingVC.memberList = self.memberList
+        // 산책멤버, 펫 정보 같이 넘겨줌
+        walkingVC.selectedPets = self.selectedPets
+        walkingVC.selectedMembers = self.selectedMembers
         
         walkingVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(walkingVC, animated: true)
@@ -255,7 +265,7 @@ extension MapViewController {
             case .success(let response):
                 if response.isSuccess {
                     if let routeList = response.result {
-                        self.recommendRoutes.append(contentsOf: routeList.items)
+                        self.recommendRoutes.append(contentsOf: routeList.items!)
                         
                         print("추천 경로 조회 성공: \(recommendRoutes.count)")
                         self.cursor = routeList.cursor ?? 0

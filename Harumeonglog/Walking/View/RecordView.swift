@@ -33,19 +33,27 @@ class RecordView: UIView {
         label.font = .init(name: "Pretendard-Regular", size: 13)
     }
     
-    public lazy var walkingTextField = UITextField().then { textfield in
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.gray02,
-            .font: UIFont(name: "Pretendard-Regular", size: 13)!,
-        ]
-        let attributedPlaceholder = NSAttributedString(string: "망원한강공원 한바퀴", attributes: attributes)
+    public lazy var walkingTextField: UITextField = {
+        let textfield = UITextField()
+        
+        let font = UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13)
 
-        textfield.attributedPlaceholder = attributedPlaceholder
+        let placeholder = NSAttributedString(
+            string: "망원한강공원 한바퀴",
+            attributes: [
+                .foregroundColor: UIColor.gray02,
+                .font: font,
+            ]
+        )
+        textfield.attributedPlaceholder = placeholder
         textfield.textColor = .gray01
         textfield.layer.cornerRadius = 15
         textfield.layer.borderColor = UIColor.brown02.cgColor
         textfield.layer.borderWidth = 1
-    }
+
+        return textfield
+    }()
+
     
     private lazy var mapImageRecordStackView = UIStackView().then { stackView in
         stackView.addArrangedSubview(mapImageView)
@@ -175,6 +183,7 @@ class RecordView: UIView {
         conatinerView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(27)
             make.leading.trailing.equalToSuperview().inset(25)
+            make.height.lessThanOrEqualTo(400)
         }
         
         conatinerView.addSubview(walkingTitleLabel)

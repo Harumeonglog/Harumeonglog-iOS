@@ -18,8 +18,8 @@ enum WalkState {
 
 class WalkingViewController: UIViewController {
     
-    var petList: [WalkPets] = []
-    var memberList: [WalkMembers] = []
+    var selectedPets: [WalkPets] = []
+    var selectedMembers: [WalkMembers] = []
     
     var walkId: Int = 0
     
@@ -60,11 +60,18 @@ class WalkingViewController: UIViewController {
     
     // MARK: 산책 재개 및 일시 정지
     @objc private func playBtnTapped() {
+        let currentLocation = locationManager.location
+         guard let latitude = currentLocation?.coordinate.latitude,
+               let longitude = currentLocation?.coordinate.longitude else {
+             print("❗️현재 위치를 가져오지 못했습니다.")
+             return
+         }
+        
         switch walkState {
         case .notStarted:
             // 산책 시작
             walkState = .walking
-            sendStartWalkToServer()
+            sendStartWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
         case .walking:
@@ -76,35 +83,58 @@ class WalkingViewController: UIViewController {
         case .paused:
             // 산책 재개
             walkState = .walking
-            sendResumeWalkToServer()
+            sendResumeWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
             
         }
     }
     
-    private func sendStartWalkToServer() {
-        
-    }
-    
-    private func sendResumeWalkToServer() {
+    private func sendStartWalkToServer(latitude: Double, longitude: Double) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
-//        walkService.walkResume(walkId: self.walkId, latitude: <#T##Double#>, longitude: <#T##Double#>, token: token) { [weak self] result in
-//            guard self != nil else { return }
-//            switch result {
-//            case .success(let response):
-//                if response.isSuccess {
-//
-//                } else {
-//                    print("서버 응답 에러: \(response.message)")
-//                    return
-//                }
-//            case .failure(let error):
-//                print("산책 재게 전송 실패: \(error.localizedDescription)")
-//                return
-//            }
-//        }
+        let selectedPetIds = selectedPets.map { $0.petId }
+        let selectedMemberIds = selectedMembers.map { $0.memberId }
+        
+        walkService.walkStart(petId: selectedPetIds, memberId: selectedMemberIds, startLatitude: latitude, startLongitude: longitude, token: token) { [weak self] result in
+            guard self != nil else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("산책 시작 성공")
+                    self?.walkId = response.result!.walkId
+                    print("\(self!.walkId)")
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 시작 실패: \(error.localizedDescription)")
+                return
+            }
+        }
+    }
+    
+    
+    private func sendResumeWalkToServer(latitude: Double, longitude: Double) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        print("\(self.walkId)")
+        walkService.walkResume(walkId: self.walkId, latitude: latitude, longitude: longitude, token: token) { [weak self] result in
+            guard self != nil else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("산책 재개 성공")
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 재개 실패: \(error.localizedDescription)")
+                return
+            }
+        }
     }
     
     
@@ -116,13 +146,13 @@ class WalkingViewController: UIViewController {
             switch result {
             case .success(let response):
                 if response.isSuccess {
-
+                    print("산책 일시정지 성공")
                 } else {
                     print("서버 응답 에러: \(response.message)")
                     return
                 }
             case .failure(let error):
-                print("산책 일시 정지 전송 실패: \(error.localizedDescription)")
+                print("산책 일시 정지 실패: \(error.localizedDescription)")
                 return
             }
         }
@@ -171,15 +201,20 @@ class WalkingViewController: UIViewController {
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
-        let endTime: Int = walkingView.recordTime.text.flatMap { Int($0) } ?? 0
-        let endDistance: Int = Int(walkingView.recordDistance.text.flatMap { Double($0) } ?? 0.0)
-        
+        let timeText = walkingView.recordTime.text ?? "00:00"
+        let components = timeText.split(separator: ":").compactMap { Int($0) }
+        let totalSeconds = (components.first ?? 0) * 60 + (components.last ?? 0)
+        let endTime = totalSeconds / 60   // 정수 분 (소숫점 절삭)
+
+        let distanceText = walkingView.recordDistance.text ?? "0"
+        let endDistance = Int(Double(distanceText) ?? 0.0)
         
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
                 if response.isSuccess {
+                    print("산책 종료 성공")
                     removeView(AlertView.self)
                     showRecordWalkingView()
                 } else {
@@ -269,10 +304,36 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
         navigationController!.popToRootViewController(animated: true)
     }
     
+    
+    
+    // 산책 기록 저장
     @objc private func saveRecordBtnTapped() {
-        removeView(RecordView.self)
-        showShareWalkingView()
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        let recordView = RecordView()
+        let title = recordView.walkingTextField.text ?? ""
+        
+        walkService.walkSave(walkId: self.walkId, title: title, token: token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response.isSuccess {
+                    print("산책 기록 저장 성공")
+                    removeView(RecordView.self)
+                    showShareWalkingView()
+                } else {
+                    print("서버 응답 에러: \(response.message)")
+                    return
+                }
+            case .failure(let error):
+                print("산책 기록 저장 실패: \(error.localizedDescription)")
+                return
+            }
+        }
     }
+    
+    
+    
     
     // 셀 등록
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

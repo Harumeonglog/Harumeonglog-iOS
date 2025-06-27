@@ -53,6 +53,17 @@ struct WalkEndResponse: Codable {
 }
 
 
+struct WalkSaveRequest : Codable {
+    let title: String?
+}
+
+struct WalkSaveResponse : Codable {
+    let walkId: Int
+    let title: String?
+    let updatedAt: String
+}
+
+
 struct WalkShareResponse: Codable {
     let walkId: Int
     let isShared: Bool
