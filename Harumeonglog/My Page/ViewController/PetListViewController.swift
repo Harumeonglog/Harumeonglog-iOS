@@ -94,6 +94,10 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         petEditViewController.configure(pet: pet, petListViewModel: petListViewModel!, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
+    
+    func didTapDeleteMemberButton() {
+        petListView.petListCollectionView.reloadData()
+    }
 }
 
 extension PetListViewController: UICollectionViewDelegate, UICollectionViewDataSource {

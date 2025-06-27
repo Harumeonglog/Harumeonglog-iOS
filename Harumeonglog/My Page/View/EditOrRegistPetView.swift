@@ -334,6 +334,6 @@ class EditOrRegistPetView: UIView {
 
 import SwiftUI
 #Preview {
-    let petListViewModel = PetListViewModel()
+
     EditOrRegistPetViewController()
 }
