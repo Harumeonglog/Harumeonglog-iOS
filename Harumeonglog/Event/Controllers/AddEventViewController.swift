@@ -229,10 +229,6 @@ extension AddEventViewController {
         var cost = 0
         
         switch category {
-        case .bath:
-            if let view = addEventView.categoryInputView as? BathView {
-                details = view.getInput()
-            }
         case .walk:
             if let view = addEventView.categoryInputView as? WalkView {
                 let input = view.getInput()
@@ -254,6 +250,8 @@ extension AddEventViewController {
                 cost = Int(input.cost) ?? 0
                 details = input.details
             }
+        case .bath:
+            break
         case .other:
             if let view = addEventView.categoryInputView as? OtherView {
                 details = view.getInput()
@@ -285,7 +283,7 @@ extension AddEventViewController {
             hasNotice: addEventView.alarmButton.title(for: .normal) != "설정 안 함",
             time: formattedTime,
             category: category.serverKey,
-            details: category == .bath || category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,
+            details: category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,
             hospitalName: category == .checkup ? input.hospitalName : nil,
             department: category == .checkup ? input.department : nil,
             cost: category == .checkup ? input.cost : nil,
@@ -302,7 +300,7 @@ extension AddEventViewController {
            let jsonString = String(data: jsonData, encoding: .utf8) {
             print("전송되는 JSON:\n\(jsonString)")
         }
-
+        
         EventService.createEvent(request: request, token: token) { result in
             switch result {
             case .success(let response):
@@ -312,13 +310,13 @@ extension AddEventViewController {
                 }
             case .failure(let error):
                 print("일정 추가 실패 ㅜㅜ: \(error)")
-
+                
                 if let afError = error.underlyingError as? AFError,
                    case let .responseSerializationFailed(reason) = afError,
                    case let .decodingFailed(decodingError) = reason {
                     print("디코딩 오류 내용: \(decodingError)")
                 }
-
+                
                 if let underlyingError = error.underlyingError,
                    let data = (underlyingError as NSError).userInfo["com.alamofire.serialization.response.error.data"] as? Data,
                    let json = String(data: data, encoding: .utf8) {

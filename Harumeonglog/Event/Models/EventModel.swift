@@ -84,6 +84,17 @@ struct EventRequest: Codable {
     var duration: String?
 }
 
+extension EventRequest {
+    static func empty() -> EventRequest {
+        return EventRequest(
+            title: "", date: "", isRepeated: false, expiredDate: "",
+            repeatDays: [], hasNotice: false, time: "", category: "",
+            details: nil, hospitalName: nil, department: nil,
+            cost: 0, medicineName: nil, distance: nil, duration: nil
+        )
+    }
+}
+
 struct EventUpdateResponse: Decodable {
     let isSuccess: Bool
     let code: String

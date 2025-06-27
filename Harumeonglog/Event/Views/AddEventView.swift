@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-
+//사용자가 버튼 눌렀을때 이벤트 처리할 수 있게
 protocol AddEventViewDelegate: AnyObject {
     func categoryDidSelect(_ category: CategoryType)
     func dateButtonTapped()
@@ -35,7 +35,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     // 선택된 카테고리를 저장하는 프로퍼티
     public private(set) var selectedCategory: CategoryType?
     
-    public private(set) var categoryInputView: UIView?
+    public var categoryInputView: UIView?
     
     public lazy var navigationBar = CustomNavigationBar()
 
@@ -213,7 +213,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     private let categories: [CategoryType] = [.bath, .walk, .medicine, .checkup, .other]
 
     private func addComponents() {
-        self.addSubview(deleteEventButton)
+        
         self.addSubview(titleTextField)
         self.addSubview(EventInfoView)
         self.addSubview(categoryButton)
@@ -227,6 +227,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         EventInfoView.addSubview(dateButton)
         EventInfoView.addSubview(alarmButton)
         EventInfoView.addSubview(timeButton)
+        self.addSubview(deleteEventButton)
         
         // weekButtons(요일 선택 버튼) 추가
         weekButtons.forEach { EventInfoView.addSubview($0) }
@@ -295,14 +296,14 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         EventInfoView.snp.makeConstraints { make in
-            make.top.equalTo(titleTextField.snp.bottom).offset(20)
+            make.top.equalTo(titleTextField.snp.bottom).offset(15)
             make.width.equalTo(362)
             make.height.equalTo(160)
             make.centerX.equalToSuperview()
         }
         
         categoryButton.snp.makeConstraints { make in
-            make.top.equalTo(EventInfoView.snp.bottom).offset(20)
+            make.top.equalTo(EventInfoView.snp.bottom).offset(15)
             make.height.equalTo(45)
             make.width.equalTo(362)
             make.centerX.equalToSuperview()
@@ -317,12 +318,8 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         deleteEventButton.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(21)
-            if let newView = categoryInputView {
-                make.top.equalTo(newView.snp.bottom).offset(20)
-            } else {
-                make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(50)
-            }
             make.height.equalTo(50)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
         }
 
 
@@ -363,7 +360,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         let newView: UIView
         switch category {
         case .bath:
-            newView = BathView()
+            newView = UIView() // or a placeholder view if needed
         case .walk:
             newView = WalkView()
         case .medicine:
@@ -382,6 +379,12 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
                 make.top.equalTo(categoryButton.snp.bottom).offset(20)
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(300)
+            }
+            deleteEventButton.snp.remakeConstraints { make in
+                make.top.equalTo(newView.snp.bottom).offset(30)
+                make.leading.trailing.equalToSuperview().inset(21)
+                make.height.equalTo(50)
+                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
             }
             print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
             print("새로운 카테고리 뷰 추가됨: \(category)")

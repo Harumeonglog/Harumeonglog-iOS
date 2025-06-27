@@ -27,9 +27,9 @@ class EditEventViewController: UIViewController {
     
     weak var delegate: EditEventViewControllerDelegate?
     
-    private var event: EventDetailResult?
+    var event: EventDetailResult?
 
-    private var selectedWeekdays: Set<String> = []
+    var selectedWeekdays: Set<String> = []
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -53,7 +53,7 @@ class EditEventViewController: UIViewController {
         // TODO: 추후 event 내용 세팅
     }
     
-    private lazy var editEventView: AddEventView = {
+    lazy var editEventView: AddEventView = {
         let view = AddEventView()
         view.isEditable = self.isEditable
         view.delegate = self
@@ -163,7 +163,7 @@ class EditEventViewController: UIViewController {
         }
     }
 
-    // 새롭게 추가된 메서드: 뷰에서 EventRequest 생성 (fallback logic 포함)
+    //뷰에서 EventRequest 생성 (fallback logic 포함)
     private func generateRequestFromView() -> EventRequest {
         // 1. 입력값이 비어있으면 기존 event 데이터로 fallback
         let title = editEventView.titleTextField.text?.isEmpty == false
@@ -192,11 +192,7 @@ class EditEventViewController: UIViewController {
         if selectedWeekdays.isEmpty, let existingRepeatDays = self.event?.repeatDays {
             repeatDays = existingRepeatDays
         } else {
-            let weekdayMap: [String: String] = [
-                "월": "MON", "화": "TUE", "수": "WED",
-                "목": "THU", "금": "FRI", "토": "SAT", "일": "SUN"
-            ]
-            repeatDays = selectedWeekdays.compactMap { weekdayMap[$0] }
+            repeatDays = selectedWeekdays.toEnglishWeekdays()
         }
         let isRepeated = !repeatDays.isEmpty
         let expiredDate = date
@@ -250,12 +246,6 @@ class EditEventViewController: UIViewController {
                 request.duration = view.timeTextField.text
                 request.details = view.detailTextView.text
             }
-        case "BATH":
-            if let view = editEventView.categoryInputView as? BathView {
-                print("📥 BATH 입력값 확인")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.details = view.detailTextView.text
-            }
         case "OTHER":
             if let view = editEventView.categoryInputView as? OtherView {
                 print("📥 OTHER 입력값 확인")
@@ -307,31 +297,30 @@ class EditEventViewController: UIViewController {
         editEventView.titleTextField.text = event.title
         editEventView.dateButton.setTitle(event.date, for: .normal)
         editEventView.timeButton.setTitle(event.time, for: .normal)
-        editEventView.categoryButton.setTitle(event.category, for: .normal)
+        
+        if let categoryType = CategoryType.fromServerValue(event.category) {
+            editEventView.categoryButton.setTitle(categoryType.displayName, for: .normal)
+        } else {
+            editEventView.categoryButton.setTitle(event.category, for: .normal)
+        }
+
         editEventView.categoryButton.setTitleColor(.gray00, for: .normal)
 
-        let weekdayMap: [String: String] = [
-            "MON": "월", "TUE": "화", "WED": "수",
-            "THU": "목", "FRI": "금", "SAT": "토", "SUN": "일"
-        ]
+        let koreanDays = Set(event.repeatDays).toKoreanWeekdays()
 
-        event.repeatDays.forEach { code in
-            if let koreanDay = weekdayMap[code] {
-                for button in self.editEventView.weekButtons {
-                    if button.titleLabel?.text == koreanDay {
-                        // 선택 토글이 아닌 선택된 상태로 강제 설정
-                        button.isSelected = true
-                        button.backgroundColor = .brown01
-                        button.setTitleColor(.white, for: .normal)
-                    }
-                }
+        self.editEventView.weekButtons.forEach { button in
+            if let dayText = button.titleLabel?.text, koreanDays.contains(dayText) {
+                button.isSelected = true
+                button.backgroundColor = .brown01
+                button.setTitleColor(.white, for: .normal)
+                button.tintColor = .clear // 선택 시 파란색 없애기
             }
         }
 
         if let categoryType = CategoryType.fromServerValue(event.category) {
             editEventView.updateCategoryInputView(for: categoryType)
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 switch event.category {
                 case "HOSPITAL":
                     if let view = self.editEventView.categoryInputView as? CheckupView {
@@ -351,10 +340,7 @@ class EditEventViewController: UIViewController {
                         view.timeTextField.text = event.duration
                         view.detailTextView.text = event.details
                     }
-                case "BATH":
-                    if let view = self.editEventView.categoryInputView as? BathView {
-                        view.detailTextView.text = event.details
-                    }
+
                 case "OTHER":
                     if let view = self.editEventView.categoryInputView as? OtherView {
                         view.detailTextView.text = event.details
@@ -386,72 +372,3 @@ class EditEventViewController: UIViewController {
     }
 }
 
-extension EditEventViewController: AddEventViewDelegate {
-    func dateButtonTapped() {
-        let datePicker = UIDatePicker()
-        datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .wheels
-        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
-        alert.view.addSubview(datePicker)
-        datePicker.frame = CGRect(x: 0, y: 20, width: alert.view.bounds.width - 20, height: 200)
-        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            let dateString = formatter.string(from: datePicker.date)
-            self.editEventView.dateButton.setTitle(dateString, for: .normal)
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-        self.present(alert, animated: true)
-    }
-    func timeButtonTapped() {
-        let timePicker = UIDatePicker()
-        timePicker.datePickerMode = .time
-        timePicker.preferredDatePickerStyle = .wheels
-        let alert = UIAlertController(title: "시간 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
-        alert.view.addSubview(timePicker)
-        timePicker.frame = CGRect(x: 0, y: 20, width: alert.view.bounds.width - 20, height: 200)
-        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
-            let formatter = DateFormatter()
-            formatter.dateFormat = "HH:mm"
-            let timeString = formatter.string(from: timePicker.date)
-            self.editEventView.timeButton.setTitle(timeString, for: .normal)
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-        self.present(alert, animated: true)
-    }
-    func alarmButtonTapped() {
-        let alert = UIAlertController(title: "알람 설정", message: "알람 시간을 선택하세요", preferredStyle: .actionSheet)
-        
-        let options = ["없음", "5분 전", "10분 전", "30분 전", "1시간 전"]
-        
-        for option in options {
-            alert.addAction(UIAlertAction(title: option, style: .default, handler: { _ in
-                self.editEventView.alarmButton.setTitle(option, for: .normal)
-            }))
-        }
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-        self.present(alert, animated: true)
-    }
-    func weekdayTapped(_ weekday: String, isSelected: Bool) {
-        if isSelected {
-            self.selectedWeekdays.insert(weekday)
-        } else {
-            self.selectedWeekdays.remove(weekday)
-        }
-
-        for button in editEventView.weekButtons {
-            if button.titleLabel?.text == weekday {
-                button.backgroundColor = isSelected ? .brown01 : .white
-                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
-            }
-        }
-    }
-    func categoryDidSelect(_ category: CategoryType) {
-        editEventView.updateCategoryInputView(for: category)
-    }
-    func getSelectedWeekdays() -> [String] {
-        return Array(self.selectedWeekdays)
-    }
-    func alarmOptionSelected(_ option: String) {}
-}

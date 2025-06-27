@@ -129,19 +129,19 @@ class CheckupView: UIView {
         }
         
         hospitalTextField.snp.makeConstraints { make in
-            make.top.equalTo(hospitalLabel.snp.bottom).offset(10)
+            make.top.equalTo(hospitalLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(45)
         }
         
         departmentLabel.snp.makeConstraints { make in
-            make.top.equalTo(hospitalTextField.snp.bottom).offset(20)
+            make.top.equalTo(hospitalTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(30)
             make.height.equalTo(16)
         }
         departmentTextField.snp.makeConstraints { make in
-            make.top.equalTo(departmentLabel.snp.bottom).offset(10)
+            make.top.equalTo(departmentLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalTo(costTextField.snp.leading).offset(-32)
             make.height.equalTo(45)
@@ -160,12 +160,12 @@ class CheckupView: UIView {
         }
 
         detailLabel.snp.makeConstraints { make in
-            make.top.equalTo(costTextField.snp.bottom).offset(20)
+            make.top.equalTo(costTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(30)
             make.height.equalTo(16)
         }
         detailTextView.snp.makeConstraints { make in
-            make.top.equalTo(detailLabel.snp.bottom).offset(10)
+            make.top.equalTo(detailLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(126)
