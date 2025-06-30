@@ -201,6 +201,19 @@ class WalkingViewController: UIViewController {
     // 산책 종료
     @objc private func confirmBtnTapped() {
         
+        switch walkState {
+        case .notStarted:
+            // 산책 시작하지 않았으면 홈화면으로 이동
+            removeView(AlertView.self)
+            navigationController!.popToRootViewController(animated: true)
+        case .walking:
+            sendEndWalkDataToServer()
+        case .paused:
+            sendEndWalkDataToServer()
+        }
+    }
+    
+    private func sendEndWalkDataToServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
         let timeText = walkingView.recordTime.text ?? "00:00"
@@ -229,7 +242,6 @@ class WalkingViewController: UIViewController {
 
             }
         }
-        
     }
     
     @objc private func cancelBtnTapped() {

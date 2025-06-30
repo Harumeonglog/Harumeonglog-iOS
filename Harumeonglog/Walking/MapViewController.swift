@@ -87,10 +87,8 @@ class MapViewController: UIViewController {
                         chooseDogView.titleLabel.isHidden = true
                         chooseDogView.nonDogLabel.isHidden = false
                         chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
-                        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(returnHome), for: .touchUpInside)
-                      
+                        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(dimmedViewTapped), for: .touchUpInside)
                     }
-                    
                 } else {
                     print("서버 응답 에러: \(response.message)")
                     return
@@ -100,11 +98,6 @@ class MapViewController: UIViewController {
                 return
             }
         }
-        
-    }
-    
-    @objc private func returnHome() {
-        removeView(ChooseDogView.self)
         
     }
     
