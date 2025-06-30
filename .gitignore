@@ -113,3 +113,4 @@ GoogleService-Info.plist
 
 # End of https://www.toptal.com/developers/gitignore/api/xcode,swiftpackagemanager,swiftAPI_Keys.xcconfig
 .DS_Store
+/Harumeonglog/GoogleService-Info.plist

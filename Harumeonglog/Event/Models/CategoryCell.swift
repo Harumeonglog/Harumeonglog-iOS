@@ -13,7 +13,7 @@ class CategoryCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .description
+        label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
         label.textAlignment = .center
         return label
     }()
@@ -37,16 +37,20 @@ class CategoryCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.layer.cornerRadius = 15
+        contentView.layer.cornerRadius = contentView.frame.height / 2
         contentView.layer.masksToBounds = true
     }
 
     func configure(with text: String, isSelected: Bool) {
         titleLabel.text = text
-        contentView.backgroundColor = isSelected ? .brown01 : .brown02
+        contentView.backgroundColor = isSelected ? .brown01 : .white
         titleLabel.textColor = isSelected ? .white : .gray00
-        contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.brown02.cgColor
+        contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.gray03.cgColor
         contentView.layer.borderWidth = 1
+
+        contentView.layer.shadowColor = UIColor.black.cgColor
+        contentView.layer.shadowOpacity = isSelected ? 0.1 : 0
+        contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        contentView.layer.shadowRadius = 4
     }
 }
-

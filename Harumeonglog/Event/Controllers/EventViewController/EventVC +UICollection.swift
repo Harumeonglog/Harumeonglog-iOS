@@ -3,39 +3,41 @@
 //  Harumeonglog
 //
 //  Created by Dana Lim on 5/21/25.
-//
+// 홈화면에서 category 선택했을때
 
 import UIKit
 
 extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return CategoryType.allCasesWithAll.count
+        return CategoryType.allCases.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as? CategoryCell else {
             return UICollectionViewCell()
         }
-        let category = CategoryType.allCasesWithAll[indexPath.item]
+        let category = CategoryType.allCases[indexPath.item]
         let isSelected = category == selectedCategory
-        cell.configure(with: category?.displayName ?? "전체", isSelected: isSelected)
+        cell.configure(with: category.displayName, isSelected: isSelected)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let category = CategoryType.allCasesWithAll[indexPath.item]
-        selectedCategory = category
-        collectionView.reloadData()
-        collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        let category = CategoryType.allCases[indexPath.item]
 
-        if category == nil {
+        if selectedCategory == category {
+            // 동일 카테고리 다시 탭하면 전체 보기로 전환
+            selectedCategory = nil
+            collectionView.reloadData()
             delegate?.didSelectCategory("")
         } else {
-            delegate?.didSelectCategory(category!.serverKey)
+            selectedCategory = category
+            collectionView.reloadData()
+            delegate?.didSelectCategory(category.serverKey)
         }
 
-        // 카테고리 선택 시 해당 카테고리에 맞는 일정 다시 호출
+        // 일정 다시 가져오기
         if let parentVC = self.findViewController() as? HomeViewController {
             let selectedDate = parentVC.homeView.calendarView.selectedDate ?? Date()
             let dateFormatter = DateFormatter()
@@ -47,12 +49,12 @@ extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
                 return
             }
 
-            let categoryKey = category?.serverKey
+            let categoryKey = selectedCategory?.serverKey
             EventService.getEventsByDate(date: dateString, category: categoryKey, token: token) { result in
                 switch result {
                 case .success(let response):
                     let events = response.result?.events?.map {
-                        Event(id: $0.id, title: $0.title, category: category?.serverKey ?? "", done:$0.done)
+                        Event(id: $0.id, title: $0.title, category: category.serverKey, done: $0.done)
                     } ?? []
                     DispatchQueue.main.async {
                         parentVC.homeView.eventView.updateEvents(events)
