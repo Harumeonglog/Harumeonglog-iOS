@@ -67,6 +67,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         button.backgroundColor = .blue01
         button.layer.cornerRadius = 30
         button.isUserInteractionEnabled = true
+        button.isHidden = false
         return button
     }()
     
