@@ -218,7 +218,7 @@ class EditEventViewController: UIViewController {
         switch category {
         case "HOSPITAL":
             if let view = editEventView.categoryInputView as? CheckupView {
-                print("📥 HOSPITAL 입력값 확인")
+                print("HOSPITAL 입력값 확인")
                 print("  병원명: \(view.hospitalTextField.text ?? "nil")")
                 print("  진료과: \(view.departmentTextField.text ?? "nil")")
                 print("  비용: \(view.costTextField.text ?? "nil")")
@@ -230,7 +230,7 @@ class EditEventViewController: UIViewController {
             }
         case "MEDICINE":
             if let view = editEventView.categoryInputView as? MedicineView {
-                print("📥 MEDICINE 입력값 확인")
+                print("MEDICINE 입력값 확인")
                 print("  약 이름: \(view.medicineNameTextField.text ?? "nil")")
                 print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.medicineName = view.medicineNameTextField.text
@@ -238,7 +238,7 @@ class EditEventViewController: UIViewController {
             }
         case "WALK":
             if let view = editEventView.categoryInputView as? WalkView {
-                print("📥 WALK 입력값 확인")
+                print("WALK 입력값 확인")
                 print("  거리: \(view.distanceTextField.text ?? "nil")")
                 print("  소요시간: \(view.timeTextField.text ?? "nil")")
                 print("  상세내용: \(view.detailTextView.text ?? "nil")")
@@ -248,7 +248,7 @@ class EditEventViewController: UIViewController {
             }
         case "OTHER":
             if let view = editEventView.categoryInputView as? OtherView {
-                print("📥 OTHER 입력값 확인")
+                print(" OTHER 입력값 확인")
                 print("  상세내용: \(view.detailTextView.text ?? "nil")")
                 request.details = view.detailTextView.text
             }
