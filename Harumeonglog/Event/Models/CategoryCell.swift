@@ -13,8 +13,9 @@ class CategoryCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .light)
         label.textAlignment = .center
+        label.numberOfLines = 1
         return label
     }()
 
@@ -28,12 +29,13 @@ class CategoryCell: UICollectionViewCell {
     }
 
     private func setupLayout() {
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(10)
+            contentView.addSubview(titleLabel)
+            titleLabel.snp.makeConstraints { make in
+                make.centerX.centerY.equalToSuperview()
+                make.leading.trailing.equalToSuperview().inset(16) // 좌우 여백 증가
+                make.top.bottom.equalToSuperview().inset(6) // 상하 여백 증가
+            }
         }
-    }
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -43,14 +45,9 @@ class CategoryCell: UICollectionViewCell {
 
     func configure(with text: String, isSelected: Bool) {
         titleLabel.text = text
-        contentView.backgroundColor = isSelected ? .brown01 : .white
+        contentView.backgroundColor = isSelected ? .brown01 : .brown02
         titleLabel.textColor = isSelected ? .white : .gray00
-        contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.gray03.cgColor
+        contentView.layer.borderColor = isSelected ? UIColor.brown01.cgColor : UIColor.brown02.cgColor
         contentView.layer.borderWidth = 1
-
-        contentView.layer.shadowColor = UIColor.black.cgColor
-        contentView.layer.shadowOpacity = isSelected ? 0.1 : 0
-        contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        contentView.layer.shadowRadius = 4
     }
 }
