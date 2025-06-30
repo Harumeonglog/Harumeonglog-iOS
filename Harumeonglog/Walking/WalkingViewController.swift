@@ -28,8 +28,9 @@ class WalkingViewController: UIViewController {
     private var locationCoordinates: [NMGLatLng] = []   // 사용자의 이동 경로 저장하는 배열
     private var pathOverlay : NMFPath?                  // 실시간으로 갱신되는 선
     var startLocationCoordinates : [Double] = []
-    
+
     private var selectedImage: UIImage?
+
 
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
@@ -196,8 +197,7 @@ class WalkingViewController: UIViewController {
         alertView.confirmBtn.addTarget(self, action: #selector(confirmBtnTapped), for: .touchUpInside)
         alertView.cancelBtn.addTarget(self, action: #selector(cancelBtnTapped), for: .touchUpInside)
     }
-    
-    
+        
     // 산책 종료
     @objc private func confirmBtnTapped() {
         
@@ -214,6 +214,7 @@ class WalkingViewController: UIViewController {
     }
     
     private func sendEndWalkDataToServer() {
+
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
         let timeText = walkingView.recordTime.text ?? "00:00"
@@ -224,7 +225,7 @@ class WalkingViewController: UIViewController {
         let distanceText = walkingView.recordDistance.text ?? "0"
         let endDistance = Int(Double(distanceText) ?? 0.0)
         
-        
+
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -242,6 +243,7 @@ class WalkingViewController: UIViewController {
 
             }
         }
+
     }
     
     @objc private func cancelBtnTapped() {

@@ -19,6 +19,9 @@ class MapViewController: UIViewController {
     
     var chooseDogView = ChooseDogView()
     var choosePersonView = ChoosePersonView()
+    let walkRecommendService = WalkRecommendService()
+    let walkMemberSercice = WalkMemberService()
+    let walkService = WalkService()
     
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
@@ -89,6 +92,7 @@ class MapViewController: UIViewController {
                         chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
                         chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(dimmedViewTapped), for: .touchUpInside)
                     }
+
                 } else {
                     print("서버 응답 에러: \(response.message)")
                     return
@@ -162,8 +166,6 @@ class MapViewController: UIViewController {
     }
     
 
-    
-}
 
 
 // MARK: 네이버지도

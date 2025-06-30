@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  Harumeonglog
 //
-//  Created by 이승준 on 3/13/25.
+//  Created by 이승준 on 3/13/25
 //
 
 import UIKit
@@ -39,7 +39,7 @@ class PhotoAlbumsViewController: UIViewController {
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
-                    let albums = pets.map {
+                    let albums = pets.filter { $0.role != "GUEST" }.map {
                         Album(
                             mainImage: $0.mainImage,
                             name: $0.name,
