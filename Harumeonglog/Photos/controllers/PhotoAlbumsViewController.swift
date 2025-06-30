@@ -39,7 +39,7 @@ class PhotoAlbumsViewController: UIViewController {
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
-                    let albums = pets.map {
+                    let albums = pets.filter { $0.role != "GUEST" }.map {
                         Album(
                             mainImage: $0.mainImage,
                             name: $0.name,

@@ -24,7 +24,7 @@ class PhotoAlbumsView: UIView {
     
     lazy var albumCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
+        layout.scrollDirection = .vertical
         layout.itemSize = CGSize(width: 362, height: 90)
         layout.minimumLineSpacing = 13
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)

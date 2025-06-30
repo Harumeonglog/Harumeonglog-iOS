@@ -14,7 +14,7 @@ protocol EventViewDelegate: AnyObject {
     func didSelectCategory(_ category: String)
 }
 
-class EventView: UIView {
+class EventView: UIView, UICollectionViewDelegateFlowLayout {
 
     weak var delegate: EventViewDelegate?
     
@@ -26,7 +26,7 @@ class EventView: UIView {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumInteritemSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 16)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
@@ -68,7 +68,7 @@ class EventView: UIView {
         categoryCollectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(15)
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(30)
+            make.height.equalTo(40)
         }
 
         tableView.snp.makeConstraints { make in
@@ -103,5 +103,20 @@ class EventView: UIView {
         } else {
             print("삭제할 이벤트가 allEvents에 없음: \(id)")
         }
+    }
+}
+
+extension EventView {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let category = categories[indexPath.item] == nil ? "전체" : categories[indexPath.item]!.displayName
+        let font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        let horizontalPadding: CGFloat = 32 // 좌우 패딩 (16 * 2)
+        let height: CGFloat = 32 // 높이 증가
+        
+        // 텍스트 크기 계산
+        let textSize = (category as NSString).size(withAttributes: [.font: font])
+        let width = textSize.width + horizontalPadding
+        
+        return CGSize(width: max(width, 60), height: height) // 최소 너비 60으로 설정
     }
 }

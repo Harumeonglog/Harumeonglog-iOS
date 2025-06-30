@@ -47,6 +47,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         label.text = "카이"
         label.font = .headline
         label.textColor = .gray00
+        label.numberOfLines = 1
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.8
         return label
     }()
     
@@ -64,6 +67,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         button.backgroundColor = .blue01
         button.layer.cornerRadius = 30
         button.isUserInteractionEnabled = true
+        button.isHidden = false
         return button
     }()
     
@@ -179,7 +183,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         nicknameLabel.snp.makeConstraints { make in
             make.top.equalTo(profileButton.snp.top).offset(18)
             make.leading.equalTo(profileButton.snp.trailing).offset(18)
-            make.height.equalTo(20)
+            make.height.greaterThanOrEqualTo(20)
         }
         
         genderImageView.snp.makeConstraints { make in

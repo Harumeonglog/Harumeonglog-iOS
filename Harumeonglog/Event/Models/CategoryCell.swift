@@ -13,8 +13,9 @@ class CategoryCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .description
+        label.font = UIFont.systemFont(ofSize: 13, weight: .light)
         label.textAlignment = .center
+        label.numberOfLines = 1
         return label
     }()
 
@@ -28,16 +29,17 @@ class CategoryCell: UICollectionViewCell {
     }
 
     private func setupLayout() {
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(10)
+            contentView.addSubview(titleLabel)
+            titleLabel.snp.makeConstraints { make in
+                make.centerX.centerY.equalToSuperview()
+                make.leading.trailing.equalToSuperview().inset(16) // 좌우 여백 증가
+                make.top.bottom.equalToSuperview().inset(6) // 상하 여백 증가
+            }
         }
-    }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.layer.cornerRadius = 15
+        contentView.layer.cornerRadius = contentView.frame.height / 2
         contentView.layer.masksToBounds = true
     }
 
@@ -49,4 +51,3 @@ class CategoryCell: UICollectionViewCell {
         contentView.layer.borderWidth = 1
     }
 }
-
