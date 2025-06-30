@@ -18,9 +18,11 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     
     private var profileNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .headline
+        label.font = .body
         label.textColor = .gray00
+        label.numberOfLines = 1
         label.textAlignment = .center
+        label.lineBreakMode = .byWordWrapping
         return label
     }()
     

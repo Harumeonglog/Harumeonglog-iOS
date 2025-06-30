@@ -35,8 +35,13 @@ class ProfileSelectModalViewController: UIViewController {
         
         if let sheet = self.sheetPresentationController {
             sheet.detents = [
-                        .custom { _ in 250 }]
+                .custom { _ in 250},
+                .large()
+            ]
             sheet.prefersGrabberVisible = true // 상단에 그랩바 표시
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.preferredCornerRadius = 20
+            sheet.largestUndimmedDetentIdentifier = .large
         }
         
     }
