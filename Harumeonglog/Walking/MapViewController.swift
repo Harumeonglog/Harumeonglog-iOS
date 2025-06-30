@@ -23,6 +23,10 @@ class MapViewController: UIViewController {
     let walkMemberSercice = WalkMemberService()
     let walkService = WalkService()
     
+    let walkRecommendService = WalkRecommendService()
+    let walkMemberSercice = WalkMemberService()
+    let walkService = WalkService()
+    
     private var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
     private let minHeight: CGFloat = 150
     private let maxHeight: CGFloat = 750
@@ -75,8 +79,20 @@ class MapViewController: UIViewController {
             case .success(let response):
                 if response.isSuccess {
                     self.petList = response.result!.pets
-                    self.chooseDogView.dogCollectionView.reloadData()
-                    chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+                    
+                    if !self.petList.isEmpty {
+                        // 산책할 반려견이 있는 경우
+                        self.chooseDogView.dogCollectionView.reloadData()
+                        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
+                    } else {
+                        // 산책할 반려견이 없는 경우
+                        chooseDogView.dogCollectionView.isHidden = true
+                        chooseDogView.titleLabel.isHidden = true
+                        chooseDogView.nonDogLabel.isHidden = false
+                        chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
+                        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(dimmedViewTapped), for: .touchUpInside)
+                    }
+
                 } else {
                     print("서버 응답 에러: \(response.message)")
                     return
@@ -150,8 +166,6 @@ class MapViewController: UIViewController {
     }
     
 
-    
-}
 
 
 // MARK: 네이버지도

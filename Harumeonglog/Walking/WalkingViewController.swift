@@ -29,6 +29,9 @@ class WalkingViewController: UIViewController {
     private var pathOverlay : NMFPath?                  // 실시간으로 갱신되는 선
     var startLocationCoordinates : [Double] = []
 
+    private var selectedImage: UIImage?
+
+
     let walkRecommendService = WalkRecommendService()
     let walkMemberSercice = WalkMemberService()
     let walkService = WalkService()
@@ -194,10 +197,24 @@ class WalkingViewController: UIViewController {
         alertView.confirmBtn.addTarget(self, action: #selector(confirmBtnTapped), for: .touchUpInside)
         alertView.cancelBtn.addTarget(self, action: #selector(cancelBtnTapped), for: .touchUpInside)
     }
-    
+        
     // 산책 종료
     @objc private func confirmBtnTapped() {
         
+        switch walkState {
+        case .notStarted:
+            // 산책 시작하지 않았으면 홈화면으로 이동
+            removeView(AlertView.self)
+            navigationController!.popToRootViewController(animated: true)
+        case .walking:
+            sendEndWalkDataToServer()
+        case .paused:
+            sendEndWalkDataToServer()
+        }
+    }
+    
+    private func sendEndWalkDataToServer() {
+
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
         let timeText = walkingView.recordTime.text ?? "00:00"
@@ -208,6 +225,7 @@ class WalkingViewController: UIViewController {
         let distanceText = walkingView.recordDistance.text ?? "0"
         let endDistance = Int(Double(distanceText) ?? 0.0)
         
+
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -222,10 +240,10 @@ class WalkingViewController: UIViewController {
                 }
             case .failure(let error):
                 print("산책 종료 실패: \(error.localizedDescription)")
-                return
+
             }
         }
-        
+
     }
     
     @objc private func cancelBtnTapped() {
@@ -272,18 +290,25 @@ extension WalkingViewController {
 // MARK: 사진 촬영 후 이미지 받아오기
 extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-           
-           picker.dismiss(animated: true, completion: nil)
-           
-           guard let image = info[.originalImage] as? UIImage else {
-               print("이미지를 가져오지 못했습니다.")
-               return
-           }
+        
+        picker.dismiss(animated: true, completion: nil)
+        
+        guard let image = info[.originalImage] as? UIImage else {
+            print("이미지를 가져오지 못했습니다.")
+            return
+        }
+        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
-           // 여기서 서버로 이미지 전송
-           // uploadImageToServer(image)
-       }
+        // 여기서 서버로 이미지 전송
+    }
+    
+ 
 }
+
+
+
+
 
 // MARK: 산책 기록 결과
 extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataSource {

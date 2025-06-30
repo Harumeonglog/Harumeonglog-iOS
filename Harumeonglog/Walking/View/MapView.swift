@@ -117,22 +117,22 @@ class MapView: UIView {
             make.edges.equalToSuperview()
         }
         
-        naverMapView.addSubview(petStoreButton)
-        naverMapView.addSubview(vetButton)
-        
-        petStoreButton.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).inset(20)
-            make.leading.equalToSuperview().inset(16)
-            make.width.equalTo(80)
-            make.height.equalTo(30)
-        }
-        
-        vetButton.snp.makeConstraints { make in
-            make.top.equalTo(petStoreButton)
-            make.leading.equalTo(petStoreButton.snp.trailing).offset(10)
-            make.width.height.equalTo(petStoreButton)
-        }
-        
+//        naverMapView.addSubview(petStoreButton)
+//        naverMapView.addSubview(vetButton)
+//        
+//        petStoreButton.snp.makeConstraints { make in
+//            make.top.equalTo(self.safeAreaLayoutGuide).inset(20)
+//            make.leading.equalToSuperview().inset(16)
+//            make.width.equalTo(80)
+//            make.height.equalTo(30)
+//        }
+//        
+//        vetButton.snp.makeConstraints { make in
+//            make.top.equalTo(petStoreButton)
+//            make.leading.equalTo(petStoreButton.snp.trailing).offset(10)
+//            make.width.height.equalTo(petStoreButton)
+//        }
+//        
         naverMapView.addSubview(moveToUserLocationButton)
         naverMapView.addSubview(walkingStartButton)
         
