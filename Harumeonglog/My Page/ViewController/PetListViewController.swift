@@ -78,9 +78,10 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.navigationController?.popViewController(animated: true)
     }
     
-    func didTapInviteButton() {
-        let invitationVC = InviteUserViewController()
+    func didTapInviteButton(petID: Int) {
+        let invitationVC = InviteMemberViewController()
         invitationVC.modalPresentationStyle = .overFullScreen
+        invitationVC.configure(petID: petID)
         present(invitationVC, animated: false)
     }
     
@@ -92,6 +93,10 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         let petEditViewController = EditOrRegistPetViewController()
         petEditViewController.configure(pet: pet, petListViewModel: petListViewModel!, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
+    }
+    
+    func didTapDeleteMemberButton() {
+        petListView.petListCollectionView.reloadData()
     }
 }
 

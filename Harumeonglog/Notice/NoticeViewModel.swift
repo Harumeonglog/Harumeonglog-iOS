@@ -45,7 +45,7 @@ final class NoticeViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print("알림 삭제 성공")
-                if let result = response.result {
+                if let _ = response.result {
                     self.notices.removeAll{ $0.noticeId  == id }
                 }
                 completion(result)

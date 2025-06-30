@@ -92,4 +92,15 @@ class ChooseProfileViewCell: UICollectionViewCell {
             make.leading.trailing.equalToSuperview()
         }
     }
+    
+    func configureMember(with member : WalkMembers) {
+        imageView.sd_setImage(with: URL(string: member.image), placeholderImage: UIImage(named: "testImage"))
+        nameLabel.text = member.nickname
+    }
+    
+    func configurePet(with pet : WalkPets) {
+        imageView.sd_setImage(with: URL(string: pet.image), placeholderImage: UIImage(named: "testImage"))
+        nameLabel.text = pet.name
+    }
+    
 }

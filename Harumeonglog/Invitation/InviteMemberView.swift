@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
+class InviteMemberView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
     public lazy var navigationBar = CustomNavigationBar()
     
@@ -16,11 +16,13 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         $0.clipsToBounds = true
         $0.font = UIFont.body
         
+        $0.textColor = .black
         $0.backgroundColor = .white
         $0.tintColor = .gray02
         
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.brown02.cgColor
+        $0.placeholder = "사용자 검색"
     }
     
     public lazy var inviteButton = ConfirmButton()
@@ -40,6 +42,20 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         return cv
     }()
     
+    public lazy var searchTableView: UITableView = {
+        let tv = UITableView()
+        tv.layer.cornerRadius = 20
+        tv.clipsToBounds = true
+        tv.layer.borderWidth = 1
+        tv.layer.borderColor = UIColor.brown02.cgColor
+        tv.backgroundColor = .white
+        tv.separatorStyle = .none
+        tv.showsHorizontalScrollIndicator = false
+        tv.register(UserSearchCell.self,
+                    forCellReuseIdentifier: UserSearchCell.identifier)
+        return tv
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .background
@@ -51,6 +67,7 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
         self.addSubview(searchTextField)
         self.addSubview(inviteButton)
         self.addSubview(userStageCollectionView)
+        self.addSubview(searchTableView)
         
         navigationBar.configureTitle(title: "초대하기")
         navigationBar.snp.makeConstraints { make in
@@ -63,6 +80,7 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(40)
         }
+        
         addLeftViewInTextField()
         
         inviteButton.configure(labelText: "초대하기")
@@ -79,6 +97,12 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
             make.top.equalTo(searchTextField.snp.bottom).offset(40)
             make.bottom.equalTo(inviteButton.snp.top).inset(-20)
         }
+        
+        searchTableView.snp.makeConstraints { make in
+            make.top.equalTo(searchTextField.snp.bottom)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(300)
+        }
     }
     
     // MARK: CollectionViewDataSource
@@ -92,11 +116,11 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
 
     private func addLeftViewInTextField() {
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 55, height: 30))
-        
         let searchIcon = UIImageView().then {
             $0.image = .search
             $0.contentMode = .scaleAspectFit
         }
+        leftView.addSubview(searchIcon)
         
         searchTextField.addSubview(searchIcon)
         
@@ -117,5 +141,5 @@ class InviteUserView: UIView, UICollectionViewDataSource, UICollectionViewDelega
 
 import SwiftUI
 #Preview {
-    InviteUserViewController()
+    InviteMemberViewController()
 }

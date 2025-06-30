@@ -35,13 +35,11 @@ class PetListViewModel: ObservableObject {
                     if let result = response.result {
                         DispatchQueue.main.async {
                             // 본인을 제외한 멤버 리스트로 필터링
-                            let filteredPets = result.pets?.map { pet in
+                            _ = result.pets?.map { pet in
                                 var filteredPet = pet
                                 filteredPet.people = self.filterOutCurrentUser(from: pet.people)
                                 return filteredPet
                             }
-                            
-                            print("pet list : ", result.pets ?? [])
                             self.petList.append(contentsOf: result.pets ?? [])
                             self.cursor = result.cursor ?? 0
                             self.hasNext = result.hasNext

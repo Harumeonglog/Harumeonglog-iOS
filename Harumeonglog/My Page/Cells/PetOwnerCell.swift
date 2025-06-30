@@ -10,9 +10,10 @@ import SnapKit
 import Combine
 
 protocol PetOwnerCellDelegate: AnyObject {
-    func didTapInviteButton()
+    func didTapInviteButton(petID: Int)
     func didTapExitButton(petID: Int)
     func didTapEditButton(pet: Pet)
+    func didTapDeleteMemberButton()
 }
 
 class PetOwnerCell: UICollectionViewCell {
@@ -276,7 +277,7 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func showInvitaionVC() {
-        delegate?.didTapInviteButton()
+        delegate?.didTapInviteButton(petID: pet!.petId)
     }
     
     @objc
@@ -374,7 +375,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     func didTapDeleteMember(member: PetMember, petId: Int) {
         petListViewModel?.deletePetMember(memberId: member.id, petId: petId) { [weak self] result in
             DispatchQueue.main.async {
-                // ViewModel의 petList가 업데이트되면 자동으로 UI가 갱신됨
+                self?.delegate?.didTapDeleteMemberButton()
                 print("멤버 삭제 완료")
             }
         }
