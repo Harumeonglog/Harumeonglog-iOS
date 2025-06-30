@@ -139,9 +139,25 @@ extension APIClient {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
 
-        AF.request(url, method: .patch, parameters: parameters, encoder: JSONParameterEncoder.default, headers: headers).validate().responseDecodable(of: T.self) { response in
+        AF.request(
+            url,
+            method: .patch,
+            parameters: parameters,
+            encoder: JSONParameterEncoder.default,
+            headers: headers
+        )
+        .validate()
+        .responseDecodable(of: T.self) { response in
+            // 에러일 경우 raw response body 출력
+            if let data = response.data,
+               let rawBody = String(data: data, encoding: .utf8) {
+                print("🔴 서버 응답 원문 (Raw Body):\n\(rawBody)")
+            }
+
+            // 결과 처리
             completion(response.result)
         }
+
     }
     
     static func patchRequest<T: Decodable>(endpoint: String, token: String? = nil, completion: @escaping (Result<T, AFError>) -> Void) {

@@ -155,7 +155,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
     func configure(with route: WalkRecommendItem) {
         titleLabel.text = route.title
         likeCountLabel.text = "\(route.walkLikeNum)"
-        distanceLabel.text = route.distance
+        distanceLabel.text = "\(route.distance)km"
         timeLabel.text = "\(route.time)분"
         userLabel.text = "\(route.memberNickname) 님의 산책로"
         isLiked = route.isLike

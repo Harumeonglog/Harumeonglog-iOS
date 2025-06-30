@@ -11,7 +11,7 @@ import Then
 
 class ChooseDogView: UIView {
     
-    private lazy var titleLabel = UILabel().then { label in
+    public lazy var titleLabel = UILabel().then { label in
         label.text = "누구와 함께하는 산책인가요 ?"
         label.textColor = .gray00
         label.textAlignment = .center
@@ -39,6 +39,18 @@ class ChooseDogView: UIView {
         button.layer.cornerRadius = 25
         button.isEnabled = false
     }
+    
+    
+    public lazy var nonDogLabel = UILabel().then { label in
+        label.text = "산책 할 반려견이 없어요\n 반려견을 추가 해 산책을 시켜주세요 !"
+        label.textColor = UIColor.gray02
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.font = UIFont(name: "Pretendard-Medium", size: 15)
+        label.setLineSpacing(lineSpacing: 15)
+        label.isHidden = true
+    }
+
     
     
     override init(frame: CGRect) {
@@ -81,5 +93,11 @@ class ChooseDogView: UIView {
             make.height.equalTo(50)
             make.centerX.equalToSuperview()
         }
+        
+        self.addSubview(nonDogLabel)
+        nonDogLabel.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+        }
+        
     }
 }

@@ -17,7 +17,7 @@ struct WalkRecommendItem: Codable {
     let id: Int
     let title: String?
     let walkLikeNum: Int
-    let distance: String?
+    let distance: Double
     let time: Int
     let memberNickname: String
     let isLike: Bool
@@ -34,7 +34,7 @@ struct WalkRecommendDetailResponse: Codable {
     let id: Int
     let title: String
     let walkLikeNum: Int
-    let distance: String
+    let distance: Double
     let time: Int
     let memberNickname: String
     let isLike: Bool
