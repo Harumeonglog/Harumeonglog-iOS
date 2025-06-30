@@ -13,6 +13,7 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
@@ -85,9 +86,71 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with profile: Profile, isSelected: Bool) {
-        profileImageView.image = UIImage(named: profile.imageName)
         profileNameLabel.text = profile.name
         updateSelectionStyle(isSelected: isSelected)
+        
+        print("이미지 로딩 시도: \(profile.imageName)")
+        
+        // 기본 이미지를 비트맵으로 생성해서 사이즈 통일
+        let placeholderImage = createPlaceholderImage()
+        profileImageView.image = placeholderImage
+        
+        // URL에서 이미지 다운로드
+        if let url = URL(string: profile.imageName), !profile.imageName.isEmpty {
+            print("URL 생성 성공: \(url)")
+            
+            URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+                if let error = error {
+                    print("이미지 다운로드 실패: \(error)")
+                    return
+                }
+
+    // 이미지 리사이즈 함수 추가
+    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+                
+                if let data = data, let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self?.profileImageView.image = image
+                        print("이미지 로딩 성공")
+                    }
+                } else {
+                    print("이미지 데이터 변환 실패")
+                }
+            }.resume()
+        } else {
+            print("URL 생성 실패 또는 빈 문자열: \(profile.imageName)")
+        }
+    }
+
+    // 플레이스홀더 이미지 생성 함수 추가
+    private func createPlaceholderImage() -> UIImage? {
+        let size = CGSize(width: 70, height: 70)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            // 배경 색상
+            UIColor.systemGray5.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            // 흰색으로 tint된 심볼 이미지 그리기
+            let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular)
+            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal) {
+                
+                let symbolRect = CGRect(
+                    x: (size.width - 30) / 2,
+                    y: (size.height - 30) / 2,
+                    width: 30,
+                    height: 30
+                )
+                symbolImage.draw(in: symbolRect)
+            }
+        }
     }
     
     private func updateSelectionStyle(isSelected: Bool) {
