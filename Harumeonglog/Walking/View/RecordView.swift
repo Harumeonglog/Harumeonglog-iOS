@@ -33,8 +33,8 @@ class RecordView: UIView {
         label.font = .init(name: "Pretendard-Regular", size: 13)
     }
     
-    public lazy var walkingTextField: UITextField = {
-        let textfield = UITextField()
+    public lazy var walkingTextField: LimitedLengthTextField = {
+        let textfield = LimitedLengthTextField()
         
         let font = UIFont(name: "Pretendard-Regular", size: 13) ?? UIFont.systemFont(ofSize: 13)
         let placeholder = NSAttributedString(
@@ -51,6 +51,7 @@ class RecordView: UIView {
         textfield.layer.cornerRadius = 15
         textfield.layer.borderColor = UIColor.brown02.cgColor
         textfield.layer.borderWidth = 1
+        textfield.maxLength = 10
         
         textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
         textfield.leftViewMode = .always

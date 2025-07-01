@@ -36,7 +36,7 @@ class MapViewController: UIViewController {
     private var isFetching: Bool = false 
     
     internal var locationManager = CLLocationManager()
-    private var userLocationMarker: NMFMarker?      // 네이버지도에서 마커 객체 선언
+    internal var currentLocationMarker: NMFMarker?
 
     internal lazy var mapView: MapView = {
         let view = MapView()
@@ -170,6 +170,7 @@ class MapViewController: UIViewController {
 
 // MARK: 네이버지도
 extension MapViewController: CLLocationManagerDelegate, LocationHandling {
+    
     var mapContainer: MapView { mapView }
 
     // 현재 위치로 이동하는 함수
