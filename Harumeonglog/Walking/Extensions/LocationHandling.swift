@@ -16,6 +16,9 @@ protocol LocationHandling: CLLocationManagerDelegate where Self: UIViewControlle
     associatedtype MapContainerType
     var locationManager: CLLocationManager { get }
     var mapContainer: MapContainerType { get }
+    
+    // 현재 위치 마커 저장용 변수
+    var currentLocationMarker: NMFMarker? { get set }
 
     func handleUserLocationAuthorization()
     func showLocationPermissionAlert()
@@ -93,8 +96,13 @@ extension LocationHandling where MapContainerType: UIView {
             upd.animation = .easeIn
             mapView.mapView.moveCamera(upd)
             
+            // 기존 마커 제거
+            currentLocationMarker?.mapView = nil
+            
+            // 새 마커 생성 후 저장
             let marker = NMFMarker(position: latLng)
             marker.mapView = mapView.mapView
+            currentLocationMarker = marker
         }
     }
 }
