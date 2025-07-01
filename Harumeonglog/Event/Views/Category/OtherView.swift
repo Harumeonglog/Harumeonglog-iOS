@@ -59,7 +59,8 @@ class OtherView: UIView {
         
         detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(8)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
         }
