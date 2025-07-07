@@ -8,6 +8,21 @@
 import UIKit
 
 extension UIView {
+    func timeAgoString(from createdAt: Date) -> String {
+        let now = Date()
+        let interval = now.timeIntervalSince(createdAt)
+        
+        if interval < 60 {
+            return "\(Int(interval))초 전"
+        } else if interval < 3600 {
+            return "\(Int(interval / 60))분 전"
+        } else if interval < 86400 {
+            return "\(Int(interval / 3600))시간 전"
+        } else {
+            return "\(Int(interval / 86400))일 전"
+        }   
+    }
+    
     func timeAgoString(from createdAtString: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
