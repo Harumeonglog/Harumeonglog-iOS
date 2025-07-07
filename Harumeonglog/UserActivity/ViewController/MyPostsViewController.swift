@@ -22,6 +22,8 @@ class MyPostsViewController: UIViewController {
         
         self.myPostsView.myPostsTableView.delegate = self
         self.myPostsView.myPostsTableView.dataSource = self
+        
+        self.myPostsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -38,6 +40,11 @@ class MyPostsViewController: UIViewController {
                 self?.myPostsView.myPostsTableView.reloadData()
             }
             .store(in: &cancellable)
+    }
+    
+    @objc
+    private func popVC() {
+        self.navigationController?.popViewController(animated: true)
     }
     
 }

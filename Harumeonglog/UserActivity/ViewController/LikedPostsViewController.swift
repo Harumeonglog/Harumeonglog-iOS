@@ -22,6 +22,8 @@ class LikedPostsViewController: UIViewController {
         
         self.likedPostsView.likedPostsTableView.delegate = self
         self.likedPostsView.likedPostsTableView.dataSource = self
+        
+        self.likedPostsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -38,6 +40,11 @@ class LikedPostsViewController: UIViewController {
                 self?.likedPostsView.likedPostsTableView.reloadData()
             }
             .store(in: &cancellable)
+    }
+    
+    @objc
+    private func popVC() {
+        self.navigationController?.popViewController(animated: true)
     }
     
 }
