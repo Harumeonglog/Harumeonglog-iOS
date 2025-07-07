@@ -21,26 +21,3 @@ enum InvitationRequestsService {
     }
     
 }
-
-struct InvitationResult: Codable {
-    let members: [InvitationRequest]
-    let size: Int
-    let hasNext: Bool?
-    let nextCursor: Int?
-}
-
-struct InvitationRequest: Codable {
-    let invitationId: Int
-    let image: String
-    let petId: Int
-    let petName: String
-    let role: String
-    let senderId: Int
-    let senderName: String?
-    let createdAt: String?
-}
-
-enum RequestReply: String {
-    case accept = "ACCEPT"
-    case reject = "REJECT"
-}
