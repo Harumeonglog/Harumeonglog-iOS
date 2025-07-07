@@ -12,6 +12,10 @@ class MyCommentCell: UITableViewCell {
     static let identifier: String = "MyCommentCell"
     private var comment: MyComment?
     
+    func configure(comment: MyComment) {
+        self.comment = comment
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
     }

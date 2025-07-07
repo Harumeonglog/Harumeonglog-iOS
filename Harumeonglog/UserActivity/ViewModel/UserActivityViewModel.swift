@@ -18,6 +18,10 @@ final class UserActivityViewModel: ObservableObject {
     @Published var myPosts = [PostItem]()
     private var myPostsHasNext: Bool = true
     
+    @Published var myCommentCursor: Int = 0
+    @Published var myComments = [MyComment]()
+    private var myCommentsHasNext: Bool = true
+    
     var cancellables: Set<AnyCancellable> = []
     
     func getmyPosts() {
@@ -44,6 +48,21 @@ final class UserActivityViewModel: ObservableObject {
                 self?.likedCursor = value.result?.cursor ?? 0
                 self?.likedPosts.append(contentsOf: value.result?.items ?? [])
                 self?.likedHasNext = value.result?.hasNext ?? false
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    func getMyComments() {
+        guard myCommentsHasNext else { print("#getMyComments hasNext false"); return }
+        UserActivityService.getMyComments(cursor: myCommentCursor) { [weak self] result in
+            switch result {
+            case .success(let value):
+                print("#getMyComments success")
+                self?.myCommentCursor = value.result?.cursor ?? 0
+                self?.myComments.append(contentsOf: value.result?.items ?? [])
+                self?.myPostsHasNext = value.result?.hasNext ?? false
             case .failure(let error):
                 print(error)
             }
