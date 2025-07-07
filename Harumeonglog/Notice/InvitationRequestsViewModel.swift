@@ -20,6 +20,7 @@ final class InvitationRequestsViewModel: ObservableObject {
     }
     
     func getInvitationRequests() {
+        isLoading = true
         guard let accessToken = KeychainService.get(key: "accessToken") else { print("no access token"); return }
         
         InvitationRequestsService.getInvitaionRequests(cursor: cursor, token: accessToken) { [weak self] result in
@@ -27,11 +28,14 @@ final class InvitationRequestsViewModel: ObservableObject {
             case .success(let success):
                 self?.invitations.append(contentsOf: success.result?.members ?? [])
                 print("get invitations succeed", self?.invitations ?? ["nothing"])
+                self?.isLoading = false
             case .failure(let failure):
                 print("#getInvitationRequests error: ", failure)
+                self?.isLoading = false
                 return
             }
         }
+        isLoading = false
     }
     
     func postInvitationResponse(request: InvitationRequest, mode: RequestReply) {
@@ -39,7 +43,7 @@ final class InvitationRequestsViewModel: ObservableObject {
         
         InvitationRequestsService.postInvitationRequest(petId: request.petId, token: accessToken, mode: mode) { [weak self] result in
             switch result {
-            case .success(let success):
+            case .success(_):
                 self?.invitations.removeAll(where: { $0.invitationId == request.invitationId })
                 print("\(mode.rawValue) invitation \(request.petName) succeed", self?.invitations ?? ["nothing"])
             case .failure(let failure):

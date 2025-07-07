@@ -8,9 +8,16 @@
 import UIKit
 import Kingfisher
 
+protocol InviteRequestCellDelegate: AnyObject {
+    func didTapConfirmButton(of request: InvitationRequest)
+    func didTapDeleteButton(of request: InvitationRequest)
+}
+
 class InvitationRequestCell: UICollectionViewCell {
     
     static let identifier = "InvitationRequestCollectionViewCell"
+    private var request: InvitationRequest?
+    private var delegate: InviteRequestCellDelegate?
     
     private lazy var profileImage = UIImageView().then {
         $0.backgroundColor = .gray03
@@ -45,14 +52,17 @@ class InvitationRequestCell: UICollectionViewCell {
         $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
     }
     
-    public func configure(_ data: InvitationRequest) {
+    public func configure(_ data: InvitationRequest, delegate: InviteRequestCellDelegate) {
         nameLabel.text = data.petName
         profileImage.kf.setImage(with: URL(string: data.image))
+        self.delegate = delegate
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setConstraints()
+        confirmButton.addTarget(self, action: #selector(didTapConfirmButton), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
     }
     
     private func setConstraints() {
@@ -91,7 +101,20 @@ class InvitationRequestCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc
+    func didTapConfirmButton() {
+        delegate?.didTapConfirmButton(of: self.request!)
+    }
+    
+    @objc
+    func didTapDeleteButton() {
+        delegate?.didTapConfirmButton(of: self.request!)
+    }
+    
 }
+
+
+    
 
 import SwiftUI
 #Preview {

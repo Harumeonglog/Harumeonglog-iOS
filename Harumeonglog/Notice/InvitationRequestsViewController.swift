@@ -45,8 +45,20 @@ extension InvitationRequestsViewController: UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InvitationRequestCell.self.identifier, for: indexPath) as! InvitationRequestCell
         let data = invitationRequestsViewModel!.invitations[indexPath.row]
-        cell.configure(data)
+        cell.configure(data, delegate: self)
         return cell
+    }
+    
+}
+
+extension InvitationRequestsViewController: InviteRequestCellDelegate {
+    
+    func didTapConfirmButton(of request: InvitationRequest) {
+        invitationRequestsViewModel?.postInvitationResponse(request: request, mode: .accept)
+    }
+    
+    func didTapDeleteButton(of request: InvitationRequest) {
+        invitationRequestsViewModel?.postInvitationResponse(request: request, mode: .reject)
     }
     
 }
