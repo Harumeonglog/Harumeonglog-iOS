@@ -10,12 +10,12 @@ import Alamofire
 enum NoticeService {
     
     static func getNoticies(cursor: Int, token: String, completion: @escaping(Result<HaruResponse<NoticesResult>, AFError>) -> Void) {
-        let endpoint = "/api/v1/noticies?cursor=\(cursor)&size=10"
+        let endpoint = "/api/v1/notices?cursor=\(cursor)&size=10"
         APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
     
     static func deletePet(noticeID: Int, token: String, completion: @escaping(Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void) {
-        let endpoint = "/api/v1/noticies/\(noticeID)"
+        let endpoint = "/api/v1/notices/\(noticeID)"
         APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
     }
     

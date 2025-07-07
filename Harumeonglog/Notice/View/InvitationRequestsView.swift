@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InvitationView: UIView {
+class InvitationRequestsView: UIView {
     
     private let leadingTrailingPadding: CGFloat = 22
     
@@ -25,8 +25,8 @@ class InvitationView: UIView {
         cv.showsVerticalScrollIndicator = false
         cv.bouncesHorizontally = false
         
-        cv.register(InvitationCell.self,
-                    forCellWithReuseIdentifier: InvitationCell.identifier)
+        cv.register(InvitationRequestCell.self,
+                    forCellWithReuseIdentifier: InvitationRequestCell.identifier)
         return cv
     }()
     

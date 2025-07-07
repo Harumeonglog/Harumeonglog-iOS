@@ -12,6 +12,7 @@ class NotiViewController: UIViewController {
     
     private let notificationsView = NotiView()
     private let noticeViewModel = NoticeViewModel()
+    private let invitationRequestViewModel = InvitationRequestsViewModel()
     private var cancellables: [AnyCancellable] = []
     private var workItem: DispatchWorkItem?
     
@@ -20,12 +21,18 @@ class NotiViewController: UIViewController {
         self.view = notificationsView
         self.notificationsView.notificationCollectionView.delegate = self
         self.notificationsView.notificationCollectionView.dataSource = self
-        self.notificationsView.configure(invitationCount: 10)
         self.navigationController?.isNavigationBarHidden = true
+        self.invitationRequestViewModel.getInvitationRequests()
         
         noticeViewModel.$notices
             .sink{ [weak self] _ in
                 self?.notificationsView.notificationCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        invitationRequestViewModel.$invitations
+            .sink { [weak self] _ in
+                self?.notificationsView.configure(invitationCount: self?.invitationRequestViewModel.invitations.count)
             }
             .store(in: &cancellables)
     }
@@ -48,7 +55,8 @@ class NotiViewController: UIViewController {
     
     @objc
     private func showInvitationVC() {
-        let invitationVC = InvitationViewController()
+        let invitationVC = InvitationRequestsViewController()
+        invitationVC.configure(invitationRequestViewModel)
         self.navigationController?.pushViewController(invitationVC, animated: true)
     }
     

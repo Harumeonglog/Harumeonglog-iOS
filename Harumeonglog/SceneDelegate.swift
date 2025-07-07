@@ -17,12 +17,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
         window?.makeKeyAndVisible()
+        window?.overrideUserInterfaceStyle = .light
         AuthAPIService.reissue() { code in
             switch code {
             case .COMMON200:
+                print("reissue 성공")
                 MemberAPIService.getInfo { code, info in }
                 self.window?.rootViewController = BaseViewController()
             case .AUTH400:
+                print("reissue 실패")
                 self.window?.rootViewController = LoginViewController()
             }
         }
