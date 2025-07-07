@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class LikedPostsViewController: UIViewController {
+final class LikedPostsViewController: UIViewController {
     
     private var likedPostsView = LikedPostsView()
     private var userActivityViewModel: UserActivityViewModel?

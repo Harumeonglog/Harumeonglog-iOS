@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LikedPostsView: UIView {
+final class LikedPostsView: UIView {
     
     public let navigationBar = CustomNavigationBar()
     

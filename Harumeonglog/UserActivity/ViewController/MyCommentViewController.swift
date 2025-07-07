@@ -1,0 +1,45 @@
+//
+//  MyCommentViewController.swift
+//  Harumeonglog
+//
+//  Created by 이승준 on 7/7/25.
+//
+
+import UIKit
+import Combine
+
+final class MyCommentViewController: UIViewController {
+    
+    private let myCommentsView = MyCommentsView()
+    private var userActivityViewModel: UserActivityViewModel?
+    
+    var cancellable: Set<AnyCancellable> = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view = myCommentsView
+        
+        self.myCommentsView.myCommentsTableView.delegate = self
+        self.myCommentsView.myCommentsTableView.dataSource = self
+        
+        self.myCommentsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+    }
+    
+    @objc
+    private func popVC() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+}
+
+extension MyCommentViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return UITableViewCell()
+    }
+    
+}

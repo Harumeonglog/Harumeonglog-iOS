@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class MyPostsViewController: UIViewController {
+final class MyPostsViewController: UIViewController {
 
     private var myPostsView = MyPostsView()
     private var userActivityViewModel: UserActivityViewModel?
