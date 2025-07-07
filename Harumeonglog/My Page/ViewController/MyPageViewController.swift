@@ -12,6 +12,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let myPageView = MyPageView()
     private var petListViewModel = PetListViewModel()
+    private let userActivityViewModel = UserActivityViewModel()
     private let petListVC = PetListViewController()
     private var cancellables = Set<AnyCancellable>()
     
@@ -24,6 +25,8 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        userActivityViewModel.getmyPosts()
+        userActivityViewModel.getLikedPosts()
     }
     
     override func viewDidLayoutSubviews() {
