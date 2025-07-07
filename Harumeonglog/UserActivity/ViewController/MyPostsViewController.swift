@@ -32,9 +32,9 @@ class MyPostsViewController: UIViewController {
     func configure(with viewModel: UserActivityViewModel) {
         self.userActivityViewModel = viewModel
         
-        viewModel.$likedPosts
-            .sink{ [weak self] likedPosts in
-                self?.myPosts = likedPosts
+        viewModel.$myPosts
+            .sink{ [weak self] myPosts in
+                self?.myPosts = myPosts
                 self?.myPostsView.myPostsTableView.reloadData()
             }
             .store(in: &cancellable)

@@ -21,13 +21,15 @@ class MyPostsView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.backgroundColor = .background
         
         self.addSubview(navigationBar)
         self.addSubview(myPostsTableView)
         
         navigationBar.configureTitle(title: "내가 쓴 게시물")
         navigationBar.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
         }
         
         myPostsTableView.snp.makeConstraints { make in

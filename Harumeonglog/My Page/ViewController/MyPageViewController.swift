@@ -39,6 +39,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
+                print("User Info 불러오기 성공")
                 if let userInfo = MemberAPIService.userInfo {
                     self.myPageView.configure(userInfo)
                 }
@@ -64,10 +65,26 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         myPageView.goToPetListButton.addTarget(self, action: #selector(handlePetLisstButtonTapped), for: .touchUpInside)
         myPageView.logoutButton.addTarget(self, action: #selector(handleLogoutButtonTapped), for: .touchUpInside)
         myPageView.revokeButton.addTarget(self, action: #selector(handleRevokeButtonTapped), for: .touchUpInside)
+        myPageView.likedPostButton.addTarget(self, action: #selector(goToLikedPostVC), for: .touchUpInside)
+        myPageView.myPostButton.addTarget(self, action: #selector(goToMyPostVC), for: .touchUpInside)
     }
     
     func configure(petListViewModel: PetListViewModel) {
         self.petListViewModel = petListViewModel
+    }
+    
+    @objc
+    private func goToMyPostVC() {
+        let notiVC = MyPostsViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
+    }
+    
+    @objc
+    private func goToLikedPostVC() {
+        let notiVC = LikedPostsViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc

@@ -21,13 +21,15 @@ class LikedPostsView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.backgroundColor = .background
         
         self.addSubview(navigationBar)
         self.addSubview(likedPostsTableView)
         
         navigationBar.configureTitle(title: "좋아요 누른 게시물")
         navigationBar.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
         }
         
         likedPostsTableView.snp.makeConstraints { make in
