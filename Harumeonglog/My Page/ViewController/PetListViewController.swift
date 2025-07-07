@@ -129,7 +129,7 @@ extension PetListViewController: UICollectionViewDelegateFlowLayout {
         switch data.role {
         case "OWNER":
             let memberCount = data.people?.count ?? 0
-            let memberTableHeight = min(CGFloat(memberCount) * 52, 157)
+            let memberTableHeight: CGFloat = 156 // = min(CGFloat(3) * 52, 157)
             let baseHeight: CGFloat = 200 // 기본 높이 조정
             let totalHeight = baseHeight + memberTableHeight
             return CGSize(width: UIScreen.main.bounds.width - 40, height: totalHeight)

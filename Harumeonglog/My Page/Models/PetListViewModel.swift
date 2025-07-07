@@ -13,7 +13,6 @@ class PetListViewModel: ObservableObject {
     @Published var petList: [Pet] = []
     @Published var isFetching: Bool = false
     var cursor: Int = 0
-    var hasNext: Bool = true
     var cancellables: Set<AnyCancellable> = []
     
     private var currentUserId: Int? {
@@ -22,7 +21,6 @@ class PetListViewModel: ObservableObject {
     
     func getPetList(completion: @escaping (HaruResponse<PetListResponse>?) -> Void) {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
-        guard hasNext else { print("반려동물 리스트 조회 hasNext false"); return }
         self.isFetching = true
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             completion(nil)
@@ -35,14 +33,14 @@ class PetListViewModel: ObservableObject {
                     if let result = response.result {
                         DispatchQueue.main.async {
                             // 본인을 제외한 멤버 리스트로 필터링
-                            _ = result.pets?.map { pet in
+                            let withoutMe = result.pets?.map { pet in
                                 var filteredPet = pet
                                 filteredPet.people = self.filterOutCurrentUser(from: pet.people)
                                 return filteredPet
                             }
-                            self.petList.append(contentsOf: result.pets ?? [])
+                            print(result.pets ?? [])
+                            self.petList.append(contentsOf: withoutMe ?? [])
                             self.cursor = result.cursor ?? 0
-                            self.hasNext = result.hasNext
                         }
                     } else {
                         print("반려동물 리스트 조회 Empty Result")
@@ -165,7 +163,6 @@ class PetListViewModel: ObservableObject {
     private func refreshPetList() {
         self.petList = []
         self.cursor = 0
-        self.hasNext = true
         self.getPetList { _ in }
     }
     

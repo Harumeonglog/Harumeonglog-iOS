@@ -114,9 +114,8 @@ class PetOwnerCell: UICollectionViewCell {
         memberTableView.delegate = self
         memberTableView.register(MemberInPetCell.self, forCellReuseIdentifier: MemberInPetCell.identifier)
         memberTableView.separatorStyle = .none
-        memberTableView.isScrollEnabled = false
+        memberTableView.isScrollEnabled = true
         memberTableView.reloadData()
-        updateTableViewHeight()
     }
     
     private func setupViewModelBinding() {
@@ -131,39 +130,13 @@ class PetOwnerCell: UICollectionViewCell {
                 if let updatedPet = updatedPets.first(where: { $0.petId == pet.petId }) {
                     self.members = updatedPet.people ?? []
                     self.memberTableView.reloadData()
-                    self.updateTableViewHeight()
                 }
             }
             .store(in: &cancellables)
     }
     
-    private func updateTableViewHeight() {
-            let cellHeight: CGFloat = 52
-            let tableHeight = CGFloat(members.count) * cellHeight
-            let finalHeight = min(tableHeight, 157)
-            
-            // updateConstraints 사용하여 기존 제약 조건 업데이트
-            tableViewHeightConstraint?.update(offset: finalHeight)
-            
-            // 또는 updateConstraints 메서드 사용
-            memberTableView.snp.updateConstraints { make in
-                make.height.equalTo(finalHeight)
-            }
-            
-            // 레이아웃 업데이트
-            self.layoutIfNeeded()
-            
-            // 부모 컬렉션뷰에 레이아웃 업데이트 알림
-            if let collectionView = self.superview as? UICollectionView {
-                DispatchQueue.main.async {
-                    collectionView.collectionViewLayout.invalidateLayout()
-                }
-            }
-        }
-    
     override func prepareForReuse() {
         super.prepareForReuse()
-        cancellables.removeAll()
     }
     
     private func setDefaultConstraints() {
@@ -257,12 +230,11 @@ class PetOwnerCell: UICollectionViewCell {
         memberTableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.top.equalTo(birthdayLabel.snp.bottom).offset(16)
-            // 초기 높이 설정 시 constraint 참조 저장
-            self.tableViewHeightConstraint = make.height.equalTo(52).constraint
+            make.height.equalTo(156) // 고정 높이
         }
         
         sendInviationButton.snp.makeConstraints { make in
-            make.top.equalTo(memberTableView.snp.bottom).offset(11)
+            make.bottom.equalToSuperview().inset(20)
             make.trailing.equalToSuperview().inset(21)
         }
     }
