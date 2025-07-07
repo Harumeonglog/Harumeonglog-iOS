@@ -63,7 +63,7 @@ final class UserActivityViewModel: ObservableObject {
                 print(value.result?.items)
                 self?.myCommentCursor = value.result?.cursor ?? 0
                 self?.myComments.append(contentsOf: value.result?.items ?? [])
-                self?.myPostsHasNext = value.result?.hasNext ?? false
+                self?.myCommentsHasNext = value.result?.hasNext ?? false
             case .failure(let error):
                 print(error)
             }
