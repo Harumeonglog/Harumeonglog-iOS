@@ -21,7 +21,7 @@ final class InvitationRequestsViewModel: ObservableObject {
     
     func getInvitationRequests() {
         isLoading = true
-        guard let accessToken = KeychainService.get(key: "accessToken") else { print("no access token"); return }
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { print("no access token"); return }
         
         InvitationRequestsService.getInvitaionRequests(cursor: cursor, token: accessToken) { [weak self] result in
             switch result {
@@ -39,7 +39,7 @@ final class InvitationRequestsViewModel: ObservableObject {
     }
     
     func postInvitationResponse(request: InvitationRequest, mode: RequestReply) {
-        guard let accessToken = KeychainService.get(key: "accessToken") else { print("no access token"); return }
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { print("no access token"); return }
         
         InvitationRequestsService.postInvitationRequest(petId: request.petId, token: accessToken, mode: mode) { [weak self] result in
             switch result {

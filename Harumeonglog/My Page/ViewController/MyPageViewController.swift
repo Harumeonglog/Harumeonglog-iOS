@@ -11,7 +11,7 @@ import Combine
 class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let myPageView = MyPageView()
-    private var petListViewModel: PetListViewModel?
+    private var petListViewModel = PetListViewModel()
     private let petListVC = PetListViewController()
     private var cancellables = Set<AnyCancellable>()
     
@@ -20,8 +20,6 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view = myPageView
         self.myPageView.previewPetListTableView.delegate = self
         self.myPageView.previewPetListTableView.dataSource = self
-        
-        self.petListVC.configure(petListViewModel: petListViewModel!)
         setButtonActions()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -34,7 +32,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        petListViewModel!.getPetList{ _ in }
+        petListViewModel.getPetList{ _ in }
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
@@ -48,7 +46,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
                 break
             }
         }
-        petListViewModel!.$petList
+        petListViewModel.$petList
             .sink { [weak self] _ in
                 self?.myPageView.previewPetListTableView.reloadData()
             }
@@ -125,11 +123,11 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
 extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return petListViewModel!.petList.count
+        return petListViewModel.petList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let data = petListViewModel!.petList[indexPath.row]
+        let data = petListViewModel.petList[indexPath.row]
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PreviewPetCell.identifier) as? PreviewPetCell else {
             return UITableViewCell()
         }
