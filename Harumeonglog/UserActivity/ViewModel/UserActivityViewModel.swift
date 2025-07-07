@@ -60,6 +60,7 @@ final class UserActivityViewModel: ObservableObject {
             switch result {
             case .success(let value):
                 print("#getMyComments success")
+                print(value.result?.items)
                 self?.myCommentCursor = value.result?.cursor ?? 0
                 self?.myComments.append(contentsOf: value.result?.items ?? [])
                 self?.myPostsHasNext = value.result?.hasNext ?? false

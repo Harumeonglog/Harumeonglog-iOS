@@ -23,7 +23,7 @@ enum UserActivityService {
     
     static func getMyComments(cursor: Int, completion: @escaping (Result<HaruResponse<MyCommentsResult> , AFError>) -> Void ) {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
-        let endpoint = "/api/v1/comments/me/likes?cursor=\(cursor)&size=10"
+        let endpoint = "/api/v1/comments/me?cursor=\(cursor)&size=10"
         APIClient.getRequest(endpoint: endpoint, token: accessToken, completion: completion)
     }
     

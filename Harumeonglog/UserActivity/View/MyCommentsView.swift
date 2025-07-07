@@ -32,7 +32,7 @@ class MyCommentsView: UIView {
         }
         
         myCommentsTableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(23)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
         }

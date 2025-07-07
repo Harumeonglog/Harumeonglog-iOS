@@ -67,6 +67,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         myPageView.revokeButton.addTarget(self, action: #selector(handleRevokeButtonTapped), for: .touchUpInside)
         myPageView.likedPostButton.addTarget(self, action: #selector(goToLikedPostVC), for: .touchUpInside)
         myPageView.myPostButton.addTarget(self, action: #selector(goToMyPostVC), for: .touchUpInside)
+        myPageView.myCommentButton.addTarget(self, action: #selector(goToMyCommentVC), for: .touchUpInside)
     }
     
     func configure(petListViewModel: PetListViewModel) {
@@ -83,6 +84,13 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc
     private func goToLikedPostVC() {
         let notiVC = LikedPostsViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
+    }
+    
+    @objc
+    private func goToMyCommentVC() {
+        let notiVC = MyCommentViewController()
         notiVC.configure(with: self.userActivityViewModel)
         self.navigationController?.pushViewController(notiVC, animated: true)
     }

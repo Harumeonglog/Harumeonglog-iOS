@@ -38,6 +38,7 @@ class BaseViewController: UITabBarController {
         super.viewDidLoad()
         setupTabBarItems()
         setupTabBar()
+        MemberAPIService.getInfo{ _,_  in }
         let myPageWithNavigationBar = UINavigationController(rootViewController: myPageVC)
         self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageWithNavigationBar]
     }
