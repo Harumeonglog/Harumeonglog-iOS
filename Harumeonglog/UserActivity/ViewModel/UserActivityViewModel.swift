@@ -19,7 +19,7 @@ final class UserActivityViewModel: ObservableObject {
     private var myPostsHasNext: Bool = true
     
     @Published var myCommentCursor: Int = 0
-    @Published var myComments = [MyComment]()
+    @Published var myComments = [MyCommentItem]()
     private var myCommentsHasNext: Bool = true
     
     var cancellables: Set<AnyCancellable> = []

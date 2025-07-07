@@ -30,12 +30,12 @@ enum UserActivityService {
 }
 
 struct MyCommentsResult: Codable {
-    let items: [MyComment]
+    let items: [MyCommentItem]
     let hasNext: Bool
     let cursor: Int?
 }
 
-struct MyComment: Codable {
+struct MyCommentItem: Codable {
     let commentId: Int
     let content: String
     let createdAt: String

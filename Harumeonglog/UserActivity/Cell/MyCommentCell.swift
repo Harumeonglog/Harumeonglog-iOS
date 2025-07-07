@@ -10,9 +10,9 @@ import UIKit
 class MyCommentCell: UITableViewCell {
     
     static let identifier: String = "MyCommentCell"
-    private var comment: MyComment?
+    private var comment: MyCommentItem?
     
-    func configure(comment: MyComment) {
+    func configure(comment: MyCommentItem) {
         self.comment = comment
     }
     
