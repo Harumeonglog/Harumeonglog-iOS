@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import Kingfisher
 
-class InvitationCell: UICollectionViewCell {
+class InvitationRequestCell: UICollectionViewCell {
     
-    static let identifier = "InvitationCollectionViewCell"
+    static let identifier = "InvitationRequestCollectionViewCell"
     
     private lazy var profileImage = UIImageView().then {
         $0.backgroundColor = .gray03
@@ -44,8 +45,9 @@ class InvitationCell: UICollectionViewCell {
         $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
     }
     
-    public func configure(_ data: InvitationModel) {
-        nameLabel.text = data.nickname
+    public func configure(_ data: InvitationRequest) {
+        nameLabel.text = data.petName
+        profileImage.kf.setImage(with: URL(string: data.image))
     }
     
     override init(frame: CGRect) {
@@ -93,5 +95,5 @@ class InvitationCell: UICollectionViewCell {
 
 import SwiftUI
 #Preview {
-    InvitationViewController()
+    InvitationRequestsViewController()
 }
