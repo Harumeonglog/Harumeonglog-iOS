@@ -33,9 +33,18 @@ class MyPageView: UIView {
     private lazy var myActiveStack = UIStackView().then { $0.axis = .horizontal }
     private lazy var divider1 = UIView().then { $0.backgroundColor = .brown01 }
     private lazy var divider2 = UIView().then { $0.backgroundColor = .brown01 }
-    public lazy var myPostButton = UIImageView().then { $0.image = .myPost; $0.contentMode = .scaleAspectFill }
-    public lazy var likedPostButton = UIImageView().then { $0.image = .likedPost; $0.contentMode = .scaleAspectFill }
-    public lazy var myCommentButton = UIImageView().then { $0.image = .myComment; $0.contentMode = .scaleAspectFill }
+    public lazy var myPostButton = UIButton().then {
+        $0.setImage(.myPost, for: .normal)
+        $0.contentMode = .scaleAspectFill
+    }
+    public lazy var likedPostButton = UIButton().then {
+        $0.setImage(.likedPost, for: .normal)
+        $0.contentMode = .scaleAspectFill
+    }
+    public lazy var myCommentButton = UIButton().then {
+        $0.setImage(.myComment, for: .normal)
+        $0.contentMode = .scaleAspectFill
+    }
     
     private lazy var myPetsLabel = commonLabel(text: "반려견 목록")
     public lazy var goToPetListButton = goToDetailButton()

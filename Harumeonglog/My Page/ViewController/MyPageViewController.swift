@@ -11,7 +11,8 @@ import Combine
 class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let myPageView = MyPageView()
-    private var petListViewModel: PetListViewModel?
+    private var petListViewModel = PetListViewModel()
+    private let userActivityViewModel = UserActivityViewModel()
     private let petListVC = PetListViewController()
     private var cancellables = Set<AnyCancellable>()
     
@@ -20,12 +21,12 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view = myPageView
         self.myPageView.previewPetListTableView.delegate = self
         self.myPageView.previewPetListTableView.dataSource = self
-        
-        self.petListVC.configure(petListViewModel: petListViewModel!)
         setButtonActions()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        userActivityViewModel.getmyPosts()
+        userActivityViewModel.getLikedPosts()
     }
     
     override func viewDidLayoutSubviews() {
@@ -34,10 +35,11 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        petListViewModel!.getPetList{ _ in }
+        petListViewModel.getPetList{ _ in }
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
+                print("User Info 불러오기 성공")
                 if let userInfo = MemberAPIService.userInfo {
                     self.myPageView.configure(userInfo)
                 }
@@ -48,7 +50,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
                 break
             }
         }
-        petListViewModel!.$petList
+        petListViewModel.$petList
             .sink { [weak self] _ in
                 self?.myPageView.previewPetListTableView.reloadData()
             }
@@ -63,10 +65,34 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         myPageView.goToPetListButton.addTarget(self, action: #selector(handlePetLisstButtonTapped), for: .touchUpInside)
         myPageView.logoutButton.addTarget(self, action: #selector(handleLogoutButtonTapped), for: .touchUpInside)
         myPageView.revokeButton.addTarget(self, action: #selector(handleRevokeButtonTapped), for: .touchUpInside)
+        myPageView.likedPostButton.addTarget(self, action: #selector(goToLikedPostVC), for: .touchUpInside)
+        myPageView.myPostButton.addTarget(self, action: #selector(goToMyPostVC), for: .touchUpInside)
+        myPageView.myCommentButton.addTarget(self, action: #selector(goToMyCommentVC), for: .touchUpInside)
     }
     
     func configure(petListViewModel: PetListViewModel) {
         self.petListViewModel = petListViewModel
+    }
+    
+    @objc
+    private func goToMyPostVC() {
+        let notiVC = MyPostsViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
+    }
+    
+    @objc
+    private func goToLikedPostVC() {
+        let notiVC = LikedPostsViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
+    }
+    
+    @objc
+    private func goToMyCommentVC() {
+        let notiVC = MyCommentViewController()
+        notiVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc
@@ -125,11 +151,11 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
 extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return petListViewModel!.petList.count
+        return petListViewModel.petList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let data = petListViewModel!.petList[indexPath.row]
+        let data = petListViewModel.petList[indexPath.row]
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PreviewPetCell.identifier) as? PreviewPetCell else {
             return UITableViewCell()
         }

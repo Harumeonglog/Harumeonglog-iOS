@@ -34,13 +34,11 @@ class BaseViewController: UITabBarController {
     private let socialVC = UINavigationController(rootViewController: SocialViewController())
     private let myPageVC = MyPageViewController()
     
-    private let petListViewModel = PetListViewModel()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBarItems()
         setupTabBar()
-        setupPetListViewModel()
+        MemberAPIService.getInfo{ _,_  in }
         let myPageWithNavigationBar = UINavigationController(rootViewController: myPageVC)
         self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageWithNavigationBar]
     }
@@ -85,9 +83,4 @@ class BaseViewController: UITabBarController {
         tabBar.backgroundColor = .bg
     }
     
-    private func setupPetListViewModel() {
-        myPageVC.configure(petListViewModel: petListViewModel)
-        petListViewModel.getPetList { _ in }
-    }
-
 }
