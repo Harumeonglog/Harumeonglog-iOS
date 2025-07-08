@@ -94,68 +94,37 @@ class EditProfileViewController: UIViewController {
             return
         }
         
-        // Presigned URL 요청 후 이미지 업로드
-        PresignedUrlService.fetchPresignedUrl(
-            filename: filename,
-            contentType: "image/jpeg",
-            domain: .pet,
-            entityId: entityId,
-            token: accessToken
-        ) { result in
+        let entities: [PURLsRequestEntity] = [
+            PURLsRequestEntity(
+                entityId: entityId,
+                images: [PresignedUrlImage(filename: filename, contentType: "image/jpeg")])
+        ]
+        
+        PresignedUrlService.getPresignedUrls(domain: .member, entities: entities, token: accessToken) { result in
             switch result {
-            case .success(let apiResponse):
-                print("이미지 업로드 성공: \(apiResponse)")
-                guard case .result(let presigned) = apiResponse.result,
-                      let presignedUrl = URL(string: presigned.presignedUrl) else {
-                    print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
-                    return
-                }
-                self.imageKey = presigned.imageKey
-                self.uploadImageToS3(imageData: imageData, presignedUrl: presignedUrl) { result in
-                    switch result {
-                    case .success :
-                        self.updateProfile(image: self.imageKey, nickname: self.editProfileView.nicknameTextField.text!)
-                    case .failure(let error) :
-                        print("#PresignedUrlService.fetchPresignedUrl ", error)
-                        break
+            case .success(let success):
+                print(success)
+                if let result = success.result {
+                    let presignedUrl = result.entities[0].images[0].presignedUrl
+                    self.imageKey = result.entities[0].images[0].imageKey
+                    self.uploadImageToS3(
+                        imageData: imageData,
+                        presignedUrl: URL(string: presignedUrl)!) { result in
+                        switch result {
+                        case .success:
+                            self.updateProfile(image: self.imageKey,
+                                               nickname: self.editProfileView.nicknameTextField.text!)
+                        case .failure(let error):
+                            print("#uploadImageToS3 과정에서 에러", error)
+                        }
                     }
                 }
-            case .failure(let error):
-                print("Presigned URL 요청 실패: \(error)")
+            case .failure(let failure):
+                print("#getPresignedUrl", failure)
             }
         }
+        
     }
-    
-//    private func uploadImageToS3(imageData: Data, presignedUrl: URL, completion: @escaping (Result<Bool, Error>) -> Void) {
-//        // URLRequest 생성
-//        var request = URLRequest(url: presignedUrl)
-//        request.httpMethod = "PUT" // S3 Presigned URL은 PUT 메소드 사용
-//        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type") // 이미지 타입에 맞게 설정
-//        
-//        // Alamofire를 사용한 업로드 구현
-//        AF.upload(imageData, with: request)
-//            .response { response in  // .responseJSON 대신 .response 사용
-//                if let error = response.error {
-//                    completion(.failure(error))
-//                    return
-//                }
-//                
-//                // 상태 코드 확인 (200 또는 204는 성공)
-//                if let statusCode = response.response?.statusCode,
-//                   (200...299).contains(statusCode) {
-//                    print("#uploadImageToS3: successful")
-//                    completion(.success(true))
-//                } else {
-//                    let error = NSError(
-//                        domain: "S3UploadError",
-//                        code: response.response?.statusCode ?? -1,
-//                        userInfo: [NSLocalizedDescriptionKey: "업로드 실패"]
-//                    )
-//                    print("#uploadImageToS3: \(error)")
-//                    completion(.failure(error))
-//                }
-//            }
-//    }
     
     @objc
     private func handleCameraButtonTap() {
@@ -187,7 +156,8 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
             guard let self = self else { return }
             switch code {
             case .COMMON200:
-                print("프로필 업데이트 성공")
+                print("프로필 수정 성공")
+                MemberAPIService.getInfo{ _,_ in }
                 self.navigationController?.popViewController(animated: true)
             case .AUTH401:
                 RootViewControllerService.toLoginViewController()

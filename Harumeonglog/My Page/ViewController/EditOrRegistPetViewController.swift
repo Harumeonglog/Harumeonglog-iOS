@@ -254,50 +254,48 @@ extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavi
             return
         }
         
-        // Presigned URL 요청 후 이미지 업로드
-        PresignedUrlService.fetchPresignedUrl(
-            filename: filename,
-            contentType: "image/jpeg",
-            domain: .pet,
-            entityId: entityId,
-            token: accessToken
-        ) { result in
+        let entities: [PURLsRequestEntity] = [
+            PURLsRequestEntity(
+                entityId: entityId,
+                images: [PresignedUrlImage(filename: filename, contentType: "image/jpeg")])
+        ]
+        
+        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: accessToken) { result in
             switch result {
-            case .success(let apiResponse):
-                print("이미지 업로드 성공: \(apiResponse)")
-                guard case .result(let presigned) = apiResponse.result,
-                      let presignedUrl = URL(string: presigned.presignedUrl) else {
-                    print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
-                    return
-                }
-                self.imageKey = presigned.imageKey
-                self.uploadImageToS3(imageData: imageData, presignedUrl: presignedUrl) { result in
-                    switch result {
-                    case .success :
-                        let petParameter = PetParameter(
-                            name: self.editOrRegistPetView.petNameTextField.text!,
-                            size: self.editOrRegistPetView.selectedDogSize!.rawValue,
-                            type: self.editOrRegistPetView.dogTypeTextField.text!,
-                            gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
-                            birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
-                            imageKey: self.imageKey!)
-                        // 강아지 프로필 올리기 or 수정하기
-                        if self.mode == .Edit { // 있으면 수정
-                            self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
-                        } else if self.mode == .Regist { // 없으면 새로운 강아지
-                            self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
+            case .success(let success):
+                print(success)
+                if let result = success.result {
+                    let presignedUrl = result.entities[0].images[0].presignedUrl
+                    self.imageKey = result.entities[0].images[0].imageKey
+                    self.uploadImageToS3(
+                        imageData: imageData,
+                        presignedUrl: URL(string: presignedUrl)!) { result in
+                        switch result {
+                        case .success:
+                            let petParameter = PetParameter(
+                                name: self.editOrRegistPetView.petNameTextField.text!,
+                                size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+                                type: self.editOrRegistPetView.dogTypeTextField.text!,
+                                gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+                                birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+                                imageKey: self.imageKey!)
+                            // 강아지 프로필 올리기 or 수정하기
+                            if self.mode == .Edit { // 있으면 수정
+                                self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
+                            } else if self.mode == .Regist { // 없으면 새로운 강아지
+                                self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
+                            }
+                            self.navigationController?.popViewController(animated: true)                        case .failure(let error):
+                            print("#uploadImageToS3 과정에서 에러", error)
                         }
-                        self.navigationController?.popViewController(animated: true)
-                        break
-                    case .failure(let error) :
-                        print("#PresignedUrlService.fetchPresignedUrl ", error)
-                        break
                     }
                 }
-            case .failure(let error):
-                print("Presigned URL 요청 실패: \(error)")
+            case .failure(let failure):
+                print("#getPresignedUrl", failure)
             }
+            
         }
+        
     }
     
     enum ViewControllerMode {
