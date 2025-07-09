@@ -29,7 +29,7 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     
     private let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "checkmark.circle.fill")
+        imageView.image = UIImage(systemName: "checkmark")
         imageView.tintColor = .blue01
         imageView.isHidden = true
         return imageView
@@ -79,9 +79,8 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         }
         
         checkmarkImageView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.top).offset(-3)
-            make.trailing.equalTo(profileImageView.snp.trailing).offset(3)
-            make.width.height.equalTo(24)
+            make.centerX.centerY.equalTo(profileImageView)
+            make.width.height.equalTo(40)
         }
     }
     
