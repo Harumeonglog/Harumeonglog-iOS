@@ -13,6 +13,7 @@ final class InvitationRequestsViewModel: ObservableObject {
     @Published var invitations = [InvitationRequest]()
     @Published var isLoading = false
     var cursor: Int = 0
+    var hasNext: Bool = true
     var cancellables: Set<AnyCancellable> = []
     
     init() {
@@ -22,17 +23,21 @@ final class InvitationRequestsViewModel: ObservableObject {
     func getInvitationRequests() {
         isLoading = true
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { print("no access token"); return }
+        guard hasNext else { print("has no next"); return }
         
         InvitationRequestsService.getInvitaionRequests(cursor: cursor, token: accessToken) { [weak self] result in
             switch result {
             case .success(let success):
-                self?.invitations.append(contentsOf: success.result?.members ?? [])
-                print("get invitations succeed", self?.invitations ?? ["nothing"])
-                self?.isLoading = false
+                self?.invitations.append(contentsOf: success.result?.invitations ?? [])
+                print("get invitations requests succeed", self?.invitations ?? ["nothing"])
+                guard let nextCursor = success.result?.nextCursor else {
+                    self?.hasNext = false
+                    break
+                }
+                self?.cursor = nextCursor
             case .failure(let failure):
-                print("#getInvitationRequests error: ", failure)
-                self?.isLoading = false
-                return
+                print("#get Invitation Requests error: ", failure)
+                break
             }
         }
         isLoading = false

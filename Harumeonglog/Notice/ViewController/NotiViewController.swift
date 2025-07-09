@@ -32,7 +32,9 @@ class NotiViewController: UIViewController {
         
         invitationRequestViewModel.$invitations
             .sink { [weak self] _ in
-                self?.notificationsView.configure(invitationCount: self?.invitationRequestViewModel.invitations.count)
+                DispatchQueue.main.async {
+                    self?.notificationsView.configure(invitationCount: self?.invitationRequestViewModel.invitations.count)
+                }
             }
             .store(in: &cancellables)
     }

@@ -8,7 +8,7 @@
 import Foundation
 
 struct InvitationResult: Codable {
-    let members: [InvitationRequest]
+    let invitations: [InvitationRequest]
     let size: Int
     let hasNext: Bool?
     let nextCursor: Int?

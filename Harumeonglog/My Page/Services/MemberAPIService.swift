@@ -121,7 +121,7 @@ class MemberAPIService {
                 case MemberCode.COMMON200.rawValue:
                     completion(.COMMON200, apiResponse.result)
                     self.userInfo = apiResponse.result
-                    print("user info decoding success \(String(describing: self.userInfo))")
+                    // print("user info decoding success \(String(describing: self.userInfo))")
                 case MemberCode.AUTH400.rawValue:
                     completion(.AUTH400, nil)
                 case MemberCode.AUTH401.rawValue:
