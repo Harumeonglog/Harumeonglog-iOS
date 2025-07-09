@@ -324,7 +324,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
         }
 
 
@@ -389,7 +389,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
                 make.top.equalTo(newView.snp.bottom).offset(30)
                 make.leading.trailing.equalToSuperview().inset(21)
                 make.height.equalTo(50)
-                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
+                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
             }
             print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
             print("새로운 카테고리 뷰 추가됨: \(category)")

@@ -133,28 +133,76 @@ class EditEventViewController: UIViewController {
         print("distance:", request.distance ?? "nil")
         print("duration:", request.duration ?? "nil")
         print("===================================")
+
+        // 실제 전송되는 JSON 출력
+        if let jsonData = try? JSONEncoder().encode(request),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("전송되는 JSON:\n\(jsonString)")
+        }
+
         EventService.updateEvent(eventId: self.eventId, request: request, token: token) { result in
             switch result {
             case .success(let response):
                 print("일정 수정 성공: \(response.message)")
-                DispatchQueue.main.async {
-                    self.delegate?.didUpdateEvent(self.eventId)
-                    self.navigationController?.popViewController(animated: true)
+                print("서버 응답 전체: \(response)")
+                
+                // 수정 성공 후 최신 데이터를 다시 가져와서 화면 갱신
+                if let updatedEvent = response.result {
+                    DispatchQueue.main.async {
+                        self.event = EventDetailResult(
+                            id: updatedEvent.id,
+                            title: updatedEvent.title,
+                            date: updatedEvent.date,
+                            isRepeated: updatedEvent.isRepeated,
+                            repeatDays: updatedEvent.repeatDays,
+                            expiredDate: updatedEvent.expiredDate,
+                            hasNotice: updatedEvent.hasNotice,
+                            category: updatedEvent.category,
+                            time: updatedEvent.time,
+                            updatedAt: updatedEvent.updatedAt,
+                            hospitalName: updatedEvent.hospitalName,
+                            department: updatedEvent.department,
+                            cost: updatedEvent.cost,
+                            details: updatedEvent.details,
+                            medicineName: updatedEvent.medicineName,
+                            distance: updatedEvent.distance,
+                            duration: updatedEvent.duration
+                        )
+                        
+                        // 화면 갱신
+                        print("=== 화면 갱신 시작 ===")
+                        print("업데이트된 event 데이터:")
+                        print("  title: \(self.event?.title ?? "nil")")
+                        print("  hospitalName: \(self.event?.hospitalName ?? "nil")")
+                        print("  department: \(self.event?.department ?? "nil")")
+                        print("  cost: \(self.event?.cost ?? 0)")
+                        print("  details: \(self.event?.details ?? "nil")")
+                        
+                        self.configureData(with: self.event!)
+                        print("=== configureData 완료 ===")
+                        
+                        self.delegate?.didUpdateEvent(self.eventId)
+                        print("=== delegate 호출 완료 ===")
+                        
+                        // 홈화면으로 돌아가기
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.navigationController?.popViewController(animated: true)
+                            print("=== 홈화면으로 돌아가기 완료 ===")
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.delegate?.didUpdateEvent(self.eventId)
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             case .failure(let error):
+                print("일정 수정 실패: \(error)")
                 if let afError = error.underlyingError as? AFError {
-                    switch afError {
-                    case .responseValidationFailed(reason: let reason):
-                        switch reason {
-                        case .unacceptableStatusCode(let code):
-                            print("상태 코드 에러: \(code)")
-                        default:
-                            print("기타 응답 검증 실패: \(reason)")
-                        }
-                    case .responseSerializationFailed(reason: let reason):
-                        print("응답 직렬화 실패: \(reason)")
-                    default:
-                        print("AFError: \(afError.localizedDescription)")
+                    print("AFError: \(afError)")
+                    if let data = (afError.underlyingError as? NSError)?.userInfo["com.alamofire.serialization.response.error.data"] as? Data,
+                       let json = String(data: data, encoding: .utf8) {
+                        print("서버 에러 응답 본문: \(json)")
                     }
                 } else {
                     print("기타 오류: \(error.localizedDescription)")
@@ -216,41 +264,40 @@ class EditEventViewController: UIViewController {
         )
 
         switch category {
-        case "HOSPITAL":
-            if let view = editEventView.categoryInputView as? CheckupView {
-                print("HOSPITAL 입력값 확인")
-                print("  병원명: \(view.hospitalTextField.text ?? "nil")")
-                print("  진료과: \(view.departmentTextField.text ?? "nil")")
-                print("  비용: \(view.costTextField.text ?? "nil")")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.hospitalName = view.hospitalTextField.text
-                request.department = view.departmentTextField.text
-                request.cost = Int(view.costTextField.text ?? "")
-                request.details = view.detailTextView.text
-            }
+            // EditEventViewController의 generateRequestFromView()에서
+            case "HOSPITAL":
+                if let view = editEventView.categoryInputView as? CheckupView {
+                    let input = view.getInput() // 👈 이 메서드를 사용해야 함
+                    request.hospitalName = input.hospitalName.isEmpty ? nil : input.hospitalName
+                    request.department = input.department.isEmpty ? nil : input.department
+                    request.cost = input.cost.isEmpty ? nil : Int(input.cost)
+                    request.details = input.details.isEmpty ? nil : input.details
+                    
+                    print(" HOSPITAL getInput() 결과:")
+                    print("  병원명: \(input.hospitalName)")
+                    print("  진료과: \(input.department)")
+                    print("  비용: \(input.cost)")
+                    print("  상세내용: \(input.details)")
+                }
         case "MEDICINE":
             if let view = editEventView.categoryInputView as? MedicineView {
-                print("MEDICINE 입력값 확인")
-                print("  약 이름: \(view.medicineNameTextField.text ?? "nil")")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.medicineName = view.medicineNameTextField.text
-                request.details = view.detailTextView.text
+                let input = view.getInput() // MedicineView에도 getInput() 메서드가 있다고 가정
+                request.medicineName = input.medicineName.isEmpty ? nil : input.medicineName
+                request.details = input.details.isEmpty ? nil : input.details
             }
+
         case "WALK":
             if let view = editEventView.categoryInputView as? WalkView {
-                print("WALK 입력값 확인")
-                print("  거리: \(view.distanceTextField.text ?? "nil")")
-                print("  소요시간: \(view.timeTextField.text ?? "nil")")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.distance = view.distanceTextField.text
-                request.duration = view.timeTextField.text
-                request.details = view.detailTextView.text
+                let input = view.getInput() // WalkView에도 getInput() 메서드가 있다고 가정
+                request.distance = input.distance.isEmpty ? nil : input.distance
+                request.duration = input.duration.isEmpty ? nil : input.duration
+                request.details = input.details.isEmpty ? nil : input.details
             }
+
         case "OTHER":
             if let view = editEventView.categoryInputView as? OtherView {
-                print(" OTHER 입력값 확인")
-                print("  상세내용: \(view.detailTextView.text ?? "nil")")
-                request.details = view.detailTextView.text
+                let input = view.getInput()
+                request.details = input.isEmpty ? nil : input
             }
         default:
             break
@@ -294,6 +341,14 @@ class EditEventViewController: UIViewController {
         
     
     private func configureData(with event: EventDetailResult) {
+        print("=== configureData 시작 ===")
+        print("받은 event 데이터:")
+        print("  title: \(event.title)")
+        print("  hospitalName: \(event.hospitalName ?? "nil")")
+        print("  department: \(event.department ?? "nil")")
+        print("  cost: \(event.cost ?? 0)")
+        print("  details: \(event.details ?? "nil")")
+        
         editEventView.titleTextField.text = event.title
         editEventView.dateButton.setTitle(event.date, for: .normal)
         editEventView.timeButton.setTitle(event.time, for: .normal)
@@ -318,38 +373,54 @@ class EditEventViewController: UIViewController {
         }
 
         if let categoryType = CategoryType.fromServerValue(event.category) {
+            print("카테고리 뷰 업데이트 시작: \(categoryType)")
             editEventView.updateCategoryInputView(for: categoryType)
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                switch event.category {
-                case "HOSPITAL":
-                    if let view = self.editEventView.categoryInputView as? CheckupView {
-                        view.hospitalTextField.text = event.hospitalName
-                        view.departmentTextField.text = event.department
-                        view.costTextField.text = "\(event.cost ?? 0)"
-                        view.detailTextView.text = event.details
-                    }
-                case "MEDICINE":
-                    if let view = self.editEventView.categoryInputView as? MedicineView {
-                        view.medicineNameTextField.text = event.medicineName
-                        view.detailTextView.text = event.details
-                    }
-                case "WALK":
-                    if let view = self.editEventView.categoryInputView as? WalkView {
-                        view.distanceTextField.text = event.distance
-                        view.timeTextField.text = event.duration
-                        view.detailTextView.text = event.details
-                    }
+            DispatchQueue.main.async {
+                // 뷰가 준비될 때까지 잠시 대기
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    print("카테고리별 데이터 설정 시작")
+                    switch event.category {
+                    case "HOSPITAL":
+                        if let view = self.editEventView.categoryInputView as? CheckupView {
+                            print("CheckupView 데이터 설정:")
+                            print("  hospitalName: \(event.hospitalName ?? "nil")")
+                            print("  department: \(event.department ?? "nil")")
+                            print("  cost: \(event.cost ?? 0)")
+                            print("  details: \(event.details ?? "nil")")
+                            
+                            view.hospitalTextField.text = event.hospitalName
+                            view.departmentTextField.text = event.department
+                            view.costTextField.text = "\(event.cost ?? 0)"
+                            view.detailTextView.text = event.details
+                            print("CheckupView 데이터 설정 완료")
+                        } else {
+                            print("CheckupView 캐스팅 실패")
+                        }
+                    case "MEDICINE":
+                        if let view = self.editEventView.categoryInputView as? MedicineView {
+                            view.medicineNameTextField.text = event.medicineName
+                            view.detailTextView.text = event.details
+                        }
+                    case "WALK":
+                        if let view = self.editEventView.categoryInputView as? WalkView {
+                            view.distanceTextField.text = event.distance
+                            view.timeTextField.text = event.duration
+                            view.detailTextView.text = event.details
+                        }
 
-                case "OTHER":
-                    if let view = self.editEventView.categoryInputView as? OtherView {
-                        view.detailTextView.text = event.details
+                    case "OTHER":
+                        if let view = self.editEventView.categoryInputView as? OtherView {
+                            view.detailTextView.text = event.details
+                        }
+                    default:
+                        break
                     }
-                default:
-                    break
+                    print("카테고리별 데이터 설정 완료")
                 }
             }
         }
+        print("=== configureData 완료 ===")
     }
     
     private func populateUI(date: String, time: String, alarm: String, weekdays: [String], detail: EventDetailData) {

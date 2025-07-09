@@ -262,7 +262,7 @@ extension AddEventViewController {
     }
     
     //입력값 가지고 서버에 보낼 EventRequest 객체 만드는 메서드
-    private func makeEventRequest(from input: (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String), category: CategoryType) -> EventRequest {
+    func makeEventRequest(from input: (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String), category: CategoryType) -> EventRequest {
         
         let dateText = addEventView.dateButton.title(for: .normal) ?? ""
         let timeText = addEventView.timeButton.title(for: .normal) ?? "00.00"

@@ -92,6 +92,7 @@ struct ActivePets: Decodable {
     let petId: Int
     let name: String
     let mainImage: String?
+    let role: String  // 역할 정보 추가
 }
 
 //MARK: /api/v1/pets/{petId}/status/active - 현재 펫 변경
