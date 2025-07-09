@@ -30,7 +30,6 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     private let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "checkmark.circle.fill")
-        imageView.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         imageView.tintColor = .blue01
         imageView.isHidden = true
         return imageView
@@ -38,11 +37,12 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     
     private let overlayView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         view.layer.cornerRadius = 35
         view.clipsToBounds = true
-        view.layer.borderWidth = 2
+        view.layer.borderWidth = 3
         view.layer.borderColor = UIColor.blue01.cgColor
+        view.isHidden = true
         return view
     }()
     
@@ -79,9 +79,9 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         }
         
         checkmarkImageView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.top).offset(-5)
-            make.trailing.equalTo(profileImageView.snp.trailing).offset(5)
-            make.width.height.equalTo(20)
+            make.top.equalTo(profileImageView.snp.top).offset(-3)
+            make.trailing.equalTo(profileImageView.snp.trailing).offset(3)
+            make.width.height.equalTo(24)
         }
     }
     
@@ -154,12 +154,15 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
     }
     
     private func updateSelectionStyle(isSelected: Bool) {
+        print("ProfileSelectCollectionViewCell - updateSelectionStyle: \(isSelected)")
         if isSelected {
             overlayView.isHidden = false
             checkmarkImageView.isHidden = false
+            print("체크마크와 오버레이 표시됨")
         } else {
             overlayView.isHidden = true
             checkmarkImageView.isHidden = true
+            print("체크마크와 오버레이 숨겨짐")
         }
     }
 }

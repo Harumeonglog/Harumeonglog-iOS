@@ -36,6 +36,7 @@ class AddEventViewController: UIViewController {
         hideKeyboardWhenTappedAround()
     }
 
+
     
     //탭바 숨기기
     override func viewWillAppear(_ animated: Bool) {
