@@ -84,7 +84,7 @@ class MedicineView: UIView {
         medicineNameTextField.snp.makeConstraints { make in
             make.top.equalTo(medicineNameLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(170)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(45)
         }
 
@@ -95,7 +95,8 @@ class MedicineView: UIView {
         }
         detailTextView.snp.makeConstraints { make in
             make.top.equalTo(detailLabel.snp.bottom).offset(8)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(126)
             make.centerX.equalToSuperview()
         }

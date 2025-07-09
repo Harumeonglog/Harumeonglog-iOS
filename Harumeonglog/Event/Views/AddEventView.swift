@@ -291,13 +291,15 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleTextField.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.height.equalTo(45)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.centerX.equalToSuperview()
         }
         
         EventInfoView.snp.makeConstraints { make in
             make.top.equalTo(titleTextField.snp.bottom).offset(15)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(160)
             make.centerX.equalToSuperview()
         }
@@ -305,21 +307,24 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         categoryButton.snp.makeConstraints { make in
             make.top.equalTo(EventInfoView.snp.bottom).offset(15)
             make.height.equalTo(45)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.centerX.equalToSuperview()
         }
         
         dropdownTableView.snp.makeConstraints { make in
             make.top.equalTo(categoryButton.snp.bottom).offset(5)
-            make.width.equalTo(362)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
         }
         
         deleteEventButton.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(21)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
         }
 
 
@@ -384,7 +389,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
                 make.top.equalTo(newView.snp.bottom).offset(30)
                 make.leading.trailing.equalToSuperview().inset(21)
                 make.height.equalTo(50)
-                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(30)
+                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
             }
             print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
             print("새로운 카테고리 뷰 추가됨: \(category)")

@@ -67,8 +67,18 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
             if let defaultPet = activePets.pets.first(where: { $0.petId == 1 }) {
                 DispatchQueue.main.async {
-                    print("선택된 반려견: \(defaultPet.name)")
+                    print("선택된 반려견: \(defaultPet.name), 역할: \(defaultPet.role)")
                     self.homeView.nicknameLabel.text = defaultPet.name
+                    
+                    // GUEST 역할인 경우 이벤트 추가 버튼 숨김
+                    let role = defaultPet.role ?? "OWNER"  // 기본값 OWNER
+                    if role == "GUEST" {
+                        self.homeView.addeventButton.isHidden = true
+                        print("GUEST 역할이므로 이벤트 추가 버튼 숨김")
+                    } else {
+                        self.homeView.addeventButton.isHidden = false
+                        print("\(role) 역할이므로 이벤트 추가 버튼 표시")
+                    }
 
                     if let imageUrl = URL(string: defaultPet.mainImage ?? "") {
                         URLSession.shared.dataTask(with: imageUrl) { data, _, _ in

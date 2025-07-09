@@ -31,6 +31,20 @@ class AddEventViewController: UIViewController {
         
         // 현재 날짜와 시간으로 초기화
         setInitialDateTime()
+        
+        // 키보드 숨김 기능 추가
+        hideKeyboardWhenTappedAround()
+    }
+    
+    // 키보드 숨김 기능
+    func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     //탭바 숨기기
@@ -262,7 +276,7 @@ extension AddEventViewController {
     }
     
     //입력값 가지고 서버에 보낼 EventRequest 객체 만드는 메서드
-    private func makeEventRequest(from input: (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String), category: CategoryType) -> EventRequest {
+    func makeEventRequest(from input: (details: String, hospitalName: String, department: String, cost: Int, medicineName: String, distance: String, duration: String), category: CategoryType) -> EventRequest {
         
         let dateText = addEventView.dateButton.title(for: .normal) ?? ""
         let timeText = addEventView.timeButton.title(for: .normal) ?? "00.00"
