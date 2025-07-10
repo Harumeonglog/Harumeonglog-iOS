@@ -48,6 +48,8 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     @objc func didTapRightButton() {
         
+        addPostView.navigationBar.rightButton.isUserInteractionEnabled = false
+
         let postTitle = addPostView.titleTextField.text ?? ""
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
@@ -67,23 +69,29 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         
         requestPresignedURLS(images: imageInfos, token: token)
         
-    
     }
     
+    
     private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
-        PresignedUrlService.fetchBatchPresignedUrls(images: images, domain: .post, entityId: 0, token: token) { [weak self] result in
+        // entityId = 0으로 고정
+        let entity = PURLsRequestEntity(entityId: 0, images: images)
+        
+        PresignedUrlService.getPresignedUrls(domain: .post, entities: [entity], token: token) { [weak self] result in
             switch result {
             case .success(let response):
                 print("presignedURL 발급 성공")
-                self?.uploadImagesToPresignedURL(response)
+                self?.uploadImagesToPresignedURL(response.result!)
             case .failure(let error):
                 print("presignedURL 발급 실패: \(error)")
             }
         }
     }
+
     
-    private func uploadImagesToPresignedURL(_ response: PresignedUrlBatchResponse) {
-        let presignedData = response.result.images
+    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
+        guard let presignedEntity = result.entities.first else { return }
+
+        let presignedData = presignedEntity.images
         guard presignedData.count == postImages.count else { return }  // presingedURL에 올라간 이미지 개수가 맞는지 확인
         
         let dispatchGroup = DispatchGroup()
@@ -135,7 +143,10 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             case .success(let response):
                 if response.isSuccess {
                     print("게시글 생성 성공")
-                    self.navigationController?.popViewController(animated: true)
+                    DispatchQueue.main.async {
+                        self.addPostView.navigationBar.rightButton.isUserInteractionEnabled = true  // 버튼 다시 활성화
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 } else {
                     print("서버 응답 에러: \(response.message)")
                 }
