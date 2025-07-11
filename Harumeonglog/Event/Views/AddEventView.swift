@@ -193,6 +193,20 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         return tableView
     }()
     
+    // 스크롤뷰 추가
+    lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        return scrollView
+    }()
+    
+    // 스크롤뷰 내부 콘텐츠 뷰
+    lazy var contentView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
     lazy var deleteEventButton: UIButton = {
         let button = UIButton()
         button.setTitle("삭제", for: .normal)
@@ -214,10 +228,18 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     private func addComponents() {
         
-        self.addSubview(titleTextField)
-        self.addSubview(EventInfoView)
-        self.addSubview(categoryButton)
-        self.addSubview(dropdownTableView)
+        // 스크롤뷰 구조 설정
+        self.addSubview(scrollView)
+        self.addSubview(deleteEventButton)
+        
+        scrollView.addSubview(contentView)
+        
+        // 콘텐츠 뷰에 요소들 추가
+        contentView.addSubview(titleTextField)
+        contentView.addSubview(EventInfoView)
+        contentView.addSubview(categoryButton)
+        contentView.addSubview(dropdownTableView)
+        
         self.addSubview(navigationBar)
         
         EventInfoView.addSubview(timeIcon)
@@ -227,13 +249,27 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         EventInfoView.addSubview(dateButton)
         EventInfoView.addSubview(alarmButton)
         EventInfoView.addSubview(timeButton)
-        self.addSubview(deleteEventButton)
         
         // weekButtons(요일 선택 버튼) 추가
         weekButtons.forEach { EventInfoView.addSubview($0) }
         
+        // 네비게이션 바는 스크롤뷰 밖에 고정
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
+            make.height.equalTo(44)
+        }
+        
+        // 스크롤뷰 설정
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(deleteEventButton.snp.top).offset(-20)
+        }
+        
+        // 콘텐츠 뷰 설정
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
         }
         
         [timeIcon, repeatIcon, alarmIcon].forEach { icon in
@@ -289,7 +325,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         titleTextField.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom).offset(20)
+            make.top.equalToSuperview().offset(20)
             make.height.equalTo(45)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
@@ -318,15 +354,16 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
         }
         
-        deleteEventButton.snp.remakeConstraints { make in
+        // 삭제 버튼을 화면 하단에 고정
+        deleteEventButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(20)
         }
-
 
         dateButton.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
         timeButton.addTarget(self, action: #selector(timeButtonTapped), for: .touchUpInside)
@@ -379,18 +416,23 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
 
         if newView.superview == nil {
-            insertSubview(newView, belowSubview: dropdownTableView)
+            contentView.insertSubview(newView, belowSubview: dropdownTableView)
             newView.snp.makeConstraints { make in
                 make.top.equalTo(categoryButton.snp.bottom).offset(20)
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(300)
+                make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
             }
-            deleteEventButton.snp.remakeConstraints { make in
-                make.top.equalTo(newView.snp.bottom).offset(30)
-                make.leading.trailing.equalToSuperview().inset(21)
-                make.height.equalTo(50)
-                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).inset(15)
+            
+            // dropdownTableView 위치를 카테고리 입력 뷰 아래로 조정
+            dropdownTableView.snp.remakeConstraints { make in
+                make.top.equalTo(categoryButton.snp.bottom).offset(5)
+                make.leading.equalToSuperview().offset(20)
+                make.trailing.equalToSuperview().inset(20)
+                make.height.equalTo(200)
+                make.centerX.equalToSuperview()
             }
+            
             print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
             print("새로운 카테고리 뷰 추가됨: \(category)")
         } else {
