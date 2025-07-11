@@ -14,7 +14,8 @@ enum InviteMemberService {
         APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
     
-    static func inviteUser(petID: Int, users: [Member], token: String, completion: @escaping (Result<HaruResponse<String>, AFError>) -> Void) {
+    static func inviteUser(petID: Int, users: [Member], completion: @escaping (Result<HaruResponse<String>, AFError>) -> Void) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("NO Access Token"); return }
         let endpoint = "/api/v1/pets/\(petID)/members"
         
         struct InviteRequest: Encodable {
