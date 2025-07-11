@@ -142,7 +142,7 @@ struct PetPatchResponse : Codable {
     let size: String
     let type: String
     let gender: String
-    let role: String
+    let role: String?
     let birth: String
     let mainImage: String
     let updatedAt: String
