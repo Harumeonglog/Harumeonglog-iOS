@@ -16,6 +16,10 @@ class PetListViewModel: ObservableObject {
     var cursor: Int = 0
     var cancellables: Set<AnyCancellable> = []
     
+    init() {
+        getPetList{ _ in }
+    }
+    
     private var currentUserId: Int? {
         return MemberAPIService.userInfo?.memberId
     }
@@ -54,19 +58,7 @@ class PetListViewModel: ObservableObject {
             self.isFetching = false
         }
     }
-    
-    // 현재 사용자를 제외하는 필터링 함수
-    private func filterOutCurrentUser(from members: [PetMember]?) -> [PetMember]? {
-        guard let members = members, let currentUserId = currentUserId else {
-            print("member 또는 currentUserId가 없습니다.")
-            return members
-        }
         
-        return members.filter { member in
-            member.id != currentUserId
-        }
-    }
-    
     func postPet(newInfo: PetParameter, completion: @escaping (HaruResponse<PetPostResponse>?) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             completion(nil)
@@ -159,8 +151,21 @@ class PetListViewModel: ObservableObject {
         }
     }
     
+    // 현재 사용자를 제외하는 필터링 함수
+    private func filterOutCurrentUser(from members: [PetMember]?) -> [PetMember]? {
+        guard let members = members, let currentUserId = currentUserId else {
+            print("member 또는 currentUserId가 없습니다.")
+            return members
+        }
+        
+        return members.filter { member in
+            member.id != currentUserId
+        }
+    }
+    
     private func refreshPetList() {
         self.petList = []
+        self.hasNext = true
         self.cursor = 0
         self.getPetList { _ in }
     }
