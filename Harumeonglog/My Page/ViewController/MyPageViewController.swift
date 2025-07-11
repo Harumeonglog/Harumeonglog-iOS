@@ -30,6 +30,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         
         petListViewModel.getPetList{ _ in }
         petListViewModel.$petList
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.myPageView.previewPetListTableView.reloadData()
             }

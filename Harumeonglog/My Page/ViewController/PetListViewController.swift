@@ -48,10 +48,9 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.petListViewModel = petListViewModel
         
         self.petListViewModel!.$petList
+            .receive(on: DispatchQueue.main)
             .sink { _ in
-                DispatchQueue.main.async {
-                    self.petListView.petListCollectionView.reloadData()
-                }
+                self.petListView.petListCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
