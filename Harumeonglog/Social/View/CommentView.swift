@@ -20,6 +20,9 @@ class CommentView: UIView {
         tableView.backgroundColor = .background
         tableView.isScrollEnabled = true
         tableView.separatorStyle = .none
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
     }
     
     public lazy var commentTextView = UITextView().then { textView in
@@ -67,7 +70,6 @@ class CommentView: UIView {
             make.top.equalTo(navigationBar.snp.bottom).offset(5)
             make.leading.trailing.equalToSuperview().inset(25)
             make.bottom.equalToSuperview().inset(90)
-            make.height.lessThanOrEqualTo(620)
         }
         
         self.addSubview(commentTextView)
