@@ -54,10 +54,7 @@ class SocialViewController: UIViewController {
     
     private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
                 
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         if isFetching { return }        // 중복 호출 방지
         isFetching = true
@@ -90,11 +87,7 @@ class SocialViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.socialView.postTableView.reloadData()
                         }
-                    } else {
-                        print("결과 데이터가 비어있습니다.")
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 조회 실패: \(error.localizedDescription)")

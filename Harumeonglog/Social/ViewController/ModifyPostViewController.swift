@@ -228,7 +228,6 @@ extension ModifyPostViewController: UIImagePickerControllerDelegate, UINavigatio
             addPostView.imageCollectionView.reloadData()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
-    
         picker.dismiss(animated: true)
     }
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -257,8 +256,7 @@ extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDa
               self?.addPostView.imageCollectionView.reloadData()
               self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
           }
-        
-        
+    
         return cell
     }
 }

@@ -49,7 +49,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     @objc func didTapRightButton() {
         
         addPostView.navigationBar.rightButton.isUserInteractionEnabled = false
-
         let postTitle = addPostView.titleTextField.text ?? ""
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
@@ -66,9 +65,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
                 contentType: "image/jpeg"
             )
         }
-        
         requestPresignedURLS(images: imageInfos, token: token)
-        
     }
     
     
@@ -147,8 +144,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
                         self.addPostView.navigationBar.rightButton.isUserInteractionEnabled = true  // 버튼 다시 활성화
                         self.navigationController?.popViewController(animated: true)
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 전송 실패: \(error.localizedDescription)")
@@ -173,9 +168,9 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         print("선택된 카테고리: \(category)")
         selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
     }
-    
-    
 }
+
+
 
 extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -189,19 +184,17 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         else if let originalImage = info[.originalImage] as? UIImage {
             selectedImage = originalImage
         }
-
         
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
-            
             postImages.append(image)
             addPostView.imageCollectionView.reloadData()
             addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
-        
         picker.dismiss(animated: true)
     }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
