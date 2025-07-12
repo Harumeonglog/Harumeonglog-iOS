@@ -25,7 +25,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     
     let socialCommentService = SocialCommentService()
     var postId : Int?
-    var commentId : Int?
+    var replyTargetCommentId : Int? = nil
     var commentText : String = ""
     var mentionRange: NSRange?
 
@@ -75,6 +75,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
             cursor = 0
             hasNext = true
             self.comments = []
+            self.replyComments = []
             self.commentDisplayItems = []
         }
         
@@ -121,19 +122,27 @@ class CommentViewController: UIViewController, UITextViewDelegate {
                   replacementText text: String) -> Bool {
         
         if text.isEmpty,
-           let mentionRange = self.mentionRange,
-           NSIntersectionRange(range, mentionRange).length > 0 {
-            
-            let mutable = NSMutableAttributedString(attributedString: textView.attributedText)
-            mutable.replaceCharacters(in: mentionRange, with: "")
-            textView.attributedText = mutable
-
-            self.mentionRange = nil
-            handleCommentTextViewUI()
-            return false
+           let mentionRange = self.mentionRange {
+            if NSEqualRanges(range, NSRange(location: 0, length: textView.attributedText.length)) {
+                // 전체 선택 후 삭제: 멘션 포함 전체 삭제
+                textView.attributedText = NSAttributedString(string: "")
+                self.mentionRange = nil
+                handleCommentTextViewUI()
+                return false
+            }
+            if NSIntersectionRange(range, mentionRange).length > 0 {
+                // 멘션 영역 삭제 시 멘션 전체 삭제
+                let mutable = NSMutableAttributedString(attributedString: textView.attributedText)
+                mutable.replaceCharacters(in: mentionRange, with: "")
+                textView.attributedText = mutable
+                self.mentionRange = nil
+                handleCommentTextViewUI()
+                return false
+            }
         }
         return true
     }
+
 
     private func handleCommentTextViewUI() {
         let isEmpty = commentView.commentTextView.text.isEmpty
@@ -165,7 +174,16 @@ extension CommentViewController {
     private func commentUploadButtonTapped() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
-        socialCommentService.postCommentToServer(postId: postId!, content: commentText, token: token)
+        let parentId = replyTargetCommentId ?? 0
+        
+        if let mentionRange = self.mentionRange,
+           let text = commentView.commentTextView.text,
+           let swiftRange = Range(mentionRange, in: text) {
+            // 멘션 이후 텍스트만 추출
+            self.commentText = String(text[swiftRange.upperBound...])
+        }
+        
+        socialCommentService.postCommentToServer(postId: postId!, parentId: parentId, content: commentText, token: token)
         { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -199,10 +217,15 @@ extension CommentViewController {
     
     func replyButtonTapped(in cell: CommentTableViewCell) {
         if let indexPath = commentView.commentTableView.indexPath(for: cell) {
-            commentView.placeholderLabel.isHidden = true
-            print("댓글 \(indexPath.row)  버튼 클릭됨!")
             
-            commentView.commentTextView.textContainerInset = UIEdgeInsets(top: 10, left: 19, bottom: 10, right: 10)
+            // 대댓글 대상 commentId 저장
+            let comment = commentDisplayItems[indexPath.row]
+            if case .comment(let commentItem) = comment {
+                self.replyTargetCommentId = commentItem.commentId
+            }
+            
+            commentView.placeholderLabel.isHidden = true
+            commentView.commentTextView.textContainerInset = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 61)
 
             // commentTextfield에 @사용자이름 자동으로 입력
             let userName = cell.accountName.text ?? "익명"

@@ -68,7 +68,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
     }
     
     private func addComponents() {
-        self.addSubview(arrowTurnDown)
+        contentView.addSubview(arrowTurnDown)
         
         arrowTurnDown.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(12)
@@ -76,13 +76,13 @@ class ReplyCommentTableViewCell: UITableViewCell {
             make.width.height.equalTo(16)
         }
         
-        self.addSubview(topLeftView)
+        contentView.addSubview(topLeftView)
         topLeftView.addSubview(accountImageView)
         topLeftView.addSubview(accountName)
         topLeftView.addSubview(postTime)
         
         topLeftView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(30)
+            make.top.equalToSuperview().inset(15)
             make.leading.equalTo(arrowTurnDown.snp.trailing).offset(12)
             make.height.equalTo(40)
         }
@@ -102,7 +102,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(4)
         }
         
-        self.addSubview(settingButton)
+        contentView.addSubview(settingButton)
         settingButton.snp.makeConstraints { make in
             make.centerY.equalTo(topLeftView)
             make.width.equalTo(24)
@@ -110,20 +110,17 @@ class ReplyCommentTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview()
         }
         
-        self.addSubview(commentContent)
-        // self.addSubview(replyButton)
+        contentView.addSubview(commentContent)
         
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(90)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
             make.trailing.equalTo(settingButton.snp.leading).offset(5)
+            make.height.greaterThanOrEqualTo(22)
+            make.bottom.equalToSuperview()
         }
         
-//        replyButton.snp.makeConstraints { make in
-//            make.top.equalTo(commentContent.snp.bottom)
-//            make.leading.equalTo(commentContent)
-//        }
-        
+
     }
     
     func configure(with commentReplies: CommentcommentResponse, member: MemberInfoResponse) {
