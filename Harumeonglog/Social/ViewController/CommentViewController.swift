@@ -72,7 +72,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
         if reset {
             cursor = 0
             hasNext = true
-            comments.removeAll()
+            commentDisplayItems.removeAll()
             commentView.commentTableView.reloadData()
         }
         
@@ -155,7 +155,6 @@ class CommentViewController: UIViewController, UITextViewDelegate {
                     print("댓글 생성 성공")
                     commentView.commentTextView.text = ""
                     fetchCommentsFromServer(reset: true)
-
                 } else {
                     print("서버 응답 에러: \(response.message)")
                 }
@@ -215,6 +214,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     
     func likeButtonTapped(in: CommentTableViewCell) {
     }
+    
     
     func configureSettingMenu(for cell: MenuConfigurableCell, commentId: Int) {
         let handler: UIActionHandler = { [weak self] action in
@@ -284,10 +284,11 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
         return commentDisplayItems.count
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        100
-    }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         return false
     }

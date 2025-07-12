@@ -43,7 +43,6 @@ class SocialViewController: UIViewController {
         
         self.view = socialView
         hideKeyboardWhenTappedAround()
-        // fetchPostsFromServer(reset: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {

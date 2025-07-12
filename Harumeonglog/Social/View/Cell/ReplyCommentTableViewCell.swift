@@ -55,13 +55,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
         label.setLineSpacing(lineSpacing: 5)
     }
     
-//    public lazy var replyButton = UIButton().then { button in
-//        button.setTitle("답글 달기", for: .normal)
-//        button.setTitleColor(UIColor.gray02, for: .normal)
-//        button.backgroundColor = .background
-//        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 10)
-//    }
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
