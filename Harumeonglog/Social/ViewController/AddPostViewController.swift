@@ -58,7 +58,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             return
         }
         
-        // presingedURL batch 요청을 이미지 정보 만들기
         let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
             return PresignedUrlImage(
                 filename: "\(postTitle)_\(index)",

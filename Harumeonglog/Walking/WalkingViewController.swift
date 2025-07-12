@@ -16,7 +16,17 @@ class WalkingViewController: UIViewController {
     var selectedMembers: [WalkMembers] = []
     var selectedAllItems: [SelectedAllItems] = []
     
+    var selectedPetIds: [Int] {
+        return selectedPets.map { $0.petId }
+    }
+
+    var selectedMemberIds: [Int] {
+        return selectedMembers.map { $0.memberId }
+    }
+
     var walkId: Int = 0
+    var walkImages: [UIImage] = []
+    var imageKeys: [String] = []
     
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
@@ -47,7 +57,6 @@ class WalkingViewController: UIViewController {
         view.playBtn.addTarget(self, action: #selector(playBtnTapped), for: .touchUpInside)
         view.cameraBtn.addTarget(self, action: #selector(cameraBtnTapped), for: .touchUpInside)
         
-        
         return view
     }()
     
@@ -56,7 +65,6 @@ class WalkingViewController: UIViewController {
         self.view = walkingView
         locationManager.delegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        
     }
     
     
@@ -91,15 +99,11 @@ class WalkingViewController: UIViewController {
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
             startNewPathOverlay()
-            
         }
     }
     
     private func sendStartWalkToServer(latitude: Double, longitude: Double) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
-        let selectedPetIds = selectedPets.map { $0.petId }
-        let selectedMemberIds = selectedMembers.map { $0.memberId }
         
         walkService.walkStart(petId: selectedPetIds, memberId: selectedMemberIds, startLatitude: latitude, startLongitude: longitude, token: token) { [weak self] result in
             guard self != nil else { return }
@@ -109,9 +113,6 @@ class WalkingViewController: UIViewController {
                     print("산책 시작 성공")
                     self?.walkId = response.result!.walkId
                     print("\(self!.walkId)")
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 시작 실패: \(error.localizedDescription)")
@@ -131,9 +132,6 @@ class WalkingViewController: UIViewController {
             case .success(let response):
                 if response.isSuccess {
                     print("산책 재개 성공")
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 재개 실패: \(error.localizedDescription)")
@@ -152,9 +150,6 @@ class WalkingViewController: UIViewController {
             case .success(let response):
                 if response.isSuccess {
                     print("산책 일시정지 성공")
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 일시 정지 실패: \(error.localizedDescription)")
@@ -171,7 +166,6 @@ class WalkingViewController: UIViewController {
         self.present(picker, animated: true)
     }
 
-    
     
     // MARK: 산책 종료 확인 알람
     @objc private func endBtnTapped() {
@@ -196,14 +190,12 @@ class WalkingViewController: UIViewController {
                 make.center.equalToSuperview()
             }
         }
-        
         alertView.confirmBtn.addTarget(self, action: #selector(confirmBtnTapped), for: .touchUpInside)
         alertView.cancelBtn.addTarget(self, action: #selector(cancelBtnTapped), for: .touchUpInside)
     }
         
     // 산책 종료
     @objc private func confirmBtnTapped() {
-        
         switch walkState {
         case .notStarted:
             // 산책 시작하지 않았으면 홈화면으로 이동
@@ -217,7 +209,6 @@ class WalkingViewController: UIViewController {
     }
     
     private func sendEndWalkDataToServer() {
-
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
         let timeText = walkingView.recordTime.text ?? "00:00"
@@ -228,7 +219,6 @@ class WalkingViewController: UIViewController {
         let distanceText = walkingView.recordDistance.text ?? "0"
         let endDistance = Int(Double(distanceText) ?? 0.0)
         
-
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -237,23 +227,17 @@ class WalkingViewController: UIViewController {
                     print("산책 종료 성공")
                     removeView(AlertView.self)
                     showRecordWalkingView()
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 종료 실패: \(error.localizedDescription)")
-
             }
         }
-
     }
     
     @objc private func cancelBtnTapped() {
         removeView(AlertView.self)
         startTimer()
         locationManager.startUpdatingLocation()     // 위치 추적 재게
-        
     }
 }
 
@@ -290,7 +274,7 @@ extension WalkingViewController {
 
 
 
-// MARK: 사진 촬영 후 이미지 받아오기
+// MARK: 사진 촬영 후 이미지 전송하기
 extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
@@ -301,11 +285,58 @@ extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationCo
             return
         }
         
+        walkImages.append(image)
+
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
         // 여기서 서버로 이미지 전송
+        let index = walkImages.count - 1
+        let imageInfos = [
+            PresignedUrlImage(filename: "산책id:\(walkId)_\(index)", contentType: "image/jpeg")
+        ]
+
+        requestPresignedURLS(images: imageInfos, token: token)
     }
     
+    
+    private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
+        // petId 하나당 하나의 PURLsRequestEntity 생성
+        let entities = selectedPetIds.map { petId in
+            return PURLsRequestEntity(entityId: petId, images: images)
+        }
+        
+        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: token) { [weak self] result in
+            switch result {
+            case .success(let response):
+                print("presignedURL 발급 성공")
+                self?.uploadImagesToPresignedURL(response.result!)
+            case .failure(let error):
+                print("presignedURL 발급 실패: \(error)")
+            }
+        }
+    }
+    
+    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
+        guard let presignedEntity = result.entities.first else { return }
+
+        let presignedData = presignedEntity.images
+        
+        for (index, image) in walkImages.enumerated() {
+            guard let imageData = image.jpegData(compressionQuality: 0.8),          // 0.8 압축: 고화질이면서 용량도 적당하게 균형 맞추기 위함
+                  let url = URL(string: presignedData[index].presignedUrl) else {
+                continue
+            }
+            
+            uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.imageKeys.append(presignedData[index].imageKey)
+                case .failure(let error):
+                    print("이미지 업로드 실패: \(error)")
+                }
+            }
+        }
+    }
  
 }
 
@@ -330,7 +361,6 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
             recordView.startAdddress.text = address
             print("\(address)")
         }
-
         recordView.recordCancelBtn.addTarget(self, action: #selector(cancelRecordBtnTapped), for: .touchUpInside)
         recordView.recordSaveBtn.addTarget(self, action: #selector(saveRecordBtnTapped), for: .touchUpInside)
     }
@@ -356,9 +386,6 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
                     print("산책 기록 저장 성공")
                     removeView(RecordView.self)
                     showShareWalkingView()
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 기록 저장 실패: \(error.localizedDescription)")
@@ -372,7 +399,6 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     // 셀 등록
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         let item = selectedAllItems[indexPath.row]
 
         switch item {
@@ -380,17 +406,13 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowPetProfileCell", for: indexPath) as! ShowPetProfileCell
             cell.configurePet(with: pet)
             return cell
-
         case .member(let member):
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowMemberProfileCell", for: indexPath) as! ShowMemberProfileCell
             cell.configureMember(with: member)
             return cell
         }
-
     }
 
-    
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return selectedAllItems.count
     }
@@ -399,10 +421,8 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
 // MARK: 산책 공유
 extension WalkingViewController {
-    
     private func showShareWalkingView() {
         let shareRecordView = showDimmedView(ShareRecordView.self)
-        
         shareRecordView.shareCancelBtn.addTarget(self, action: #selector(cancelShareBtnTapped), for: .touchUpInside)
         shareRecordView.shareBtn.addTarget(self, action: #selector(shareBtnTapped), for: .touchUpInside)
     }
@@ -411,7 +431,6 @@ extension WalkingViewController {
         removeView(ShareRecordView.self)
         navigationController!.popToRootViewController(animated: true)
     }
-    
     
     @objc private func shareBtnTapped() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
@@ -423,19 +442,14 @@ extension WalkingViewController {
                 if response.isSuccess {
                     removeView(ShareRecordView.self)
                     navigationController!.popToRootViewController(animated: true)
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 공유 실패: \(error.localizedDescription)")
                 return
             }
         }
-        
     }
 }
-
 
 
 
@@ -517,7 +531,6 @@ extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
             cameraUpdate.animation = .easeIn
             walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
         }
-        
     }
     
     func startNewPathOverlay() {
