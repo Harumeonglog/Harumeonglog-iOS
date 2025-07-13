@@ -53,7 +53,6 @@ class SocialViewController: UIViewController {
 
     
     private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
-                
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         if isFetching { return }        // 중복 호출 방지

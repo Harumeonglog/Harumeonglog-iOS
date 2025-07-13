@@ -76,6 +76,8 @@ class PostDetailViewController: UIViewController {
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
+        self.postImages = []
+        
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
             switch result {

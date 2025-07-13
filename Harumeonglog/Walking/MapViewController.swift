@@ -222,7 +222,9 @@ extension MapViewController: CLLocationManagerDelegate, LocationHandling {
         
         // 정렬을 위한 팝업버튼
         private func configRouteFilterButton() {
-            let popUpButtonClosure = { (action: UIAction) in
+            let popUpButtonClosure: (UIAction) -> Void = { [weak self] action in
+                guard let self else { return }
+
                 if action.title == "추천순" {
                     self.mapView.routeFilterButton.setTitle("추천순", for: .normal)
                 } else if action.title == "거리순" {
@@ -232,7 +234,7 @@ extension MapViewController: CLLocationManagerDelegate, LocationHandling {
                 }
                 self.mapView.recommendRouteTableView.reloadData()
             }
-            
+
             mapView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
                 UIAction(title: "추천순", handler: popUpButtonClosure),
                 UIAction(title: "거리순", handler: popUpButtonClosure),
@@ -240,6 +242,7 @@ extension MapViewController: CLLocationManagerDelegate, LocationHandling {
             ])
             mapView.routeFilterButton.showsMenuAsPrimaryAction = true
         }
+
         
         
         private func fetchRouteData(reset: Bool = false, sort: String) {
