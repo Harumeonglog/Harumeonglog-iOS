@@ -25,8 +25,9 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     
     let socialCommentService = SocialCommentService()
     var postId : Int?
-    var commentId : Int?
+    var replyTargetCommentId : Int? = nil
     var commentText : String = ""
+    var mentionRange: NSRange?
 
     private var cursor: Int = 0
     private var hasNext: Bool = true
@@ -39,41 +40,43 @@ class CommentViewController: UIViewController, UITextViewDelegate {
         view.commentTableView.delegate = self
         view.commentTableView.dataSource = self
         view.commentTextView.delegate = self
-        
         return view
     }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.view = commentView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
-        
         commentView.commentUploadButton.addTarget(self, action: #selector(commentUploadButtonTapped), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         fetchCommentsFromServer(reset: true)
     }
     
+    private func setCustomNavigationBarConstraints() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        let navi = commentView.navigationBar
+        navi.configureTitle(title: "글 댓글")
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+    }
+    
+
     private func fetchCommentsFromServer(reset: Bool = false) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
-        
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
+
         if isFetching { return }
         isFetching = true
         
         if reset {
             cursor = 0
             hasNext = true
-            comments.removeAll()
-            commentView.commentTableView.reloadData()
+            self.comments = []
+            self.replyComments = []
+            self.commentDisplayItems = []
         }
         
         socialCommentService.getCommentListFromServer(postId: self.postId!, cursor: cursor, size: 10, token: token){ [weak self] result in
@@ -96,13 +99,10 @@ class CommentViewController: UIViewController, UITextViewDelegate {
                                 commentDisplayItems.append(.reply(reply))
                             }
                         }
-
                         DispatchQueue.main.async {
                             self.commentView.commentTableView.reloadData()
                         }
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 조회 실패: \(error.localizedDescription)")
@@ -110,32 +110,61 @@ class CommentViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    internal func textViewDidChange(_ textView: UITextView) {
+    // 텍스트 변경될 때
+    func textViewDidChange(_ textView: UITextView) {
+        self.commentText = textView.text
+        handleCommentTextViewUI()
+    }
+
+    // 멘션 백스페이스로 삭제할 때
+    func textView(_ textView: UITextView,
+                  shouldChangeTextIn range: NSRange,
+                  replacementText text: String) -> Bool {
         
+        if text.isEmpty,
+           let mentionRange = self.mentionRange {
+            if NSEqualRanges(range, NSRange(location: 0, length: textView.attributedText.length)) {
+                // 전체 선택 후 삭제: 멘션 포함 전체 삭제
+                textView.attributedText = NSAttributedString(string: "")
+                self.mentionRange = nil
+                handleCommentTextViewUI()
+                return false
+            }
+            if NSIntersectionRange(range, mentionRange).length > 0 {
+                // 멘션 영역 삭제 시 멘션 전체 삭제
+                let mutable = NSMutableAttributedString(attributedString: textView.attributedText)
+                mutable.replaceCharacters(in: mentionRange, with: "")
+                textView.attributedText = mutable
+                self.mentionRange = nil
+                handleCommentTextViewUI()
+                return false
+            }
+        }
+        return true
+    }
+
+
+    private func handleCommentTextViewUI() {
         let isEmpty = commentView.commentTextView.text.isEmpty
-        self.commentText = commentView.commentTextView.text
-        
         commentView.placeholderLabel.isHidden = !isEmpty
         commentView.commentUploadButton.isHidden = isEmpty
-        
-        
+
         let size = CGSize(width: commentView.commentTextView.frame.width, height: .infinity)
         let estimatedSize = commentView.commentTextView.sizeThatFits(size)
-        
+
         commentView.commentTextView.constraints.forEach { constraint in
             if constraint.firstAttribute == .height {
                 constraint.constant = max(40, estimatedSize.height)
             }
         }
     }
+
     
-    private func setCustomNavigationBarConstraints() {
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
-        let navi = commentView.navigationBar
-        navi.configureTitle(title: "글 댓글")
-        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
-    }
-    
+}
+
+
+// MARK: @Objc
+extension CommentViewController {
     @objc
     private func didTapBackButton() {
         navigationController?.popViewController(animated: true)
@@ -145,19 +174,35 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     private func commentUploadButtonTapped() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
-        socialCommentService.postCommentToServer(postId: postId!, content: commentText, token: token)
+        let parentId = replyTargetCommentId ?? 0
+        
+        if let mentionRange = self.mentionRange,
+           let text = commentView.commentTextView.text,
+           let swiftRange = Range(mentionRange, in: text) {
+            // 멘션 이후 텍스트만 추출
+            self.commentText = String(text[swiftRange.upperBound...])
+        }
+        
+        socialCommentService.postCommentToServer(postId: postId!, parentId: parentId, content: commentText, token: token)
         { [weak self] result in
             guard let self = self else { return }
-            
             switch result {
             case .success(let response):
                 if response.isSuccess {
                     print("댓글 생성 성공")
-                    commentView.commentTextView.text = ""
-                    fetchCommentsFromServer(reset: true)
-
-                } else {
-                    print("서버 응답 에러: \(response.message)")
+                    DispatchQueue.main.async {
+                        self.commentView.commentTextView.text = ""
+                        self.commentView.placeholderLabel.isHidden = false
+                        self.commentView.commentUploadButton.isHidden = true
+                        //  높이 다시 40으로 고정
+                        for constraint in self.commentView.commentTextView.constraints {
+                            if constraint.firstAttribute == .height {
+                                constraint.constant = 40
+                            }
+                        }
+                        self.commentView.layoutIfNeeded()
+                    }
+                    self.fetchCommentsFromServer(reset: true)
                 }
             case .failure(let error):
                 print("댓글 생성 실패: \(error.localizedDescription)")
@@ -166,46 +211,35 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     }
 }
 
-extension CommentViewController: UITableViewDelegate, UITableViewDataSource, CommentTableViewCellDelegate {
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = commentDisplayItems[indexPath.row]
-        
-        switch item {
-        case .comment(let comment):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell", for: indexPath) as! CommentTableViewCell
-            cell.selectionStyle = .none
-            cell.configure(with: comment, member: comment.memberInfoResponse)
-            configureSettingMenu(for: cell, commentId: comment.commentId)
-            return cell
-            
-        case .reply(let reply):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
-            cell.selectionStyle = .none
-            cell.configure(with: reply, member: reply.memberInfoResponse)
-            return cell
-        }
-    }
 
+// MARK: cell 안에 동작들
+extension CommentViewController {
     
     func replyButtonTapped(in cell: CommentTableViewCell) {
-        
         if let indexPath = commentView.commentTableView.indexPath(for: cell) {
-            print("댓글 \(indexPath.row)  버튼 클릭됨!")
             
+            // 대댓글 대상 commentId 저장
+            let comment = commentDisplayItems[indexPath.row]
+            if case .comment(let commentItem) = comment {
+                self.replyTargetCommentId = commentItem.commentId
+            }
+            
+            commentView.placeholderLabel.isHidden = true
+            commentView.commentTextView.textContainerInset = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 61)
+
             // commentTextfield에 @사용자이름 자동으로 입력
             let userName = cell.accountName.text ?? "익명"
             let mentionText = "@\(userName)  "
             
             let attributedString = NSMutableAttributedString(string: mentionText)
             attributedString.addAttributes([
-                .foregroundColor: UIColor.gray02,
-                .font: UIFont(name: FontName.pretendard_light.rawValue, size: 12) as Any
+                .foregroundColor: UIColor.gray01,
+                .font: UIFont(name: FontName.pretendard_light.rawValue, size: 14) as Any
             ], range: NSRange(location: 0, length: mentionText.count))
             
+            self.mentionRange = NSRange(location: 0, length: mentionText.count)
             commentView.commentTextView.attributedText = attributedString
             commentView.commentTextView.becomeFirstResponder() // 키보드 올리기
-            
             commentView.commentTextView.typingAttributes = [
                 .foregroundColor: UIColor.gray00,
                 .font: UIFont.body
@@ -213,13 +247,14 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
         }
     }
     
+
+    
     func likeButtonTapped(in: CommentTableViewCell) {
     }
     
     func configureSettingMenu(for cell: MenuConfigurableCell, commentId: Int) {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
-
             switch action.title {
             case "신고":
                 print("신고")
@@ -249,9 +284,6 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             case .success(let response):
                 if response.isSuccess {
                     print("댓글 신고 성공")
-                    
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("댓글 생성 실패: \(error.localizedDescription)")
@@ -269,13 +301,35 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
                 if response.isSuccess {
                     print("댓글 차단 성공")
                     self!.fetchCommentsFromServer(reset: true)
-                    
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("댓글 생성 실패: \(error.localizedDescription)")
             }
+        }
+    }
+}
+
+
+
+// MARK: tableView 설정
+extension CommentViewController: UITableViewDelegate, UITableViewDataSource, CommentTableViewCellDelegate {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = commentDisplayItems[indexPath.row]
+        
+        switch item {
+        case .comment(let comment):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell", for: indexPath) as! CommentTableViewCell
+            cell.selectionStyle = .none
+            cell.delegate = self
+            cell.configure(with: comment, member: comment.memberInfoResponse)
+            configureSettingMenu(for: cell, commentId: comment.commentId)
+            return cell
+            
+        case .reply(let reply):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
+            cell.selectionStyle = .none
+            cell.configure(with: reply, member: reply.memberInfoResponse)
+            return cell
         }
     }
     
@@ -285,9 +339,9 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        100
+        return UITableView.automaticDimension
     }
-    
+
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         return false
     }

@@ -33,10 +33,9 @@ class AddEventViewController: UIViewController {
         setInitialDateTime()
         
         // 키보드 숨김 기능 추가
-        hideKeyboardWhenTappedAround()
+
+         hideKeyboardWhenTappedAround()
     }
-    
-    // 키보드 숨김 기능
     
     //탭바 숨기기
     override func viewWillAppear(_ animated: Bool) {

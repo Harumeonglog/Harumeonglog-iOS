@@ -76,7 +76,6 @@ class PostDetailViewController: UIViewController {
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
-        
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -172,10 +171,7 @@ class PostDetailViewController: UIViewController {
     
     
     private func reportPost() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         socialPostService.reportPostToServer(postId: postId!, token: token) { [weak self] result in
             guard let self = self else { return }
@@ -199,10 +195,7 @@ class PostDetailViewController: UIViewController {
     }
     
     private func deletePost() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         socialPostService.deletePostToServer(postId: postId!, token: token) { [weak self] result in
             guard let self = self else { return }
