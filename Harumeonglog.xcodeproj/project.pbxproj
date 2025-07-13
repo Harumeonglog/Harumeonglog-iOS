@@ -188,11 +188,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Harumeonglog/Harumeonglog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 2QJX795Q3R;
+				DEVELOPMENT_TEAM = 2QJX795Q3R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description : 카메라 권한";
@@ -214,7 +212,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.iseungjun.Harumeonglog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Haru25/07/13;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -232,11 +229,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Harumeonglog/Harumeonglog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 2QJX795Q3R;
+				DEVELOPMENT_TEAM = 2QJX795Q3R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Harumeonglog/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description : 카메라 권한";
@@ -258,7 +253,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.iseungjun.Harumeonglog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Haru25/07/13;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

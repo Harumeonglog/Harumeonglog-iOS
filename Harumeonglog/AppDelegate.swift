@@ -80,7 +80,7 @@ extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("Firebase registration token: \(String(describing: fcmToken))")
 
-        let dataDict: [String: String] = ["token": fcmToken ?? ""]
+        let dataDict: [String: String] = ["token": fcmToken!]
         NotificationCenter.default.post(
         name: Notification.Name("FCMToken"),
         object: nil,
@@ -88,7 +88,7 @@ extension AppDelegate: MessagingDelegate {
         )
         // TODO: If necessary send token to application server.
         // Note: This callback is fired at each app startup and whenever a new token is generated.
-        let _ = KeychainService.add(key: "fcmToken", value: fcmToken ?? "")
+        let _ = KeychainService.add(key: "fcmToken", value: fcmToken!)
     }
 }
 
