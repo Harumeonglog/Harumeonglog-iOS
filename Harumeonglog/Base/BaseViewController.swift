@@ -19,6 +19,11 @@ class CustomTabBar: UITabBar {
         super.init(frame: frame)
         self.layer.cornerRadius = 30
         self.clipsToBounds = true
+        guard let fcmToken = KeychainService.get(key: K.Keys.fcmToken) else {
+            print("fcmToken not found")
+            return
+        }
+        FCMViewModel().sendFCM(fcm: String(describing: fcmToken))
     }
     
     required init?(coder: NSCoder) {
