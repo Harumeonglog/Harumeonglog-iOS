@@ -88,17 +88,12 @@ class MapViewController: UIViewController {
                         chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
                         chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(dimmedViewTapped), for: .touchUpInside)
                     }
-                    
-                } else {
-                    print("서버 응답 에러: \(response.message)")
-                    return
                 }
             case .failure(let error):
                 print("산책 가능한 펫 조회 실패: \(error.localizedDescription)")
                 return
             }
         }
-        
     }
     
     
@@ -130,8 +125,6 @@ class MapViewController: UIViewController {
                     self.memberList = response.result!.members
                     self.choosePersonView.personCollectionView.reloadData()
                     choosePersonView.chooseSaveBtn.addTarget(self, action: #selector(savePersonBtnTapped), for: .touchUpInside)
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("산책 가능한 멤버 조회 실패: \(error.localizedDescription)")
@@ -142,10 +135,8 @@ class MapViewController: UIViewController {
     
     // 산책 시작 화면으로 넘어감
     @objc private func savePersonBtnTapped() {
-        
         self.selectedMembers = choosePersonView.personCollectionView.indexPathsForSelectedItems?
             .compactMap { $0.item < memberList.count ? memberList[$0.item] : nil } ?? []
-        
         
         removeView(ChoosePersonView.self)
         let walkingVC = WalkingViewController()
@@ -163,42 +154,39 @@ class MapViewController: UIViewController {
 }
     
     
+
+// MARK: 네이버지도
+extension MapViewController: CLLocationManagerDelegate, LocationHandling {
+        
+    var mapContainer: MapView { mapView }
     
-    // MARK: 네이버지도
-    extension MapViewController: CLLocationManagerDelegate, LocationHandling {
-        
-        var mapContainer: MapView { mapView }
-        
-        // 현재 위치로 이동하는 함수
-        @objc func moveToUserLocationButtonTapped() {
-            handleUserLocationAuthorization()
-        }
-        
-        // 위치가 이동할 때마다 위치 정보 업데이트
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            print("didUpdateLocations")
-            // 가장 최근에 받아온 위치
-            if let location = locations.first {
-                let latitude = location.coordinate.latitude
-                let longitude = location.coordinate.longitude
-                
-                print("위도: \(latitude), 경도: \(longitude)")
-            }
-        }
-        
-        // 위도 경도 받아오기 에러
-        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-            print(error)
-        }
-        
+    // 현재 위치로 이동하는 함수
+    @objc func moveToUserLocationButtonTapped() {
+        handleUserLocationAuthorization()
     }
+    
+        // 위치가 이동할 때마다 위치 정보 업데이트
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("didUpdateLocations")
+        // 가장 최근에 받아온 위치
+        if let location = locations.first {
+            let latitude = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            print("위도: \(latitude), 경도: \(longitude)")
+        }
+    }
+        
+    // 위도 경도 받아오기 에러
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
+}
     
     
     // MARK: 추천 경로에 대한 메소드
     extension MapViewController {
         @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
             switch gesture.state {
-                
                 // 제스처가 끝났을때 확장/축소 결정
             case .ended:
                 if !isExpanded {
@@ -237,14 +225,11 @@ class MapViewController: UIViewController {
             let popUpButtonClosure = { (action: UIAction) in
                 if action.title == "추천순" {
                     self.mapView.routeFilterButton.setTitle("추천순", for: .normal)
-                    
                 } else if action.title == "거리순" {
                     self.mapView.routeFilterButton.setTitle("거리순", for: .normal)
-                    
                 } else if action.title == "소요 시간순" {
                     self.mapView.routeFilterButton.setTitle("소요 시간순", for: .normal)
                 }
-                
                 self.mapView.recommendRouteTableView.reloadData()
             }
             
@@ -253,7 +238,6 @@ class MapViewController: UIViewController {
                 UIAction(title: "거리순", handler: popUpButtonClosure),
                 UIAction(title: "소요 시간순", handler: popUpButtonClosure),
             ])
-            
             mapView.routeFilterButton.showsMenuAsPrimaryAction = true
         }
         
@@ -287,10 +271,7 @@ class MapViewController: UIViewController {
                             DispatchQueue.main.async {
                                 self.mapView.recommendRouteTableView.reloadData()
                             }
-                            
                         }
-                    } else {
-                        print("서버 응답 에러: \(response.message)")
                     }
                 case .failure(let error):
                     print("추천 경로 조회 실패: \(error.localizedDescription)")
@@ -408,44 +389,44 @@ class MapViewController: UIViewController {
     }
     
     
-    // MARK: View 띄우기 및 삭제
-    extension MapViewController {
-        // view를 띄운걸 삭제하기 위한 공통 함수
-        private func removeView<T: UIView>(_ viewType: T.Type) {
-            if let window = UIApplication.shared.windows.first {
-                window.subviews.forEach { subview in
-                    if subview is T || subview.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
-                        subview.removeFromSuperview()
-                    }
+// MARK: View 띄우기 및 삭제
+extension MapViewController {
+    // view를 띄운걸 삭제하기 위한 공통 함수
+    private func removeView<T: UIView>(_ viewType: T.Type) {
+        if let window = UIApplication.shared.windows.first {
+            window.subviews.forEach { subview in
+                if subview is T || subview.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
+                    subview.removeFromSuperview()
                 }
             }
-        }
-        
-        private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
-            if let window = UIApplication.shared.windows.first {
-                // dimmedView 생성
-                let dimmedView = UIView(frame: window.bounds)
-                dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                
-                // 배경 터치 시 popToRootViewController
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped))
-                dimmedView.addGestureRecognizer(tapGesture)
-                
-                // 실제 띄우고 싶은 뷰 생성
-                let view = T()
-                window.addSubview(dimmedView)
-                window.addSubview(view)
-                view.snp.makeConstraints { make in
-                    make.center.equalToSuperview()
-                }
-                return view
-            }
-            return T()
-        }
-        
-        @objc private func dimmedViewTapped() {
-            // 모든 dimmed 및 선택 뷰 제거
-            removeView(ChooseDogView.self)
-            removeView(ChoosePersonView.self)
         }
     }
+        
+    private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
+        if let window = UIApplication.shared.windows.first {
+            // dimmedView 생성
+            let dimmedView = UIView(frame: window.bounds)
+            dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                
+            // 배경 터치 시 popToRootViewController
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped))
+            dimmedView.addGestureRecognizer(tapGesture)
+            
+                // 실제 띄우고 싶은 뷰 생성
+                let view = T()
+            window.addSubview(dimmedView)
+                window.addSubview(view)
+            view.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+            return view
+        }
+        return T()
+    }
+        
+    @objc private func dimmedViewTapped() {
+        // 모든 dimmed 및 선택 뷰 제거
+        removeView(ChooseDogView.self)
+        removeView(ChoosePersonView.self)
+    }
+}

@@ -15,11 +15,9 @@ class WalkingViewController: UIViewController {
     var selectedPets: [WalkPets] = []
     var selectedMembers: [WalkMembers] = []
     var selectedAllItems: [SelectedAllItems] = []
-    
     var selectedPetIds: [Int] {
         return selectedPets.map { $0.petId }
     }
-
     var selectedMemberIds: [Int] {
         return selectedMembers.map { $0.memberId }
     }
@@ -39,7 +37,9 @@ class WalkingViewController: UIViewController {
     private var pathOverlays : [NMFPath] = []                  //  전체 산책 선 모음 배열
     private var currentCoordinates: [NMGLatLng] = []          //   현재 path에 해당하는 좌표 배열
     var startLocationCoordinates : [Double] = []
-
+    private var totalDistance: CLLocationDistance = 0.0       // 거리 누적용
+    private var lastLocation: CLLocation?
+    
     private var selectedImage: UIImage?
 
 
@@ -76,29 +76,35 @@ class WalkingViewController: UIViewController {
              print("❗️현재 위치를 가져오지 못했습니다.")
              return
          }
-        
+         
         switch walkState {
         case .notStarted:
             // 산책 시작
+            totalDistance = 0.0
+            lastLocation = nil
             walkState = .walking
             self.startLocationCoordinates = [latitude, longitude]
             sendStartWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
             startNewPathOverlay()
+            locationManager.startUpdatingLocation()
         case .walking:
             // 산책 일시정지
             walkState = .paused
             sendStopWalkToServer()
             stopTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            locationManager.stopUpdatingLocation()
         case .paused:
             // 산책 재개
             walkState = .walking
             sendResumeWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-            startNewPathOverlay()
+            // 재개시 이전 경로 이어서 그리기 위해 초기화 안함 
+            startNewPathOverlay(resetPath: false)
+            locationManager.startUpdatingLocation()
         }
     }
     
@@ -159,14 +165,6 @@ class WalkingViewController: UIViewController {
     }
     
     
-    @objc private func cameraBtnTapped() {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.delegate = self
-        self.present(picker, animated: true)
-    }
-
-    
     // MARK: 산책 종료 확인 알람
     @objc private func endBtnTapped() {
         locationManager.stopUpdatingLocation()          // 위치 추적 중지
@@ -217,8 +215,8 @@ class WalkingViewController: UIViewController {
         let endTime = totalSeconds / 60   // 정수 분 (소숫점 절삭)
 
         let distanceText = walkingView.recordDistance.text ?? "0"
-        let endDistance = Int(Double(distanceText) ?? 0.0)
-        
+        let endDistance = Int(totalDistance)
+
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -242,7 +240,81 @@ class WalkingViewController: UIViewController {
 }
 
 
+// MARK: 네이버지도
+extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
+    
+    var mapContainer: WalkingView { walkingView }
+    
+    // 현재 위치로 이동하는 함수
+    @objc func moveToUserLocationButtonTapped() {
+        handleUserLocationAuthorization()
+    }
+    
+    // 위치가 이동할 때마다 위치 정보 업데이트
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        
+        let lat = location.coordinate.latitude
+        let lng = location.coordinate.longitude
+        let currentCoord = NMGLatLng(lat: lat, lng: lng)
+        
+        // 마커 업데이트
+        if currentLocationMarker == nil {
+            currentLocationMarker = NMFMarker(position: currentCoord)
+            currentLocationMarker?.mapView = walkingView.naverMapView.mapView
+        } else {
+            currentLocationMarker?.position = currentCoord
+        }
+        
+        guard walkState == .walking else { return }                 // 선은 걷는 중일 때만 그려짐
+        
+        // 경로 배열에 추가
+        currentCoordinates.append(currentCoord)
+        
+        // 거리 계산
+         if let lastLoc = lastLocation {
+             let newDistance = location.distance(from: lastLoc) // 미터 단위
+             totalDistance += newDistance
 
+             // 거리 UI 업데이트
+             walkingView.recordDistance.text = String(format: "%.0f", totalDistance) // 정수로 표시
+         }
+         lastLocation = location
+        
+        // 현재 pathOverlay가 있으면 path 갱신
+        DispatchQueue.main.async {
+            self.pathOverlay?.path = NMGLineString(points: self.currentCoordinates)
+        }
+        
+        // 처음 시작 시 카메라 위치 이동
+        if currentCoordinates.count == 1 {
+            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
+            cameraUpdate.animation = .easeIn
+            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
+        }
+    }
+    
+
+    private func startNewPathOverlay(resetPath: Bool = true) {
+        if resetPath {
+            currentCoordinates = [] // 재개 시 false로 넘기면 초기화하지 않음
+        }
+        let newPath = NMFPath()
+        newPath.mapView = walkingView.naverMapView.mapView
+        newPath.color = UIColor.blue01
+        newPath.width = 5
+        newPath.path = NMGLineString(points: currentCoordinates)
+        pathOverlays.append(newPath)
+        pathOverlay = newPath               // 현재 pathOverlay 포인터 갱신
+    }
+
+
+    // 위도 경도 받아오기 에러
+     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+         print(error)
+     }
+
+}
 
 
 
@@ -270,78 +342,6 @@ extension WalkingViewController {
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
 }
-
-
-
-
-// MARK: 사진 촬영 후 이미지 전송하기
-extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        picker.dismiss(animated: true, completion: nil)
-        
-        guard let image = info[.originalImage] as? UIImage else {
-            print("이미지를 가져오지 못했습니다.")
-            return
-        }
-        
-        walkImages.append(image)
-
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
-        // 여기서 서버로 이미지 전송
-        let index = walkImages.count - 1
-        let imageInfos = [
-            PresignedUrlImage(filename: "산책id:\(walkId)_\(index)", contentType: "image/jpeg")
-        ]
-
-        requestPresignedURLS(images: imageInfos, token: token)
-    }
-    
-    
-    private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
-        // petId 하나당 하나의 PURLsRequestEntity 생성
-        let entities = selectedPetIds.map { petId in
-            return PURLsRequestEntity(entityId: petId, images: images)
-        }
-        
-        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: token) { [weak self] result in
-            switch result {
-            case .success(let response):
-                print("presignedURL 발급 성공")
-                self?.uploadImagesToPresignedURL(response.result!)
-            case .failure(let error):
-                print("presignedURL 발급 실패: \(error)")
-            }
-        }
-    }
-    
-    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
-        guard let presignedEntity = result.entities.first else { return }
-
-        let presignedData = presignedEntity.images
-        
-        for (index, image) in walkImages.enumerated() {
-            guard let imageData = image.jpegData(compressionQuality: 0.8),          // 0.8 압축: 고화질이면서 용량도 적당하게 균형 맞추기 위함
-                  let url = URL(string: presignedData[index].presignedUrl) else {
-                continue
-            }
-            
-            uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.imageKeys.append(presignedData[index].imageKey)
-                case .failure(let error):
-                    print("이미지 업로드 실패: \(error)")
-                }
-            }
-        }
-    }
- 
-}
-
-
-
 
 
 // MARK: 산책 기록 결과
@@ -453,7 +453,6 @@ extension WalkingViewController {
 
 
 
-
 // MARK: View 띄우기 및 삭제
 extension WalkingViewController {
     // view를 띄운걸 삭제하기 위한 공통 함수
@@ -477,7 +476,6 @@ extension WalkingViewController {
             self.walkingView.recordView.isHidden = true
             window.addSubview(dimmedView)
             window.addSubview(view)
-
             view.snp.makeConstraints { make in
                 make.center.equalToSuperview()
             }
@@ -488,65 +486,70 @@ extension WalkingViewController {
 }
 
 
-// MARK: 네이버지도
-extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
+
+// MARK: 사진 촬영 후 이미지 전송하기
+extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    var mapContainer: WalkingView { walkingView }
-    
-    // 현재 위치로 이동하는 함수
-    @objc func moveToUserLocationButtonTapped() {
-        handleUserLocationAuthorization()
-    }
-    
-    // 위치가 이동할 때마다 위치 정보 업데이트
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        
-        let lat = location.coordinate.latitude
-        let lng = location.coordinate.longitude
-        let currentCoord = NMGLatLng(lat: lat, lng: lng)
-        
-        // 마커 업데이트
-        if currentLocationMarker == nil {
-            currentLocationMarker = NMFMarker(position: currentCoord)
-            currentLocationMarker?.mapView = walkingView.naverMapView.mapView
-        } else {
-            currentLocationMarker?.position = currentCoord
-        }
-        
-        // 선은 걷는 중일 때만 그려짐
-        guard walkState == .walking else { return }
-        
-        // 경로 배열에 추가
-        currentCoordinates.append(currentCoord)
-        
-        // 현재 pathOverlay가 있으면 path 갱신
-        DispatchQueue.main.async {
-            self.pathOverlay?.path = NMGLineString(points: self.currentCoordinates)
-        }
-        
-        // 처음 시작 시 카메라 위치 이동
-        if currentCoordinates.count == 1 {
-            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
-            cameraUpdate.animation = .easeIn
-            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
-        }
-    }
-    
-    func startNewPathOverlay() {
-        currentCoordinates = []
-        let newPath = NMFPath()
-        newPath.mapView = walkingView.naverMapView.mapView
-        newPath.color = UIColor.blue01
-        newPath.width = 5
-        pathOverlays.append(newPath)
-        pathOverlay = newPath               // 현재 pathOverlay 포인터 갱신
+    @objc private func cameraBtnTapped() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = self
+        self.present(picker, animated: true)
     }
 
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        picker.dismiss(animated: true, completion: nil)
+        guard let image = info[.originalImage] as? UIImage else {
+            print("이미지를 가져오지 못했습니다.")
+            return
+        }
+        walkImages.append(image)
 
-    // 위도 경도 받아오기 에러
-     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-         print(error)
-     }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
+        // 여기서 서버로 이미지 전송
+        let index = walkImages.count - 1
+        let imageInfos = [
+            PresignedUrlImage(filename: "산책id:\(walkId)_\(index)", contentType: "image/jpeg")
+        ]
+        requestPresignedURLS(images: imageInfos, token: token)
+    }
+    
+    
+    private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
+        // petId 하나당 하나의 PURLsRequestEntity 생성
+        let entities = selectedPetIds.map { petId in
+            return PURLsRequestEntity(entityId: petId, images: images)
+        }
+        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: token) { [weak self] result in
+            switch result {
+            case .success(let response):
+                print("presignedURL 발급 성공")
+                self?.uploadImagesToPresignedURL(response.result!)
+            case .failure(let error):
+                print("presignedURL 발급 실패: \(error)")
+            }
+        }
+    }
+    
+    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
+        guard let presignedEntity = result.entities.first else { return }
+        let presignedData = presignedEntity.images
+        
+        for (index, image) in walkImages.enumerated() {
+            guard let imageData = image.jpegData(compressionQuality: 0.8),
+                  let url = URL(string: presignedData[index].presignedUrl) else {
+                continue
+            }
+            uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.imageKeys.append(presignedData[index].imageKey)
+                case .failure(let error):
+                    print("이미지 업로드 실패: \(error)")
+                }
+            }
+        }
+    }
 }
