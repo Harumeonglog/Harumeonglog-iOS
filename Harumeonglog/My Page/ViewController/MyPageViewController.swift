@@ -27,6 +27,14 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         userActivityViewModel.getmyPosts()
         userActivityViewModel.getLikedPosts()
+        
+        petListViewModel.getPetList{ _ in }
+        petListViewModel.$petList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.myPageView.previewPetListTableView.reloadData()
+            }
+            .store (in: &cancellables)
     }
     
     override func viewDidLayoutSubviews() {
@@ -35,7 +43,6 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        petListViewModel.getPetList{ _ in }
         MemberAPIService.getInfo { code, info in
             switch code {
             case .COMMON200:
@@ -50,11 +57,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
                 break
             }
         }
-        petListViewModel.$petList
-            .sink { [weak self] _ in
-                self?.myPageView.previewPetListTableView.reloadData()
-            }
-            .store (in: &cancellables)
+        
             
         showTabBar()
     }

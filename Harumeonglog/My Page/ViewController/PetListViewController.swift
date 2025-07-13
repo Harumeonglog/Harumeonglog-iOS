@@ -37,24 +37,6 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
-        
-        petListViewModel!.getPetList { result in
-            switch result {
-            case .none:
-                break
-            case .some(_):
-                DispatchQueue.main.async {
-                    self.petListView.petListCollectionView.reloadData()
-                }
-                break
-            }
-        }
-        
-        petListViewModel!.$petList
-            .sink { _ in
-                self.petListView.petListCollectionView.reloadData()
-            }
-            .store(in: &cancellables)
     }
     
     override func viewDidLayoutSubviews() {
@@ -64,6 +46,13 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     
     func configure(petListViewModel: PetListViewModel?) {
         self.petListViewModel = petListViewModel
+        
+        self.petListViewModel!.$petList
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                self.petListView.petListCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     
     @objc
