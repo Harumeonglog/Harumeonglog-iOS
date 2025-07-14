@@ -74,7 +74,7 @@ class InviteMemberViewController: UIViewController {
     
 }
 
-extension InviteMemberViewController: UITextFieldDelegate {
+extension InviteMemberViewController {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewModel.isSearching = true
@@ -90,7 +90,7 @@ extension InviteMemberViewController: UITextFieldDelegate {
     }
     
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    override func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         viewModel.search(textField.text ?? "")
         return true
     }

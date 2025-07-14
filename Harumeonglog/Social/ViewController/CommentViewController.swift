@@ -17,7 +17,7 @@ enum CommentDisplayItem {
 }
 
 
-class CommentViewController: UIViewController, UITextViewDelegate {
+class CommentViewController: UIViewController {
 
     private var commentDisplayItems: [CommentDisplayItem] = []
     private var comments: [CommentItem] = []
@@ -117,7 +117,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
     }
 
     // 멘션 백스페이스로 삭제할 때
-    func textView(_ textView: UITextView,
+    override func textView(_ textView: UITextView,
                   shouldChangeTextIn range: NSRange,
                   replacementText text: String) -> Bool {
         

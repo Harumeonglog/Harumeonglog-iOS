@@ -230,7 +230,7 @@ class PostDetailViewController: UIViewController {
 
 
 // 게시글 이미지에 대한 scrollView
-extension PostDetailViewController: UIScrollViewDelegate {
+extension PostDetailViewController {
     func contentScrollView() {
         postDetailView.postImageScrollView.layoutIfNeeded()
 

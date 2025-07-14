@@ -79,7 +79,7 @@ extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSour
        
 }
 
-extension NotiViewController: UIScrollViewDelegate {
+extension NotiViewController {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
