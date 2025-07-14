@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Then
+import Kingfisher
 
 class EditOrRegistPetView: UIView {
     
@@ -78,6 +79,7 @@ class EditOrRegistPetView: UIView {
     
     public func configure(pet: Pet, mode: RegistOrEditMode) {
         self.petInfo = pet
+        self.profileImageView.kf.setImage(with: URL(string: pet.mainImage ?? ""))
         self.petNameTextField.text = pet.name
         self.dogTypeTextField.text = pet.type
         switch pet.size {

@@ -36,7 +36,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         petListView.petListCollectionView.delegate = self
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
-        self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
+        self.petListView.addPetButton.addTarget(self, action: #selector(didTapRegistButton), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
@@ -56,7 +56,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     }
     
     @objc
-    private func showPetRegistrationVC() {
+    private func didTapRegistButton() {
         let petRegistrationVC = EditOrRegistPetViewController()
         petRegistrationVC.configure(pet: nil, petListViewModel: petListViewModel!, mode: .Regist)
         self.navigationController?.pushViewController(petRegistrationVC, animated: true)
