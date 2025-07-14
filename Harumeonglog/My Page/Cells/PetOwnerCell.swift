@@ -345,7 +345,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     }
     
     func didTapDeleteMember(member: PetMember, petId: Int) {
-        petListViewModel?.deletePetMember(memberId: member.id, petId: petId) { [weak self] result in
+        petListViewModel?.deletePetMember(memberId: member.id!, petId: petId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.delegate?.didTapDeleteMemberButton()
                 print("멤버 삭제 완료")

@@ -12,7 +12,6 @@ class PetListViewModel: ObservableObject {
     
     @Published var petList: [Pet] = []
     @Published var isFetching: Bool = false
-    var hasNext: Bool = true
     var cursor: Int = 0
     var cancellables: Set<AnyCancellable> = []
     
@@ -26,7 +25,6 @@ class PetListViewModel: ObservableObject {
     
     func getPetList(completion: @escaping (HaruResponse<PetListResponse>?) -> Void) {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
-        guard hasNext else { print("반려동물 리스트 조회 hasNext false"); return }
         self.isFetching = true
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { completion(nil); return }
         PetService.getPets(cursor: cursor, token: token) { result in
@@ -42,8 +40,9 @@ class PetListViewModel: ObservableObject {
                                 return filteredPet
                             }
                             self.petList.append(contentsOf: withoutMe ?? [])
-                            self.cursor = result.cursor ?? 0
-                            self.hasNext = result.hasNext
+                            print("result cursor: \(result.cursor ?? -100)")
+                            self.cursor = result.cursor != nil ? result.cursor! : self.petList.count - 1
+                            print("cursor updated to \(self.cursor)")
                         }
                     } else {
                         print("반려동물 리스트 조회 Empty Result")
@@ -112,6 +111,7 @@ class PetListViewModel: ObservableObject {
                 if response.isSuccess {
                     print("반려동물 삭제 상공")
                     self.petList.removeAll { $0.petId == petId }
+                    self.refreshPetList()
                 } else {
                     print("반려동물 삭제 예외 코드: \(response.code), message: \(response.message)")
                 }
@@ -165,7 +165,6 @@ class PetListViewModel: ObservableObject {
     
     private func refreshPetList() {
         self.petList = []
-        self.hasNext = true
         self.cursor = 0
         self.getPetList { _ in }
     }

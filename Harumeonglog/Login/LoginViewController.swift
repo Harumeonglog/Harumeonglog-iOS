@@ -109,7 +109,7 @@ extension LoginViewController : ASAuthorizationControllerDelegate {
                 AuthAPIService.login(id: identifyTokenString, social: .APPLE)
             }
         case let passwordCredential as ASPasswordCredential:
-            // Sign in using an existing iCloud Keychain credential.
+            print(passwordCredential)
             break
         default:
             break

@@ -47,7 +47,7 @@ class MemberInPetCell: UITableViewCell {
         self.delegate = delegate
         self.selectionStyle = .none
         
-        userProfileImage.kf.setImage(with: URL(string: member.image))
+        userProfileImage.kf.setImage(with: URL(string: member.image ?? ""))
         nameLabel.text = member.name
         roleLabel.text = member.role
         
