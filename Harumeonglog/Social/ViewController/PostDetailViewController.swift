@@ -13,7 +13,8 @@ class PostDetailViewController: UIViewController {
     let socialPostService = SocialPostService()
 
     var postId : Int?
-    private var isLiked: Bool = false {
+    var isOwn : Bool = false
+    var isLiked: Bool = false {
         didSet {
             updateLikeButton()
         }
@@ -88,6 +89,7 @@ class PostDetailViewController: UIViewController {
                                                 
                         self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         self.isLiked = postDetail.isLiked
+                        self.isOwn = postDetail.isOwn
                         isLiked.toggle()
  
                         DispatchQueue.main.async {
@@ -147,7 +149,7 @@ class PostDetailViewController: UIViewController {
     private func postSettingButton() {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
-
+            
             switch action.title {
             case "수정":
                 let modifyVC = ModifyPostViewController()
@@ -166,7 +168,14 @@ class PostDetailViewController: UIViewController {
         let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
         let deleteAction = makeAction(title: "삭제", color: .red00, handler: handler)
 
-        let menu = UIMenu(options: .displayInline, children: [modifyAction, reportAction, deleteAction])
+        let actions: [UIAction]
+        if isOwn {
+            actions = [modifyAction, reportAction, deleteAction]
+        } else {
+            actions = [reportAction]
+        }
+        
+        let menu = UIMenu(options: .displayInline, children: actions)
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }

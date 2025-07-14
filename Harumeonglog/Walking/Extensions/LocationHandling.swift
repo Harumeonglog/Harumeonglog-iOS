@@ -10,8 +10,6 @@ import UIKit
 import CoreLocation
 import NMapsMap
 
-
-
 protocol LocationHandling: CLLocationManagerDelegate where Self: UIViewController {
     associatedtype MapContainerType
     var locationManager: CLLocationManager { get }
