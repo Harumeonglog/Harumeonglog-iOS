@@ -28,7 +28,8 @@ final class NoticeViewModel: ObservableObject {
                 print("알림 불러오기 성공")
                 if let result = response.result {
                     self.notices.append(contentsOf: result.items ?? [])
-                    self.cursor = result.cursor ?? 0
+                    self.cursor = result.cursor != nil ? result.cursor! : self.notices.count
+                    print("cursor updated to \(self.cursor)")
                 }
                 completion(result)
             case .failure(let failure):

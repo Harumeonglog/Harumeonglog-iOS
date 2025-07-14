@@ -42,7 +42,7 @@ class NotiCollectionViewCell: UICollectionViewCell {
     
     public func configure(_ data: NoticeModel) {
         let type = data.noticeType
-        typeImageView.image = type.typeImage()
+        typeImageView.image = type?.typeImage()
         titleLabel.text = data.content
         if type == .COMMENT || type == .ARTICLE {
             // timeLabel.text = data.date
