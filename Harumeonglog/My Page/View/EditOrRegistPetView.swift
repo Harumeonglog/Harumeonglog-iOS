@@ -110,6 +110,7 @@ class EditOrRegistPetView: UIView {
         self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
         switch mode {
         case .Edit:
+            self.birthday = DateFormatterShared.convertStringToDate(pet.birth!, format: "yyyy-MM-dd")
             confirmButton.setTitle("수정하기", for: .normal)
         case .Regist:
             confirmButton.setTitle("등록하기", for: .normal)

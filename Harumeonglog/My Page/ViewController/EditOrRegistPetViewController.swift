@@ -31,7 +31,7 @@ class EditOrRegistPetViewController: UIViewController {
         self.mode = mode
         guard let pet = pet else { return }
         self.editOrRegistPetView.configure(pet: pet, mode: mode)
-        print(pet.petId)
+        isAllInfosFilled()
     }
     
     override func viewDidLoad() {
