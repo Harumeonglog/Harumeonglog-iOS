@@ -13,7 +13,7 @@ protocol PetOwnerCellDelegate: AnyObject {
     func didTapInviteButton(petID: Int)
     func didTapExitButton(petID: Int)
     func didTapEditButton(pet: Pet)
-    func didTapDeleteMemberButton()
+    func didTapDeleteMemberButton(petID: Int, memberID: Int)
 }
 
 class PetOwnerCell: UICollectionViewCell {
@@ -347,7 +347,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     func didTapDeleteMember(member: PetMember, petId: Int) {
         petListViewModel?.deletePetMember(memberId: member.id!, petId: petId) { [weak self] result in
             DispatchQueue.main.async {
-                self?.delegate?.didTapDeleteMemberButton()
+                self?.delegate?.didTapDeleteMemberButton(petID: petId, memberID: member.id!)
                 print("멤버 삭제 완료")
             }
         }
@@ -356,7 +356,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     private func showMemberEditMenu(for member: PetMember, at indexPath: IndexPath) {
         guard let pet = pet else { return }
         
-        let alert = UIAlertController(title: "\(member.name)", message: "작업을 선택하세요", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "\(member.name!) 멤버를 삭제하시겠습니까?", message: "다시 초대를 할 수 있습니다.", preferredStyle: .alert)
         
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
             self?.didTapDeleteMember(member: member, petId: pet.petId)

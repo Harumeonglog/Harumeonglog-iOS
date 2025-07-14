@@ -84,8 +84,8 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
     
-    func didTapDeleteMemberButton() {
-        petListView.petListCollectionView.reloadData()
+    func didTapDeleteMemberButton(petID: Int, memberID: Int) {
+        self.petListViewModel!.deletePetMember(memberId: memberID, petId: petID) { _ in }
     }
 }
 
