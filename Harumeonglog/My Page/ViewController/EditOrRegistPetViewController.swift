@@ -11,7 +11,7 @@ class EditOrRegistPetViewController: UIViewController {
     
     private var petListViewModel: PetListViewModel?
     private var pet: Pet?
-    private var mode: ViewControllerMode?
+    private var mode: RegistOrEditMode?
     private let editOrRegistPetView = EditOrRegistPetView()
     private let actionSheetForGender = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     private let actionSheetForPhoto = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -25,12 +25,12 @@ class EditOrRegistPetViewController: UIViewController {
         return picker
     }()
     
-    func configure(pet: Pet?, petListViewModel: PetListViewModel?, mode: ViewControllerMode ) {
+    func configure(pet: Pet?, petListViewModel: PetListViewModel?, mode: RegistOrEditMode ) {
         self.petListViewModel = petListViewModel
         self.pet = pet
         self.mode = mode
         guard let pet = pet else { return }
-        self.editOrRegistPetView.configure(pet: pet)
+        self.editOrRegistPetView.configure(pet: pet, mode: mode)
         print(pet.petId)
     }
     
@@ -298,10 +298,10 @@ extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavi
         
     }
     
-    enum ViewControllerMode {
-        case Edit, Regist
-    }
-    
+}
+
+enum RegistOrEditMode {
+    case Edit, Regist
 }
 
 import SwiftUI

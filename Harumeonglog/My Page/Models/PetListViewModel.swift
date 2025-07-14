@@ -40,9 +40,7 @@ class PetListViewModel: ObservableObject {
                                 return filteredPet
                             }
                             self.petList.append(contentsOf: withoutMe ?? [])
-                            print("result cursor: \(result.cursor ?? -100)")
                             self.cursor = result.cursor != nil ? result.cursor! : self.petList.count - 1
-                            print("cursor updated to \(self.cursor)")
                         }
                     } else {
                         print("반려동물 리스트 조회 Empty Result")

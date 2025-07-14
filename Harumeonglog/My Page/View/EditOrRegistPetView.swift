@@ -76,7 +76,7 @@ class EditOrRegistPetView: UIView {
         self.backgroundColor = .background
     }
     
-    public func configure(pet: Pet) {
+    public func configure(pet: Pet, mode: RegistOrEditMode) {
         self.petInfo = pet
         self.petNameTextField.text = pet.name
         self.dogTypeTextField.text = pet.type
@@ -106,7 +106,12 @@ class EditOrRegistPetView: UIView {
         
         self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
         self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
-        self.confirmButton.configure(labelText: "수정하기")
+        switch mode {
+        case .Edit:
+            confirmButton.setTitle("수정하기", for: .normal)
+        case .Regist:
+            confirmButton.setTitle("등록하기", for: .normal)
+        }
     }
     
     public func setConstraints() {
@@ -134,7 +139,6 @@ class EditOrRegistPetView: UIView {
         scrollView.addSubview(contentView)
         
         // 등록 버튼 설정
-        confirmButton.configure(labelText: "등록하기")
         confirmButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
             make.height.equalTo(50)

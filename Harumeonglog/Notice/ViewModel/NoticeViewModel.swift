@@ -14,12 +14,10 @@ final class NoticeViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     var cursor: Int = 0
     
-    init() {
-        
-    }
+    init() { }
     
     func getNotices(completion: @escaping(Result<HaruResponse<NoticesResult>, AFError>) -> Void) {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return}
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return }
         guard !isLoading else { print("isLoading true"); return }
         isLoading = true
         NoticeService.getNoticies(cursor: cursor, token: token) { result in
@@ -29,7 +27,6 @@ final class NoticeViewModel: ObservableObject {
                 if let result = response.result {
                     self.notices.append(contentsOf: result.items ?? [])
                     self.cursor = result.cursor != nil ? result.cursor! : self.notices.count - 1
-                    print("cursor updated to \(self.cursor)")
                 }
                 completion(result)
             case .failure(let failure):
