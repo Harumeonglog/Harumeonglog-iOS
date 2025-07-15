@@ -57,8 +57,6 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
                 break
             }
         }
-        
-            
         showTabBar()
     }
     

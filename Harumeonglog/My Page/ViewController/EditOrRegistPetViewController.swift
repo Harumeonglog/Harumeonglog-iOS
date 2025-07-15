@@ -29,8 +29,13 @@ class EditOrRegistPetViewController: UIViewController {
         self.petListViewModel = petListViewModel
         self.pet = pet
         self.mode = mode
-        guard let pet = pet else { return }
         self.editOrRegistPetView.configure(pet: pet, mode: mode)
+        switch mode {
+        case .Edit:
+            self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(editCompletedButtonPressed), for: .touchUpInside)
+        case .Regist:
+            self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(registCompletedButtonPressed), for: .touchUpInside)
+        }
         isAllInfosFilled()
     }
     
@@ -50,7 +55,6 @@ class EditOrRegistPetViewController: UIViewController {
         setNavigationBarButtonAction()
         setDogSizeButtonActions()
         setTextFieldAction()
-        setPetRegistrationButtonAction()
         setPetGenderButtonAction()
         setPetBirthdayButtonAction()
         setImageButtonAction()
@@ -184,17 +188,6 @@ extension EditOrRegistPetViewController {
 }
 
 // 등록하기 or 수정하기
-extension EditOrRegistPetViewController {
-    private func setPetRegistrationButtonAction() {
-        self.editOrRegistPetView.confirmButton.addTarget(self, action: #selector(completionButtonPressed), for: .touchUpInside)
-    }
-    
-    @objc
-    private func handleRegistrationButtonTap() {
-        self.navigationController?.popViewController(animated: true)
-    }
-}
-
 extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func setImageButtonAction() {
@@ -239,64 +232,172 @@ extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavi
     }
     
     @objc
-    private func completionButtonPressed() {
+    private func editCompletedButtonPressed() {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+        if let selectedImage = self.selectedImage, let imageData = selectedImage.jpegData(compressionQuality: 0.6) {
+            guard let entityId = MemberAPIService.userInfo?.memberId else { print("No Entity ID"); return }
+            let filename = UUID().uuidString + ".jpg"
+            getPresignedUrlAndUpload(imageData: imageData, filename: filename, entityId: entityId, accessToken: accessToken) { result in
+                switch result {
+                case .success(let imageKey):
+                    let petParameter = PetParameter(
+                        name: self.editOrRegistPetView.petNameTextField.text!,
+                        size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+                        type: self.editOrRegistPetView.dogTypeTextField.text!,
+                        gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+                        birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+                        imageKey: imageKey
+                    )
+                    self.petListViewModel?.postPet(newInfo: petParameter) { result in
+                        print("regist puppy succeed")
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                case .failure(let error):
+                    print("Image upload or presigned URL failed:", error)
+                }
+            }
+        } else {
+            let petParameter
+            = PetParameter(
+                name: self.editOrRegistPetView.petNameTextField.text!,
+                size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+                type: self.editOrRegistPetView.dogTypeTextField.text!,
+                gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+                birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+                imageKey: pet!.mainImage!)
+            print("pet image : \(pet!.mainImage!)")
+            self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in
+                print("edit puppy without photo changed succeed")
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    @objc
+    private func registCompletedButtonPressed() {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
         guard let selectedImage = self.selectedImage,
               let imageData = selectedImage.jpegData(compressionQuality: 0.6) else {
             print("No Image")
             return
         }
-        // 필요한 내용이 다 있는지 검사
-        
+
         let filename = UUID().uuidString + ".jpg"
         guard let entityId = MemberAPIService.userInfo?.memberId else {
             print("No Entity ID")
             return
         }
-        
+
+        getPresignedUrlAndUpload(imageData: imageData, filename: filename, entityId: entityId, accessToken: accessToken) { result in
+            switch result {
+            case .success(let imageKey):
+                let petParameter = PetParameter(
+                    name: self.editOrRegistPetView.petNameTextField.text!,
+                    size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+                    type: self.editOrRegistPetView.dogTypeTextField.text!,
+                    gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+                    birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+                    imageKey: imageKey
+                )
+                self.petListViewModel?.postPet(newInfo: petParameter) { result in
+                    print("regist puppy succeed")
+                    self.navigationController?.popViewController(animated: true)
+                }
+            case .failure(let error):
+                print("Image upload or presigned URL failed:", error)
+            }
+        }
+    }
+
+    private func getPresignedUrlAndUpload(imageData: Data, filename: String, entityId: Int, accessToken: String, completion: @escaping (Result<String, Error>) -> Void) {
         let entities: [PURLsRequestEntity] = [
             PURLsRequestEntity(
                 entityId: entityId,
-                images: [PresignedUrlImage(filename: filename, contentType: "image/jpeg")])
+                images: [PresignedUrlImage(filename: filename, contentType: "image/jpeg")]
+            )
         ]
-        
         PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: accessToken) { result in
             switch result {
             case .success(let success):
-                print(success)
                 if let result = success.result {
                     let presignedUrl = result.entities[0].images[0].presignedUrl
-                    self.imageKey = result.entities[0].images[0].imageKey
-                    self.uploadImageToS3(
-                        imageData: imageData,
-                        presignedUrl: URL(string: presignedUrl)!) { result in
-                        switch result {
+                    let imageKey = result.entities[0].images[0].imageKey
+                    self.uploadImageToS3(imageData: imageData, presignedUrl: URL(string: presignedUrl)!) { uploadResult in
+                        switch uploadResult {
                         case .success:
-                            let petParameter = PetParameter(
-                                name: self.editOrRegistPetView.petNameTextField.text!,
-                                size: self.editOrRegistPetView.selectedDogSize!.rawValue,
-                                type: self.editOrRegistPetView.dogTypeTextField.text!,
-                                gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
-                                birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
-                                imageKey: self.imageKey!)
-                            // 강아지 프로필 올리기 or 수정하기
-                            if self.mode == .Edit { // 있으면 수정
-                                self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
-                            } else if self.mode == .Regist { // 없으면 새로운 강아지
-                                self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
-                            }
-                            self.navigationController?.popViewController(animated: true)                        case .failure(let error):
-                            print("#uploadImageToS3 과정에서 에러", error)
+                            completion(.success(imageKey))
+                        case .failure(let error):
+                            completion(.failure(error))
                         }
                     }
                 }
             case .failure(let failure):
-                print("#getPresignedUrl", failure)
+                completion(.failure(failure))
             }
-            
         }
-        
     }
+    
+//    @objc
+//    private func completionButtonPressed() {
+//        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+//        guard let selectedImage = self.selectedImage,
+//              let imageData = selectedImage.jpegData(compressionQuality: 0.6) else {
+//            print("No Image")
+//            return
+//        }
+//        // 필요한 내용이 다 있는지 검사
+//
+//        let filename = UUID().uuidString + ".jpg"
+//        guard let entityId = MemberAPIService.userInfo?.memberId else {
+//            print("No Entity ID")
+//            return
+//        }
+//
+//        let entities: [PURLsRequestEntity] = [
+//            PURLsRequestEntity(
+//                entityId: entityId,
+//                images: [PresignedUrlImage(filename: filename, contentType: "image/jpeg")])
+//        ]
+//
+//        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: accessToken) { result in
+//            switch result {
+//            case .success(let success):
+//                print(success)
+//                if let result = success.result {
+//                    let presignedUrl = result.entities[0].images[0].presignedUrl
+//                    self.imageKey = result.entities[0].images[0].imageKey
+//                    self.uploadImageToS3(
+//                        imageData: imageData,
+//                        presignedUrl: URL(string: presignedUrl)!) { result in
+//                        switch result {
+//                        case .success:
+//                            let petParameter = PetParameter(
+//                                name: self.editOrRegistPetView.petNameTextField.text!,
+//                                size: self.editOrRegistPetView.selectedDogSize!.rawValue,
+//                                type: self.editOrRegistPetView.dogTypeTextField.text!,
+//                                gender: self.editOrRegistPetView.selectedDogGender!.rawValue,
+//                                birth: self.editOrRegistPetView.birthdateSelectButton.titleLabel!.text!,
+//                                imageKey: self.imageKey!)
+//                            // 강아지 프로필 올리기 or 수정하기
+//                            if self.mode == .Edit { // 있으면 수정
+//                                print("edit!")
+//                                self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
+//                            } else if self.mode == .Regist { // 없으면 새로운 강아지
+//                                print("regist!")
+//                                self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
+//                            }
+//                            self.navigationController?.popViewController(animated: true)                        case .failure(let error):
+//                            print("#uploadImageToS3 과정에서 에러", error)
+//                        }
+//                    }
+//                }
+//            case .failure(let failure):
+//                print("#getPresignedUrl", failure)
+//            }
+//
+//        }
+//
+//    }
     
 }
 

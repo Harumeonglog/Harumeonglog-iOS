@@ -355,15 +355,11 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     
     private func showMemberEditMenu(for member: PetMember, at indexPath: IndexPath) {
         guard let pet = pet else { return }
-        
         let alert = UIAlertController(title: "\(member.name!) 멤버를 삭제하시겠습니까?", message: "다시 초대를 할 수 있습니다.", preferredStyle: .alert)
-        
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
             self?.didTapDeleteMember(member: member, petId: pet.petId)
         })
-        
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        
         // 현재 뷰컨트롤러 찾기
         if let viewController = self.findViewController() {
             viewController.present(alert, animated: true)

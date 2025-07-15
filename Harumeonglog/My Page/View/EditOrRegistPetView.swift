@@ -77,7 +77,17 @@ class EditOrRegistPetView: UIView {
         self.backgroundColor = .background
     }
     
-    public func configure(pet: Pet, mode: RegistOrEditMode) {
+    public func configure(pet: Pet?, mode: RegistOrEditMode) {
+        switch mode {
+        case .Edit:
+            self.birthday = DateFormatterShared.convertStringToDate(pet!.birth!, format: "yyyy-MM-dd")
+            self.navigationBar.configureTitle(title: "반려견 정보를 수정해주세요.")
+            confirmButton.setTitle("수정하기", for: .normal)
+        case .Regist:
+            self.navigationBar.configureTitle(title: "반려견 정보를 추가해주세요.")
+            confirmButton.setTitle("등록하기", for: .normal)
+        }
+        guard let pet = pet else { return }
         self.petInfo = pet
         self.profileImageView.kf.setImage(with: URL(string: pet.mainImage ?? ""))
         self.petNameTextField.text = pet.name
@@ -107,14 +117,6 @@ class EditOrRegistPetView: UIView {
         }
         
         self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
-        self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
-        switch mode {
-        case .Edit:
-            self.birthday = DateFormatterShared.convertStringToDate(pet.birth!, format: "yyyy-MM-dd")
-            confirmButton.setTitle("수정하기", for: .normal)
-        case .Regist:
-            confirmButton.setTitle("등록하기", for: .normal)
-        }
     }
     
     public func setConstraints() {
@@ -130,7 +132,6 @@ class EditOrRegistPetView: UIView {
     
     private func setCustomNavigationBarConstraints() {
         self.addSubview(navigationBar)
-        navigationBar.configureTitle(title: "반려견 정보를 추가해주세요")
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalTo(self.safeAreaLayoutGuide)
         }
@@ -285,9 +286,6 @@ class EditOrRegistPetView: UIView {
             make.bottom.equalToSuperview().offset(-20)
         }
         
-//        birthdateSelectButton.titleLabel?.snp.makeConstraints { make in
-//            make.leading.equalToSuperview().offset(30)
-//        }
     }
         
     required init?(coder: NSCoder) {
