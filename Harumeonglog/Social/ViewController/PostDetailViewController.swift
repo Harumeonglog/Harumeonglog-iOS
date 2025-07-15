@@ -8,7 +8,7 @@
 import UIKit
 import SDWebImage
 
-class PostDetailViewController: UIViewController {
+class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     
     let socialPostService = SocialPostService()
 

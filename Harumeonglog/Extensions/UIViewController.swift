@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension UIViewController : UITextFieldDelegate, UITextViewDelegate {
+extension UIViewController : UITextFieldDelegate {
     
     func hideKeyboardWhenTappedAround() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -23,8 +23,6 @@ extension UIViewController : UITextFieldDelegate, UITextViewDelegate {
             if let textField = subview as? UITextField {
                 textField.delegate = self
                 textField.returnKeyType = .done
-            } else if let textView = subview as? UITextView {
-                textView.delegate = self
             } else {
                 // 재귀적으로 하위 뷰 탐색
                 setDelegateForTextInputs(in: subview)
@@ -36,18 +34,9 @@ extension UIViewController : UITextFieldDelegate, UITextViewDelegate {
         view.endEditing(true)
     }
     
-    // UITextField 엔터 처리
+    // UITextField return 키 누르면 호출
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        return true
-    }
-
-    // UITextView 엔터 처리
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if text == "\n" {
-            textView.resignFirstResponder()
-            return false
-        }
         return true
     }
 }
