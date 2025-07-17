@@ -12,7 +12,8 @@ import Then
 class CommentView: UIView {
     
     public lazy var navigationBar = CustomNavigationBar()
-
+    public var commentTextViewBottomConstraint : Constraint?
+    
     public lazy var commentTableView = UITableView().then { tableView in
         tableView.register(CommentTableViewCell.self, forCellReuseIdentifier: "CommentTableViewCell")
         tableView.register(ReplyCommentTableViewCell.self, forCellReuseIdentifier: "ReplyCommentTableViewCell")
@@ -78,8 +79,8 @@ class CommentView: UIView {
         
         commentTextView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().inset(50)
             make.height.equalTo(40)
+            self.commentTextViewBottomConstraint = make.bottom.equalToSuperview().inset(50).constraint
         }
         
         placeholderLabel.snp.makeConstraints { make in
@@ -93,11 +94,5 @@ class CommentView: UIView {
             make.width.equalTo(45)
             make.height.equalTo(30)
         }
-        
-        
-        
-        
-        
-        
     }
 }

@@ -49,9 +49,9 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = addPostView.navigationBar
         navi.configureRightButton(text: "수정")
-        navi.leftArrowButton.isHidden = true
         navi.rightButton.setTitleColor(.red00, for: .normal)
         navi.rightButton.addTarget(self, action: #selector(didTapRightButton), for: .touchUpInside)
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
     private func fetchPostDetailsFromServer() {
@@ -67,7 +67,6 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                         print("게시글 조회 성공")
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         print("\(self.postImagesURL)")
-                                                
                         // 서버 (영어) -> 한국어로 저장
                         self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
@@ -83,6 +82,10 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         }
     }
     
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
@@ -90,6 +93,12 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         
         if self.postImages.isEmpty && self.postImagesURL.isEmpty {
             modifyPost(imageKeys: nil)
+            return
+        } else if self.postImages.isEmpty {
+            self.imageKeys = self.postImagesURL.compactMap {
+                URL(string: $0)?.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            }
+            modifyPost(imageKeys: self.imageKeys)
             return
         }
         
@@ -149,11 +158,11 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 if uploadErrorOccurred {
                     print("업로드 실패로 게시글 수정 중단")
                 } else {
-                    // 기존 이미지 키 + 새로 업로드한 이미지 키를 합침
-                    let existingKeys = self!.postImagesURL.map { url in
-                        URL(string: url)?.pathComponents.dropFirst(2).joined(separator: "/") ?? ""
-                    }
-                    let allKeys = existingKeys + self!.imageKeys
+                    
+                    let allKeys: [String] = self!.postImagesURL.compactMap {
+                        // 전체 URL에서 마지막 key만 추출
+                        URL(string: $0)?.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                    } + self!.imageKeys
 
                     self!.modifyPost(imageKeys: allKeys)
                 }

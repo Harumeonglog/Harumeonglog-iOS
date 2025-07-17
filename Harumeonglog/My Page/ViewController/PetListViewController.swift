@@ -128,7 +128,7 @@ extension PetListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension PetListViewController: UIScrollViewDelegate {
+extension PetListViewController {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y

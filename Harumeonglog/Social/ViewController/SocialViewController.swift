@@ -8,11 +8,12 @@
 import UIKit
 
 class SocialViewController: UIViewController {
-
+    
     let socialPostService = SocialPostService()
     private var searchText: String? = nil
+    private var refreshControl = UIRefreshControl()   // 새로고침
     
-    private var selectedBtn: UIButton?      // 이전에 눌린 카테고리 버튼 저장
+    private var selectedBtn: UIButton?               // 이전에 눌린 카테고리 버튼 저장
     private var selectedCategory: String = "ALL"
     private var posts: [PostItem] = []
     private var cursor: Int = 0
@@ -40,9 +41,9 @@ class SocialViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.view = socialView
         hideKeyboardWhenTappedAround()
+        configureRefreshControl()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -53,7 +54,6 @@ class SocialViewController: UIViewController {
 
     
     private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
-                
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         if isFetching { return }        // 중복 호출 방지
@@ -95,6 +95,19 @@ class SocialViewController: UIViewController {
         }
 
     }
+    
+    private func configureRefreshControl() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshPosts), for: .valueChanged)
+        socialView.postTableView.refreshControl = refreshControl
+    }
+
+    @objc private func refreshPosts() {
+        print("새로고침 실행")
+        fetchPostsFromServer(reset: true)
+        socialView.postTableView.refreshControl?.endRefreshing()
+    }
+
     
     @objc private func textFieldDidChange() {
         let isEmpty = socialView.searchBar.text?.isEmpty ?? true

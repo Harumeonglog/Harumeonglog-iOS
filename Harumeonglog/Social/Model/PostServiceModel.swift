@@ -47,6 +47,7 @@ struct PostDetailResponse : Codable {
     let likeNum : Int
     let commentNum : Int
     let isLiked: Bool
+    let isOwn : Bool
     let postCategory : String
     let memberInfoResponse : MemberInfoResponse
     let postImageList : [String?]

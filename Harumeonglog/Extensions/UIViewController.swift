@@ -7,17 +7,41 @@
 
 import UIKit
 
-extension UIViewController {
+extension UIViewController : UITextFieldDelegate {
     
     func hideKeyboardWhenTappedAround() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
+        
+        // 모든 서브뷰에 대해 delegate 자동 설정
+        setDelegateForTextInputs(in: view)
+    }
+    
+    private func setDelegateForTextInputs(in view: UIView) {
+        for subview in view.subviews {
+            if let textField = subview as? UITextField {
+                textField.delegate = self
+                textField.returnKeyType = .done
+            } else {
+                // 재귀적으로 하위 뷰 탐색
+                setDelegateForTextInputs(in: subview)
+            }
+        }
     }
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    // UITextField return 키 누르면 호출
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension UIViewController {
     
     // MARK: UIAction string 설정
     func makeAction(title: String, color: UIColor, handler: @escaping UIActionHandler) -> UIAction {
@@ -26,7 +50,7 @@ extension UIViewController {
             string: title,
             attributes: [
                 .foregroundColor: color,
-                .font: UIFont.headline
+                .font: UIFont(name: FontName.pretendard_regular.rawValue, size: 14) ?? UIFont.systemFont(ofSize: 14)
             ]
         )
         action.setValue(attributedTitle, forKey: "attributedTitle")
@@ -57,6 +81,4 @@ extension UIViewController {
             completion(image)
         }.resume()
     }
-
-    
 }

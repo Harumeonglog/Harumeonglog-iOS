@@ -8,23 +8,13 @@
 import UIKit
 import SDWebImage
 
-class PostDetailViewController: UIViewController {
+class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     
     let socialPostService = SocialPostService()
 
     var postId : Int?
-    private var isLiked: Bool = false {
-        didSet {
-            updateLikeButton()
-        }
-    }
-
-    private func updateLikeButton() {
-        let imageName = isLiked ? "heart" : "heart.fill"
-        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
-        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
-        postDetailView.likeButton.tintColor = tintColor
-    }
+    var isOwn : Bool = false
+    var isLiked: Bool = false
 
     private var postImages: [String] = []
     private var postDetail: [PostDetailResponse] = []
@@ -76,6 +66,8 @@ class PostDetailViewController: UIViewController {
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
+        self.postImages = []
+        
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -86,17 +78,15 @@ class PostDetailViewController: UIViewController {
                                                 
                         self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         self.isLiked = postDetail.isLiked
-                        isLiked.toggle()
- 
+                        self.isOwn = postDetail.isOwn
+                        
                         DispatchQueue.main.async {
                             self.postDetailView.configure(
                                 with: postDetail, member: postDetail.memberInfoResponse)
+                            self.updateLikeButton()
+                            self.postSettingButton()
                         }
-                    } else {
-                        print("결과 데이터가 비어있습니다.")
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 조회 실패: \(error.localizedDescription)")
@@ -145,7 +135,7 @@ class PostDetailViewController: UIViewController {
     private func postSettingButton() {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
-
+            
             switch action.title {
             case "수정":
                 let modifyVC = ModifyPostViewController()
@@ -164,7 +154,15 @@ class PostDetailViewController: UIViewController {
         let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
         let deleteAction = makeAction(title: "삭제", color: .red00, handler: handler)
 
-        let menu = UIMenu(options: .displayInline, children: [modifyAction, reportAction, deleteAction])
+        let actions: [UIAction]
+        
+        if self.isOwn {
+            actions = [modifyAction, reportAction, deleteAction]
+        } else {
+            actions = [reportAction]
+        }
+        
+        let menu = UIMenu(options: .displayInline, children: actions)
         postDetailView.postSetting.menu = menu
         postDetailView.postSetting.showsMenuAsPrimaryAction = true
     }
@@ -215,11 +213,18 @@ class PostDetailViewController: UIViewController {
             }
         }
     }
+    
+    private func updateLikeButton() {
+        let imageName = isLiked ? "heart" : "heart.fill"
+        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
+        postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
+        postDetailView.likeButton.tintColor = tintColor
+    }
 }
 
 
 // 게시글 이미지에 대한 scrollView
-extension PostDetailViewController: UIScrollViewDelegate {
+extension PostDetailViewController {
     func contentScrollView() {
         postDetailView.postImageScrollView.layoutIfNeeded()
 
