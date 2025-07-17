@@ -50,7 +50,7 @@ extension UIViewController {
             string: title,
             attributes: [
                 .foregroundColor: color,
-                .font: UIFont.headline
+                .font: UIFont(name: FontName.pretendard_regular.rawValue, size: 14) ?? UIFont.systemFont(ofSize: 14)
             ]
         )
         action.setValue(attributedTitle, forKey: "attributedTitle")

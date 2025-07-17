@@ -230,7 +230,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleTextField.text = postDetail.title
         categoryButton.setTitle(socialCategoryKey.tagsEngKorto[postDetail.postCategory]!, for: .normal)
         contentTextView.text = postDetail.content
-        addImageCount.text = "\(postDetail.postImageList.count) / 5"
+        addImageCount.text = "\(postDetail.postImageList.count) / 10"
     
     }
 

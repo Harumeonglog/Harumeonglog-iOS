@@ -67,7 +67,6 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                         print("게시글 조회 성공")
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         print("\(self.postImagesURL)")
-                                                
                         // 서버 (영어) -> 한국어로 저장
                         self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
@@ -100,6 +99,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 URL(string: $0)?.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
             }
             modifyPost(imageKeys: self.imageKeys)
+            return
         }
         
         // presingedURL batch 요청을 이미지 정보 만들기
