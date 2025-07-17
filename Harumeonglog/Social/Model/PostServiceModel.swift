@@ -74,7 +74,7 @@ struct ModifyPostRequest : Encodable {
     let postCategory : String
     let title: String?
     let content : String?
-    let postImageList : [String]
+    let postImageList : [String?]
 }
 
 struct ModifyPostResponse : Codable {

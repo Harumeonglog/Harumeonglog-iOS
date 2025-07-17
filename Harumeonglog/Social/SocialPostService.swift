@@ -92,7 +92,7 @@ class SocialPostService {
         postCategory: String,
         title: String,
         content: String,
-        postImageList: [String],
+        postImageList: [String?],
         token: String,
         completion: @escaping (Result<HaruResponse<ModifyPostResponse>, AFError>) -> Void
     ){

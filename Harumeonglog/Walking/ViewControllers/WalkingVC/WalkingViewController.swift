@@ -25,7 +25,7 @@ class WalkingViewController: UIViewController {
     var walkId: Int = 0
     var walkImages: [UIImage] = []
     var imageKeys: [String] = []
-    
+
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
     
@@ -34,13 +34,13 @@ class WalkingViewController: UIViewController {
     internal var locationManager = CLLocationManager()
     internal var currentLocationMarker: NMFMarker?
     var pathOverlay: NMFPath?                                   // 현재 그리고 있는 선 하나
-    private var pathOverlays : [NMFPath] = []                  //  전체 산책 선 모음 배열
-    private var currentCoordinates: [NMGLatLng] = []          //   현재 path에 해당하는 좌표 배열
+    var pathOverlays : [NMFPath] = []                  //  전체 산책 선 모음 배열
+    var currentCoordinates: [NMGLatLng] = []          //   현재 path에 해당하는 좌표 배열
     var startLocationCoordinates : [Double] = []
-    private var totalDistance: CLLocationDistance = 0.0       // 거리 누적용
-    private var lastLocation: CLLocation?
+    var totalDistance: CLLocationDistance = 0.0       // 거리 누적용
+    var lastLocation: CLLocation?
     
-    private var selectedImage: UIImage?
+    var selectedImage: UIImage?
 
 
     let walkRecommendService = WalkRecommendService()
@@ -49,7 +49,7 @@ class WalkingViewController: UIViewController {
     var recordView = RecordView()
 
     
-    private lazy var walkingView: WalkingView = {
+    lazy var walkingView: WalkingView = {
         let view = WalkingView()
         
         view.moveToUserLocationButton.addTarget(self, action: #selector(moveToUserLocationButtonTapped), for: .touchUpInside)
@@ -340,216 +340,5 @@ extension WalkingViewController {
         let seconds = Int(timeElapsed) % 60
         
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
-    }
-}
-
-
-// MARK: 산책 기록 결과
-extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    private func showRecordWalkingView() {
-        let recordView = showDimmedView(RecordView.self)
-        self.recordView = recordView
-        
-        recordView.profileCollectionView.delegate = self
-        recordView.profileCollectionView.dataSource = self
-        recordView.profileCollectionView.reloadData()
-        
-        recordView.totalDistance.text = walkingView.recordDistance.text
-        recordView.totalTime.text = walkingView.recordTime.text
-        getPlaceName(from: self.startLocationCoordinates) { address in
-            recordView.startAdddress.text = address
-            print("\(address)")
-        }
-        recordView.recordCancelBtn.addTarget(self, action: #selector(cancelRecordBtnTapped), for: .touchUpInside)
-        recordView.recordSaveBtn.addTarget(self, action: #selector(saveRecordBtnTapped), for: .touchUpInside)
-    }
-    
-    @objc private func cancelRecordBtnTapped() {
-        removeView(RecordView.self)
-        navigationController!.popToRootViewController(animated: true)
-    }
-    
-    
-    
-    // 산책 기록 저장
-    @objc private func saveRecordBtnTapped() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-    
-        let title = recordView.walkingTextField.text ?? ""
-
-        walkService.walkSave(walkId: self.walkId, title: title, token: token) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-                    print("산책 기록 저장 성공")
-                    removeView(RecordView.self)
-                    showShareWalkingView()
-                }
-            case .failure(let error):
-                print("산책 기록 저장 실패: \(error.localizedDescription)")
-                return
-            }
-        }
-    }
-    
-    
-    
-    
-    // 셀 등록
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let item = selectedAllItems[indexPath.row]
-
-        switch item {
-        case .pet(let pet):
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowPetProfileCell", for: indexPath) as! ShowPetProfileCell
-            cell.configurePet(with: pet)
-            return cell
-        case .member(let member):
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShowMemberProfileCell", for: indexPath) as! ShowMemberProfileCell
-            cell.configureMember(with: member)
-            return cell
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return selectedAllItems.count
-    }
-    
-}
-    
-// MARK: 산책 공유
-extension WalkingViewController {
-    private func showShareWalkingView() {
-        let shareRecordView = showDimmedView(ShareRecordView.self)
-        shareRecordView.shareCancelBtn.addTarget(self, action: #selector(cancelShareBtnTapped), for: .touchUpInside)
-        shareRecordView.shareBtn.addTarget(self, action: #selector(shareBtnTapped), for: .touchUpInside)
-    }
-    
-    @objc private func cancelShareBtnTapped() {
-        removeView(ShareRecordView.self)
-        navigationController!.popToRootViewController(animated: true)
-    }
-    
-    @objc private func shareBtnTapped() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
-        walkService.walkShare(walkId: self.walkId, token: token) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let response):
-                if response.isSuccess {
-                    removeView(ShareRecordView.self)
-                    navigationController!.popToRootViewController(animated: true)
-                }
-            case .failure(let error):
-                print("산책 공유 실패: \(error.localizedDescription)")
-                return
-            }
-        }
-    }
-}
-
-
-
-// MARK: View 띄우기 및 삭제
-extension WalkingViewController {
-    // view를 띄운걸 삭제하기 위한 공통 함수
-    private func removeView<T: UIView>(_ viewType: T.Type) {
-        if let window = UIApplication.shared.windows.first {
-            window.subviews.forEach { subview in
-                if subview is T || subview.backgroundColor == UIColor.black.withAlphaComponent(0.5) {
-                    subview.removeFromSuperview()
-                }
-            }
-        }
-    }
-    
-    private func showDimmedView<T: UIView>(_ viewType: T.Type) -> T {
-        if let window = UIApplication.shared.windows.first {
-            let dimmedView = UIView(frame: window.bounds)
-            dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-            
-            let view = T()
-            
-            self.walkingView.recordView.isHidden = true
-            window.addSubview(dimmedView)
-            window.addSubview(view)
-            view.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-            }
-            return view
-        }
-        return T()
-    }
-}
-
-
-
-// MARK: 사진 촬영 후 이미지 전송하기
-extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    @objc private func cameraBtnTapped() {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.delegate = self
-        self.present(picker, animated: true)
-    }
-
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        picker.dismiss(animated: true, completion: nil)
-        guard let image = info[.originalImage] as? UIImage else {
-            print("이미지를 가져오지 못했습니다.")
-            return
-        }
-        walkImages.append(image)
-
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
-        // 여기서 서버로 이미지 전송
-        let index = walkImages.count - 1
-        let imageInfos = [
-            PresignedUrlImage(filename: "산책id:\(walkId)_\(index)", contentType: "image/jpeg")
-        ]
-        requestPresignedURLS(images: imageInfos, token: token)
-    }
-    
-    
-    private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
-        // petId 하나당 하나의 PURLsRequestEntity 생성
-        let entities = selectedPetIds.map { petId in
-            return PURLsRequestEntity(entityId: petId, images: images)
-        }
-        PresignedUrlService.getPresignedUrls(domain: .pet, entities: entities, token: token) { [weak self] result in
-            switch result {
-            case .success(let response):
-                print("presignedURL 발급 성공")
-                self?.uploadImagesToPresignedURL(response.result!)
-            case .failure(let error):
-                print("presignedURL 발급 실패: \(error)")
-            }
-        }
-    }
-    
-    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
-        guard let presignedEntity = result.entities.first else { return }
-        let presignedData = presignedEntity.images
-        
-        for (index, image) in walkImages.enumerated() {
-            guard let imageData = image.jpegData(compressionQuality: 0.8),
-                  let url = URL(string: presignedData[index].presignedUrl) else {
-                continue
-            }
-            uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.imageKeys.append(presignedData[index].imageKey)
-                case .failure(let error):
-                    print("이미지 업로드 실패: \(error)")
-                }
-            }
-        }
     }
 }
