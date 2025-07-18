@@ -39,11 +39,12 @@ extension UITextField {
 }
 
 extension UILabel {
-    func setLineSpacing(lineSpacing: CGFloat) {
+    func setLineSpacing(lineSpacing: CGFloat, alignment: NSTextAlignment = .left) {
         guard let text = self.text else { return }
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
+        paragraphStyle.alignment = alignment  
         
         let attributedString = NSMutableAttributedString(string: text)
         attributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))

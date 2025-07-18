@@ -170,10 +170,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     
     private func reportPost() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
-        
         socialPostService.reportPostToServer(postId: postId!, token: token) { [weak self] result in
             guard let self = self else { return }
-            
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -181,8 +179,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                         print("게시글 신고 성공")
                         self.navigationController?.popViewController(animated: true)
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 신고 실패: \(error.localizedDescription)")
@@ -194,10 +190,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     
     private func deletePost() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
-        
         socialPostService.deletePostToServer(postId: postId!, token: token) { [weak self] result in
             guard let self = self else { return }
-
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -205,8 +199,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                         print("게시글 삭제 성공")
                         self.navigationController?.popViewController(animated: true)
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 좋아요 실패: \(error.localizedDescription)")

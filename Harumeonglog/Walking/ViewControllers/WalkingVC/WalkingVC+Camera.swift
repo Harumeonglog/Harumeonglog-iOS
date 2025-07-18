@@ -61,14 +61,36 @@ extension WalkingViewController: UIImagePickerControllerDelegate, UINavigationCo
         for (index, image) in walkImages.enumerated() {
             guard let imageData = image.jpegData(compressionQuality: 0.8),
                   let url = URL(string: presignedData[index].presignedUrl) else {
+                print("walkImages.count: \(walkImages.count)")
+                print("presignedData.count: \(presignedData.count)")
+
                 continue
             }
             uploadImageToS3(imageData: imageData, presignedUrl: url) { [weak self] result in
+                print("uploadImageToS3 result: \(result)")
                 switch result {
                 case .success:
                     self?.imageKeys.append(presignedData[index].imageKey)
+                    self?.sendImageKeysToServer()
                 case .failure(let error):
                     print("이미지 업로드 실패: \(error)")
+                }
+            }
+        }
+    }
+    
+    func sendImageKeysToServer() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+
+        selectedPetIds.forEach { petId in
+            PhotoService.saveImages(petId: petId, imageKeys: imageKeys, token: token){ result in
+                switch result {
+                case .success(let response):
+                    if response.isSuccess {
+                        print("사진 전송 성공 for petId: \(petId)")
+                    }
+                case .failure(let error):
+                    print("게시글 전송 실패: \(error.localizedDescription)")
                 }
             }
         }

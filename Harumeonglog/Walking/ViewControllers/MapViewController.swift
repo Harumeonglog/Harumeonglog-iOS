@@ -63,12 +63,11 @@ class MapViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // 초기 상태로 복원
+        // 추천 경로 초기 상태로 복원
         isExpanded = false
         mapView.recommendRouteView.snp.updateConstraints { make in
             make.height.equalTo(minHeight)
         }
-        
         updateRecommendRouteUI()
     }
 
@@ -95,11 +94,14 @@ class MapViewController: UIViewController {
                         chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(saveDogBtnTapped), for: .touchUpInside)
                     } else {
                         // 산책할 반려견이 없는 경우
-                        chooseDogView.dogCollectionView.isHidden = true
-                        chooseDogView.titleLabel.isHidden = true
-                        chooseDogView.nonDogLabel.isHidden = false
-                        chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
-                        chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(dimmedViewTapped), for: .touchUpInside)
+                        DispatchQueue.main.async {
+                            self.chooseDogView.dogCollectionView.isHidden = true
+                            self.chooseDogView.titleLabel.isHidden = true
+                            self.chooseDogView.nonDogLabel.isHidden = false
+                            self.chooseDogView.chooseSaveBtn.setTitle("확인", for: .normal)
+                            self.updateSaveBtn(isEnabled: true)
+                            self.chooseDogView.chooseSaveBtn.addTarget(self, action: #selector(self.dimmedViewTapped), for: .touchUpInside)
+                        }
                     }
                 }
             case .failure(let error):
@@ -120,13 +122,10 @@ class MapViewController: UIViewController {
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
-        
         let selectedPets = chooseDogView.dogCollectionView.indexPathsForSelectedItems?
             .compactMap { $0.item < petList.count ? petList[$0.item] : nil } ?? []
-        
         self.selectedPets = selectedPets
         let selectedPetIds = selectedPets.map(\.petId)  // 선택한 pet id값만 추출
-        
         
         print("선택된 펫 id: \(selectedPetIds)")
         
@@ -178,7 +177,7 @@ extension MapViewController: CLLocationManagerDelegate, LocationHandling {
         handleUserLocationAuthorization()
     }
     
-        // 위치가 이동할 때마다 위치 정보 업데이트
+    // 위치가 이동할 때마다 위치 정보 업데이트
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print("didUpdateLocations")
         // 가장 최근에 받아온 위치

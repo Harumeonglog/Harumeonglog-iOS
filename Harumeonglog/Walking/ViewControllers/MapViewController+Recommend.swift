@@ -31,7 +31,6 @@ extension MapViewController {
             mapView.recommendRouteView.snp.updateConstraints { make in
                 make.height.equalTo(finalHeight)
             }
-            
             updateRecommendRouteUI()
         default:
             break
@@ -55,10 +54,14 @@ extension MapViewController {
             }
         }
 
+        let recommendAction = makeAction(title: "추천순", color: .gray00, handler: popUpButtonClosure)
+        let distanceAction = makeAction(title: "거리순", color: .gray00, handler: popUpButtonClosure)
+        let timeAction = makeAction(title: "소요 시간순", color: .gray00, handler: popUpButtonClosure)
+
         mapView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
-            UIAction(title: "추천순", handler: popUpButtonClosure),
-            UIAction(title: "거리순", handler: popUpButtonClosure),
-            UIAction(title: "소요 시간순", handler: popUpButtonClosure),
+            recommendAction,
+            distanceAction,
+            timeAction
         ])
         mapView.routeFilterButton.showsMenuAsPrimaryAction = true
     }
@@ -121,13 +124,12 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
     
     // 셀 등록
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let recommendRoutes = recommendRoutes[indexPath.row]
+        let route = recommendRoutes[indexPath.row]
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendRouteTableViewCell", for: indexPath) as! RecommendRouteTableViewCell
         cell.selectionStyle = .none
-        cell.configure(with: recommendRoutes)
+        cell.configure(with: route)
         cell.delegate = self
-        
         
         return cell
     }
@@ -145,7 +147,6 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
             switch result {
             case .success(let response):
                 if response.isSuccess {
-                    
                     DispatchQueue.main.async {
                         self.mapView.recommendRouteTableView.reloadRows(at: [indexPath], with: .none)
                     }
