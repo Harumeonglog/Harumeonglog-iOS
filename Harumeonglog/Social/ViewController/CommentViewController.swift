@@ -49,6 +49,7 @@ class CommentViewController: UIViewController, UITextViewDelegate {
         self.view = commentView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        swipeRecognizer()
         commentView.commentUploadButton.addTarget(self, action: #selector(commentUploadButtonTapped), for: .touchUpInside)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)

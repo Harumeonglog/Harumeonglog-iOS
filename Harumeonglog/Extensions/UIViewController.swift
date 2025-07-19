@@ -42,6 +42,27 @@ extension UIViewController : UITextFieldDelegate {
 }
 
 extension UIViewController {
+    func swipeRecognizer() {
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+        swipeRight.direction = UISwipeGestureRecognizer.Direction.right
+        self.view.addGestureRecognizer(swipeRight)
+    }
+    
+    @objc func respondToSwipeGesture(_ gesture: UIGestureRecognizer) {
+        if let swipeGesture = gesture as? UISwipeGestureRecognizer {
+            switch swipeGesture.direction {
+            case .right:
+                print("Swiped right")
+                navigationController?.popViewController(animated: true)
+            default:
+                break
+            }
+        }
+    }
+}
+
+
+extension UIViewController {
     
     // MARK: UIAction string 설정
     func makeAction(title: String, color: UIColor, handler: @escaping UIActionHandler) -> UIAction {

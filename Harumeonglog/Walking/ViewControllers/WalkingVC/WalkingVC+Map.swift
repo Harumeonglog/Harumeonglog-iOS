@@ -40,6 +40,20 @@ extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
         
         // 경로 배열에 추가
         currentCoordinates.append(currentCoord)
+        print("걸은 경로 \(currentCoordinates.count) : \(currentCoordinates)")
+        
+        // 현재 pathOverlay가 있으면 path 갱신
+        DispatchQueue.main.async {
+            print("🟢 pathOverlay 존재함: \(self.pathOverlay != nil)")
+            self.pathOverlay?.path = NMGLineString(points: self.currentCoordinates)
+        }
+        
+        // 처음 시작 시 카메라 위치 이동
+        if currentCoordinates.count == 1 {
+            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
+            cameraUpdate.animation = .easeIn
+            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
+        }
         
         // 거리 계산
          if let lastLoc = lastLocation {
@@ -51,35 +65,23 @@ extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
              walkingView.recordDistance.text = String(format: "%.2f", totalDistanceInKm)
          }
          lastLocation = location
-        
-        // 현재 pathOverlay가 있으면 path 갱신
-        DispatchQueue.main.async {
-            self.pathOverlay?.path = NMGLineString(points: self.currentCoordinates)
-        }
-        
-        // 처음 시작 시 카메라 위치 이동
-        if currentCoordinates.count == 1 {
-            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
-            cameraUpdate.animation = .easeIn
-            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
-        }
     }
     
 
     func startNewPathOverlay(resetPath: Bool = true) {
         if resetPath {
             currentCoordinates = [] // 재개 시 false로 넘기면 초기화하지 않음
-        }
-        
-        let newPath = NMFPath()
-        
-        newPath.path = NMGLineString(points: currentCoordinates)
-        newPath.color = UIColor.blue01
-        newPath.width = 5
-        newPath.mapView = walkingView.naverMapView.mapView
+            
+            let newPath = NMFPath()
+            
+            newPath.path = NMGLineString(points: currentCoordinates)
+            newPath.color = UIColor.blue01
+            newPath.width = 5
+            newPath.mapView = walkingView.naverMapView.mapView
 
-        pathOverlays.append(newPath)
-        pathOverlay = newPath               // 현재 pathOverlay 포인터 갱신
+            pathOverlays.append(newPath)
+            pathOverlay = newPath               // 현재 pathOverlay 포인터 갱신
+        }
     }
 
 

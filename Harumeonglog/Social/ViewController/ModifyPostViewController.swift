@@ -42,6 +42,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        swipeRecognizer()
         fetchPostDetailsFromServer()
     }
     
