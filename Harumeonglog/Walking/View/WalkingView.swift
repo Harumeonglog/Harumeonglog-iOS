@@ -125,12 +125,12 @@ class WalkingView: UIView {
         
         recordDistance.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.equalToSuperview().inset(5)
+            make.centerX.equalTo(recordDistanceLabel)
         }
         
         recordTime.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.trailing.equalToSuperview().inset(5)
+            make.centerX.equalTo(recordTimeLabel)
         }
         
         recordDistanceLabel.snp.makeConstraints { make in

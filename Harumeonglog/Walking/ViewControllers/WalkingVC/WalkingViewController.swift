@@ -29,11 +29,11 @@ class WalkingViewController: UIViewController {
     var timer: Timer?
     var timeElapsed: TimeInterval = 0       // 경과 시간
     
-    private var walkState: WalkState = .notStarted
+    var walkState: WalkState = .notStarted
     
     internal var locationManager = CLLocationManager()
     internal var currentLocationMarker: NMFMarker?
-    var pathOverlay: NMFPath?                                   // 현재 그리고 있는 선 하나
+    var pathOverlay: NMFPath?                           // 현재 그리고 있는 선 하나
     var pathOverlays : [NMFPath] = []                  //  전체 산책 선 모음 배열
     var currentCoordinates: [NMGLatLng] = []          //   현재 path에 해당하는 좌표 배열
     var startLocationCoordinates : [Double] = []
@@ -65,6 +65,12 @@ class WalkingViewController: UIViewController {
         self.view = walkingView
         locationManager.delegate = self
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        locationManager.stopUpdatingLocation()
     }
     
     
@@ -214,7 +220,6 @@ class WalkingViewController: UIViewController {
         let totalSeconds = (components.first ?? 0) * 60 + (components.last ?? 0)
         let endTime = totalSeconds / 60   // 정수 분 (소숫점 절삭)
 
-        let distanceText = walkingView.recordDistance.text ?? "0"
         let endDistance = Int(totalDistance)
 
         walkService.walkEnd(walkId: self.walkId, time: endTime, distance: endDistance, token: token) { [weak self] result in
@@ -237,83 +242,6 @@ class WalkingViewController: UIViewController {
         startTimer()
         locationManager.startUpdatingLocation()     // 위치 추적 재게
     }
-}
-
-
-// MARK: 네이버지도
-extension WalkingViewController: CLLocationManagerDelegate, LocationHandling {
-    
-    var mapContainer: WalkingView { walkingView }
-    
-    // 현재 위치로 이동하는 함수
-    @objc func moveToUserLocationButtonTapped() {
-        handleUserLocationAuthorization()
-    }
-    
-    // 위치가 이동할 때마다 위치 정보 업데이트
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        
-        let lat = location.coordinate.latitude
-        let lng = location.coordinate.longitude
-        let currentCoord = NMGLatLng(lat: lat, lng: lng)
-        
-        // 마커 업데이트
-        if currentLocationMarker == nil {
-            currentLocationMarker = NMFMarker(position: currentCoord)
-            currentLocationMarker?.mapView = walkingView.naverMapView.mapView
-        } else {
-            currentLocationMarker?.position = currentCoord
-        }
-        
-        guard walkState == .walking else { return }                 // 선은 걷는 중일 때만 그려짐
-        
-        // 경로 배열에 추가
-        currentCoordinates.append(currentCoord)
-        
-        // 거리 계산
-         if let lastLoc = lastLocation {
-             let newDistance = location.distance(from: lastLoc) // 미터 단위
-             totalDistance += newDistance
-
-             // 거리 UI 업데이트
-             walkingView.recordDistance.text = String(format: "%.0f", totalDistance) // 정수로 표시
-         }
-         lastLocation = location
-        
-        // 현재 pathOverlay가 있으면 path 갱신
-        DispatchQueue.main.async {
-            self.pathOverlay?.path = NMGLineString(points: self.currentCoordinates)
-        }
-        
-        // 처음 시작 시 카메라 위치 이동
-        if currentCoordinates.count == 1 {
-            let cameraUpdate = NMFCameraUpdate(scrollTo: currentCoord)
-            cameraUpdate.animation = .easeIn
-            walkingView.naverMapView.mapView.moveCamera(cameraUpdate)
-        }
-    }
-    
-
-    private func startNewPathOverlay(resetPath: Bool = true) {
-        if resetPath {
-            currentCoordinates = [] // 재개 시 false로 넘기면 초기화하지 않음
-        }
-        let newPath = NMFPath()
-        newPath.mapView = walkingView.naverMapView.mapView
-        newPath.color = UIColor.blue01
-        newPath.width = 5
-        newPath.path = NMGLineString(points: currentCoordinates)
-        pathOverlays.append(newPath)
-        pathOverlay = newPath               // 현재 pathOverlay 포인터 갱신
-    }
-
-
-    // 위도 경도 받아오기 에러
-     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-         print(error)
-     }
-
 }
 
 
