@@ -42,6 +42,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        swipeRecognizer()
         fetchPostDetailsFromServer()
     }
     
@@ -90,9 +91,11 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        print("\(self.postImages)")
+        print("\(self.postImagesURL)")
         
         if self.postImages.isEmpty && self.postImagesURL.isEmpty {
-            modifyPost(imageKeys: nil)
+            modifyPost(imageKeys: self.imageKeys)
             return
         } else if self.postImages.isEmpty {
             self.imageKeys = self.postImagesURL.compactMap {
@@ -170,7 +173,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         }
     }
     
-    private func modifyPost(imageKeys: [String]?) {
+    private func modifyPost(imageKeys: [String?]) {
         postTitle = addPostView.titleTextField.text ?? ""
         postContent = addPostView.contentTextView.text ?? ""
 
@@ -179,7 +182,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         socialPostService.modifyPostToServer(
             postId: self.postId!, postCategory: socialCategoryKey.tagsKortoEng[self.selectedCategory!] ?? "unknown",
             title: self.postTitle, content: self.postContent,
-            postImageList: imageKeys!,
+            postImageList: imageKeys,
             token: token) { result in
                 switch result {
                 case .success(let response):

@@ -31,14 +31,18 @@ class RecommendRouteTableViewCell: UITableViewCell {
     
     
     public lazy var likeButton = UIButton().then { button in
-        button.setImage(UIImage(systemName: "hand.thumbsup"), for: .normal)
-        button.tintColor = UIColor.gray01
-        button.frame = CGRect(x: 0, y: 0, width: 12, height: 12)
+        button.setImage(UIImage(systemName: "heart"), for: .normal)
+        button.tintColor = UIColor.gray02
+        button.isUserInteractionEnabled = true
+
+        button.snp.makeConstraints { make in
+            make.width.equalTo(16)
+            make.height.equalTo(13)
+        }
     }
     
     public lazy var likeCountLabel = commonTextColorFont(text: "123")
 
-    
     private lazy var rightContainer = UIView().then { view in
         view.contentMode = .left
     }
@@ -69,7 +73,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
     }
 
     private func addComponents() {
-        self.addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
         
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -102,7 +106,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
         
-        self.addSubview(rightContainer)
+        contentView.addSubview(rightContainer)
         rightContainer.addSubview(timeLabel)
         rightContainer.addSubview(distanceLabel)
         
@@ -123,7 +127,7 @@ class RecommendRouteTableViewCell: UITableViewCell {
             make.leading.greaterThanOrEqualToSuperview()
         }
         
-        self.addSubview(separatorView)
+        contentView.addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(1)
@@ -134,7 +138,8 @@ class RecommendRouteTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc private func likeButtonTapped() {        
+    @objc private func likeButtonTapped() {
+        print("좋아요 눌림")
         delegate?.likeButtonTapped(in: self)
     }
     
@@ -146,11 +151,12 @@ class RecommendRouteTableViewCell: UITableViewCell {
     
 
     private func updateLikeButton() {
-        let imageName = isLiked ? "hand.thumbsup.fill" : "hand.thumbsup"
-        // let color = isLiked ? UIColor.red01 : UIColor.gray01
+        let imageName = isLiked ? "heart.fill" : "heart"
+        let color = isLiked ? UIColor.red00 : UIColor.gray01
         likeButton.setImage(UIImage(systemName: imageName), for: .normal)
-        likeButton.tintColor = UIColor.gray01
+        likeButton.tintColor = color
     }
+    
     
     func configure(with route: WalkRecommendItem) {
         titleLabel.text = route.title
@@ -159,6 +165,5 @@ class RecommendRouteTableViewCell: UITableViewCell {
         timeLabel.text = "\(route.time)분"
         userLabel.text = "\(route.memberNickname) 님의 산책로"
         isLiked = route.isLike
-        
     }
 }

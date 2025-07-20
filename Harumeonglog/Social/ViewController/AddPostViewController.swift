@@ -35,6 +35,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        swipeRecognizer()
     }
     
     private func setCustomNavigationBarConstraints() {
