@@ -55,6 +55,10 @@ class ReplyCommentTableViewCell: UITableViewCell {
         label.setLineSpacing(lineSpacing: 5)
     }
     
+    public lazy var emptyView = UIView().then { view in
+        view.backgroundColor = .clear
+    }
+    
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -111,13 +115,20 @@ class ReplyCommentTableViewCell: UITableViewCell {
         }
         
         contentView.addSubview(commentContent)
+        contentView.addSubview(emptyView)
         
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(90)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
             make.trailing.equalTo(settingButton.snp.leading).offset(5)
-            make.height.greaterThanOrEqualTo(22)
+            make.height.greaterThanOrEqualTo(20)
+        }
+        
+        emptyView.snp.makeConstraints { make in
+            make.top.equalTo(commentContent.snp.bottom).offset(5)
+            make.leading.equalTo(commentContent)
             make.bottom.equalToSuperview()
+            make.height.equalTo(10)
         }
         
 
@@ -132,5 +143,4 @@ class ReplyCommentTableViewCell: UITableViewCell {
 }
 
 extension ReplyCommentTableViewCell: MenuConfigurableCell {
-    
 }

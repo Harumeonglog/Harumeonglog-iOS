@@ -362,6 +362,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: reply, member: reply.memberInfoResponse)
+            configureSettingMenu(for: cell, commentId: reply.commentId)
             return cell
         }
     }
