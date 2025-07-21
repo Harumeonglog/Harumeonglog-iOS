@@ -159,8 +159,11 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     }
 
     private func updateRightButtonState() {
-        let title = addPostView.titleTextField.text ?? ""
-        let isFormValid = !title.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil
+        self.postTitle = addPostView.titleTextField.text ?? ""
+        self.postContent = addPostView.contentTextView.text ?? ""
+        
+        
+        let isFormValid = !self.postTitle.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil && !self.postContent.trimmingCharacters(in: .whitespaces).isEmpty
         addPostView.navigationBar.rightButton.isHidden = !isFormValid
     }
     
