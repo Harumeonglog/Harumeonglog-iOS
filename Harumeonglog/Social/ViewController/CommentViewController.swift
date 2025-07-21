@@ -215,16 +215,11 @@ extension CommentViewController {
             // 멘션 이후 텍스트만 추출
             self.commentText = String(text[swiftRange.upperBound...])
         }
-
-        print("댓글 업로드: \(commentText)")
-        print("\(parentId)")
-    
         socialCommentService.postCommentToServer(postId: postId!, parentId: parentId, content: commentText, token: token)
         { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
-                print("✅ 서버 응답: \(response)")
 
                 if response.isSuccess {
                     print("댓글 생성 성공")
@@ -241,8 +236,6 @@ extension CommentViewController {
                         self.commentView.layoutIfNeeded()
                     }
                     self.fetchCommentsFromServer(reset: true)
-                }else {
-                    print("❌ 서버 응답 실패: \(response.message)")
                 }
             case .failure(let error):
                 print("댓글 생성 실패: \(error.localizedDescription)")

@@ -26,6 +26,8 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         view.imageCollectionView.delegate = self
         view.imageCollectionView.dataSource = self
         view.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
+        view.titleTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+
         
         return view
     }()
@@ -36,6 +38,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
         swipeRecognizer()
+        updateRightButtonState()
     }
     
     private func setCustomNavigationBarConstraints() {
@@ -49,7 +52,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     @objc func didTapRightButton() {
         
-        addPostView.navigationBar.rightButton.isUserInteractionEnabled = false
         let postTitle = addPostView.titleTextField.text ?? ""
         
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
@@ -150,6 +152,23 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             }
         }
     }
+    
+    
+    @objc func textFieldDidChange() {
+        updateRightButtonState()
+    }
+
+    private func updateRightButtonState() {
+        let title = addPostView.titleTextField.text ?? ""
+        let isFormValid = !title.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil
+        addPostView.navigationBar.rightButton.isHidden = !isFormValid
+    }
+    
+    func didSelectCategory(_ category: String) {
+        print("선택된 카테고리: \(category)")
+        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
+        updateRightButtonState()
+    }
 
     
     @objc
@@ -164,10 +183,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         self.present(imagePickerController, animated: true)
     }
     
-    func didSelectCategory(_ category: String) {
-        print("선택된 카테고리: \(category)")
-        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
-    }
 }
 
 
