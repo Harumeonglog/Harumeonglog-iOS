@@ -66,6 +66,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
 
+        print("\(self.postImages)")
         self.postImages = []
         
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
@@ -207,8 +208,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func updateLikeButton() {
-        let imageName = isLiked ? "heart" : "heart.fill"
-        let tintColor = isLiked ? UIColor.gray02 : UIColor.red00
+        let imageName = isLiked ? "heart.fill" : "heart"
+        let tintColor = isLiked ? UIColor.red00 : UIColor.gray02
         postDetailView.likeButton.setImage(UIImage(systemName: imageName), for: .normal)
         postDetailView.likeButton.tintColor = tintColor
     }
@@ -218,6 +219,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
 // 게시글 이미지에 대한 scrollView
 extension PostDetailViewController {
     func contentScrollView() {
+        postDetailView.postImageScrollView.subviews.forEach { $0.removeFromSuperview() } // 이전 이미지뷰 제거
         postDetailView.postImageScrollView.layoutIfNeeded()
 
         for i in 0..<postImages.count {

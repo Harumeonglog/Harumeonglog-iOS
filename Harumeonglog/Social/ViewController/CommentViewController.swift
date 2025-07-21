@@ -207,7 +207,7 @@ extension CommentViewController {
     private func commentUploadButtonTapped() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
-        let parentId = replyTargetCommentId ?? 0
+        let parentId: Int? = replyTargetCommentId
         
         if let mentionRange = self.mentionRange,
            let text = commentView.commentTextView.text,
@@ -215,12 +215,12 @@ extension CommentViewController {
             // 멘션 이후 텍스트만 추출
             self.commentText = String(text[swiftRange.upperBound...])
         }
-        
         socialCommentService.postCommentToServer(postId: postId!, parentId: parentId, content: commentText, token: token)
         { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
+
                 if response.isSuccess {
                     print("댓글 생성 성공")
                     DispatchQueue.main.async {
@@ -362,6 +362,7 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: reply, member: reply.memberInfoResponse)
+            configureSettingMenu(for: cell, commentId: reply.commentId)
             return cell
         }
     }

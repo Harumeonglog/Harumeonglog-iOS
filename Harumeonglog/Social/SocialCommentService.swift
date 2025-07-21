@@ -31,7 +31,7 @@ class SocialCommentService {
     // 댓글
     func postCommentToServer(
         postId: Int,
-        parentId: Int,
+        parentId: Int?,
         content: String,
         token: String,
         completion: @escaping (Result<HaruResponse<AddCommentResponse>, AFError>) -> Void) {
