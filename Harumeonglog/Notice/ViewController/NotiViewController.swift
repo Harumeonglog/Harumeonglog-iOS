@@ -24,7 +24,7 @@ class NotiViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = true
         self.invitationRequestViewModel.getInvitationRequests()
         
-        noticeViewModel.$notices
+        noticeViewModel.$noticeList
             .sink{ [weak self] _ in
                 self?.notificationsView.notificationCollectionView.reloadData()
             }
@@ -67,12 +67,12 @@ class NotiViewController: UIViewController {
 extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return noticeViewModel.notices.count
+        return noticeViewModel.noticeList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NotiCollectionViewCell.identifier, for: indexPath) as! NotiCollectionViewCell
-        let data = noticeViewModel.notices[indexPath.row]
+        let data = noticeViewModel.noticeList[indexPath.row]
         cell.configure(data)
         return cell
     }

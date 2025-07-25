@@ -10,9 +10,9 @@ import Alamofire
 
 final class NoticeViewModel: ObservableObject {
     
-    @Published var notices: [NoticeModel] = []
+    @Published var noticeList: [NoticeModel] = []
     @Published var isLoading: Bool = false
-    var cursor: Int = 0
+    var cursor: Int? = 0
     
     init() {
         
@@ -22,13 +22,13 @@ final class NoticeViewModel: ObservableObject {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return}
         guard !isLoading else { print("isLoading true"); return }
         isLoading = true
-        NoticeService.getNoticies(cursor: cursor, token: token) { result in
+        NoticeService.getNoticies(cursor: cursor!, token: token) { result in
             switch result {
             case .success(let response):
                 print("알림 불러오기 성공")
                 if let result = response.result {
-                    self.notices.append(contentsOf: result.items ?? [])
-                    self.cursor = result.cursor ?? 0
+                    self.noticeList.append(contentsOf: result.items ?? [])
+                    self.cursor = self.noticeList.last?.noticeId
                 }
                 completion(result)
             case .failure(let failure):
@@ -46,7 +46,7 @@ final class NoticeViewModel: ObservableObject {
             case .success(let response):
                 print("알림 삭제 성공")
                 if let _ = response.result {
-                    self.notices.removeAll{ $0.noticeId  == id }
+                    self.noticeList.removeAll{ $0.noticeId  == id }
                 }
                 completion(result)
             case .failure(let failure):
