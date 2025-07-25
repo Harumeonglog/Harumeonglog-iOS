@@ -13,7 +13,7 @@ class PetListViewModel: ObservableObject {
     @Published var petList: [Pet] = []
     @Published var isFetching: Bool = false
     var hasNext: Bool = true
-    var cursor: Int = 0
+    var cursor: Int? = 0
     var cancellables: Set<AnyCancellable> = []
     
     init() {
@@ -26,27 +26,22 @@ class PetListViewModel: ObservableObject {
     
     func getPetList(completion: @escaping (HaruResponse<PetListResponse>?) -> Void) {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
-        guard hasNext else { print("반려동물 리스트 조회 hasNext false"); return }
         self.isFetching = true
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { completion(nil); return }
-        PetService.getPets(cursor: cursor, token: token) { result in
+        PetService.getPets(cursor: cursor!, token: token) { result in
             switch result {
             case .success(let response):
                 if response.isSuccess {
-                    if let result = response.result {
-                        DispatchQueue.main.async {
-                            // 본인을 제외한 멤버 리스트로 필터링
-                            let withoutMe = result.pets?.map { pet in
-                                var filteredPet = pet
-                                filteredPet.people = self.filterOutCurrentUser(from: pet.people)
-                                return filteredPet
-                            }
-                            self.petList.append(contentsOf: withoutMe ?? [])
-                            self.cursor = result.cursor ?? 0
-                            self.hasNext = result.hasNext
+                    guard let result = response.result else { print("반려동물 리스트 조회 Empty Result"); return }
+                    DispatchQueue.main.async { [weak self] in
+                        // 본인을 제외한 멤버 리스트로 필터링
+                        let withoutMe = result.pets?.map { pet in
+                            var filteredPet = pet
+                            filteredPet.people = self?.filterOutCurrentUser(from: pet.people)
+                            return filteredPet
                         }
-                    } else {
-                        print("반려동물 리스트 조회 Empty Result")
+                        self?.petList.append(contentsOf: withoutMe ?? [])
+                        self?.cursor = self?.petList.last?.petId
                     }
                 } else {
                     print("반려동물 리스트 조회 예외 코드 \(response.code), message: \(response.message)")
