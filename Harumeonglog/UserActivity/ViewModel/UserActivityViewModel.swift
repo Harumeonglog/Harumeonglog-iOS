@@ -25,7 +25,7 @@ final class UserActivityViewModel: ObservableObject {
         UserActivityService.getMyPosts(cursor: myPostsCursor) { [weak self] result in
             switch result {
             case .success(let response):
-                print("#getmyPosts success")
+                print("#getMyPosts success")
                 guard let reuslt = response.result else { print("Result is nil"); return }
                 guard !response.result!.items.isEmpty else { print("Empty"); return }
                 self?.myPostsCursor = response.result!.items.last?.postId ?? -1
@@ -54,11 +54,12 @@ final class UserActivityViewModel: ObservableObject {
     func getMyComments() {
         UserActivityService.getMyComments(cursor: myCommentCursor) { [weak self] result in
             switch result {
-            case .success(let value):
+            case .success(let response):
                 print("#getMyComments success")
-                print(value.result?.items)
-                self?.myCommentCursor = value.result?.cursor ?? 0
-                self?.myComments.append(contentsOf: value.result?.items ?? [])
+                guard let _ = response.result else { print("Result is nil"); return }
+                guard !response.result!.items.isEmpty else { print("Empty"); return }
+                self?.myCommentCursor = response.result?.items.last?.commentId ?? -1
+                self?.myComments.append(contentsOf: response.result?.items ?? [])
             case .failure(let error):
                 print(error)
             }
