@@ -12,7 +12,6 @@ class PetListViewModel: ObservableObject {
     
     @Published var petList: [Pet] = []
     @Published var isFetching: Bool = false
-    var hasNext: Bool = true
     var cursor: Int? = 0
     var cancellables: Set<AnyCancellable> = []
     
@@ -160,7 +159,6 @@ class PetListViewModel: ObservableObject {
     
     private func refreshPetList() {
         self.petList = []
-        self.hasNext = true
         self.cursor = 0
         self.getPetList { _ in }
     }

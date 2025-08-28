@@ -26,7 +26,7 @@ final class UserActivityViewModel: ObservableObject {
     
     func getmyPosts() {
         guard myPostsHasNext else { print("#getmyPosts hasNext false"); return }
-        UserActivityService.getmyPosts(cursor: myPostsCursor) { [weak self] result in
+        UserActivityService.getMyPosts(cursor: myPostsCursor) { [weak self] result in
             switch result {
             case .success(let value):
                 print("#getmyPosts success")
@@ -45,6 +45,7 @@ final class UserActivityViewModel: ObservableObject {
             switch result {
             case .success(let value):
                 print("#getLikedPosts success")
+                print(self?.likedPosts ?? "no Liked Posts")
                 self?.likedCursor = value.result?.cursor ?? 0
                 self?.likedPosts.append(contentsOf: value.result?.items ?? [])
                 self?.likedHasNext = value.result?.hasNext ?? false
