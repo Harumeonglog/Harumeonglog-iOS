@@ -24,10 +24,12 @@ final class UserActivityViewModel: ObservableObject {
     func getmyPosts() {
         UserActivityService.getMyPosts(cursor: myPostsCursor) { [weak self] result in
             switch result {
-            case .success(let value):
+            case .success(let response):
                 print("#getmyPosts success")
-                self?.myPostsCursor = value.result?.cursor ?? 0
-                self?.myPosts.append(contentsOf: value.result?.items ?? [])
+                guard let reuslt = response.result else { print("Result is nil"); return }
+                guard !response.result!.items.isEmpty else { print("Empty"); return }
+                self?.myPostsCursor = response.result!.items.last?.postId ?? -1
+                self?.myPosts.append(contentsOf: response.result?.items ?? [])
             case .failure(let error):
                 print(error)
             }
@@ -39,8 +41,8 @@ final class UserActivityViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print("#getLikedPosts success")
-                guard let result = response.result else { print("Result is nil"); return }
-                guard !result.items.isEmpty else { print("Empty"); return }
+                guard let _ = response.result else { print("Result is nil"); return }
+                guard !response.result!.items.isEmpty else { print("Empty"); return }
                 self?.likedCursor = response.result?.items.last?.postId ?? -1
                 self?.likedPosts.append(contentsOf: response.result?.items ?? [])
             case .failure(let error):
