@@ -23,6 +23,7 @@ class InvitationRequestsViewController: UIViewController {
         invitationRequestsView.invitationMessageCollectionView.delegate = self
         invitationRequestsView.invitationMessageCollectionView.dataSource = self
         invitationRequestsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        self.invitationRequestsViewModel?.getInvitationRequests()
     }
     
     func configure(_ viewModel: InvitationRequestsViewModel) {

@@ -13,7 +13,6 @@ final class InvitationRequestsViewModel: ObservableObject {
     @Published var invitations = [InvitationRequest]()
     @Published var isLoading = false
     var cursor: Int = 0
-    var hasNext: Bool = true
     var cancellables: Set<AnyCancellable> = []
     
     init() {
@@ -21,26 +20,30 @@ final class InvitationRequestsViewModel: ObservableObject {
     }
     
     func getInvitationRequests() {
-        isLoading = true
+        guard !isLoading else { return }
+        self.isLoading = true
+        print("GET 초대 요청 : cursor: \(cursor), isLoading: \(isLoading)")
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { print("no access token"); return }
-        guard hasNext else { print("has no next"); return }
-        
         InvitationRequestsService.getInvitaionRequests(cursor: cursor, token: accessToken) { [weak self] result in
             switch result {
             case .success(let success):
-                self?.invitations.append(contentsOf: success.result?.invitations ?? [])
-                print("get invitations requests succeed", self?.invitations ?? ["nothing"])
-                guard let nextCursor = success.result?.nextCursor else {
-                    self?.hasNext = false
-                    break
+                guard let invitations = success.result?.invitations else {
+                    return
                 }
-                self?.cursor = nextCursor
+                print("초대 요청 불러오기 성공 \(invitations)")
+                if invitations.count == 0 {
+                    return
+                } else {
+                    self?.invitations.append(contentsOf: invitations)
+                    self?.cursor = invitations.last!.invitationId
+                    print("last is \(invitations.last!.invitationId)")
+                }
             case .failure(let failure):
                 print("#get Invitation Requests error: ", failure)
                 break
             }
         }
-        isLoading = false
+        self.isLoading = false
     }
     
     func postInvitationResponse(request: InvitationRequest, mode: RequestReply) {
