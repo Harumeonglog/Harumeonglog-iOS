@@ -15,7 +15,7 @@ class PetGuestCell: UICollectionViewCell {
     
     static let identifier = "PetGuestCell"
     var delegate: PetGuestCellDelegate?
-    var pet: Pet?
+    var pet: PetDTO?
     // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
@@ -47,7 +47,7 @@ class PetGuestCell: UICollectionViewCell {
         $0.setImage(.exit, for: .normal)
     }
     
-    public func configure(_ pet: Pet, delegate: PetGuestCellDelegate) {
+    public func configure(_ pet: PetDTO, delegate: PetGuestCellDelegate) {
         self.pet = pet
         self.delegate = delegate
         setDefaultConstraints()
@@ -124,7 +124,7 @@ class PetGuestCell: UICollectionViewCell {
             print("cell 안의 pet이 비어있습니다.")
             return
         }
-        delegate?.didTapExitButton(petID: pet.petId)
+        delegate?.didTapExitButton(petID: pet.petId ?? 0)
     }
     
     override init(frame: CGRect) {

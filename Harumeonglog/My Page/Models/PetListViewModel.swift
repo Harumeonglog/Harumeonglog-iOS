@@ -10,7 +10,7 @@ import Foundation
 
 class PetListViewModel: ObservableObject {
     
-    @Published var petList: [Pet] = []
+    @Published var petList: [PetDTO] = []
     @Published var isFetching: Bool = false
     var cursor: Int? = 0
     var cancellables: Set<AnyCancellable> = []
@@ -146,7 +146,7 @@ class PetListViewModel: ObservableObject {
     }
     
     // 현재 사용자를 제외하는 필터링 함수
-    private func filterOutCurrentUser(from members: [PetMember]?) -> [PetMember]? {
+    private func filterOutCurrentUser(from members: [PetMemberDTO]?) -> [PetMemberDTO]? {
         guard let members = members, let currentUserId = currentUserId else {
             print("member 또는 currentUserId가 없습니다.")
             return members
@@ -163,4 +163,30 @@ class PetListViewModel: ObservableObject {
         self.getPetList { _ in }
     }
     
+}
+
+struct PetDTO: Codable {
+    let role: String?
+    let petId: Int?
+    let name: String?
+    let size: String?
+    let type: String?
+    let gender: String?
+    let birth: String?
+    let mainImage: String?
+    var people: [PetMemberDTO]?
+}
+
+struct PetMemberDTO: Codable {
+    let id: Int?
+    let name: String?
+    let role: String?
+    let image: String?
+}
+
+//MARK: GET/api/v1/pets 펫 목록 조회
+struct PetListResponse: Codable {
+    let pets: [PetDTO]?
+    let cursor: Int?
+    let hasNext: Bool?
 }

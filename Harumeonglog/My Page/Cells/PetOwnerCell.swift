@@ -12,13 +12,13 @@ import Combine
 protocol PetOwnerCellDelegate: AnyObject {
     func didTapInviteButton(petID: Int)
     func didTapExitButton(petID: Int)
-    func didTapEditButton(pet: Pet)
+    func didTapEditButton(pet: PetDTO)
     func didTapDeleteMemberButton()
 }
 
 class PetOwnerCell: UICollectionViewCell {
-    private var pet: Pet?
-    private var members: [PetMember] = []
+    private var pet: PetDTO?
+    private var members: [PetMemberDTO] = []
     private var overlayView: UIView?
     private weak var delegate: PetOwnerCellDelegate?
     private weak var petListViewModel: PetListViewModel? // ViewModel 의존성 추가
@@ -92,7 +92,7 @@ class PetOwnerCell: UICollectionViewCell {
         $0.imageView?.contentMode = .scaleAspectFit
     }
     
-    public func configure(_ pet: Pet, delegate: PetOwnerCellDelegate?, petListViewModel: PetListViewModel?) {
+    public func configure(_ pet: PetDTO, delegate: PetOwnerCellDelegate?, petListViewModel: PetListViewModel?) {
             self.pet = pet
             self.delegate = delegate
             self.petListViewModel = petListViewModel
@@ -249,7 +249,7 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func showInvitaionVC() {
-        delegate?.didTapInviteButton(petID: pet!.petId)
+        delegate?.didTapInviteButton(petID: pet!.petId ?? 0)
     }
     
     @objc
@@ -267,7 +267,7 @@ class PetOwnerCell: UICollectionViewCell {
             print("cell 안의 pet이 비어있습니다.")
             return
         }
-        delegate?.didTapExitButton(petID: pet.petId)
+        delegate?.didTapExitButton(petID: pet.petId ?? 0)
     }
     
     // EditMenuFrameView 관련 동작
@@ -340,12 +340,12 @@ extension PetOwnerCell: UITableViewDataSource, UITableViewDelegate {
 
 extension PetOwnerCell: MemberInPetCellDelegate {
     
-    func didTapEditMemberButton(for member: PetMember, at indexPath: IndexPath) {
+    func didTapEditMemberButton(for member: PetMemberDTO, at indexPath: IndexPath) {
         showMemberEditMenu(for: member, at: indexPath)
     }
     
-    func didTapDeleteMember(member: PetMember, petId: Int) {
-        petListViewModel?.deletePetMember(memberId: member.id, petId: petId) { [weak self] result in
+    func didTapDeleteMember(member: PetMemberDTO, petId: Int) {
+        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.delegate?.didTapDeleteMemberButton()
                 print("멤버 삭제 완료")
@@ -353,13 +353,13 @@ extension PetOwnerCell: MemberInPetCellDelegate {
         }
     }
     
-    private func showMemberEditMenu(for member: PetMember, at indexPath: IndexPath) {
+    private func showMemberEditMenu(for member: PetMemberDTO, at indexPath: IndexPath) {
         guard let pet = pet else { return }
         
         let alert = UIAlertController(title: "\(member.name)", message: "작업을 선택하세요", preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
-            self?.didTapDeleteMember(member: member, petId: pet.petId)
+            self?.didTapDeleteMember(member: member, petId: pet.petId ?? 0)
         })
         
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))

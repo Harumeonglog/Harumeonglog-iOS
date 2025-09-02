@@ -10,7 +10,7 @@ import UIKit
 class PreviewPetCell: UITableViewCell {
     
     static let identifier: String = "PreviewPetCell"
-    private var pet: Pet?
+    private var pet: PetDTO?
     
     private lazy var petImage = UIImageView().then {
         $0.contentMode = .scaleAspectFill
@@ -28,7 +28,7 @@ class PreviewPetCell: UITableViewCell {
         $0.textColor = .gray
     }
     
-    func configure(with pet: Pet) {
+    func configure(with pet: PetDTO) {
         self.pet = pet
         petImage.kf.setImage(with: URL(string: pet.mainImage ?? "")!)
         nameLabel.text = pet.name

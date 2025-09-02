@@ -78,7 +78,7 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         petListViewModel!.deletePet(petId: petID) { _ in }
     }
     
-    func didTapEditButton(pet: Pet) {
+    func didTapEditButton(pet: PetDTO) {
         let petEditViewController = EditOrRegistPetViewController()
         petEditViewController.configure(pet: pet, petListViewModel: petListViewModel!, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)

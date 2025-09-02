@@ -8,15 +8,15 @@
 import UIKit
 
 protocol MemberInPetCellDelegate: AnyObject {
-    func didTapEditMemberButton(for member: PetMember, at indexPath: IndexPath)
-    func didTapDeleteMember(member: PetMember, petId: Int)
+    func didTapEditMemberButton(for member: PetMemberDTO, at indexPath: IndexPath)
+    func didTapDeleteMember(member: PetMemberDTO, petId: Int)
 }
 
 class MemberInPetCell: UITableViewCell {
     
     static let identifier: String = "MemberInPetCell"
         
-    private var member: PetMember?
+    private var member: PetMemberDTO?
     private var indexPath: IndexPath?
     private weak var delegate: MemberInPetCellDelegate?
     
@@ -41,13 +41,13 @@ class MemberInPetCell: UITableViewCell {
         $0.contentMode = .scaleAspectFit
     }
     
-    func configure(with member: PetMember, at indexPath: IndexPath, delegate: MemberInPetCellDelegate?) {
+    func configure(with member: PetMemberDTO, at indexPath: IndexPath, delegate: MemberInPetCellDelegate?) {
         self.member = member
         self.indexPath = indexPath
         self.delegate = delegate
         self.selectionStyle = .none
         
-        userProfileImage.kf.setImage(with: URL(string: member.image))
+        userProfileImage.kf.setImage(with: URL(string: member.image ?? ""))
         nameLabel.text = member.name
         roleLabel.text = member.role
         

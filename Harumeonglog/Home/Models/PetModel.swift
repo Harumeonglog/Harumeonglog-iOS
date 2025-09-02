@@ -147,10 +147,3 @@ struct PetPatchResponse : Codable {
     let mainImage: String
     let updatedAt: String
 }
-
-//MARK: GET/api/v1/pets 펫 목록 조회
-struct PetListResponse: Codable {
-    let pets: [Pet]?
-    let cursor: Int?
-    let hasNext: Bool
-}
