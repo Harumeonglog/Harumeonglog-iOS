@@ -109,7 +109,7 @@ class InvitationRequestCell: UICollectionViewCell {
     
     @objc
     func didTapDeleteButton() {
-        delegate?.didTapConfirmButton(of: self.request!)
+        delegate?.didTapDeleteButton(of: self.request!)
     }
     
 }
