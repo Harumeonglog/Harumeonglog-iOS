@@ -12,6 +12,18 @@ import CoreLocation
 // MARK: 추천 경로에 대한 메소드
 extension MapViewController {
     
+    private func configureRefreshControl() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshRecommendRoutes), for: .valueChanged)
+        mapView.recommendRouteTableView.refreshControl = refreshControl
+    }
+
+    @objc private func refreshRecommendRoutes() {
+        print("새로고침 실행")
+        fetchRouteData(reset: true, sort: "RECOMMEND")
+        mapView.recommendRouteTableView.refreshControl?.endRefreshing()
+    }
+    
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
             // 제스처가 끝났을때 확장/축소 결정
@@ -90,7 +102,6 @@ extension MapViewController {
                 if response.isSuccess {
                     if let routeList = response.result {
                         self.recommendRoutes.append(contentsOf: routeList.items!)
-                        
                         print("추천 경로 조회 성공: \(recommendRoutes.count)")
                         self.cursor = routeList.cursor ?? 0
                         self.hasNext = routeList.hasNext
@@ -134,7 +145,15 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
         return cell
     }
     
+    func cellDoubleTapped(in cell: RecommendRouteTableViewCell) {
+        sendLikeToServer(in: cell)
+    }
+    
     func likeButtonTapped(in cell: RecommendRouteTableViewCell) {
+        sendLikeToServer(in: cell)
+    }
+    
+    private func sendLikeToServer(in cell: RecommendRouteTableViewCell) {
         guard let indexPath = mapView.recommendRouteTableView.indexPath(for: cell) else { return }
         
         let route = recommendRoutes[indexPath.row]
@@ -147,6 +166,14 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
             switch result {
             case .success(let response):
                 if response.isSuccess {
+                    self.recommendRoutes[indexPath.row].isLike.toggle()
+
+                    if self.recommendRoutes[indexPath.row].isLike {
+                        self.recommendRoutes[indexPath.row].walkLikeNum += 1
+                    } else {
+                        self.recommendRoutes[indexPath.row].walkLikeNum -= 1
+                    }
+                    
                     DispatchQueue.main.async {
                         self.mapView.recommendRouteTableView.reloadRows(at: [indexPath], with: .none)
                     }
@@ -155,7 +182,6 @@ extension MapViewController: UITableViewDelegate, UITableViewDataSource, Recomme
                 print("게시글 좋아요 실패: \(error.localizedDescription)")
             }
         }
-        
     }
     
     // 셀 갯수 설정

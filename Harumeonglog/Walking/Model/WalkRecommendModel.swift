@@ -16,11 +16,11 @@ struct WalkRecommendResponse: Codable {
 struct WalkRecommendItem: Codable {
     let id: Int
     let title: String?
-    let walkLikeNum: Int
+    var walkLikeNum: Int
     let distance: Double
     let time: Int
     let memberNickname: String
-    let isLike: Bool
+    var isLike: Bool
 }
 
 struct WalkRecommendLikeResponse: Codable {

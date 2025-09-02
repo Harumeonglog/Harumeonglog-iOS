@@ -100,6 +100,9 @@ extension LocationHandling where MapContainerType: UIView {
             // 새 마커 생성 후 저장
             let marker = NMFMarker(position: latLng)
             marker.mapView = mapView.mapView
+            marker.iconImage = NMF_MARKER_IMAGE_BLACK       // 마커 색상 처리하기 위해 기본 단색마커로 설정 
+            marker.iconTintColor = .blue01
+
             currentLocationMarker = marker
         }
     }

@@ -33,9 +33,11 @@ class WalkingViewController: UIViewController {
     
     internal var locationManager = CLLocationManager()
     internal var currentLocationMarker: NMFMarker?
-    var pathOverlay: NMFPath?                           // 현재 그리고 있는 선 하나
-    var pathOverlays : [NMFPath] = []                  //  전체 산책 선 모음 배열
-    var currentCoordinates: [NMGLatLng] = []          //   현재 path에 해당하는 좌표 배열
+    
+    
+    var pathOverlay: NMFPath?
+    var currentCoordinates: [NMGLatLng] = []
+
     var startLocationCoordinates : [Double] = []
     var totalDistance: CLLocationDistance = 0.0       // 거리 누적용
     var lastLocation: CLLocation?
@@ -64,6 +66,15 @@ class WalkingViewController: UIViewController {
         super.viewDidLoad()
         self.view = walkingView
         locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.distanceFilter = 5
+        locationManager.pausesLocationUpdatesAutomatically = false
+        if #available(iOS 11.0, *) {
+            locationManager.showsBackgroundLocationIndicator = true
+        }
+        locationManager.requestWhenInUseAuthorization()
+        
+        moveToUserLocationButtonTapped()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
@@ -72,8 +83,8 @@ class WalkingViewController: UIViewController {
 
         locationManager.stopUpdatingLocation()
     }
-    
-    
+
+
     // MARK: 산책 재개 및 일시 정지
     @objc private func playBtnTapped() {
         let currentLocation = locationManager.location
@@ -101,16 +112,14 @@ class WalkingViewController: UIViewController {
             sendStopWalkToServer()
             stopTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            locationManager.stopUpdatingLocation()
         case .paused:
             // 산책 재개
             walkState = .walking
             sendResumeWalkToServer(latitude: latitude, longitude: longitude)
             startTimer()
             walkingView.playBtn.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-            // 재개시 이전 경로 이어서 그리기 위해 초기화 안함 
-            startNewPathOverlay(resetPath: false)
-            locationManager.startUpdatingLocation()
+            startNewPathOverlay(resetPath: true)   // 새 선 시작 (기존 선은 polylineOverlays에 남음)
+            locationManager.startUpdatingLocation() 
         }
     }
     
