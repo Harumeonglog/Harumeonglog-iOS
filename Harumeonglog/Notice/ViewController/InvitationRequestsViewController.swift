@@ -32,6 +32,7 @@ class InvitationRequestsViewController: UIViewController {
         self.invitationRequestsViewModel = viewModel
         
         invitationRequestsViewModel!.$invitations
+            .receive(on: DispatchQueue.main)
             .sink { _ in
                 self.invitationRequestsView.invitationMessageCollectionView.reloadData()
             }
