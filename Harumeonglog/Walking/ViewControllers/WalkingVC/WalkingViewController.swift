@@ -67,7 +67,7 @@ class WalkingViewController: UIViewController {
         self.view = walkingView
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = 5
+        locationManager.distanceFilter = 8
         locationManager.pausesLocationUpdatesAutomatically = false
         if #available(iOS 11.0, *) {
             locationManager.showsBackgroundLocationIndicator = true
