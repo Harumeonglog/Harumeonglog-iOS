@@ -8,12 +8,14 @@
 import Combine
 import Foundation
 
-class PetListViewModel: ObservableObject {
+final class PetListViewModel: ObservableObject {
     
     @Published var petList: [PetDTO] = []
     @Published var isFetching: Bool = false
-    var cursor: Int? = 0
+    var cursor: Int = 0
     var cancellables: Set<AnyCancellable> = []
+    
+    static let shared = PetListViewModel()
     
     init() {
         getPetList{ _ in }
@@ -27,21 +29,19 @@ class PetListViewModel: ObservableObject {
         guard !isFetching else { print("반려동물 리스트 조회 isFetching true"); return }
         self.isFetching = true
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { completion(nil); return }
-        PetService.getPets(cursor: cursor!, token: token) { result in
+        PetService.getPets(cursor: cursor, token: token) { result in
             switch result {
             case .success(let response):
                 if response.isSuccess {
                     guard let result = response.result else { print("반려동물 리스트 조회 Empty Result"); return }
-                    DispatchQueue.main.async { [weak self] in
                         // 본인을 제외한 멤버 리스트로 필터링
-                        let withoutMe = result.pets?.map { pet in
-                            var filteredPet = pet
-                            filteredPet.people = self?.filterOutCurrentUser(from: pet.people)
-                            return filteredPet
-                        }
-                        self?.petList.append(contentsOf: withoutMe ?? [])
-                        self?.cursor = self?.petList.last?.petId
+                    let withoutMe = result.pets?.map { pet in
+                        var filteredPet = pet
+                        filteredPet.people = self.filterOutCurrentUser(from: pet.people)
+                        return filteredPet
                     }
+                    self.petList.append(contentsOf: withoutMe ?? [])
+                    self.cursor = self.petList.last?.petId ?? 0
                 } else {
                     print("반려동물 리스트 조회 예외 코드 \(response.code), message: \(response.message)")
                 }
@@ -52,7 +52,7 @@ class PetListViewModel: ObservableObject {
             self.isFetching = false
         }
     }
-        
+    
     func postPet(newInfo: PetParameter, completion: @escaping (HaruResponse<PetPostResponse>?) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             completion(nil)
@@ -152,7 +152,7 @@ class PetListViewModel: ObservableObject {
         }
     }
     
-    private func refreshPetList() {
+    func refreshPetList() {
         self.petList = []
         self.cursor = 0
         self.getPetList { _ in }

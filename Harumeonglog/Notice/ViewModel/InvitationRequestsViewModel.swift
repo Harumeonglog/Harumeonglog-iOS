@@ -53,6 +53,7 @@ final class InvitationRequestsViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 self?.invitations.removeAll(where: { $0.invitationId == request.invitationId })
+                PetListViewModel.shared.refreshPetList()
                 print("\(mode.rawValue) invitation \(request.petName) succeed", self?.invitations ?? ["nothing"])
             case .failure(let failure):
                 print("#postInvitationResponse error: ", failure)
