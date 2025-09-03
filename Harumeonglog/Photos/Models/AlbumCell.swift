@@ -73,16 +73,45 @@ class AlbumCell: UICollectionViewCell {
     func configure(with album: Album) {
             self.album = album
             nameLabel.text = album.name
-            photosCountLabel.text = "\(album.photosCount)"
+            
+            // 사진 개수 표시
+            photosCountLabel.text = "\(album.photosCount)장"
+            photosCountLabel.textColor = .gray02
 
-            // 이미지 로딩
-            if let urlString = album.mainImage, let url = URL(string: urlString) {
+            // 이미지 로딩 - 강아지 이미지가 없으면 pawprint 표시
+            if let urlString = album.mainImage, !urlString.isEmpty, urlString != "string", urlString != "null", let url = URL(string: urlString) {
                 // SDWebImage 사용 시
-                imageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder"))
+                imageView.sd_setImage(with: url, placeholderImage: createDefaultProfileImage())
             } else {
-                imageView.image = UIImage(named: "placeholder")
+                imageView.image = createDefaultProfileImage()
             }
         }
+    
+    // 기본 프로필 이미지 생성 함수 (홈화면과 동일한 스타일의 pawprint.fill)
+    private func createDefaultProfileImage() -> UIImage? {
+        let size = CGSize(width: 90, height: 90)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            // 배경 색상 - 홈화면과 동일하게 systemGray5
+            UIColor.systemGray5.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
+            let config = UIImage.SymbolConfiguration(pointSize: 50, weight: .regular)
+            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal) {
+                
+                let symbolRect = CGRect(
+                    x: (size.width - 50) / 2,
+                    y: (size.height - 50) / 2,
+                    width: 50,
+                    height: 50
+                )
+                symbolImage.draw(in: symbolRect)
+            }
+        }
+    }
 }
 
 extension UIView {
@@ -101,7 +130,7 @@ extension UIView {
 struct Album {
     let mainImage: String?
     let name: String
-    let photosCount: Int
+    var photosCount: Int
     let petId: Int
     
     //서버에서 받아온 이미지 메타데이터
