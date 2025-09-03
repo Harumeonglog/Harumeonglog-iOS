@@ -36,6 +36,9 @@ class AddEventViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = addEventView
+        
+        addEventView.delegate = self
+        
         setCustomNavigationBarConstraints()
         
         // 현재 날짜와 시간으로 초기화
@@ -43,6 +46,12 @@ class AddEventViewController: UIViewController {
         
         // 키보드 숨김 기능 추가
         hideKeyboardWhenTappedAround()
+        
+        // 선택된 카테고리가 있다면 복원
+        if let selectedCategory = selectedCategory {
+            print("초기화 시 선택된 카테고리 복원: \(selectedCategory.rawValue)")
+            updateCategoryInputView(for: selectedCategory)
+        }
     }
 
 
@@ -125,6 +134,12 @@ class AddEventViewController: UIViewController {
                     self.addEventView.timeButton.setTitle(self.getFormattedTime(selectedDate), for: .normal)
                 }
                 self.addEventView.layoutIfNeeded() // 즉시 적용
+                
+                // 날짜/시간 변경 후에도 선택된 카테고리 유지
+                if let selectedCategory = self.selectedCategory {
+                    print("날짜/시간 변경 후 카테고리 유지: \(selectedCategory.rawValue)")
+                    self.updateCategoryInputView(for: selectedCategory)
+                }
             }
         }
         
@@ -175,6 +190,7 @@ class AddEventViewController: UIViewController {
 extension AddEventViewController: AddEventViewDelegate {
     func categoryDidSelect(_ category: CategoryType) {
         selectedCategory = category // 선택된 카테고리 저장
+        print("카테고리 선택됨: \(category.rawValue)")
         updateCategoryInputView(for: category)
     }
 
@@ -187,7 +203,12 @@ extension AddEventViewController: AddEventViewDelegate {
     }
 
     private func updateCategoryInputView(for category: CategoryType) {
+        print("카테고리 입력 뷰 업데이트: \(category.rawValue)")
         addEventView.updateCategoryInputView(for: category)
+        
+        // 카테고리 버튼 텍스트 업데이트
+        addEventView.categoryButton.setTitle(category.rawValue, for: .normal)
+        addEventView.categoryButton.setTitleColor(.gray00, for: .normal)
     }
 
     func getSelectedWeekdays() -> [String] {

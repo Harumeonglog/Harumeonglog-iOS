@@ -94,35 +94,46 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         let placeholderImage = createPlaceholderImage()
         profileImageView.image = placeholderImage
         
-        // URL에서 이미지 다운로드
-        if let url = URL(string: profile.imageName), !profile.imageName.isEmpty {
-            print("URL 생성 성공: \(url)")
-            
-            URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-                if let error = error {
-                    print("이미지 다운로드 실패: \(error)")
-                    return
-                }
-
-    // 이미지 리사이즈 함수 추가
-    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage? {
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: targetSize))
-        }
-    }
+        // URL 유효성 검사 및 이미지 다운로드
+        if !profile.imageName.isEmpty && profile.imageName != "string" && profile.imageName != "null" {
+            if let url = URL(string: profile.imageName) {
+                print("URL 생성 성공: \(url)")
                 
-                if let data = data, let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        self?.profileImageView.image = image
-                        print("이미지 로딩 성공")
+                // 이미지 캐싱을 위한 URLSession 설정
+                let config = URLSessionConfiguration.default
+                config.requestCachePolicy = .returnCacheDataElseLoad
+                config.urlCache = URLCache.shared
+                config.timeoutIntervalForRequest = 10 // 10초 타임아웃
+                
+                let session = URLSession(configuration: config)
+                session.dataTask(with: url) { [weak self] data, response, error in
+                    if let error = error {
+                        print("이미지 다운로드 실패: \(error)")
+                        return
                     }
-                } else {
-                    print("이미지 데이터 변환 실패")
-                }
-            }.resume()
+                    
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("HTTP 응답 상태: \(httpResponse.statusCode)")
+                        if httpResponse.statusCode != 200 {
+                            print("HTTP 오류: \(httpResponse.statusCode)")
+                            return
+                        }
+                    }
+                    
+                    if let data = data, !data.isEmpty, let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self?.profileImageView.image = image
+                            print("이미지 로딩 성공 - 크기: \(data.count) bytes")
+                        }
+                    } else {
+                        print("이미지 데이터 변환 실패 - 데이터 크기: \(data?.count ?? 0)")
+                    }
+                }.resume()
+            } else {
+                print("유효하지 않은 URL 형식: \(profile.imageName)")
+            }
         } else {
-            print("URL 생성 실패 또는 빈 문자열: \(profile.imageName)")
+            print("이미지 URL이 비어있거나 유효하지 않음: \(profile.imageName)")
         }
     }
 

@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension EventView : UITableViewDelegate, UITableViewDataSource {
+extension EventView {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if filteredEvents.isEmpty {
             let emptyLabel = UILabel()

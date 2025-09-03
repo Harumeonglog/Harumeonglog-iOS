@@ -349,7 +349,10 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     func updateCategoryInputView(for category: CategoryType) {
         //이전 뷰 제거
         print("[AddEventView] 기존 categoryInputView 제거 시도")
-        categoryInputView?.removeFromSuperview()
+        if let existingView = categoryInputView {
+            existingView.removeFromSuperview()
+            categoryInputView = nil
+        }
 
         // 새로운 카테고리 뷰 생성 및 명시적 할당
         let newView: UIView
@@ -368,36 +371,34 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
         print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
 
-        if newView.superview == nil {
-            contentView.insertSubview(newView, belowSubview: dropdownTableView)
-            newView.snp.makeConstraints { make in
-                make.top.equalTo(categoryButton.snp.bottom).offset(20)
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(300)
-                make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
-            }
-            
-            // dropdownTableView 위치를 카테고리 입력 뷰 아래로 조정
-            dropdownTableView.snp.remakeConstraints { make in
-                make.top.equalTo(categoryButton.snp.bottom).offset(5)
-                make.leading.equalToSuperview().offset(20)
-                make.trailing.equalToSuperview().inset(20)
-                make.height.equalTo(200)
-                make.centerX.equalToSuperview()
-            }
-            
-            print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
-            print("새로운 카테고리 뷰 추가됨: \(category)")
-        } else {
-            print("이미 추가된 뷰: \(category)")
+        // 새 뷰를 contentView에 추가
+        contentView.insertSubview(newView, belowSubview: dropdownTableView)
+        newView.snp.makeConstraints { make in
+            make.top.equalTo(categoryButton.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(300)
+            make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
         }
-
-        newView.isHidden = false
-        self.layoutIfNeeded()
-
+        
+        // dropdownTableView 위치를 카테고리 입력 뷰 아래로 조정
+        dropdownTableView.snp.remakeConstraints { make in
+            make.top.equalTo(newView.snp.bottom).offset(5)
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(200)
+            make.centerX.equalToSuperview()
+        }
+        
         // 뷰 참조 갱신
         self.categoryInputView = newView
-        print(" [AddEventView] 카테고리 뷰 적용 완료")
+        newView.isHidden = false
+        
+        print("[AddEventView] 카테고리 뷰 레이아웃 설정 완료")
+        print("새로운 카테고리 뷰 추가됨: \(category)")
+        
+        // 레이아웃 즉시 적용
+        self.layoutIfNeeded()
+        print("[AddEventView] 카테고리 뷰 적용 완료")
     }
 
     // UITableView DataSource & Delegate
@@ -424,10 +425,15 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
         let selectedCategory = categories[indexPath.row]
         self.selectedCategory = selectedCategory
+        
+        // 카테고리 버튼 상태 업데이트
         categoryButton.setTitle("\(selectedCategory.rawValue)", for: .normal)
         categoryButton.setTitleColor(.gray00, for: .normal)
         
+        // 드롭다운 숨기기
         dropdownTableView.isHidden = true
+        
+        print("카테고리 선택됨: \(selectedCategory.rawValue)")
         delegate?.categoryDidSelect(selectedCategory)
     }
     

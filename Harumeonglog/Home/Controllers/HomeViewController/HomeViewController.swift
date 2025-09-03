@@ -20,7 +20,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     let petViewModel = HomePetViewModel()
 
     private var hasLoadedEventDates = false
-    private var selectedDate: Date = Date() // 선택된 날짜 저장
+    var selectedDate: Date = Date() // 선택된 날짜 저장 (internal로 변경)
 
     var markedDates: [Date] = []
     var markedDateStrings: Set<String> = []
@@ -42,12 +42,12 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.delegate = self
         homeView.calendarView.delegate = self
         homeView.calendarView.dataSource = self
+        homeView.eventView.delegate = self
 
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
 
         fetchActivePets()
-        petViewModel.updateActivePet(petId: 1) { _ in }
         
         setupButtons()
         updateHeaderLabel()
@@ -66,32 +66,64 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     
     //
     private func fetchActivePets() {
-        petViewModel.fetchActivePets { activePetsResult in
-            guard let activePets = activePetsResult else { return }
-
-            if let defaultPet = activePets.pets.first(where: { $0.petId == 1 }) {
-                DispatchQueue.main.async {
-                    print("선택된 반려견: \(defaultPet.name), 역할: \(defaultPet.role)")
-                    self.homeView.nicknameLabel.text = defaultPet.name
-                    
-                    // GUEST 역할인 경우 이벤트 추가 버튼 숨김
-                    let role = defaultPet.role ?? "OWNER"  // 기본값 OWNER
-                    if role == "GUEST" {
-                        self.homeView.addeventButton.isHidden = true
-                        print("GUEST 역할이므로 이벤트 추가 버튼 숨김")
-                    } else {
-                        self.homeView.addeventButton.isHidden = false
-                        print("\(role) 역할이므로 이벤트 추가 버튼 표시")
-                    }
-
-                    if let imageUrl = URL(string: defaultPet.mainImage ?? "") {
-                        URLSession.shared.dataTask(with: imageUrl) { data, _, _ in
-                            if let data = data, let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self.homeView.profileButton.setImage(image, for: .normal)
+        // 먼저 현재 활성 펫 정보를 가져옴
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { return }
+        
+        PetService.ActivePetInfo(token: token) { result in
+            switch result {
+            case .success(let response):
+                if let activePetInfo = response.result {
+                    // ActivePets에서 해당 펫의 역할 정보 가져오기
+                    self.petViewModel.fetchActivePets { activePetsResult in
+                        guard let activePets = activePetsResult else { return }
+                        
+                        // 현재 활성 펫과 일치하는 펫 찾기
+                        if let currentPet = activePets.pets.first(where: { $0.petId == activePetInfo.petId }) {
+                            DispatchQueue.main.async {
+                                print("현재 활성 반려견: \(activePetInfo.name) (ID: \(activePetInfo.petId))")
+                                self.homeView.nicknameLabel.text = activePetInfo.name
+                                
+                                // 생일 표시
+                                self.homeView.birthdayLabel.text = activePetInfo.birth
+                                
+                                // GUEST 역할인 경우 이벤트 추가 버튼 숨김
+                                let role = currentPet.role
+                                if role == "GUEST" {
+                                    self.homeView.addeventButton.isHidden = true
+                                    print("GUEST 역할이므로 이벤트 추가 버튼 숨김")
+                                } else {
+                                    self.homeView.addeventButton.isHidden = false
+                                    print("\(role) 역할이므로 이벤트 추가 버튼 표시")
                                 }
+
+                                // 이미지 로딩 개선
+                                self.loadProfileImage(activePetInfo.mainImage ?? "")
                             }
-                        }.resume()
+                        }
+                    }
+                }
+            case .failure(let error):
+                print("ActivePetInfo 조회 실패: \(error)")
+                // 실패 시 기본 펫으로 fallback
+                self.petViewModel.fetchActivePets { activePetsResult in
+                    guard let activePets = activePetsResult else { return }
+                    
+                    if let firstPet = activePets.pets.first {
+                        DispatchQueue.main.async {
+                            self.homeView.nicknameLabel.text = firstPet.name
+                            self.homeView.birthdayLabel.text = "생일 정보 없음"
+                            
+                            let role = firstPet.role
+                            if role == "GUEST" {
+                                self.homeView.addeventButton.isHidden = true
+                                print("GUEST 역할이므로 이벤트 추가 버튼 숨김")
+                            } else {
+                                self.homeView.addeventButton.isHidden = false
+                                print("\(role) 역할이므로 이벤트 추가 버튼 표시")
+                            }
+                            
+                            self.loadProfileImage(firstPet.mainImage ?? "")
+                        }
                     }
                 }
             }
@@ -176,10 +208,11 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                     // 문자열 그대로 저장해서 비교 정확도 향상
                     self.markedDateStrings = Set(dateStrings)
 
-                    DispatchQueue.main.async {
+                    let workItem = DispatchWorkItem {
                         self.homeView.calendarView.reloadData()
                         completion?()
                     }
+                    DispatchQueue.main.async(execute: workItem)
                 }
             case .failure(let error):
                 print("이벤트 날짜 조회 실패: \(error)")
@@ -193,28 +226,131 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.calendarView.setCurrentPage(date, animated: true)
         updateHeaderLabel()
     }
+    
+    // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
+    private func createDefaultProfileImage() -> UIImage? {
+        let size = CGSize(width: 70, height: 70)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            // 배경 색상 - 모달과 동일하게 systemGray5
+            UIColor.systemGray5.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
+            let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal) {
+                
+                let symbolRect = CGRect(
+                    x: (size.width - 40) / 2,
+                    y: (size.height - 40) / 2,
+                    width: 40,
+                    height: 40
+                )
+                symbolImage.draw(in: symbolRect)
+            }
+        }
+    }
+    
+    // 프로필 이미지 로딩 메서드#imageLiteral(resourceName: "simulator_screenshot_FBF99356-4D17-4CE5-8F1F-72660522D658.png")
+    private func loadProfileImage(_ imageName: String) {
+        // 기본 이미지 설정 - 모달과 동일한 스타일의 pawprint.fill
+        let defaultImage = createDefaultProfileImage()
+        homeView.profileButton.setImage(defaultImage, for: .normal)
+        
+        // 유효한 이미지 URL인 경우에만 로딩 시도
+        if !imageName.isEmpty && imageName != "string" && imageName != "null" {
+            if let url = URL(string: imageName) {
+                print("홈화면 프로필 이미지 로딩 시도: \(url)")
+                
+                // 이미지 캐싱을 위한 URLSession 설정
+                let config = URLSessionConfiguration.default
+                config.requestCachePolicy = .returnCacheDataElseLoad
+                config.urlCache = URLCache.shared
+                config.timeoutIntervalForRequest = 10 // 10초 타임아웃
+                
+                let session = URLSession(configuration: config)
+                session.dataTask(with: url) { [weak self] data, response, error in
+                    if let error = error {
+                        print("홈화면 프로필 이미지 다운로드 실패: \(error)")
+                        return
+                    }
+                    
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("홈화면 프로필 이미지 HTTP 응답: \(httpResponse.statusCode)")
+                        if httpResponse.statusCode != 200 {
+                            print("홈화면 프로필 이미지 HTTP 오류: \(httpResponse.statusCode)")
+                            return
+                        }
+                    }
+                    
+                    if let data = data, !data.isEmpty, let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self?.homeView.profileButton.setImage(image, for: .normal)
+                            print("홈화면 프로필 이미지 로딩 성공 - 크기: \(data.count) bytes")
+                        }
+                    } else {
+                        print("홈화면 프로필 이미지 데이터 변환 실패 - 데이터 크기: \(data?.count ?? 0)")
+                        // 실패 시 기본 이미지 유지
+                    }
+                }.resume()
+            } else {
+                print("홈화면 프로필 이미지 URL이 유효하지 않음: \(imageName)")
+                // 유효하지 않은 URL 시 기본 이미지 유지
+            }
+        } else {
+            print("홈화면 프로필 이미지 URL이 비어있거나 유효하지 않음: \(imageName)")
+            // 빈 URL 시 기본 이미지 유지
+        }
+    }
+}
+
+// MARK: - EventViewDelegate
+extension HomeViewController: EventViewDelegate {
+    func didSelectEvent(_ event: Event) {
+        // 이벤트 선택 시 편집 화면으로 이동
+        let editVC = EditEventViewController(eventId: event.id)
+        self.navigationController?.pushViewController(editVC, animated: true)
+    }
+    
+    func didSelectCategory(_ category: String) {
+        // 카테고리 선택 시 로그 출력 (필요시 추가 로직 구현)
+        print("카테고리 선택됨: \(category)")
+    }
 }
 
 // MARK: - AddEventViewControllerDelegate
 extension HomeViewController: AddEventViewControllerDelegate {
     func didAddEvent() {
-        // 일정 추가 완료 후 이벤트 날짜 다시 로드
+        // 일정 추가 완료 후 실시간 동기화
+        
+        // 1. 이벤트 날짜 다시 로드 (캘린더 점 표시 업데이트)
         fetchEventDatesForCurrentMonth()
         
-        // 선택된 날짜의 이벤트도 다시 로드
+        // 2. 선택된 날짜의 이벤트 다시 로드 (현재 화면 업데이트)
         if let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty {
             eventViewModel.fetchEventsByDate(selectedDate, token: token) { result in
                 switch result {
-                case .success(let events):
-                    DispatchQueue.main.async {
-                        let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done) }
+                case .success(let eventDates):
+                    let workItem = DispatchWorkItem {
+                        let mappedEvents = eventDates.map { eventDate in
+                            // EventDate에는 category가 없으므로, 기본값 사용
+                            return Event(id: eventDate.id, title: eventDate.title, category: "OTHER", done: eventDate.done)
+                        }
                         self.homeView.eventView.updateEvents(mappedEvents)
-                        self.homeView.calendarView.reloadData() // 캘린더 점 표시 업데이트
+                        print("일정 추가 후 선택된 날짜 이벤트 \(eventDates.count)건 갱신 완료")
                     }
+                    DispatchQueue.main.async(execute: workItem)
                 case .failure(let error):
                     print("일정 추가 후 이벤트 재조회 실패: \(error)")
                 }
             }
+        }
+        
+        // 3. 캘린더 UI 즉시 업데이트
+        DispatchQueue.main.async {
+            self.homeView.calendarView.reloadData()
         }
     }
 }
