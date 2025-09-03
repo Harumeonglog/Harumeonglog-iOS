@@ -158,6 +158,17 @@ final class PetListViewModel: ObservableObject {
         self.getPetList { _ in }
     }
     
+    func deletePet(petId: Int) {
+        if let petIndex = petList.firstIndex(where: { $0.petId == petId }) {
+            petList.remove(at: petIndex)
+            if petList.count == 0 {
+                cursor = 0
+            } else {
+                cursor = petList.last!.petId!
+            }
+        }
+    }
+    
 }
 
 struct PetDTO: Codable {
