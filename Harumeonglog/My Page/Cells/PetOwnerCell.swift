@@ -254,20 +254,15 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func didTapEditButton() {
-        guard let pet = pet else {
-            print("cell 안의 pet이 비어있습니다.")
-            return
-        }
+        guard let pet = pet else { print("cell 안의 pet이 비어있습니다."); return }
         delegate?.didTapEditButton(pet: pet)
     }
     
     @objc
     private func didTapExitButton() {
-        guard let pet = pet else {
-            print("cell 안의 pet이 비어있습니다.")
-            return
-        }
-        delegate?.didTapExitButton(petId: pet.petId ?? 0)
+        guard let pet = pet else { print("owner cell 안의 pet이 비어있습니다."); return }
+        guard let petId = pet.petId else { print("owner cell 안의 petId가 비어있습니다."); return }
+        delegate?.didTapExitButton(petId: petId)
     }
     
     // EditMenuFrameView 관련 동작
