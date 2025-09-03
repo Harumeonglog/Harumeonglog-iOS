@@ -10,6 +10,7 @@ import Then
 
 protocol RecommendRouteTableViewCellDelegate: AnyObject {
     func likeButtonTapped(in: RecommendRouteTableViewCell)
+    func cellDoubleTapped(in: RecommendRouteTableViewCell)
 }
 
 class RecommendRouteTableViewCell: UITableViewCell {
@@ -17,6 +18,23 @@ class RecommendRouteTableViewCell: UITableViewCell {
     static let identifier = "RecommendRouteTableViewCell"
     
     weak  var delegate: RecommendRouteTableViewCellDelegate?
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.backgroundColor = UIColor.background
+        self.addComponents()
+        setupDoubleTapGesture()
+        
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        fatalError("init(coder:) has not been implemented")
+        setupDoubleTapGesture()
+
+    }
+
     
     public lazy var titleLabel = UILabel().then { label in
         label.text = "상명대에서 경복궁까지"
@@ -61,15 +79,6 @@ class RecommendRouteTableViewCell: UITableViewCell {
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         
         return label
-    }
-    
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.backgroundColor = UIColor.background
-        self.addComponents()
-        
-        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
     }
 
     private func addComponents() {
@@ -134,8 +143,15 @@ class RecommendRouteTableViewCell: UITableViewCell {
         }
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    private func setupDoubleTapGesture() {
+        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(cellDoubleTapped))
+        doubleTapGesture.numberOfTapsRequired = 2
+        self.addGestureRecognizer(doubleTapGesture)
+    }
+
+    @objc private func cellDoubleTapped() {
+        print("셀 더블 탭됨")
+        delegate?.cellDoubleTapped(in: self)
     }
     
     @objc private func likeButtonTapped() {

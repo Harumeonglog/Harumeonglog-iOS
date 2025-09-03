@@ -21,6 +21,8 @@ class AuthAPIService {
             "accept": "*/*",
             "Content-Type": "application/json"
         ]
+        
+        print("idTOken is \(id)")
         let parameters: [String: Any] = ["idToken": id]
         AF.request(
             url,
