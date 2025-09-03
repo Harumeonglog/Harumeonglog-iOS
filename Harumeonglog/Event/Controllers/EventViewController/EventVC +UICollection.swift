@@ -37,7 +37,10 @@ extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
             delegate?.didSelectCategory(category.serverKey)
         }
 
-        // 일정 다시 가져오기
+        // 선택된 카테고리로 로컬 필터링 적용
+        applyCategoryFilter()
+        
+        // 서버에서 카테고리별 일정 다시 가져오기
         if let parentVC = self.findViewController() as? HomeViewController {
             let selectedDate = parentVC.homeView.calendarView.selectedDate ?? Date()
             let dateFormatter = DateFormatter()
@@ -50,16 +53,25 @@ extension EventView : UICollectionViewDelegate, UICollectionViewDataSource {
             }
 
             let categoryKey = selectedCategory?.serverKey
-            EventService.getEventsByDate(date: dateString, category: categoryKey, token: token) { result in
+            EventService.getEventsByDate(date: dateString, category: categoryKey, token: token) { [weak self] result in
                 switch result {
                 case .success(let response):
-                    let events = response.result?.events?.map {
-                        Event(id: $0.id, title: $0.title, category: category.serverKey, done: $0.done)
-                    } ?? []
-                    DispatchQueue.main.async {
-                        parentVC.homeView.eventView.updateEvents(events)
+                    if let eventDates = response.result?.events {
+                        let events = eventDates.map { eventDate in
+                            // EventDate에는 category가 없으므로, 선택된 카테고리나 기본값 사용
+                            let eventCategory = self?.selectedCategory?.serverKey ?? "OTHER"
+                            return Event(id: eventDate.id, title: eventDate.title, category: eventCategory, done: eventDate.done)
+                        }
+                        DispatchQueue.main.async {
+                            parentVC.homeView.eventView.updateEvents(events)
+                        }
+                        print("카테고리별 일정 조회 성공: \(category.rawValue), \(events.count)건")
+                    } else {
+                        DispatchQueue.main.async {
+                            parentVC.homeView.eventView.updateEvents([])
+                        }
+                        print("카테고리별 일정 조회 성공: \(category.rawValue), 0건")
                     }
-                    print("카테고리별 일정 조회 성공")
                 case .failure(let error):
                     print("카테고리별 일정 조회 실패: \(error)")
                 }

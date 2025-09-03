@@ -15,6 +15,14 @@ class PhotoAlbumsViewController: UIViewController {
         let view = PhotoAlbumsView()
         return view
     }()
+    
+    private var isLoading = false
+    
+    // 앨범의 사진 개수를 캐싱하는 딕셔너리
+    private var photoCountCache: [Int: Int] = [:]
+    
+    // 캐시 유효 시간 (초)
+    private let cacheValidityDuration: TimeInterval = 300 // 5분
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,10 +36,26 @@ class PhotoAlbumsViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // 화면에 돌아올 때마다 앨범 목록과 사진 개수 새로고침 (로딩 중이 아닐 때만)
+        if !isLoading {
+            // 캐시 무효화하여 최신 정보 가져오기
+            invalidatePhotoCountCache()
+            fetchAlbums()
+        }
+    }
+    
     private func fetchAlbums() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        
+        isLoading = true
 
         PetService.fetchPets(token: token) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+            }
+            
             switch result {
             case .success(let response):
                 print("반려동물 목록 조회 성공!")
@@ -39,18 +63,25 @@ class PhotoAlbumsViewController: UIViewController {
                 switch response.result {
                 case .result(let petResult):
                     let pets = petResult.pets
-                    let albums = pets.filter { $0.role != "GUEST" }.map {
+                    let albums = pets.filter { $0.role != "GUEST" }.map { pet in
                         Album(
-                            mainImage: $0.mainImage,
-                            name: $0.name,
-                            photosCount: 0,
-                            petId: $0.petId,
+                            mainImage: pet.mainImage,
+                            name: pet.name,
+                            photosCount: 0, 
+                            petId: pet.petId,
                             imageInfos: [],
                             uiImages: []
                         )
                     }
-                    self?.photoAlbumsView.albums = albums
-                    self?.photoAlbumsView.albumCollectionView.reloadData()
+                    
+                    // 즉시 UI에 앨범 목록 표시 (사진 개수는 0으로 표시)
+                    DispatchQueue.main.async {
+                        self?.photoAlbumsView.albums = albums
+                        self?.photoAlbumsView.albumCollectionView.reloadData()
+                    }
+                    
+                    // 백그라운드에서 각 앨범의 사진 개수 조회
+                    self?.fetchPhotoCountsForAlbums(albums: albums, token: token)
 
                 case .message(let msg):
                     print("서버 응답 메시지: \(msg)")
@@ -65,6 +96,95 @@ class PhotoAlbumsViewController: UIViewController {
                 debugPrint("반려동물 조회 실패: \(error)")
             }
         }
+    }
+    
+    // 각 앨범의 사진 개수를 조회하는 메서드 (최적화된 버전)
+    private func fetchPhotoCountsForAlbums(albums: [Album], token: String) {
+        // 모든 앨범의 사진 개수를 동시에 조회 (병렬 처리)
+        let dispatchGroup = DispatchGroup()
+        
+        for (index, album) in albums.enumerated() {
+            // 캐시된 사진 개수가 있으면 즉시 사용
+            if let cachedCount = photoCountCache[album.petId] {
+                DispatchQueue.main.async {
+                    self.updateAlbumPhotoCount(at: index, count: cachedCount)
+                }
+                continue
+            }
+            
+            dispatchGroup.enter()
+            
+            // 더 큰 size로 한 번에 조회하여 전체 개수 파악
+            PhotoService.fetchPetImages(petId: album.petId, cursor: 0, size: 1000, token: token) { [weak self] result in
+                defer { dispatchGroup.leave() }
+                
+                switch result {
+                case .success(let response):
+                    switch response.result {
+                    case .result(let result):
+                        let totalCount = result.images.count
+                        
+                        // 캐시에 저장
+                        self?.photoCountCache[album.petId] = totalCount
+                        
+                        // 즉시 UI 업데이트 (점진적 업데이트)
+                        DispatchQueue.main.async {
+                            self?.updateAlbumPhotoCount(at: index, count: totalCount)
+                        }
+                        
+                    case .message(let msg):
+                        print("앨범 \(album.name) 사진 개수 조회 실패: \(msg)")
+                    case .none:
+                        print("앨범 \(album.name) 사진 개수 응답 result가 없습니다.")
+                    }
+                case .failure(let error):
+                    print("앨범 \(album.name) 사진 개수 조회 실패: \(error)")
+                }
+            }
+        }
+        
+        // 모든 앨범의 사진 개수 조회가 완료되면 최종 UI 업데이트
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            print("모든 앨범의 사진 개수 조회 완료")
+        }
+    }
+    
+    // 앨범의 사진 개수를 업데이트하는 헬퍼 메서드
+    private func updateAlbumPhotoCount(at index: Int, count: Int) {
+        if index < photoAlbumsView.albums.count {
+            let album = photoAlbumsView.albums[index]
+            photoAlbumsView.albums[index].photosCount = count
+            
+            // 캐시 업데이트
+            photoCountCache[album.petId] = count
+            
+            // 특정 셀만 업데이트하여 성능 향상
+            photoAlbumsView.albumCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    // PhotosViewController에서 호출할 수 있는 public 메서드
+    func updateAlbumPhotoCount(for petId: Int, count: Int) {
+        if let index = photoAlbumsView.albums.firstIndex(where: { $0.petId == petId }) {
+            photoAlbumsView.albums[index].photosCount = count
+            
+            // 캐시 업데이트
+            photoCountCache[petId] = count
+            
+            // 특정 셀만 업데이트하여 성능 향상
+            photoAlbumsView.albumCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            print("앨범 \(photoAlbumsView.albums[index].name)의 사진 개수를 \(count)로 업데이트했습니다.")
+        }
+    }
+    
+    // 캐시 무효화 메서드
+    func invalidatePhotoCountCache() {
+        photoCountCache.removeAll()
+    }
+    
+    // 특정 앨범의 캐시만 무효화
+    func invalidatePhotoCountCache(for petId: Int) {
+        photoCountCache.removeValue(forKey: petId)
     }
     
     private func uploadImages(for petId: Int, imageKeys: [String]) {
@@ -137,6 +257,13 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                             imageInfos: result.images,
                             uiImages: images
                         )
+
+                        // 앨범 목록에서 해당 앨범의 사진 개수 업데이트
+                        if let index = self?.photoAlbumsView.albums.firstIndex(where: { $0.petId == album.petId }) {
+                            self?.photoAlbumsView.albums[index].photosCount = images.count
+                            self?.photoAlbumsView.albumCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                            print("앨범 \(album.name)의 사진 개수를 \(images.count)로 업데이트했습니다.")
+                        }
 
                         let photosVC = PhotosViewController(album: updatedAlbum)
                         self?.navigationController?.pushViewController(photosVC, animated: true)

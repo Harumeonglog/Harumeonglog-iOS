@@ -13,8 +13,17 @@ private enum PickerMode {
     case time
 }
 
-class AddEventViewController: UIViewController {
+protocol AddEventViewControllerDelegate: AnyObject {
+    func didAddEvent()
+}
 
+class AddEventViewController: UIViewController {
+    
+    var selectedDate: Date = Date() // 홈화면에서 선택된 날짜
+    weak var delegate: AddEventViewControllerDelegate?
+    
+    private var selectedCategory: CategoryType? // 선택된 카테고리 저장
+    
     private lazy var addEventView: AddEventView = {
         let view = AddEventView()
         view.delegate = self
@@ -27,14 +36,21 @@ class AddEventViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = addEventView
+        
+        addEventView.delegate = self
+        
         setCustomNavigationBarConstraints()
         
         // 현재 날짜와 시간으로 초기화
         setInitialDateTime()
-        
-        // 키보드 숨김 기능 추가
 
-         hideKeyboardWhenTappedAround()
+        hideKeyboardWhenTappedAround()
+        
+        // 선택된 카테고리가 있다면 복원
+        if let selectedCategory = selectedCategory {
+            print("초기화 시 선택된 카테고리 복원: \(selectedCategory.rawValue)")
+            updateCategoryInputView(for: selectedCategory)
+        }
     }
     
     //탭바 숨기기
@@ -77,11 +93,11 @@ class AddEventViewController: UIViewController {
     
     
     private func setInitialDateTime() {
-        let currentDate = Date()
-        let formattedDate = getFormattedDate(currentDate)  // 현재 날짜
+        let currentDate = selectedDate // 선택된 날짜 사용
+        let formattedDate = getFormattedDate(currentDate)  // 선택된 날짜
         let formattedTime = getFormattedTime(currentDate)  // 현재 시간
         
-        // dateButton과 timeButton에 현재 날짜와 시간 설정
+        // dateButton과 timeButton에 선택된 날짜와 현재 시간 설정
         addEventView.dateButton.setTitle(formattedDate, for: .normal)
         addEventView.timeButton.setTitle(formattedTime, for: .normal)
     }
@@ -115,6 +131,12 @@ class AddEventViewController: UIViewController {
                     self.addEventView.timeButton.setTitle(self.getFormattedTime(selectedDate), for: .normal)
                 }
                 self.addEventView.layoutIfNeeded() // 즉시 적용
+                
+                // 날짜/시간 변경 후에도 선택된 카테고리 유지
+                if let selectedCategory = self.selectedCategory {
+                    print("날짜/시간 변경 후 카테고리 유지: \(selectedCategory.rawValue)")
+                    self.updateCategoryInputView(for: selectedCategory)
+                }
             }
         }
         
@@ -126,36 +148,22 @@ class AddEventViewController: UIViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    @objc private func alertButtonTapped() {
-        let alertController = UIAlertController(title: "알림 설정", message: nil, preferredStyle: .actionSheet)
-
-        // 알림 옵션 목록
-        let alarmOptions: [(title: String, minutes: Int?)] = [
-            ("설정 안 함", nil),
-            ("10분 전 팝업", 10),
-            ("30분 전 팝업", 30),
-            ("1시간 전 팝업", 60),
-            ("하루 전 팝업", 1440)
-        ]
-        
-        // 옵션을 UIAlertAction으로 추가
-        for option in alarmOptions {
-            let action = UIAlertAction(title: option.title, style: .default) { _ in
-                UIView.performWithoutAnimation { // UI 깜빡임 방지
-                    self.addEventView.alarmButton.setTitle(option.title, for: .normal)
-                    self.addEventView.layoutIfNeeded()
-                }
-                self.alarmOptionSelected(option.title)
-            }
-            alertController.addAction(action)
+    func weekdayTapped(_ weekday: String, isSelected: Bool) {
+        if isSelected {
+            selectedWeekdays.insert(weekday)
+        } else {
+            selectedWeekdays.remove(weekday)
         }
-        
-        // 취소 버튼 추가
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        // 모달 표시
-        self.present(alertController, animated: true, completion: nil)
+
+        // 버튼 상태 반영
+        for button in addEventView.weekButtons {
+            if button.titleLabel?.text == weekday {
+                button.backgroundColor = isSelected ? .brown01 : .white
+                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
+            }
+        }
+
+        print("선택된 요일: \(selectedWeekdays)")
     }
     
     // 날짜 변환 (2025.3.10 월요일 형식)
@@ -178,6 +186,8 @@ class AddEventViewController: UIViewController {
 // MARK: Delegate 구현하여 선택된 카테고리에 따라 입력 필드 표시
 extension AddEventViewController: AddEventViewDelegate {
     func categoryDidSelect(_ category: CategoryType) {
+        selectedCategory = category // 선택된 카테고리 저장
+        print("카테고리 선택됨: \(category.rawValue)")
         updateCategoryInputView(for: category)
     }
 
@@ -189,38 +199,17 @@ extension AddEventViewController: AddEventViewDelegate {
         showDateTimePicker(for: PickerMode.time)
     }
 
-    func alarmButtonTapped() {
-        alertButtonTapped()
-    }
-
-    func weekdayTapped(_ weekday: String, isSelected: Bool) {
-        if isSelected {
-            selectedWeekdays.insert(weekday)
-        } else {
-            selectedWeekdays.remove(weekday)
-        }
-
-        // 버튼 상태 반영
-        for button in addEventView.weekButtons {
-            if button.titleLabel?.text == weekday {
-                button.backgroundColor = isSelected ? .brown01 : .white
-                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
-            }
-        }
-
-        print("선택된 요일: \(selectedWeekdays)")
-    }
-
     private func updateCategoryInputView(for category: CategoryType) {
+        print("카테고리 입력 뷰 업데이트: \(category.rawValue)")
         addEventView.updateCategoryInputView(for: category)
+        
+        // 카테고리 버튼 텍스트 업데이트
+        addEventView.categoryButton.setTitle(category.rawValue, for: .normal)
+        addEventView.categoryButton.setTitleColor(.gray00, for: .normal)
     }
 
     func getSelectedWeekdays() -> [String] {
         return selectedWeekdays.toEnglishWeekdays()
-    }
-
-    func alarmOptionSelected(_ option: String) {
-        // TODO알람 옵션 선택 시 처리 로직 추가 가능
     }
 }
 
@@ -284,7 +273,7 @@ extension AddEventViewController {
             isRepeated: !selectedWeekdays.isEmpty,
             expiredDate: "2025-12-31",
             repeatDays: getSelectedWeekdays(),
-            hasNotice: addEventView.alarmButton.title(for: .normal) != "설정 안 함",
+            hasNotice: false, // 알림 기능 제거됨
             time: formattedTime,
             category: category.serverKey,
             details: category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,
@@ -311,6 +300,7 @@ extension AddEventViewController {
                 print("일정 추가 성공 !!: \(response)")
                 DispatchQueue.main.async {
                     self.navigationController?.popViewController(animated: true)
+                    self.delegate?.didAddEvent() // 델리게이트 호출
                 }
             case .failure(let error):
                 print("일정 추가 실패 ㅜㅜ: \(error)")

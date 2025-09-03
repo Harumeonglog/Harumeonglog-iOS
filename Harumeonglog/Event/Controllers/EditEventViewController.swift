@@ -225,10 +225,7 @@ class EditEventViewController: UIViewController {
             ? editEventView.timeButton.title(for: .normal)!
             : (event?.time ?? "")
 
-        let alarm = (editEventView.alarmButton.title(for: .normal) != nil && editEventView.alarmButton.title(for: .normal) != "")
-            ? editEventView.alarmButton.title(for: .normal)!
-            : "없음"
-        let hasNotice = alarm != "없음"
+        let hasNotice = false // 알림 기능 제거됨
 
         // 2. 카테고리도 기존 event category fallback
         let categoryTitle = editEventView.categoryButton.title(for: .normal) ?? ""
@@ -425,7 +422,6 @@ class EditEventViewController: UIViewController {
     private func populateUI(date: String, time: String, alarm: String, weekdays: [String], detail: EventDetailData) {
             editEventView.dateButton.setTitle(date, for: .normal)
             editEventView.timeButton.setTitle(time, for: .normal)
-            editEventView.alarmButton.setTitle(alarm, for: .normal)
 
         weekdays.forEach { day in
             _ = editEventView.weekButtons.first(where: { $0.titleLabel?.text == day })?.sendActions(for: .touchUpInside)

@@ -70,15 +70,17 @@ class ProfileSelectModalViewController: UIViewController {
                         case .success(let response):
                             switch response.result {
                             case .result(let activePetsResult):
-                                self?.profiles = activePetsResult.pets.map {
-                                    Profile(petId: $0.petId, name: $0.name, imageName: $0.mainImage ?? "")
+                                self?.profiles = activePetsResult.pets.map { pet in
+                                    let imageName = self?.validateImageURL(pet.mainImage) ?? ""
+                                    return Profile(petId: pet.petId, name: pet.name, imageName: imageName)
                                 }
                                 
                                 // 현재 활성 펫을 selectedProfile로 설정
+                                let activeImageName = self?.validateImageURL(activePetInfo.mainImage) ?? ""
                                 self?.selectedProfile = Profile(
                                     petId: activePetInfo.petId, 
                                     name: activePetInfo.name, 
-                                    imageName: activePetInfo.mainImage ?? ""
+                                    imageName: activeImageName
                                 )
                                 
                                 // UI 업데이트
@@ -105,16 +107,18 @@ class ProfileSelectModalViewController: UIViewController {
                     case .success(let response):
                         switch response.result {
                         case .result(let activePetsResult):
-                            self?.profiles = activePetsResult.pets.map {
-                                Profile(petId: $0.petId, name: $0.name, imageName: $0.mainImage ?? "")
+                            self?.profiles = activePetsResult.pets.map { pet in
+                                let imageName = self?.validateImageURL(pet.mainImage) ?? ""
+                                return Profile(petId: pet.petId, name: pet.name, imageName: imageName)
                             }
                             
                             // 기본값으로 첫 번째 펫 선택
                             if let firstPet = activePetsResult.pets.first {
+                                let imageName = self?.validateImageURL(firstPet.mainImage) ?? ""
                                 self?.selectedProfile = Profile(
                                     petId: firstPet.petId, 
                                     name: firstPet.name, 
-                                    imageName: firstPet.mainImage ?? ""
+                                    imageName: imageName
                                 )
                             }
                             
@@ -133,6 +137,23 @@ class ProfileSelectModalViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    // 이미지 URL 유효성 검사
+    private func validateImageURL(_ imageURL: String?) -> String {
+        guard let url = imageURL, !url.isEmpty else { return "" }
+        
+        // 유효하지 않은 값들 필터링
+        if url == "string" || url == "null" || url == "undefined" {
+            return ""
+        }
+        
+        // URL 형식 검사
+        if let _ = URL(string: url) {
+            return url
+        }
+        
+        return ""
     }
 }
 

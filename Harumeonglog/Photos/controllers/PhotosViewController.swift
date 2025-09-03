@@ -124,7 +124,23 @@ class PhotosViewController: UIViewController {
     
     @objc
     private func didTapBackButton(){
+        // 앨범 목록으로 돌아가기 전에 현재 앨범의 사진 개수를 업데이트
+        updateAlbumPhotoCount()
         navigationController?.popViewController(animated: true)
+    }
+    
+    // 앨범의 사진 개수를 업데이트하는 메서드
+    private func updateAlbumPhotoCount() {
+        // 네비게이션 스택에서 PhotoAlbumsViewController를 찾아서 현재 앨범의 사진 개수 업데이트
+        if let navigationController = self.navigationController {
+            for viewController in navigationController.viewControllers {
+                if let photoAlbumsVC = viewController as? PhotoAlbumsViewController {
+                    // PhotoAlbumsViewController의 public 메서드를 호출하여 사진 개수 업데이트
+                    photoAlbumsVC.updateAlbumPhotoCount(for: album.petId, count: album.uiImages.count)
+                    break
+                }
+            }
+        }
     }
     
     // 선택된 사진 개수를 라벨에 표시
@@ -176,6 +192,9 @@ class PhotosViewController: UIViewController {
                         self.photosView.navigationBar.configureRightButton(text: "선택")
                         self.photosView.bottomActionBar.isHidden = true
                         self.photosView.PhotosCollectionView.allowsMultipleSelection = false
+                        
+                        // 앨범의 사진 개수 업데이트
+                        self.updateAlbumPhotoCount()
                     }
                 case .failure(let error):
                     print("이미지 삭제 실패: \(error)")
@@ -231,17 +250,24 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
                 return
             }
 
-        PresignedUrlService.fetchPresignedUrl(
-            filename: imageKey,
-            contentType: "image/jpeg",
+        let entities: [PURLsRequestEntity] = [
+            PURLsRequestEntity(
+                entityId: album.petId,
+                images: [PresignedUrlImage(filename: imageKey, contentType: "image/jpeg")]
+            )
+        ]
+        
+        PresignedUrlService.getPresignedUrls(
             domain: .pet,
-            entityId: album.petId,
+            entities: entities,
             token: token
         ) { result in
             switch result {
             case .success(let response):
                 print("이미지 업로드 성공: \(response)")
-                guard case .result(let presigned) = response.result,
+                guard let result = response.result,
+                      let entity = result.entities.first,
+                      let presigned = entity.images.first,
                       let url = URL(string: presigned.presignedUrl) else {
                     print("presigned URL 응답 파싱 실패 또는 잘못된 형식")
                     return
@@ -279,6 +305,9 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
                                     }
                                     self.photosView.PhotosCollectionView.reloadData()
                                     print("이미지 저장 성공")
+                                    
+                                    // 앨범의 사진 개수 업데이트
+                                    self.updateAlbumPhotoCount()
                                 }
                             }
                         case .failure(let error):

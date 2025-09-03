@@ -14,7 +14,7 @@ protocol EventViewDelegate: AnyObject {
     func didSelectCategory(_ category: String)
 }
 
-class EventView: UIView, UICollectionViewDelegateFlowLayout {
+class EventView: UIView, UICollectionViewDelegateFlowLayout, UITableViewDataSource, UITableViewDelegate {
 
     weak var delegate: EventViewDelegate?
     
@@ -54,6 +54,7 @@ class EventView: UIView, UICollectionViewDelegateFlowLayout {
         
         tableView.delegate = self
         tableView.dataSource = self
+        
         setupLayout()
     }
 
@@ -120,3 +121,5 @@ extension EventView {
         return CGSize(width: max(width, 60), height: height) // 최소 너비 60으로 설정
     }
 }
+
+

@@ -26,19 +26,29 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        selectedDate = date // 선택된 날짜 저장
+        
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             print("AccessToken이 없음")
             return
         }
 
+        // 현재 선택된 카테고리가 있는지 확인
+        let selectedCategory = homeView.eventView.selectedCategory?.serverKey
+        
         eventViewModel.fetchEventsByDate(date, token: token) { result in
             switch result {
-            case .success(let events):
-                DispatchQueue.main.async {
-                    let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done) }
+            case .success(let eventDates):
+                let workItem = DispatchWorkItem {
+                    let mappedEvents = eventDates.map { eventDate in
+                        // EventDate에는 category가 없으므로, 현재 선택된 카테고리나 기본값 사용
+                        let eventCategory = selectedCategory ?? "OTHER"
+                        return Event(id: eventDate.id, title: eventDate.title, category: eventCategory, done: eventDate.done)
+                    }
                     self.homeView.eventView.updateEvents(mappedEvents)
-                    print("\(self.dateFormatter.string(from: date)) 일정 \(events.count)건 불러옴")
+                    print("\(self.dateFormatter.string(from: date)) 일정 \(eventDates.count)건 불러옴 (카테고리: \(selectedCategory ?? "전체"))")
                 }
+                DispatchQueue.main.async(execute: workItem)
             case .failure(let error):
                 print("날짜별 일정 조회 실패: \(error)")
             }
@@ -67,13 +77,14 @@ extension HomeViewController: EditEventViewControllerDelegate {
         eventViewModel.fetchEventsByDate(Date(), token: token) { result in
             switch result {
             case .success(let events):
-                DispatchQueue.main.async {
+                let workItem = DispatchWorkItem {
                     let mappedEvents = events.map {
                         Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done)
                     }
                     self.homeView.eventView.updateEvents(mappedEvents)
                     print("수정 반영 후 일정 \(events.count)건 갱신 완료")
                 }
+                DispatchQueue.main.async(execute: workItem)
             case .failure(let error):
                 print("수정 후 일정 재조회 실패: \(error)")
             }
