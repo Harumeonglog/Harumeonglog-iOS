@@ -10,7 +10,7 @@ import Combine
 
 class InviteMemberViewController: UIViewController {
     
-    private var petID: Int?
+    private var petId: Int?
     private let inviteMemberView = InviteMemberView()
     private let viewModel = InviteMemberViewModel()
     private var cancellables: Set<AnyCancellable> = []
@@ -24,8 +24,8 @@ class InviteMemberViewController: UIViewController {
         setupActions()
     }
     
-    func configure(petID: Int) {
-        self.petID = petID
+    func configure(petId: Int) {
+        self.petId = petId
     }
     
     private func setupBindings() {
@@ -69,7 +69,7 @@ class InviteMemberViewController: UIViewController {
     
     @objc
     private func invite() {
-        viewModel.inviteUsers(petID: petID!)
+        viewModel.inviteUsers(petId: petId!)
     }
     
 }

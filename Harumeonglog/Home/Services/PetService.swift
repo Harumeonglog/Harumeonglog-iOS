@@ -92,8 +92,10 @@ extension PetService {
         APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
     }
     
-    static func deletePetMember(memberId: Int, petId: Int, token: String, completion: @escaping(Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void) {
-        let endpoint = "/api/v1/pets/\(petId)"
+    //MARK: DELETE/api/v1/pets/{petId}
+    static func deletePetMember(memberId: Int?, petId: Int, token: String, completion: @escaping(Result<HaruResponse<HaruEmptyResult>, AFError>) -> Void) {
+        let hasMemberId = memberId != nil ? "?memberId=\(memberId!)" : ""
+        let endpoint = "/api/v1/pets/\(petId)" + hasMemberId
         APIClient.deleteRequest(endpoint: endpoint, token: token, completion: completion)
     }
 }

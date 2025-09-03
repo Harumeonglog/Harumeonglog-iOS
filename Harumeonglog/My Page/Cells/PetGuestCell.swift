@@ -8,7 +8,7 @@
 import UIKit
 
 protocol PetGuestCellDelegate: AnyObject {
-    func didTapExitButton(petID: Int)
+    func didTapExitButton(petId: Int)
 }
 
 class PetGuestCell: UICollectionViewCell {
@@ -48,6 +48,7 @@ class PetGuestCell: UICollectionViewCell {
     }
     
     public func configure(_ pet: PetDTO, delegate: PetGuestCellDelegate) {
+        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
         self.pet = pet
         self.delegate = delegate
         setDefaultConstraints()
@@ -120,11 +121,9 @@ class PetGuestCell: UICollectionViewCell {
     
     @objc
     private func exitButtonTapped() {
-        guard let pet = pet else {
-            print("cell 안의 pet이 비어있습니다.")
-            return
-        }
-        delegate?.didTapExitButton(petID: pet.petId ?? 0)
+        guard let pet = pet else { print("cell 안의 pet이 비어있습니다."); return }
+        guard let petId = pet.petId else { print("pet의 id가 비어있습니다."); return }
+        delegate?.didTapExitButton(petId: petId)
     }
     
     override init(frame: CGRect) {

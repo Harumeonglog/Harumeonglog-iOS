@@ -10,10 +10,10 @@ import SnapKit
 import Combine
 
 protocol PetOwnerCellDelegate: AnyObject {
-    func didTapInviteButton(petID: Int)
-    func didTapExitButton(petID: Int)
+    func didTapInviteButton(petId: Int)
+    func didTapExitButton(petId: Int)
     func didTapEditButton(pet: PetDTO)
-    func didTapDeleteMemberButton()
+    func didTapDeleteMemberButton(memberId: Int, petId: Int)
 }
 
 class PetOwnerCell: UICollectionViewCell {
@@ -249,7 +249,7 @@ class PetOwnerCell: UICollectionViewCell {
     
     @objc
     private func showInvitaionVC() {
-        delegate?.didTapInviteButton(petID: pet!.petId ?? 0)
+        delegate?.didTapInviteButton(petId: pet!.petId ?? 0)
     }
     
     @objc
@@ -267,7 +267,7 @@ class PetOwnerCell: UICollectionViewCell {
             print("cell 안의 pet이 비어있습니다.")
             return
         }
-        delegate?.didTapExitButton(petID: pet.petId ?? 0)
+        delegate?.didTapExitButton(petId: pet.petId ?? 0)
     }
     
     // EditMenuFrameView 관련 동작
@@ -345,12 +345,7 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     }
     
     func didTapDeleteMember(member: PetMemberDTO, petId: Int) {
-        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.delegate?.didTapDeleteMemberButton()
-                print("멤버 삭제 완료")
-            }
-        }
+        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { _ in }
     }
     
     private func showMemberEditMenu(for member: PetMemberDTO, at indexPath: IndexPath) {
