@@ -345,7 +345,9 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     }
     
     func didTapDeleteMember(member: PetMemberDTO, petId: Int) {
-        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { _ in }
+        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { _ in
+            PetListViewModel.shared.refreshPetList()
+        }
     }
     
     private func showMemberEditMenu(for member: PetMemberDTO, at indexPath: IndexPath) {

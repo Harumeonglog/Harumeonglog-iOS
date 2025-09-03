@@ -75,7 +75,9 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
     }
     
     func didTapExitButton(petId: Int) {
-        petListViewModel!.deletePetMember(memberId: MemberAPIService.userInfo!.memberId, petId: petId) { _ in }
+        petListViewModel!.deletePetMember(memberId: MemberAPIService.userInfo!.memberId, petId: petId) { _ in
+            PetListViewModel.shared.refreshPetList()
+        }
     }
     
     func didTapEditButton(pet: PetDTO) {
