@@ -8,11 +8,12 @@
 import UIKit
 
 class SocialViewController: UIViewController {
-
+    
     let socialPostService = SocialPostService()
     private var searchText: String? = nil
+    private var refreshControl = UIRefreshControl()   // 새로고침
     
-    private var selectedBtn: UIButton?      // 이전에 눌린 카테고리 버튼 저장
+    private var selectedBtn: UIButton?               // 이전에 눌린 카테고리 버튼 저장
     private var selectedCategory: String = "ALL"
     private var posts: [PostItem] = []
     private var cursor: Int = 0
@@ -40,10 +41,9 @@ class SocialViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.view = socialView
         hideKeyboardWhenTappedAround()
-        // fetchPostsFromServer(reset: true)
+        configureRefreshControl()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -54,11 +54,7 @@ class SocialViewController: UIViewController {
 
     
     private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
-                
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         if isFetching { return }        // 중복 호출 방지
         isFetching = true
@@ -91,11 +87,7 @@ class SocialViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.socialView.postTableView.reloadData()
                         }
-                    } else {
-                        print("결과 데이터가 비어있습니다.")
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 조회 실패: \(error.localizedDescription)")
@@ -103,6 +95,19 @@ class SocialViewController: UIViewController {
         }
 
     }
+    
+    private func configureRefreshControl() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshPosts), for: .valueChanged)
+        socialView.postTableView.refreshControl = refreshControl
+    }
+
+    @objc private func refreshPosts() {
+        print("새로고침 실행")
+        fetchPostsFromServer(reset: true)
+        socialView.postTableView.refreshControl?.endRefreshing()
+    }
+
     
     @objc private func textFieldDidChange() {
         let isEmpty = socialView.searchBar.text?.isEmpty ?? true

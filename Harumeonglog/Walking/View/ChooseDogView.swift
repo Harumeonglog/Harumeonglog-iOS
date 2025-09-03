@@ -42,12 +42,11 @@ class ChooseDogView: UIView {
     
     
     public lazy var nonDogLabel = UILabel().then { label in
-        label.text = "산책 할 반려견이 없어요\n 반려견을 추가 해 산책을 시켜주세요 !"
+        label.text = "산책 할 반려견이 없어요\n반려견을 추가 해 산책을 시켜주세요 !"
         label.textColor = UIColor.gray02
         label.numberOfLines = 2
-        label.textAlignment = .center
         label.font = UIFont(name: "Pretendard-Medium", size: 15)
-        label.setLineSpacing(lineSpacing: 15)
+        label.setLineSpacing(lineSpacing: 15, alignment: .center)
         label.isHidden = true
     }
 

@@ -42,7 +42,7 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
-        
+        swipeRecognizer()
         fetchPostDetailsFromServer()
     }
     
@@ -50,16 +50,13 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         let navi = addPostView.navigationBar
         navi.configureRightButton(text: "수정")
-        navi.leftArrowButton.isHidden = true
         navi.rightButton.setTitleColor(.red00, for: .normal)
         navi.rightButton.addTarget(self, action: #selector(didTapRightButton), for: .touchUpInside)
+        navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
     private func fetchPostDetailsFromServer() {
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else {
-             print("토큰 없음")
-             return
-         }
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
         
         socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
@@ -69,38 +66,42 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 if response.isSuccess {
                     if let postDetail = response.result {
                         print("게시글 조회 성공")
-                        
                         self.postImagesURL.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         print("\(self.postImagesURL)")
-                                                
                         // 서버 (영어) -> 한국어로 저장
                         self.selectedCategory = socialCategoryKey.tagsEngKorto[postDetail.postCategory]
 
                         DispatchQueue.main.async {
                             self.addPostView.configure(with: postDetail)
                             self.addPostView.imageCollectionView.reloadData()
-
                         }
-    
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 조회 실패: \(error.localizedDescription)")
             }
         }
-
     }
     
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
     
     @objc
     private func didTapRightButton(){      // 수정 버튼 탭함
-                
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
+        print("\(self.postImages)")
+        print("\(self.postImagesURL)")
         
-        if self.postImages.isEmpty {
-            modifyPost()
+        if self.postImages.isEmpty && self.postImagesURL.isEmpty {
+            modifyPost(imageKeys: self.imageKeys)
+            return
+        } else if self.postImages.isEmpty {
+            self.imageKeys = self.postImagesURL.compactMap {
+                URL(string: $0)?.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            }
+            modifyPost(imageKeys: self.imageKeys)
             return
         }
         
@@ -111,27 +112,28 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 contentType: "image/jpeg"
             )
         }
-        
         requestPresignedURLS(images: imageInfos, token: token)
-        
-    
     }
     
     private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
-        PresignedUrlService.fetchBatchPresignedUrls(images: images, domain: .post, entityId: self.postId!, token: token) { [weak self] result in
+        let entity = PURLsRequestEntity(entityId: self.postId!, images: images)
+        
+        PresignedUrlService.getPresignedUrls(domain: .post, entities: [entity], token: token) { [weak self] result in
             switch result {
             case .success(let response):
                 print("presignedURL 발급 성공")
-                self?.uploadImagesToPresignedURL(response)
+                self?.uploadImagesToPresignedURL(response.result!)
             case .failure(let error):
                 print("presignedURL 발급 실패: \(error)")
             }
         }
     }
     
-    private func uploadImagesToPresignedURL(_ response: PresignedUrlBatchResponse) {
-        let presignedData = response.result.images
-        guard presignedData.count == postImages.count else { return }  // presingedURL에 올라간 이미지 개수가 맞는지 확인
+    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
+        guard let presignedEntity = result.entities.first else { return }
+
+        let presignedData = presignedEntity.images
+        guard presignedData.count == postImages.count else { return }
         
         let dispatchGroup = DispatchGroup()
         var uploadErrorOccurred = false
@@ -159,24 +161,27 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                 if uploadErrorOccurred {
                     print("업로드 실패로 게시글 수정 중단")
                 } else {
-                    self?.modifyPost()
+                    
+                    let allKeys: [String] = self!.postImagesURL.compactMap {
+                        // 전체 URL에서 마지막 key만 추출
+                        URL(string: $0)?.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                    } + self!.imageKeys
+
+                    self!.modifyPost(imageKeys: allKeys)
                 }
             }
         }
     }
     
-    private func modifyPost() {
-        
+    private func modifyPost(imageKeys: [String?]) {
         postTitle = addPostView.titleTextField.text ?? ""
         postContent = addPostView.contentTextView.text ?? ""
 
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
 
         socialPostService.modifyPostToServer(
-            postId: self.postId!,
-            postCategory: socialCategoryKey.tagsKortoEng[self.selectedCategory!] ?? "unknown",
-            title: self.postTitle,
-            content: self.postContent,
+            postId: self.postId!, postCategory: socialCategoryKey.tagsKortoEng[self.selectedCategory!] ?? "unknown",
+            title: self.postTitle, content: self.postContent,
             postImageList: imageKeys,
             token: token) { result in
                 switch result {
@@ -184,8 +189,6 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
                     if response.isSuccess {
                         print("게시글 수정 성공")
                         self.navigationController?.popViewController(animated: true)
-                    } else {
-                        print("서버 응답 에러: \(response.message)")
                     }
                 case .failure(let error):
                     print("게시글 전송 실패: \(error.localizedDescription)")
@@ -228,9 +231,9 @@ extension ModifyPostViewController: UIImagePickerControllerDelegate, UINavigatio
             addPostView.imageCollectionView.reloadData()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
-    
         picker.dismiss(animated: true)
     }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
@@ -247,18 +250,33 @@ extension ModifyPostViewController: UICollectionViewDelegate, UICollectionViewDa
             return UICollectionViewCell()
         }
 
-        cell.imageView.image = postImages[indexPath.row]
-        cell.configure(with: self.postImagesURL[indexPath.row])
-        
-        
-        // 삭제 버튼 눌렸을 때 동작
-          cell.onDelete = { [weak self] in
-              self?.postImages.remove(at: indexPath.row)
-              self?.addPostView.imageCollectionView.reloadData()
-              self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
-          }
-        
-        
+        if indexPath.row < postImagesURL.count {
+            // 서버에서 가져온 이미지 처리
+            cell.configure(with: postImagesURL[indexPath.row]) // URL 로딩
+        } else {
+            // 새로 추가한 이미지 처리
+            let localImageIndex = indexPath.row - postImagesURL.count
+            cell.imageView.image = postImages[localImageIndex]
+        }
+
+        // 삭제 버튼 눌렸을 때
+        cell.onDelete = { [weak self] in
+            guard let self = self else { return }
+
+            if indexPath.row < self.postImagesURL.count {
+                // 서버 이미지 삭제
+                self.postImagesURL.remove(at: indexPath.row)
+            } else {
+                // 새 이미지 삭제
+                let localIndex = indexPath.row - self.postImagesURL.count
+                self.postImages.remove(at: localIndex)
+            }
+
+            self.addPostView.imageCollectionView.reloadData()
+            self.addPostView.addImageCount.text = "\(self.postImages.count + self.postImagesURL.count)/10"
+        }
+
         return cell
     }
+
 }

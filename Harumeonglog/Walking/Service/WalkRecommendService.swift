@@ -20,7 +20,7 @@ class WalkRecommendService {
     ) {
         
         let endpoint = "/api/v1/walks"
-        var parameters: [String: Any] = [
+        let parameters: [String: Any] = [
             "sort": sort,
             "cursor": cursor,
             "size": size

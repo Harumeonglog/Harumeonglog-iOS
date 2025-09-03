@@ -9,15 +9,21 @@ import Alamofire
 import KakaoSDKAuth
 import Foundation
 
+enum SocialLoginType: String {
+    case KAKAO, APPLE
+}
+
 class AuthAPIService {
     
-    static func login(oauth: OAuthToken) {
-        let url = K.haruURL + "/api/v1/auth/KAKAO/login"
+    static func login(id: String, social: SocialLoginType) {
+        let url = K.haruURL + "/api/v1/auth/\(social.rawValue)/login"
         let headers: HTTPHeaders = [
             "accept": "*/*",
             "Content-Type": "application/json"
         ]
-        let parameters: [String: Any] = ["idToken": oauth.idToken!]
+        
+        print("idTOken is \(id)")
+        let parameters: [String: Any] = ["idToken": id]
         AF.request(
             url,
             method: .post,

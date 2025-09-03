@@ -17,7 +17,7 @@ class SocialLoginButton: UIButton {
     
     private lazy var mainTitle = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 15)
+        $0.font = UIFont(name: "Pretendard-Medium", size: 15)
     }
     
     override init(frame: CGRect) {

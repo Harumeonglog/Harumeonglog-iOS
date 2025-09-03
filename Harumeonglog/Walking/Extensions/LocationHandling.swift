@@ -10,8 +10,6 @@ import UIKit
 import CoreLocation
 import NMapsMap
 
-
-
 protocol LocationHandling: CLLocationManagerDelegate where Self: UIViewController {
     associatedtype MapContainerType
     var locationManager: CLLocationManager { get }
@@ -102,6 +100,10 @@ extension LocationHandling where MapContainerType: UIView {
             // 새 마커 생성 후 저장
             let marker = NMFMarker(position: latLng)
             marker.mapView = mapView.mapView
+            marker.iconImage = NMFOverlayImage(image: makeLocationMarkerImage())
+            marker.width = 40
+            marker.height = 40
+
             currentLocationMarker = marker
         }
     }

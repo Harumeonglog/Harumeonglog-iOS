@@ -33,6 +33,7 @@ enum PresignedUrlService {
 }
 
 // MARK: - POST /api/v1/s3/presigned-urls S3 이미지 PresignedUrl 발급
+// request
 struct PURLsRequestBody: Codable {
     let domain: String
     let entities: [PURLsRequestEntity]
@@ -48,6 +49,7 @@ struct PresignedUrlImage: Codable {
     let contentType: String
 }
 
+// response
 struct PUrlsResult: Codable {
     let entities: [PUrlsEntity]
 }
@@ -61,6 +63,7 @@ struct PresignedUrlResult: Codable {
     let presignedUrl: String
     let imageKey: String
 }
+
 
 // MARK: presignedURL에 이미지 업로드하기 위한 메서드
 extension UIViewController {

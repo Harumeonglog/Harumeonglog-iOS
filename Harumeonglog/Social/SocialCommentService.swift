@@ -19,7 +19,6 @@ class SocialCommentService {
         completion: @escaping (Result<HaruResponse<CommentResponse>, AFError>) -> Void) {
 
         let endpoint = "/api/v1/posts/\(postId)/comments"
-            
         var parameters: [String: Any] = [
             "cursor": cursor,
             "size": size
@@ -32,12 +31,13 @@ class SocialCommentService {
     // 댓글
     func postCommentToServer(
         postId: Int,
+        parentId: Int?,
         content: String,
         token: String,
         completion: @escaping (Result<HaruResponse<AddCommentResponse>, AFError>) -> Void) {
             
         let endpoint = "/api/v1/posts/\(postId)/comments"
-        let requestBody = AddCommentRequest(content: content, parentId: nil)
+        let requestBody = AddCommentRequest(content: content, parentId: parentId)
         
         APIClient.postRequest(endpoint: endpoint, parameters: requestBody, token: token, completion: completion)
     }

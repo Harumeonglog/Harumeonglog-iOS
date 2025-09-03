@@ -39,40 +39,28 @@ class InviteMemberViewModel: ObservableObject {
     }
     
     func search(_ text: String) {
-        isLoading = true
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else {
             print("NO Access Token")
             return
         }
         InviteMemberService.searchUsers(keyword: text, cursor: 0, token: accessToken) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success(let response):
-                    self?.searched = response.result?.members ?? []
-                case .failure(let error):
-                    print("Search error:", error.localizedDescription)
-                }
+            switch result {
+            case .success(let response):
+                self?.searched = response.result?.members ?? []
+            case .failure(let error):
+                print("Search error:", error.localizedDescription)
             }
         }
     }
     
-    
     func inviteUsers(petID: Int) {
-        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else {
-            print("NO Access Token")
-            return
-        }
-        isLoading = true
-        InviteMemberService.inviteUser(petID: petID, users: stage, token: accessToken) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success(let response):
-                    print("Invite success:", response.result ?? "")
-                case .failure(let error):
-                    print("Invite failed:", error.localizedDescription)
-                }
+        InviteMemberService.inviteUser(petID: petID, users: stage) { [weak self] result in
+            switch result {
+            case .success(let response):
+                self?.stage.removeAll()
+                print("Invite success:", response.result ?? "")
+            case .failure(let error):
+                print("Invite failed:", error.localizedDescription)
             }
         }
     }

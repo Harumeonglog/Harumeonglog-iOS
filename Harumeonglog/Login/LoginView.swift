@@ -14,6 +14,7 @@ class LoginView: UIView {
     private lazy var appLogo = UIImageView().then {
         $0.contentMode = .scaleAspectFit
         $0.backgroundColor = .white
+        $0.image = .appLogo 
     }
     
     public lazy var kakaoLoginButton = SocialLoginButton()
@@ -37,7 +38,7 @@ class LoginView: UIView {
         appLogo.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.equalToSuperview().offset(183)
-            make.height.width.equalTo(160)
+            make.height.width.equalTo(180)
         }
         
         kakaoLoginButton.configure(title: "카카오로 시작하기", logog: .kakaoLogo, color: .kakaoYellow)

@@ -26,6 +26,8 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         view.imageCollectionView.delegate = self
         view.imageCollectionView.dataSource = self
         view.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
+        view.titleTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+
         
         return view
     }()
@@ -35,6 +37,8 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
+        swipeRecognizer()
+        updateRightButtonState()
     }
     
     private func setCustomNavigationBarConstraints() {
@@ -57,33 +61,36 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             return
         }
         
-        // presingedURL batch 요청을 이미지 정보 만들기
         let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
             return PresignedUrlImage(
                 filename: "\(postTitle)_\(index)",
                 contentType: "image/jpeg"
             )
         }
-        
         requestPresignedURLS(images: imageInfos, token: token)
-        
-    
     }
     
+    
     private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
-        PresignedUrlService.fetchBatchPresignedUrls(images: images, domain: .post, entityId: 0, token: token) { [weak self] result in
+        // entityId = 0으로 고정
+        let entity = PURLsRequestEntity(entityId: 0, images: images)
+        
+        PresignedUrlService.getPresignedUrls(domain: .post, entities: [entity], token: token) { [weak self] result in
             switch result {
             case .success(let response):
                 print("presignedURL 발급 성공")
-                self?.uploadImagesToPresignedURL(response)
+                self?.uploadImagesToPresignedURL(response.result!)
             case .failure(let error):
                 print("presignedURL 발급 실패: \(error)")
             }
         }
     }
+
     
-    private func uploadImagesToPresignedURL(_ response: PresignedUrlBatchResponse) {
-        let presignedData = response.result.images
+    private func uploadImagesToPresignedURL(_ result: PUrlsResult) {
+        guard let presignedEntity = result.entities.first else { return }
+
+        let presignedData = presignedEntity.images
         guard presignedData.count == postImages.count else { return }  // presingedURL에 올라간 이미지 개수가 맞는지 확인
         
         let dispatchGroup = DispatchGroup()
@@ -135,14 +142,35 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             case .success(let response):
                 if response.isSuccess {
                     print("게시글 생성 성공")
-                    self.navigationController?.popViewController(animated: true)
-                } else {
-                    print("서버 응답 에러: \(response.message)")
+                    DispatchQueue.main.async {
+                        self.addPostView.navigationBar.rightButton.isUserInteractionEnabled = true  // 버튼 다시 활성화
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             case .failure(let error):
                 print("게시글 전송 실패: \(error.localizedDescription)")
             }
         }
+    }
+    
+    
+    @objc func textFieldDidChange() {
+        updateRightButtonState()
+    }
+
+    private func updateRightButtonState() {
+        self.postTitle = addPostView.titleTextField.text ?? ""
+        self.postContent = addPostView.contentTextView.text ?? ""
+        
+        
+        let isFormValid = !self.postTitle.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil && !self.postContent.trimmingCharacters(in: .whitespaces).isEmpty
+        addPostView.navigationBar.rightButton.isHidden = !isFormValid
+    }
+    
+    func didSelectCategory(_ category: String) {
+        print("선택된 카테고리: \(category)")
+        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
+        updateRightButtonState()
     }
 
     
@@ -158,13 +186,9 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         self.present(imagePickerController, animated: true)
     }
     
-    func didSelectCategory(_ category: String) {
-        print("선택된 카테고리: \(category)")
-        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
-    }
-    
-    
 }
+
+
 
 extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -178,19 +202,17 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         else if let originalImage = info[.originalImage] as? UIImage {
             selectedImage = originalImage
         }
-
         
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
-            
             postImages.append(image)
             addPostView.imageCollectionView.reloadData()
             addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
-        
         picker.dismiss(animated: true)
     }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }

@@ -74,6 +74,8 @@ class CommentTableViewCell: UITableViewCell {
         replyButton.addTarget(self, action: #selector(replyButtonTapped), for: .touchUpInside)
     }
     
+
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -86,13 +88,13 @@ class CommentTableViewCell: UITableViewCell {
     
 
     private func addComponents() {
-        self.addSubview(topLeftView)
+        contentView.addSubview(topLeftView)
         topLeftView.addSubview(accountImageView)
         topLeftView.addSubview(accountName)
         topLeftView.addSubview(postTime)
         
         topLeftView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(5)
             make.leading.equalToSuperview()
             make.height.equalTo(40)
         }
@@ -120,18 +122,22 @@ class CommentTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview()
         }
         
-        self.addSubview(commentContent)
+
+        contentView.addSubview(commentContent)
         contentView.addSubview(replyButton)
         
         commentContent.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(50)
             make.top.equalTo(topLeftView.snp.bottom).offset(5)
             make.trailing.equalTo(settingButton.snp.leading)
+            make.height.greaterThanOrEqualTo(22)
         }
         
         replyButton.snp.makeConstraints { make in
-            make.top.equalTo(commentContent.snp.bottom)
+            make.top.equalTo(commentContent.snp.bottom).offset(5)
             make.leading.equalTo(commentContent)
+            make.bottom.equalToSuperview()
+            make.height.equalTo(22)
         }
         
     }
@@ -139,7 +145,8 @@ class CommentTableViewCell: UITableViewCell {
     func configure(with comment: CommentItem, member: MemberInfoResponse) {
         commentContent.text = comment.content
         accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
-
+        postTime.text = timeAgoString(from: comment.createdAt)
+        
         self.accountName.text = member.nickname
         
     }

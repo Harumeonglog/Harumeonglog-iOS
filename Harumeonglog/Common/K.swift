@@ -11,6 +11,7 @@ struct K {
     struct Keys {
         static let accessToken = "accessToken"
         static let refreshToken = "refreshToken"
+        static let fcmToken = "fcmToken"
     }
     
     static let haruURL = "https://api.haru-official.click"
