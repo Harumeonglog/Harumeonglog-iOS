@@ -345,23 +345,18 @@ extension PetOwnerCell: MemberInPetCellDelegate {
     }
     
     func didTapDeleteMember(member: PetMemberDTO, petId: Int) {
-        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { _ in
-            self.petListViewModel?.deletePet(petId: petId)
-        }
+        petListViewModel?.deletePetMember(memberId: member.id ?? 0, petId: petId) { _ in }
     }
     
     private func showMemberEditMenu(for member: PetMemberDTO, at indexPath: IndexPath) {
         guard let pet = pet else { return }
         
-        let alert = UIAlertController(title: "\(member.name)", message: "작업을 선택하세요", preferredStyle: .actionSheet)
-        
+        let alert = UIAlertController(title: "\(member.name ?? "no member name")", message: "작업을 선택하세요", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
             self?.didTapDeleteMember(member: member, petId: pet.petId ?? 0)
         })
-        
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         
-        // 현재 뷰컨트롤러 찾기
         if let viewController = self.findViewController() {
             viewController.present(alert, animated: true)
         }
