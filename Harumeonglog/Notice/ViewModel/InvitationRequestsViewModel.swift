@@ -51,7 +51,7 @@ final class InvitationRequestsViewModel: ObservableObject {
         
         InvitationRequestsService.postInvitationRequest(petId: request.petId, token: accessToken, mode: mode) { [weak self] result in
             switch result {
-            case .success(_):
+            case .success(let response):
                 self?.invitations.removeAll(where: { $0.invitationId == request.invitationId })
                 print("\(mode.rawValue) invitation \(request.petName) succeed", self?.invitations ?? ["nothing"])
             case .failure(let failure):
