@@ -13,8 +13,17 @@ private enum PickerMode {
     case time
 }
 
-class AddEventViewController: UIViewController {
+protocol AddEventViewControllerDelegate: AnyObject {
+    func didAddEvent()
+}
 
+class AddEventViewController: UIViewController {
+    
+    var selectedDate: Date = Date() // 홈화면에서 선택된 날짜
+    weak var delegate: AddEventViewControllerDelegate?
+    
+    private var selectedCategory: CategoryType? // 선택된 카테고리 저장
+    
     private lazy var addEventView: AddEventView = {
         let view = AddEventView()
         view.delegate = self
@@ -78,11 +87,11 @@ class AddEventViewController: UIViewController {
     
     
     private func setInitialDateTime() {
-        let currentDate = Date()
-        let formattedDate = getFormattedDate(currentDate)  // 현재 날짜
+        let currentDate = selectedDate // 선택된 날짜 사용
+        let formattedDate = getFormattedDate(currentDate)  // 선택된 날짜
         let formattedTime = getFormattedTime(currentDate)  // 현재 시간
         
-        // dateButton과 timeButton에 현재 날짜와 시간 설정
+        // dateButton과 timeButton에 선택된 날짜와 현재 시간 설정
         addEventView.dateButton.setTitle(formattedDate, for: .normal)
         addEventView.timeButton.setTitle(formattedTime, for: .normal)
     }
@@ -165,6 +174,7 @@ class AddEventViewController: UIViewController {
 // MARK: Delegate 구현하여 선택된 카테고리에 따라 입력 필드 표시
 extension AddEventViewController: AddEventViewDelegate {
     func categoryDidSelect(_ category: CategoryType) {
+        selectedCategory = category // 선택된 카테고리 저장
         updateCategoryInputView(for: category)
     }
 
@@ -272,6 +282,7 @@ extension AddEventViewController {
                 print("일정 추가 성공 !!: \(response)")
                 DispatchQueue.main.async {
                     self.navigationController?.popViewController(animated: true)
+                    self.delegate?.didAddEvent() // 델리게이트 호출
                 }
             case .failure(let error):
                 print("일정 추가 실패 ㅜㅜ: \(error)")

@@ -26,6 +26,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     }
 
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        selectedDate = date // 선택된 날짜 저장
+        
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
             print("AccessToken이 없음")
             return

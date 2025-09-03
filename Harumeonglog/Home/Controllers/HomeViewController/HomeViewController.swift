@@ -20,6 +20,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     let petViewModel = HomePetViewModel()
 
     private var hasLoadedEventDates = false
+    private var selectedDate: Date = Date() // 선택된 날짜 저장
 
     var markedDates: [Date] = []
     var markedDateStrings: Set<String> = []
@@ -115,6 +116,8 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
     @objc func addeventButtonTapped() {
         let addVC = AddEventViewController()
+        addVC.selectedDate = selectedDate // 선택된 날짜 전달
+        addVC.delegate = self // 델리게이트 설정
         self.navigationController?.pushViewController(addVC, animated: true)
     }
 
@@ -189,6 +192,30 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     func setCalendarTo(date: Date) {
         homeView.calendarView.setCurrentPage(date, animated: true)
         updateHeaderLabel()
+    }
+}
+
+// MARK: - AddEventViewControllerDelegate
+extension HomeViewController: AddEventViewControllerDelegate {
+    func didAddEvent() {
+        // 일정 추가 완료 후 이벤트 날짜 다시 로드
+        fetchEventDatesForCurrentMonth()
+        
+        // 선택된 날짜의 이벤트도 다시 로드
+        if let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty {
+            eventViewModel.fetchEventsByDate(selectedDate, token: token) { result in
+                switch result {
+                case .success(let events):
+                    DispatchQueue.main.async {
+                        let mappedEvents = events.map { Event(id: $0.id, title: $0.title, category: "GENERAL", done: $0.done) }
+                        self.homeView.eventView.updateEvents(mappedEvents)
+                        self.homeView.calendarView.reloadData() // 캘린더 점 표시 업데이트
+                    }
+                case .failure(let error):
+                    print("일정 추가 후 이벤트 재조회 실패: \(error)")
+                }
+            }
+        }
     }
 }
 
