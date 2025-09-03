@@ -143,7 +143,6 @@ final class PetListViewModel: ObservableObject {
     // 현재 사용자를 제외하는 필터링 함수
     private func filterOutCurrentUser(from members: [PetMemberDTO]?) -> [PetMemberDTO]? {
         guard let members = members, let currentUserId = currentUserId else {
-            print("member 또는 currentUserId가 없습니다.")
             return members
         }
         
