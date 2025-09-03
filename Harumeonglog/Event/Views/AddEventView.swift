@@ -13,7 +13,6 @@ protocol AddEventViewDelegate: AnyObject {
     func categoryDidSelect(_ category: CategoryType)
     func dateButtonTapped()
     func timeButtonTapped()
-    func alarmButtonTapped()
     func weekdayTapped(_ weekday: String, isSelected: Bool)
 }
 
@@ -25,8 +24,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         didSet {
             titleTextField.isUserInteractionEnabled = isEditable
             dateButton.isUserInteractionEnabled = isEditable
-            timeButton.isUserInteractionEnabled = isEditable
-            alarmButton.isUserInteractionEnabled = isEditable
             weekButtons.forEach { $0.isUserInteractionEnabled = isEditable }
             categoryButton.isUserInteractionEnabled = isEditable
         }
@@ -91,13 +88,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         return image
     }()
     
-    private lazy var alarmIcon : UIImageView = {
-        let image = UIImageView(image: UIImage(named: "alarm"))
-        image.contentMode = .scaleAspectFit // 비율 유지
-        image.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 적용
-        return image
-    }()
-    
     
     //  요일 선택 버튼들 (월~일)
     lazy var weekButtons: [UIButton] = {
@@ -130,21 +120,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         let button = UIButton(type: .system)
         button.titleLabel?.font = .body
         button.setTitleColor(.gray00, for: .normal)
-        return button
-    }()
-
-    // 알람 설정 버튼
-    lazy var alarmButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("10분 전 팝업", for: .normal)
-        button.setTitleColor(.gray00, for: .normal)
-        button.titleLabel?.font = .body
-        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 10, weight: .regular), forImageIn: .normal)
-
-        button.tintColor = .gray00
-        button.semanticContentAttribute = .forceRightToLeft
-        button.contentHorizontalAlignment = .leading
         return button
     }()
     
@@ -244,10 +219,8 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         EventInfoView.addSubview(timeIcon)
         EventInfoView.addSubview(repeatIcon)
-        EventInfoView.addSubview(alarmIcon)
             
         EventInfoView.addSubview(dateButton)
-        EventInfoView.addSubview(alarmButton)
         EventInfoView.addSubview(timeButton)
         
         // weekButtons(요일 선택 버튼) 추가
@@ -272,7 +245,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.width.equalToSuperview()
         }
         
-        [timeIcon, repeatIcon, alarmIcon].forEach { icon in
+        [timeIcon, repeatIcon].forEach { icon in
             icon.snp.makeConstraints { make in
                 make.width.height.equalTo(22)
             }
@@ -286,11 +259,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         repeatIcon.snp.makeConstraints { make in
             make.leading.equalTo(EventInfoView.snp.leading).offset(30)
             make.top.equalTo(timeIcon.snp.bottom).offset(28)  // 요소 간 간격 40pt
-        }
-            
-        alarmIcon.snp.makeConstraints { make in
-            make.leading.equalTo(EventInfoView.snp.leading).offset(30)
-            make.top.equalTo(repeatIcon.snp.bottom).offset(28)  // 요소 간 간격 40pt
         }
             
             //버튼 크기 및 위치 설정
@@ -319,11 +287,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             previousButton = button
         }
             
-        alarmButton.snp.makeConstraints { make in
-            make.leading.equalTo(alarmIcon.snp.trailing).offset(15)
-            make.centerY.equalTo(alarmIcon)
-        }
-        
         titleTextField.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20)
             make.height.equalTo(45)
@@ -336,7 +299,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.top.equalTo(titleTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(160)
+            make.height.equalTo(120) // 높이 줄임
             make.centerX.equalToSuperview()
         }
         
@@ -366,8 +329,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
 
         dateButton.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
-        timeButton.addTarget(self, action: #selector(timeButtonTapped), for: .touchUpInside)
-        alarmButton.addTarget(self, action: #selector(alarmButtonTapped), for: .touchUpInside)
         weekButtons.forEach { $0.addTarget(self, action: #selector(weekButtonTapped(_:)), for: .touchUpInside) }
     }
 
@@ -377,14 +338,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     @objc private func dateButtonTapped() {
         delegate?.dateButtonTapped()
-    }
-
-    @objc private func timeButtonTapped() {
-        delegate?.timeButtonTapped()
-    }
-
-    @objc private func alarmButtonTapped() {
-        delegate?.alarmButtonTapped()
     }
 
     @objc private func weekButtonTapped(_ sender: UIButton) {

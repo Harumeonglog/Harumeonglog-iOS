@@ -127,36 +127,22 @@ class AddEventViewController: UIViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    @objc private func alertButtonTapped() {
-        let alertController = UIAlertController(title: "알림 설정", message: nil, preferredStyle: .actionSheet)
-
-        // 알림 옵션 목록
-        let alarmOptions: [(title: String, minutes: Int?)] = [
-            ("설정 안 함", nil),
-            ("10분 전 팝업", 10),
-            ("30분 전 팝업", 30),
-            ("1시간 전 팝업", 60),
-            ("하루 전 팝업", 1440)
-        ]
-        
-        // 옵션을 UIAlertAction으로 추가
-        for option in alarmOptions {
-            let action = UIAlertAction(title: option.title, style: .default) { _ in
-                UIView.performWithoutAnimation { // UI 깜빡임 방지
-                    self.addEventView.alarmButton.setTitle(option.title, for: .normal)
-                    self.addEventView.layoutIfNeeded()
-                }
-                self.alarmOptionSelected(option.title)
-            }
-            alertController.addAction(action)
+    func weekdayTapped(_ weekday: String, isSelected: Bool) {
+        if isSelected {
+            selectedWeekdays.insert(weekday)
+        } else {
+            selectedWeekdays.remove(weekday)
         }
-        
-        // 취소 버튼 추가
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        // 모달 표시
-        self.present(alertController, animated: true, completion: nil)
+
+        // 버튼 상태 반영
+        for button in addEventView.weekButtons {
+            if button.titleLabel?.text == weekday {
+                button.backgroundColor = isSelected ? .brown01 : .white
+                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
+            }
+        }
+
+        print("선택된 요일: \(selectedWeekdays)")
     }
     
     // 날짜 변환 (2025.3.10 월요일 형식)
@@ -190,38 +176,12 @@ extension AddEventViewController: AddEventViewDelegate {
         showDateTimePicker(for: PickerMode.time)
     }
 
-    func alarmButtonTapped() {
-        alertButtonTapped()
-    }
-
-    func weekdayTapped(_ weekday: String, isSelected: Bool) {
-        if isSelected {
-            selectedWeekdays.insert(weekday)
-        } else {
-            selectedWeekdays.remove(weekday)
-        }
-
-        // 버튼 상태 반영
-        for button in addEventView.weekButtons {
-            if button.titleLabel?.text == weekday {
-                button.backgroundColor = isSelected ? .brown01 : .white
-                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
-            }
-        }
-
-        print("선택된 요일: \(selectedWeekdays)")
-    }
-
     private func updateCategoryInputView(for category: CategoryType) {
         addEventView.updateCategoryInputView(for: category)
     }
 
     func getSelectedWeekdays() -> [String] {
         return selectedWeekdays.toEnglishWeekdays()
-    }
-
-    func alarmOptionSelected(_ option: String) {
-        // TODO알람 옵션 선택 시 처리 로직 추가 가능
     }
 }
 
@@ -285,7 +245,7 @@ extension AddEventViewController {
             isRepeated: !selectedWeekdays.isEmpty,
             expiredDate: "2025-12-31",
             repeatDays: getSelectedWeekdays(),
-            hasNotice: addEventView.alarmButton.title(for: .normal) != "설정 안 함",
+            hasNotice: false, // 알림 기능 제거됨
             time: formattedTime,
             category: category.serverKey,
             details: category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,

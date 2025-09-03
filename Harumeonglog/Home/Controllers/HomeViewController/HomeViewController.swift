@@ -50,6 +50,9 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         setupButtons()
         updateHeaderLabel()
+        
+        // 키보드 숨김 처리 추가
+        hideKeyboardWhenTappedAround()
     }
 
     override func viewDidLayoutSubviews() {
