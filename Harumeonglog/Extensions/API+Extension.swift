@@ -36,7 +36,7 @@ extension APIClient {
         let url = "\(baseURL)\(endpoint)"
         let headers = getHeaders(withToken: token)
         
-        AF.request(url, method: .get, headers: headers).responseDecodable(of: T.self) { response in
+        AF.request(url, method: .get, encoding: JSONEncoding.default, headers: headers).responseDecodable(of: T.self) { response in
             completion(response.result)
         }
     }

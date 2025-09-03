@@ -13,7 +13,7 @@ class EditOrRegistPetView: UIView {
     
     public var selectedDogSize: DogSizeEnum?
     public var selectedDogGender: DogGenderEnum?
-    public var petInfo: Pet?
+    public var petInfo: PetDTO?
     public var birthday: Date?
     private let labelLeadingPadding: CGFloat = 41
     private let leadingTrailingPadding: CGFloat = 28
@@ -76,7 +76,7 @@ class EditOrRegistPetView: UIView {
         self.backgroundColor = .background
     }
     
-    public func configure(pet: Pet) {
+    public func configure(pet: PetDTO) {
         self.petInfo = pet
         self.petNameTextField.text = pet.name
         self.dogTypeTextField.text = pet.type

@@ -67,25 +67,29 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         self.navigationController?.popViewController(animated: true)
     }
     
-    func didTapInviteButton(petID: Int) {
+    func didTapInviteButton(petId: Int) {
         let invitationVC = InviteMemberViewController()
         invitationVC.modalPresentationStyle = .overFullScreen
-        invitationVC.configure(petID: petID)
+        invitationVC.configure(petId: petId)
         present(invitationVC, animated: false)
     }
     
-    func didTapExitButton(petID: Int) {
-        petListViewModel!.deletePet(petId: petID) { _ in }
+    func didTapExitButton(petId: Int) {
+        petListViewModel!.deletePetMember(memberId: MemberAPIService.userInfo!.memberId, petId: petId) { _ in
+            self.petListViewModel?.deletePet(petId: petId)
+        }
     }
     
-    func didTapEditButton(pet: Pet) {
+    func didTapEditButton(pet: PetDTO) {
         let petEditViewController = EditOrRegistPetViewController()
         petEditViewController.configure(pet: pet, petListViewModel: petListViewModel!, mode: .Edit)
         self.navigationController?.pushViewController(petEditViewController, animated: true)
     }
     
-    func didTapDeleteMemberButton() {
-        petListView.petListCollectionView.reloadData()
+    func didTapDeleteMemberButton(memberId: Int, petId: Int) {
+        petListViewModel!.deletePetMember(memberId: memberId, petId: petId) { result in
+            self.petListView.petListCollectionView.reloadData()
+        }
     }
 }
 

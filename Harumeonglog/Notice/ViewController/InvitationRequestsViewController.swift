@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import Combine
 
 class InvitationRequestsViewController: UIViewController {
     
     private let invitationRequestsView = InvitationRequestsView()
     private var invitationRequestsViewModel: InvitationRequestsViewModel?
+    private var cancellables: Set<AnyCancellable> = []
     
     override func viewDidLoad() {
         self.hideKeyboardWhenTappedAround()
@@ -23,10 +25,18 @@ class InvitationRequestsViewController: UIViewController {
         invitationRequestsView.invitationMessageCollectionView.delegate = self
         invitationRequestsView.invitationMessageCollectionView.dataSource = self
         invitationRequestsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        self.invitationRequestsViewModel?.getInvitationRequests()
     }
     
     func configure(_ viewModel: InvitationRequestsViewModel) {
         self.invitationRequestsViewModel = viewModel
+        
+        invitationRequestsViewModel!.$invitations
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                self.invitationRequestsView.invitationMessageCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     
     @objc
@@ -54,10 +64,12 @@ extension InvitationRequestsViewController: UICollectionViewDelegate, UICollecti
 extension InvitationRequestsViewController: InviteRequestCellDelegate {
     
     func didTapConfirmButton(of request: InvitationRequest) {
+        print("accept button tapped")
         invitationRequestsViewModel?.postInvitationResponse(request: request, mode: .accept)
     }
     
     func didTapDeleteButton(of request: InvitationRequest) {
+        print("reject button tapped")
         invitationRequestsViewModel?.postInvitationResponse(request: request, mode: .reject)
     }
     

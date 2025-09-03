@@ -10,7 +10,7 @@ import UIKit
 class EditOrRegistPetViewController: UIViewController {
     
     private var petListViewModel: PetListViewModel?
-    private var pet: Pet?
+    private var pet: PetDTO?
     private var mode: ViewControllerMode?
     private let editOrRegistPetView = EditOrRegistPetView()
     private let actionSheetForGender = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -25,13 +25,13 @@ class EditOrRegistPetViewController: UIViewController {
         return picker
     }()
     
-    func configure(pet: Pet?, petListViewModel: PetListViewModel?, mode: ViewControllerMode ) {
+    func configure(pet: PetDTO?, petListViewModel: PetListViewModel?, mode: ViewControllerMode ) {
         self.petListViewModel = petListViewModel
         self.pet = pet
         self.mode = mode
         guard let pet = pet else { return }
         self.editOrRegistPetView.configure(pet: pet)
-        print(pet.petId)
+        print(pet.petId ?? "no petId")
     }
     
     override func viewDidLoad() {
@@ -281,7 +281,7 @@ extension EditOrRegistPetViewController: UIImagePickerControllerDelegate, UINavi
                                 imageKey: self.imageKey!)
                             // 강아지 프로필 올리기 or 수정하기
                             if self.mode == .Edit { // 있으면 수정
-                                self.petListViewModel?.patchPet(petId: self.pet!.petId, newInfo: petParameter) {_ in}
+                                self.petListViewModel?.patchPet(petId: self.pet!.petId ?? 0, newInfo: petParameter) {_ in}
                             } else if self.mode == .Regist { // 없으면 새로운 강아지
                                 self.petListViewModel?.postPet(newInfo: petParameter) {_ in}
                             }

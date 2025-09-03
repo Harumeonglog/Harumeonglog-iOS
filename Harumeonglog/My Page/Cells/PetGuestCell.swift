@@ -8,14 +8,14 @@
 import UIKit
 
 protocol PetGuestCellDelegate: AnyObject {
-    func didTapExitButton(petID: Int)
+    func didTapExitButton(petId: Int)
 }
 
 class PetGuestCell: UICollectionViewCell {
     
     static let identifier = "PetGuestCell"
     var delegate: PetGuestCellDelegate?
-    var pet: Pet?
+    var pet: PetDTO?
     // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
         $0.clipsToBounds = true
@@ -47,7 +47,8 @@ class PetGuestCell: UICollectionViewCell {
         $0.setImage(.exit, for: .normal)
     }
     
-    public func configure(_ pet: Pet, delegate: PetGuestCellDelegate) {
+    public func configure(_ pet: PetDTO, delegate: PetGuestCellDelegate) {
+        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
         self.pet = pet
         self.delegate = delegate
         setDefaultConstraints()
@@ -120,11 +121,9 @@ class PetGuestCell: UICollectionViewCell {
     
     @objc
     private func exitButtonTapped() {
-        guard let pet = pet else {
-            print("cell 안의 pet이 비어있습니다.")
-            return
-        }
-        delegate?.didTapExitButton(petID: pet.petId)
+        guard let pet = pet else { print("cell 안의 pet이 비어있습니다."); return }
+        guard let petId = pet.petId else { print("pet의 id가 비어있습니다."); return }
+        delegate?.didTapExitButton(petId: petId)
     }
     
     override init(frame: CGRect) {

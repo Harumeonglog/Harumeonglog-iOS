@@ -14,9 +14,7 @@ final class NoticeViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     var cursor: Int? = 0
     
-    init() {
-        
-    }
+    init() {}
     
     func getNotices(completion: @escaping(Result<HaruResponse<NoticesResult>, AFError>) -> Void) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return}

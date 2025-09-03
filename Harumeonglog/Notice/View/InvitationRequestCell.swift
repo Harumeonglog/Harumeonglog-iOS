@@ -53,6 +53,7 @@ class InvitationRequestCell: UICollectionViewCell {
     }
     
     public func configure(_ data: InvitationRequest, delegate: InviteRequestCellDelegate) {
+        self.request = data
         nameLabel.text = data.petName
         profileImage.kf.setImage(with: URL(string: data.image))
         self.delegate = delegate
@@ -108,7 +109,7 @@ class InvitationRequestCell: UICollectionViewCell {
     
     @objc
     func didTapDeleteButton() {
-        delegate?.didTapConfirmButton(of: self.request!)
+        delegate?.didTapDeleteButton(of: self.request!)
     }
     
 }

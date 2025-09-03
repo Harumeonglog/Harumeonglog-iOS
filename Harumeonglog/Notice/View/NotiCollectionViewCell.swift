@@ -42,8 +42,8 @@ class NotiCollectionViewCell: UICollectionViewCell {
     
     public func configure(_ data: NoticeModel) {
         let type = data.noticeType
-        typeImageView.image = type.typeImage()
-        titleLabel.text = data.content
+        typeImageView.image = type?.typeImage() ?? UIImage(systemName: "sun")
+        titleLabel.text = data.content ?? ""
         if type == .COMMENT || type == .ARTICLE {
             // timeLabel.text = data.date
             timeLabel.isHidden = false

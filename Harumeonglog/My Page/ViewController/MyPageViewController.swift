@@ -11,7 +11,7 @@ import Combine
 class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let myPageView = MyPageView()
-    private var petListViewModel = PetListViewModel()
+    private var petListViewModel = PetListViewModel.shared
     private let userActivityViewModel = UserActivityViewModel()
     private let petListVC = PetListViewController()
     private var cancellables = Set<AnyCancellable>()
@@ -57,8 +57,6 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
                 break
             }
         }
-        
-            
         showTabBar()
     }
     

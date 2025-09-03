@@ -17,7 +17,7 @@ enum InvitationRequestsService {
     static func postInvitationRequest(petId: Int, token: String, mode: RequestReply, completion: @escaping (Result<HaruResponse<String>, AFError>) -> Void) {
         let endpoint = "/api/v1/pets/\(petId)/invitations"
         let parameters: [String: String] = ["response": mode.rawValue]
-        APIClient.postRequest(endpoint: endpoint, parameters: parameters, completion: completion)
+        APIClient.postRequest(endpoint: endpoint, parameters: parameters, token: token, completion: completion)
     }
     
 }

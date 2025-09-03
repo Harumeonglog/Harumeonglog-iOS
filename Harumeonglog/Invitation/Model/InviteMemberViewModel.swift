@@ -53,8 +53,8 @@ class InviteMemberViewModel: ObservableObject {
         }
     }
     
-    func inviteUsers(petID: Int) {
-        InviteMemberService.inviteUser(petID: petID, users: stage) { [weak self] result in
+    func inviteUsers(petId: Int) {
+        InviteMemberService.inviteUser(petID: petId, users: stage) { [weak self] result in
             switch result {
             case .success(let response):
                 self?.stage.removeAll()

@@ -22,7 +22,6 @@ class NotiViewController: UIViewController {
         self.notificationsView.notificationCollectionView.delegate = self
         self.notificationsView.notificationCollectionView.dataSource = self
         self.navigationController?.isNavigationBarHidden = true
-        self.invitationRequestViewModel.getInvitationRequests()
         
         noticeViewModel.$noticeList
             .sink{ [weak self] _ in
