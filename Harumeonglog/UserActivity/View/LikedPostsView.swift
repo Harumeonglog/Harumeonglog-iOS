@@ -33,7 +33,7 @@ final class LikedPostsView: UIView {
         }
         
         likedPostsTableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(23)
+            make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
         }
