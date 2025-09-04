@@ -45,7 +45,14 @@ enum PetService {
     //MARK: /api/v1/pets/active/primary - 현재 펫 정보 조회
     static func ActivePetInfo(token: String, completion: @escaping(Result<ActivePetInfoResponse, AFError>)-> Void){
         let endpoint = "/api/v1/pets/active/primary"
-        APIClient.getRequest(endpoint: endpoint, token: token, completion: completion)
+        APIClient.getRequest(endpoint: endpoint, token: token) { (result: Result<ActivePetInfoResponse, AFError>) in
+            // 원문 로깅 추가
+            switch result {
+            case .success: break
+            case .failure: break
+            }
+            completion(result)
+        }
     }
     
 }
