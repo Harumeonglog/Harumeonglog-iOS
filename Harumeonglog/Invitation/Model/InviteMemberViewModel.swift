@@ -53,14 +53,15 @@ class InviteMemberViewModel: ObservableObject {
         }
     }
     
-    func inviteUsers(petId: Int) {
+    func inviteUsers(petId: Int, completion: @escaping (Bool) -> Void) {
         InviteMemberService.inviteUser(petID: petId, users: stage) { [weak self] result in
             switch result {
-            case .success(let response):
+            case .success(_):
                 self?.stage.removeAll()
-                print("Invite success:", response.result ?? "")
+                completion(true)
             case .failure(let error):
-                print("Invite failed:", error.localizedDescription)
+                print("invite user error: \(error.localizedDescription)")
+                completion(false)
             }
         }
     }
