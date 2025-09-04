@@ -387,11 +387,10 @@ class EditEventViewController: UIViewController {
         editEventView.categoryButton.setTitleColor(.gray00, for: .normal)
 
         let koreanDaysSet = event.repeatDays.mappedToKoreanWeekdays()
-        // 버튼이 레이아웃된 이후에도 확실히 반영되도록 즉시/지연 적용
+        print("[RepeatDays] 원본: \(event.repeatDays)")
+        print("[RepeatDays] 매핑결과: \(koreanDaysSet)")
+        // 카테고리 뷰 갱신 전/후 두 번 적용
         DispatchQueue.main.async {
-            self.applyWeekdaySelection(koreanDaysSet)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             self.applyWeekdaySelection(koreanDaysSet)
         }
 
@@ -400,7 +399,8 @@ class EditEventViewController: UIViewController {
             editEventView.updateCategoryInputView(for: categoryType)
 
             DispatchQueue.main.async {
-                // 뷰가 준비될 때까지 잠시 대기
+                // 카테고리 뷰 적용 직후 요일 강조 재적용
+                self.applyWeekdaySelection(koreanDaysSet)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     print("카테고리별 데이터 설정 시작")
                     switch event.category {

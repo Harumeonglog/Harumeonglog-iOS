@@ -83,17 +83,25 @@ class AddEventViewController: UIViewController {
     //저장버튼 동작 함수
     @objc
     private func saveButtonTapped(){
-        // Prevent duplicate taps
+        // 중복 탭 방지: 진행 중이면 무시
         if isSaving { return }
-        isSaving = true
-        addEventView.navigationBar.rightButton.isEnabled = false
+        
+        // 필수 값 확인
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken),
               let selectedCategory = addEventView.selectedCategory else { return }
         
         let input = collectEventInput(for: selectedCategory)
         let request = makeEventRequest(from: input, category: selectedCategory)
         
-        postEvent(request: request, token: accessToken)
+        // 확인 팝업 표시
+        let alert = UIAlertController(title: "등록", message: "일정을 등록하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            self.isSaving = true
+            self.addEventView.navigationBar.rightButton.isEnabled = false
+            self.postEvent(request: request, token: accessToken)
+        }))
+        present(alert, animated: true)
     }
     
     
@@ -117,6 +125,33 @@ class AddEventViewController: UIViewController {
         datePicker.locale = Locale(identifier: "ko_KR") // 한글 요일 표시
         datePicker.timeZone = TimeZone.current
         datePicker.minuteInterval = 10 // 5분 간격 선택 가능
+        
+        // 현재 버튼에 표시된 날짜/시간을 초기값으로 설정
+        if mode == .date {
+            if let text = addEventView.dateButton.title(for: .normal), !text.isEmpty {
+                let df = DateFormatter()
+                df.locale = Locale(identifier: "ko_KR")
+                df.dateFormat = "yyyy-MM-dd"
+                if let d = df.date(from: text) {
+                    var comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: Date())
+                    let dayComps = Calendar.current.dateComponents([.year,.month,.day], from: d)
+                    comps.year = dayComps.year; comps.month = dayComps.month; comps.day = dayComps.day
+                    if let merged = Calendar.current.date(from: comps) { datePicker.setDate(merged, animated: false) }
+                }
+            }
+        } else {
+            if let text = addEventView.timeButton.title(for: .normal), !text.isEmpty {
+                let tf = DateFormatter()
+                tf.locale = Locale(identifier: "ko_KR")
+                tf.dateFormat = "HH:mm"
+                if let t = tf.date(from: text) {
+                    var comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: Date())
+                    let timeComps = Calendar.current.dateComponents([.hour,.minute], from: t)
+                    comps.hour = timeComps.hour; comps.minute = timeComps.minute
+                    if let merged = Calendar.current.date(from: comps) { datePicker.setDate(merged, animated: false) }
+                }
+            }
+        }
         
         alertController.view.addSubview(datePicker)
         

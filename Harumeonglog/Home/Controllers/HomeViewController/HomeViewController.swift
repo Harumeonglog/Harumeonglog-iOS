@@ -88,6 +88,13 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                                 
                                 // 생일 표시
                                 self.homeView.birthdayLabel.text = activePetInfo.birth
+                                // 성별 아이콘 표시
+                                let gender = activePetInfo.gender.uppercased()
+                                if gender == "FEMALE" {
+                                    self.homeView.genderImageView.image = UIImage(named: "gender_girl")
+                                } else {
+                                    self.homeView.genderImageView.image = UIImage(named: "gender_boy")
+                                }
                                 
                                 // GUEST 역할인 경우 이벤트 추가 버튼 숨김
                                 let role = currentPet.role
@@ -115,6 +122,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                         DispatchQueue.main.async {
                             self.homeView.nicknameLabel.text = firstPet.name
                             self.homeView.birthdayLabel.text = "생일 정보 없음"
+                            self.homeView.genderImageView.image = UIImage(named: "gender_boy")
                             
                             let role = firstPet.role
                             if role == "GUEST" {
