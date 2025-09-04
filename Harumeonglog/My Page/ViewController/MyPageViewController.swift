@@ -78,33 +78,38 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc
     private func goToMyPostVC() {
         let notiVC = MyPostsViewController()
+        notiVC.hidesBottomBarWhenPushed = true
         notiVC.configure(with: self.userActivityViewModel)
         self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc
     private func goToLikedPostVC() {
-        let notiVC = LikedPostsViewController()
-        notiVC.configure(with: self.userActivityViewModel)
-        self.navigationController?.pushViewController(notiVC, animated: true)
+        let likedVC = LikedPostsViewController()
+        likedVC.hidesBottomBarWhenPushed = true
+        likedVC.configure(with: self.userActivityViewModel)
+        self.navigationController?.pushViewController(likedVC, animated: true)
     }
     
     @objc
     private func goToMyCommentVC() {
-        let notiVC = MyCommentViewController()
-        notiVC.configure(with: self.userActivityViewModel)
-        self.navigationController?.pushViewController(notiVC, animated: true)
+        let myCommentVC = MyCommentViewController()
+        myCommentVC.configure(with: self.userActivityViewModel)
+        myCommentVC.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(myCommentVC, animated: true)
     }
     
     @objc
     private func goToNotificationSettingVC() {
         let notiVC = DetailSettingViewController()
+        notiVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(notiVC, animated: true)
     }
     
     @objc
     private func handleEditProfileButtonTapped() {
         let editVC = EditProfileViewController()
+        editVC.hidesBottomBarWhenPushed = true
         editVC.configure()
         self.navigationController?.pushViewController(editVC, animated: true)
     }
@@ -112,6 +117,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc
     private func handlePetLisstButtonTapped() {
         petListVC.configure(petListViewModel: petListViewModel)
+        petListVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(petListVC, animated: true)
     }
     
