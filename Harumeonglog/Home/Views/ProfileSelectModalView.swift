@@ -12,12 +12,28 @@ class ProfileSelectModalView: UIView {
     
     var delegate: ProfileSelectDelegate?
     
+    // Optional: name text field with length limit to prevent overflow
+    let nameTextField: LimitedLengthTextField = {
+        let tf = LimitedLengthTextField()
+        tf.maxLength = 12
+        tf.font = .body
+        tf.textColor = .gray00
+        tf.textAlignment = .center
+        tf.backgroundColor = .white
+        tf.layer.borderWidth = 1
+        tf.layer.borderColor = UIColor.brown02.cgColor
+        tf.layer.cornerRadius = 12
+        tf.isHidden = true // shown if needed
+        return tf
+    }()
+    
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 50 //옆 간격
-        layout.minimumLineSpacing = 40 //위아래 간격
+        layout.minimumInteritemSpacing = 12 //옆 간격 (2열)
+        layout.minimumLineSpacing = 20 //위아래 간격
         layout.itemSize = CGSize(width: 70, height: 110) //cell size
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
@@ -46,11 +62,18 @@ class ProfileSelectModalView: UIView {
     
     private func addComponents() {
         addSubview(collectionView)
+        addSubview(nameTextField)
         
         collectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(60)
-            make.leading.trailing.equalToSuperview().inset(100) // 좌우 여백 설정
+            make.leading.trailing.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(30)
+        }
+        
+        nameTextField.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(16)
+            make.height.equalTo(40)
         }
     }
 }

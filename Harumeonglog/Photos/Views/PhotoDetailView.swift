@@ -57,11 +57,13 @@ class PhotoDetailView: UIView {
         bottomActionBar.addSubview(downloadButton)
         bottomActionBar.addSubview(deleteButton)
         
+        let aspect = max(imageView.image?.size.height ?? 1, 1) / max(imageView.image?.size.width ?? 1, 1)
         imageView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.9)
-            make.height.equalTo(imageView.snp.width)
+            make.top.greaterThanOrEqualTo(navigationBar.snp.bottom).offset(16)
+            make.bottom.lessThanOrEqualTo(bottomActionBar.snp.top).offset(-16)
+            make.height.equalTo(imageView.snp.width).multipliedBy(aspect)
         }
         
         navigationBar.snp.makeConstraints { make in

@@ -23,7 +23,9 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         label.textColor = .gray00
         label.numberOfLines = 1
         label.textAlignment = .center
-        label.lineBreakMode = .byWordWrapping
+        label.lineBreakMode = .byTruncatingTail 
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.8
         return label
     }()
     
@@ -75,7 +77,8 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         profileNameLabel.snp.makeConstraints { make in
             make.height.equalTo(20)
             make.bottom.equalToSuperview()
-            make.centerX.equalToSuperview()
+            make.leading.equalToSuperview().offset(2)
+            make.trailing.equalToSuperview().inset(2)
         }
         
         checkmarkImageView.snp.makeConstraints { make in

@@ -19,6 +19,8 @@ class PictureCell: UICollectionViewCell {
     var overlayView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
         view.isHidden = true
         return view
     }()
@@ -39,6 +41,8 @@ class PictureCell: UICollectionViewCell {
         contentView.addSubview(imageView)
         contentView.addSubview(overlayView)
         contentView.addSubview(addButton)
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
 
         imageView.snp.makeConstraints { make in
             make.top.leading.trailing.bottom.equalToSuperview()
@@ -76,13 +80,15 @@ class PictureCell: UICollectionViewCell {
     }
 
     func setSelectedBorder(_ isSelected: Bool) {
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
         if isSelected {
-            self.layer.borderWidth = 3
-            self.layer.borderColor = UIColor.blue01.cgColor
+            contentView.layer.borderWidth = 3
+            contentView.layer.borderColor = UIColor.blue01.cgColor
             overlayView.isHidden = false
         } else {
-            self.layer.borderWidth = 0
-            self.layer.borderColor = nil
+            contentView.layer.borderWidth = 0
+            contentView.layer.borderColor = nil
             overlayView.isHidden = true
         }
     }

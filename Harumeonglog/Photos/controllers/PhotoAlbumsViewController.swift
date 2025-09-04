@@ -17,6 +17,7 @@ class PhotoAlbumsViewController: UIViewController {
     }()
     
     private var isLoading = false
+    private var isOpeningAlbum = false
     
     // 앨범의 사진 개수를 캐싱하는 딕셔너리
     private var photoCountCache: [Int: Int] = [:]
@@ -211,8 +212,20 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
         return cell
     }
     
+    // Dynamic full-width cell sizing
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width
+        return CGSize(width: width, height: 90)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 13
+    }
+    
     //셀 선택했을때 해당 앨범으로 이동
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if isOpeningAlbum { return }
+        isOpeningAlbum = true
         let album = photoAlbumsView.albums[indexPath.item]
         let petId = album.petId
         
@@ -267,15 +280,19 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
 
                         let photosVC = PhotosViewController(album: updatedAlbum)
                         self?.navigationController?.pushViewController(photosVC, animated: true)
+                        self?.isOpeningAlbum = false
                     }
 
                 case .message(let msg):
                     print("이미지 조회 실패 메시지: \(msg)")
+                    self?.isOpeningAlbum = false
                 case .none:
                     print("이미지 응답 result 값이 없습니다.")
+                    self?.isOpeningAlbum = false
                 }
             case .failure(let error):
                 print("이미지 목록 불러오기 실패:", error)
+                self?.isOpeningAlbum = false
             }
         }
     }

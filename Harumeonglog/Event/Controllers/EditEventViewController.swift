@@ -68,10 +68,39 @@ class EditEventViewController: UIViewController {
         editEventView.deleteEventButton.isHidden = !isEditable
         if isEditable {
             editEventView.deleteEventButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+            editEventView.deleteEventButton.titleLabel?.font = UIFont(name: FontName.pretendard_bold.rawValue, size: 17)
         }
         
         if let event = event {
             configureData(with: event)
+        } else {
+            // eventId만으로 생성된 경우 상세 조회 후 UI 적용
+            guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else {
+                print("AccessToken 없음")
+                return
+            }
+            EventService.getEventDetail(eventId: self.eventId, token: token) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    if let detail = response.result {
+                        DispatchQueue.main.async {
+                            self?.event = detail
+                            self?.configureData(with: detail)
+                        }
+                    }
+                case .failure(let error):
+                    print("단일 일정 조회 실패: \(error)")
+                }
+            }
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Re-apply weekday selection after layout to ensure highlight
+        if let event = self.event {
+            let koreanDaysSet = event.repeatDays.mappedToKoreanWeekdays()
+            self.applyWeekdaySelection(koreanDaysSet)
         }
     }
 
@@ -357,15 +386,13 @@ class EditEventViewController: UIViewController {
 
         editEventView.categoryButton.setTitleColor(.gray00, for: .normal)
 
-        let koreanDays = Set(event.repeatDays).toKoreanWeekdays()
-
-        self.editEventView.weekButtons.forEach { button in
-            if let dayText = button.titleLabel?.text, koreanDays.contains(dayText) {
-                button.isSelected = true
-                button.backgroundColor = .brown01
-                button.setTitleColor(.white, for: .normal)
-                button.tintColor = .clear // 선택 시 파란색 없애기
-            }
+        let koreanDaysSet = event.repeatDays.mappedToKoreanWeekdays()
+        // 버튼이 레이아웃된 이후에도 확실히 반영되도록 즉시/지연 적용
+        DispatchQueue.main.async {
+            self.applyWeekdaySelection(koreanDaysSet)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.applyWeekdaySelection(koreanDaysSet)
         }
 
         if let categoryType = CategoryType.fromServerValue(event.category) {
@@ -417,6 +444,25 @@ class EditEventViewController: UIViewController {
             }
         }
         print("=== configureData 완료 ===")
+    }
+
+    private func applyWeekdaySelection(_ koreanDaysSet: Set<String>) {
+        // 내부 상태 동기화
+        self.selectedWeekdays = koreanDaysSet
+        // UI 반영
+        self.editEventView.weekButtons.forEach { button in
+            let title = button.currentTitle ?? ""
+            if koreanDaysSet.contains(title) {
+                button.isSelected = true
+                button.backgroundColor = .brown01
+                button.setTitleColor(.white, for: .normal)
+                button.tintColor = .clear
+            } else {
+                button.isSelected = false
+                button.backgroundColor = .white
+                button.setTitleColor(.gray00, for: .normal)
+            }
+        }
     }
     
     private func populateUI(date: String, time: String, alarm: String, weekdays: [String], detail: EventDetailData) {

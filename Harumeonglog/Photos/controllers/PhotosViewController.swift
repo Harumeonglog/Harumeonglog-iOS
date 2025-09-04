@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 // PhotosViewController는 특정 앨범에 있는 사진을 표시하고, 선택 모드로 전환하여 삭제 및 다운로드 기능을 제공하는 뷰 컨트롤러입니다.
 class PhotosViewController: UIViewController {
@@ -46,6 +47,9 @@ class PhotosViewController: UIViewController {
         
         photosView.deleteButton.addTarget(self, action: #selector(deleteSelectedImages), for: .touchUpInside)
         photosView.downloadButton.addTarget(self, action: #selector(downloadSelectedImages), for: .touchUpInside)
+        // disabled by default
+        photosView.downloadButton.isEnabled = false
+        photosView.downloadButton.alpha = 0.4
     }
     
     //탭바 숨기기
@@ -79,7 +83,7 @@ class PhotosViewController: UIViewController {
         guard UIImagePickerController.isSourceTypeAvailable(sourceType) else { return }
         let picker = UIImagePickerController()
         picker.sourceType = sourceType
-        picker.allowsEditing = true
+        picker.allowsEditing = false
         picker.delegate = self
         self.present(picker, animated: true)
     }
@@ -92,6 +96,9 @@ class PhotosViewController: UIViewController {
         navi.rightButton.addTarget(self, action: #selector(didTapSelectButton), for: .touchUpInside)
         navi.leftArrowButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         navi.configureRightButton()
+        // Enable interactive pop (swipe back)
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
     
     // 선택 버튼을 눌렀을 때 선택 모드를 토글하고 UI를 갱신
@@ -147,6 +154,8 @@ class PhotosViewController: UIViewController {
     private func updateSelectedCountLabel() {
         let count = selectedIndexPaths.count
         photosView.selectedCountLabel.text = "\(count)장의 사진이 선택됨"
+        photosView.downloadButton.isEnabled = count > 0
+        photosView.downloadButton.alpha = count > 0 ? 1.0 : 0.4
     }
     
     // 선택된 이미지를 앨범에서 제거하고 컬렉션 뷰를 갱신
@@ -208,11 +217,54 @@ class PhotosViewController: UIViewController {
 
     // 선택된 이미지를 사용자 사진 앨범에 저장
     @objc private func downloadSelectedImages() {
-        for indexPath in selectedIndexPaths {
-            let index = indexPath.item - 1
-            let image = album.uiImages[index]
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        if selectedIndexPaths.isEmpty {
+            let info = UIAlertController(title: nil, message: "사진을 먼저 선택해 주세요.", preferredStyle: .alert)
+            if !isSelecting {
+                info.addAction(UIAlertAction(title: "선택 모드 켜기", style: .default, handler: { _ in
+                    self.didTapSelectButton()
+                }))
+            }
+            info.addAction(UIAlertAction(title: "확인", style: .cancel))
+            present(info, animated: true)
+            return
         }
+        let alert = UIAlertController(title: "저장", message: "선택한 사진을 저장하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            self.requestPhotoAuthorizationIfNeeded { granted in
+                guard granted else { return }
+                for indexPath in self.selectedIndexPaths {
+                    let index = indexPath.item - 1
+                    let image = self.album.uiImages[index]
+                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.saveCompletion(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
+            }
+        }))
+        present(alert, animated: true)
+    }
+
+    private func requestPhotoAuthorizationIfNeeded(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        switch status {
+        case .authorized, .limited:
+            completion(true)
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
+                DispatchQueue.main.async {
+                    completion(newStatus == .authorized || newStatus == .limited)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
+
+    @objc private func saveCompletion(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
+        if let error = error {
+            print("사진 저장 실패: \(error)")
+            return
+        }
+        print("사진 저장 성공")
     }
 }
 
@@ -224,10 +276,10 @@ extension PhotosViewController : UIImagePickerControllerDelegate, UINavigationCo
     }
     // 이미지 피커에서 이미지 선택했을 때 호출되는 메서드
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        if let editedImage = info[.editedImage] as? UIImage {
-            uploadImage(image: editedImage)
-        } else if let originalImage = info[.originalImage] as? UIImage {
+        if let originalImage = info[.originalImage] as? UIImage {
             uploadImage(image: originalImage)
+        } else if let editedImage = info[.editedImage] as? UIImage {
+            uploadImage(image: editedImage)
         }
         picker.dismiss(animated: true)
     }
@@ -401,3 +453,24 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
         }
     }
 }
+
+extension PhotosViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let columns: CGFloat = 3
+        let spacing: CGFloat = 8
+        let totalSpacing = (columns - 1) * spacing
+        let width = floor((collectionView.bounds.width - totalSpacing) / columns)
+        return CGSize(width: width, height: width)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
+    }
+}
+
+// MARK: - Interactive Pop Gesture
+extension PhotosViewController: UIGestureRecognizerDelegate {}

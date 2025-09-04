@@ -196,20 +196,21 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(eventView)
         addSubview(addeventButton)
         alarmButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(100)
-            make.trailing.equalToSuperview().inset(30)
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(16)
+            make.trailing.equalToSuperview().inset(20)
             make.width.height.equalTo(30)
         }
         
         profileButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(90)
-            make.leading.equalToSuperview().offset(30)
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(16)
+            make.leading.equalToSuperview().offset(20)
             make.width.height.equalTo(70)
         }
         
         nicknameLabel.snp.makeConstraints { make in
             make.top.equalTo(profileButton.snp.top).offset(18)
-            make.leading.equalTo(profileButton.snp.trailing).offset(18)
+            make.leading.equalTo(profileButton.snp.trailing).offset(12)
+            make.trailing.lessThanOrEqualToSuperview().inset(20)
             make.height.greaterThanOrEqualTo(20)
         }
         
@@ -232,8 +233,8 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         calendarView.snp.makeConstraints { make in
-            make.top.equalTo(profileButton.snp.bottom).offset(3)
-            make.leading.trailing.equalToSuperview().inset(15)
+            make.top.equalTo(profileButton.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview().inset(20)
             calendarHeightConstraint = make.height.equalTo(370).constraint
         }
         
@@ -250,7 +251,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         headerStackView.snp.makeConstraints { make in
-            make.leading.equalTo(calendarView.snp.leading).offset(15) //왼쪽 정렬
+            make.leading.equalTo(calendarView.snp.leading)
             make.top.equalTo(profileButton.snp.bottom).offset(20)
         }
         

@@ -187,3 +187,15 @@ extension ProfileSelectModalViewController: UICollectionViewDelegate, UICollecti
         self.dismiss(animated: true, completion: nil)
     }
 }
+
+// Separate flow layout sizing extension
+extension ProfileSelectModalViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let columns: CGFloat = 2
+        let horizontalInset: CGFloat = 20 * 2
+        let interItemSpacing: CGFloat = 12
+        let totalSpacing = horizontalInset + (columns - 1) * interItemSpacing
+        let width = floor((collectionView.bounds.width - totalSpacing) / columns)
+        return CGSize(width: width, height: 120)
+    }
+}
