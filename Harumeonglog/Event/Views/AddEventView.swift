@@ -95,6 +95,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         return days.map { day in
             let button = UIButton(type: .system)
             button.setTitle(day, for: .normal)
+            button.accessibilityIdentifier = day
             button.titleLabel?.font = .description
             button.setTitleColor(.gray00, for: .normal)
             button.backgroundColor = .white
@@ -354,7 +355,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         let newView: UIView
         switch category {
         case .bath:
-            newView = UIView() // or a placeholder view if needed
+            newView = UIView() 
         case .walk:
             newView = WalkView()
         case .medicine:
@@ -367,7 +368,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
         print("[AddEventView] 새로운 카테고리 \(category) 뷰 생성 완료")
 
-        // 새 뷰를 contentView에 추가
+        // 새 뷰를 contentView에 추가 (드롭다운 아래에 위치시키되, 드롭다운은 항상 버튼 바로 아래 떠야 함)
         contentView.insertSubview(newView, belowSubview: dropdownTableView)
         newView.snp.makeConstraints { make in
             make.top.equalTo(categoryButton.snp.bottom).offset(20)
@@ -375,15 +376,9 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.height.equalTo(300)
             make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
         }
-        
-        // dropdownTableView 위치를 카테고리 입력 뷰 아래로 조정
-        dropdownTableView.snp.remakeConstraints { make in
-            make.top.equalTo(newView.snp.bottom).offset(5)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(200)
-            make.centerX.equalToSuperview()
-        }
+        // 드롭다운은 항상 버튼 바로 아래에 뜨도록 계층과 zPosition 보정
+        contentView.bringSubviewToFront(dropdownTableView)
+        dropdownTableView.layer.zPosition = 999
         
         // 뷰 참조 갱신
         self.categoryInputView = newView

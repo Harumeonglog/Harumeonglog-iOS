@@ -66,6 +66,27 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
 extension HomeViewController: EditEventViewControllerDelegate {
     func didDeleteEvent(eventId: Int) {
         homeView.eventView.removeEvent(withId: eventId)
+        // 달력 동그라미(이벤트 표시) 즉시 갱신
+        fetchEventDatesForCurrentMonth() { [weak self] in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.homeView.calendarView.reloadData()
+            }
+        }
+        // 현재 선택된 날짜의 일정 목록도 재조회하여 빈 상태 반영
+        if let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty {
+            eventViewModel.fetchEventsByDate(selectedDate, token: token) { [weak self] result in
+                switch result {
+                case .success(let eventDates):
+                    DispatchQueue.main.async {
+                        let mapped = eventDates.map { Event(id: $0.id, title: $0.title, category: "OTHER", done: $0.done) }
+                        self?.homeView.eventView.updateEvents(mapped)
+                    }
+                case .failure:
+                    break
+                }
+            }
+        }
     }
     
     func didUpdateEvent(_ updatedEventId: Int) {
@@ -88,6 +109,10 @@ extension HomeViewController: EditEventViewControllerDelegate {
             case .failure(let error):
                 print("수정 후 일정 재조회 실패: \(error)")
             }
+        }
+        // 월별 이벤트 점도 갱신
+        fetchEventDatesForCurrentMonth() { [weak self] in
+            self?.homeView.calendarView.reloadData()
         }
     }
 }
