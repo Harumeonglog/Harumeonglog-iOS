@@ -37,15 +37,15 @@ class BaseViewController: UITabBarController {
     private let walkingVC = UINavigationController(rootViewController: MapViewController())
     private lazy var photosVC = UINavigationController(rootViewController: PhotoAlbumsViewController())
     private let socialVC = UINavigationController(rootViewController: SocialViewController())
-    private let myPageVC = MyPageViewController()
+    private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBarItems()
         setupTabBar()
         MemberAPIService.getInfo{ _,_  in }
-        let myPageWithNavigationBar = UINavigationController(rootViewController: myPageVC)
-        self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageWithNavigationBar]
+        myPageVC.navigationBar.backgroundColor = .bg
+        self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageVC]
     }
     
     override func loadView() {
@@ -80,12 +80,25 @@ class BaseViewController: UITabBarController {
     }
     
     private func setupTabBar() {
-        // 선택 아이템 색상
+        // Item tint colors
         tabBar.tintColor = .black
         tabBar.unselectedItemTintColor = .gray02
-        
-        // 배경 색상
-        tabBar.backgroundColor = .bg
+
+        // Opaque background for iOS 15+, including scroll edge
+        if #available(iOS 15.0, *) {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .bg
+            // appearance.shadowColor = .clear
+
+            tabBar.standardAppearance = appearance
+            tabBar.scrollEdgeAppearance = appearance
+        } else {
+            tabBar.barTintColor = .bg
+            tabBar.backgroundColor = .bg
+        }
+
+        tabBar.isTranslucent = false
     }
     
 }

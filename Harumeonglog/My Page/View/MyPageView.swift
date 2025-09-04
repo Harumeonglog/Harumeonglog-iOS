@@ -12,7 +12,7 @@ class MyPageView: UIView {
     
     private let labelLeading: CGFloat = 38
     private let leadingTrailingPadding: CGFloat = 28
-
+    
     public lazy var goNotification = UIButton().then {
         $0.setImage(.rightArrow , for: .normal)
     }
@@ -23,15 +23,17 @@ class MyPageView: UIView {
         $0.backgroundColor = .gray03
         $0.clipsToBounds = true
     }
+    
     private lazy var myProfileNameLabel = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 20)
     }
+    
     public lazy var goEditProileButton = goToDetailButton()
     
     private lazy var scrollView = UIScrollView()
     private lazy var contentView = UIView()
-
+    
     private lazy var myActiveLabel = commonLabel(text: "내 활동")
     private lazy var myActiveStack = UIStackView().then { $0.axis = .horizontal }
     private lazy var divider1 = UIView().then { $0.backgroundColor = .brown01 }
@@ -100,12 +102,12 @@ class MyPageView: UIView {
     private func setScrollContainer() {
         self.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.top.leading.trailing.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
         }
         
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.edges.equalToSuperview()
             make.width.equalTo(scrollView.frameLayoutGuide)
         }
     }
@@ -118,7 +120,7 @@ class MyPageView: UIView {
         
         myProfileFrame.snp.makeConstraints { make in
             make.height.equalTo(80)
-            make.top.equalToSuperview().offset(100)
+            make.top.equalToSuperview().offset(40)
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
         }
         
