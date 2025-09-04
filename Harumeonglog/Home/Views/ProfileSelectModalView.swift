@@ -30,8 +30,8 @@ class ProfileSelectModalView: UIView {
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 50 //옆 간격
-        layout.minimumLineSpacing = 40 //위아래 간격
+        layout.minimumInteritemSpacing = 12 //옆 간격 (2열)
+        layout.minimumLineSpacing = 20 //위아래 간격
         layout.itemSize = CGSize(width: 70, height: 110) //cell size
         layout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         
