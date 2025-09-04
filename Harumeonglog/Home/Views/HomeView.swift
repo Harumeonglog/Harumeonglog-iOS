@@ -83,6 +83,10 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var genderImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "gender_boy")
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.setContentHuggingPriority(.required, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         return imageView
     }()
     
@@ -216,7 +220,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         
         genderImageView.snp.makeConstraints { make in
             make.centerY.equalTo(nicknameLabel)
-            make.leading.equalTo(nicknameLabel.snp.trailing).offset(8)
+            make.leading.equalTo(nicknameLabel.snp.trailing).offset(4)
             make.height.width.equalTo(16)
         }
         

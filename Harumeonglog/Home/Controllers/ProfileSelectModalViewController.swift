@@ -148,8 +148,12 @@ class ProfileSelectModalViewController: UIViewController {
             return ""
         }
         
-        // URL 형식 검사
-        if let _ = URL(string: url) {
+        // 경로가 /string 으로 끝나는 잘못된 URL 방지
+        if let u = URL(string: url) {
+            let last = u.lastPathComponent.lowercased()
+            if last == "string" || last == "null" || last == "undefined" {
+                return ""
+            }
             return url
         }
         
@@ -188,7 +192,6 @@ extension ProfileSelectModalViewController: UICollectionViewDelegate, UICollecti
     }
 }
 
-// Separate flow layout sizing extension
 extension ProfileSelectModalViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let columns: CGFloat = 2

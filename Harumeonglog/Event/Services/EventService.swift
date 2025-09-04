@@ -51,7 +51,7 @@ enum EventService {
         var parameters: [String: Any] = [
             "date": date,
             "cursor": 0,
-            "size": 10
+            "size": 1000
         ]
         if let category = category {
             parameters["category"] = category
