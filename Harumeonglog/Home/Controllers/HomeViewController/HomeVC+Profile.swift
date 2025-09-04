@@ -166,6 +166,8 @@ extension HomeViewController: ProfileSelectDelegate {
     }
     
     @objc func profileImageTapped() {
+        // Prevent duplicate presentation
+        if self.presentedViewController is ProfileSelectModalViewController { return }
         let profileModalVC = ProfileSelectModalViewController()
         profileModalVC.modalPresentationStyle = .pageSheet
         profileModalVC.delegate = self

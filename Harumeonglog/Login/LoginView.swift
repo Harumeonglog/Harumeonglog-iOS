@@ -14,7 +14,7 @@ class LoginView: UIView {
     private lazy var appLogo = UIImageView().then {
         $0.contentMode = .scaleAspectFit
         $0.backgroundColor = .white
-        $0.image = .appLogo 
+        $0.image = .appLogo
     }
     
     public lazy var kakaoLoginButton = SocialLoginButton()

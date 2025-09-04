@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 class PhotoDetailViewController: UIViewController {
     
@@ -30,6 +31,7 @@ class PhotoDetailViewController: UIViewController {
         setCustomNavigationBarConstraints()
         
         photoDetailView.deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
+        photoDetailView.downloadButton.addTarget(self, action: #selector(didTapDownloadButton), for: .touchUpInside)
     }
     
     //탭바 숨기기
@@ -88,5 +90,42 @@ class PhotoDetailViewController: UIViewController {
             }
         }))
         present(alert, animated: true, completion: nil)
+    }
+
+    @objc
+    private func didTapDownloadButton() {
+        let alert = UIAlertController(title: "저장", message: "사진을 저장하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            self.requestPhotoAuthorizationIfNeeded { granted in
+                guard granted else { return }
+                UIImageWriteToSavedPhotosAlbum(self.image, self, #selector(self.saveCompletion(_:didFinishSavingWithError:contextInfo:)), nil)
+            }
+        }))
+        present(alert, animated: true)
+    }
+
+    private func requestPhotoAuthorizationIfNeeded(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        switch status {
+        case .authorized, .limited:
+            completion(true)
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
+                DispatchQueue.main.async {
+                    completion(newStatus == .authorized || newStatus == .limited)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
+
+    @objc private func saveCompletion(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
+        if let error = error {
+            print("사진 저장 실패: \(error)")
+            return
+        }
+        print("사진 저장 성공")
     }
 }

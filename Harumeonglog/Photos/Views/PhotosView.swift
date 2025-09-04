@@ -15,8 +15,8 @@ class PhotosView: UIView {
     lazy var PhotosCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: 120, height: 120) 
         layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 8
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false

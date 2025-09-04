@@ -38,7 +38,7 @@ class AlbumCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addComponents()
-        contentView.layer.cornerRadius = 20
+        contentView.layer.cornerRadius = 12
         contentView.layer.masksToBounds = true
         contentView.backgroundColor = .white
     }

@@ -43,10 +43,10 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.calendarView.delegate = self
         homeView.calendarView.dataSource = self
         homeView.eventView.delegate = self
-
+        
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
-
+        
         fetchActivePets()
         
         setupButtons()
@@ -54,6 +54,9 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         // 키보드 숨김 처리 추가
         hideKeyboardWhenTappedAround()
+        // Enable interactive pop gesture globally for this nav stack
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
 
     override func viewDidLayoutSubviews() {
@@ -147,6 +150,8 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
 
     @objc func addeventButtonTapped() {
+        // Prevent duplicate pushes
+        if let top = self.navigationController?.topViewController, top is AddEventViewController { return }
         let addVC = AddEventViewController()
         addVC.selectedDate = selectedDate // 선택된 날짜 전달
         addVC.delegate = self // 델리게이트 설정
@@ -357,7 +362,7 @@ extension HomeViewController: AddEventViewControllerDelegate {
 
 
 // MARK: - UICollectionViewDelegate
-extension HomeViewController: UICollectionViewDelegate {
+extension HomeViewController: UICollectionViewDelegate, UIGestureRecognizerDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // 이벤트 목록 중 선택된 index의 eventId를 전달
         let editVC = EditEventViewController(eventId: indexPath.row + 1)

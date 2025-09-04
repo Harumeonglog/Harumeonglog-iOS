@@ -23,6 +23,7 @@ class AddEventViewController: UIViewController {
     weak var delegate: AddEventViewControllerDelegate?
     
     private var selectedCategory: CategoryType? // 선택된 카테고리 저장
+    private var isSaving: Bool = false
     
     private lazy var addEventView: AddEventView = {
         let view = AddEventView()
@@ -82,6 +83,10 @@ class AddEventViewController: UIViewController {
     //저장버튼 동작 함수
     @objc
     private func saveButtonTapped(){
+        // Prevent duplicate taps
+        if isSaving { return }
+        isSaving = true
+        addEventView.navigationBar.rightButton.isEnabled = false
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken),
               let selectedCategory = addEventView.selectedCategory else { return }
         
@@ -299,6 +304,8 @@ extension AddEventViewController {
             case .success(let response):
                 print("일정 추가 성공 !!: \(response)")
                 DispatchQueue.main.async {
+                    self.isSaving = false
+                    self.addEventView.navigationBar.rightButton.isEnabled = true
                     self.navigationController?.popViewController(animated: true)
                     self.delegate?.didAddEvent() // 델리게이트 호출
                 }
@@ -317,6 +324,10 @@ extension AddEventViewController {
                     print("서버 응답 JSON 본문:\n\(json)")
                 } else {
                     print("응답 데이터 없음")
+                }
+                DispatchQueue.main.async {
+                    self.isSaving = false
+                    self.addEventView.navigationBar.rightButton.isEnabled = true
                 }
             }
         }
