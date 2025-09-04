@@ -14,7 +14,6 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         setCalendarTo(date: date)
     }
     
-    
 
     let eventViewModel = HomeEventViewModel()
     let petViewModel = HomePetViewModel()
@@ -89,21 +88,14 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                                 // 생일 표시
                                 self.homeView.birthdayLabel.text = activePetInfo.birth
                                 // 성별 아이콘 표시
-                                let gender = activePetInfo.gender.uppercased()
-                                if gender == "FEMALE" {
-                                    self.homeView.genderImageView.image = UIImage(named: "gender_girl")
-                                } else {
-                                    self.homeView.genderImageView.image = UIImage(named: "gender_boy")
-                                }
+                                self.updateGenderIcon(activePetInfo.gender)
                                 
                                 // GUEST 역할인 경우 이벤트 추가 버튼 숨김
                                 let role = currentPet.role
                                 if role == "GUEST" {
                                     self.homeView.addeventButton.isHidden = true
-                                    print("GUEST 역할이므로 이벤트 추가 버튼 숨김")
                                 } else {
                                     self.homeView.addeventButton.isHidden = false
-                                    print("\(role) 역할이므로 이벤트 추가 버튼 표시")
                                 }
 
                                 // 이미지 로딩 개선
@@ -191,6 +183,24 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy년 M월"
         return formatter.string(from: date)
+    }
+
+    func updateGenderIcon(_ genderString: String) {
+        let normalized = genderString
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\n", with: "")
+            .replacingOccurrences(of: "\r", with: "")
+            .uppercased()
+        let imageName: String
+        if normalized == "MALE" || normalized == "M" || normalized == "MAN" || normalized == "BOY" {
+            imageName = "gender_boy"
+        } else if normalized == "FEMALE" || normalized == "F" || normalized == "WOMAN" || normalized == "GIRL" {
+            imageName = "gender_girl"
+        } else {
+            // 알 수 없는 값인 경우 기본 boy
+            imageName = "gender_boy"
+        }
+        self.homeView.genderImageView.image = UIImage(named: imageName)
     }
 
     func updateHeaderLabel() {

@@ -40,6 +40,8 @@ extension HomeViewController: ProfileSelectDelegate {
                                     
                                     // 생일 정보 업데이트
                                     self.homeView.birthdayLabel.text = activePetInfo.birth
+                                    // 성별 아이콘 업데이트
+                                    self.updateGenderIcon(activePetInfo.gender)
                                     
                                     // GUEST 역할인 경우 이벤트 추가 버튼 숨김
                                     let role = selectedPet.role ?? "OWNER"  // 기본값 OWNER
