@@ -52,7 +52,7 @@ class PetListView: UIView {
         petListCollectionView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
             make.top.equalTo(navigationBar.snp.bottom).offset(26)
-            make.bottom.equalToSuperview().inset(120)
+            make.bottom.equalToSuperview().inset(80)
         }
         
         self.addSubview(addPetButton)
@@ -62,7 +62,7 @@ class PetListView: UIView {
         
         addPetButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().offset(-50)
+            make.bottom.equalToSuperview().offset(-20)
         }
     }
 }
