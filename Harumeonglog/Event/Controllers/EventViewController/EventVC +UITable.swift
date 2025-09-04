@@ -11,17 +11,25 @@ extension EventView {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if filteredEvents.isEmpty {
             let emptyLabel = UILabel()
+            emptyLabel.translatesAutoresizingMaskIntoConstraints = false
             emptyLabel.text = "일정이 아직 없어요.\n오른쪽 하단 + 버튼을 눌러 새 일정을 추가해보세요!"
             emptyLabel.textColor = .gray03
             emptyLabel.font = .body
             emptyLabel.textAlignment = .center
-            emptyLabel.numberOfLines = 2
-            emptyLabel.sizeToFit()
+            emptyLabel.numberOfLines = 0
             
-            let yOffset = -50 
             let containerView = UIView(frame: tableView.bounds)
-            emptyLabel.center = CGPoint(x: containerView.center.x, y: containerView.center.y + CGFloat(yOffset))
+            containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             containerView.addSubview(emptyLabel)
+            
+            // Center with slight downward offset to avoid category overlap
+            NSLayoutConstraint.activate([
+                emptyLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                // Slightly raised so it doesn't collide with the + button, but still visible when calendar collapses
+                emptyLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor, constant: -20),
+                emptyLabel.leadingAnchor.constraint(greaterThanOrEqualTo: containerView.leadingAnchor, constant: 24),
+                emptyLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -24)
+            ])
             
             tableView.backgroundView = containerView
         } else {

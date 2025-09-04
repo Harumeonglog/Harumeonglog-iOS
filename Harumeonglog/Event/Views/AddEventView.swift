@@ -146,7 +146,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
 
         // 아이콘 위치 설정 (버튼의 오른쪽 끝에서 25px 떨어지도록 고정)
         NSLayoutConstraint.activate([
-            iconImageView.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -25),
+            iconImageView.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -20),
             iconImageView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
             iconImageView.widthAnchor.constraint(equalToConstant: 18),
             iconImageView.heightAnchor.constraint(equalToConstant: 18)
@@ -252,23 +252,23 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         }
         
         timeIcon.snp.makeConstraints { make in
-            make.leading.equalTo(EventInfoView.snp.leading).offset(30)  // EventInfoView의 leading에서 30pt
-            make.top.equalToSuperview().offset(20)  // 상단에서 20pt
+            make.leading.equalTo(EventInfoView.snp.leading).offset(20)
+            make.top.equalToSuperview().offset(20)
         }
             
         repeatIcon.snp.makeConstraints { make in
-            make.leading.equalTo(EventInfoView.snp.leading).offset(30)
-            make.top.equalTo(timeIcon.snp.bottom).offset(28)  // 요소 간 간격 40pt
+            make.leading.equalTo(EventInfoView.snp.leading).offset(20)
+            make.top.equalTo(timeIcon.snp.bottom).offset(28)
         }
             
             //버튼 크기 및 위치 설정
         dateButton.snp.makeConstraints { make in
-            make.leading.equalTo(timeIcon.snp.trailing).offset(15)
+            make.leading.equalTo(timeIcon.snp.trailing).offset(12)
             make.centerY.equalTo(timeIcon)
         }
         
         timeButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(25)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalTo(timeIcon)
         }
             
@@ -279,7 +279,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
                 if let prev = previousButton {
                     make.leading.equalTo(prev.snp.trailing).offset(10) // 각 버튼 사이 8pt 간격
                 } else {
-                    make.leading.equalTo(repeatIcon.snp.trailing).offset(15) // 첫 번째 버튼은 repeatIcon에서 15pt 떨어짐
+                    make.leading.equalTo(repeatIcon.snp.trailing).offset(12) // 첫 번째 버튼은 repeatIcon에서 12pt
                 }
                 make.centerY.equalTo(repeatIcon.snp.centerY)
                 make.width.height.equalTo(30) // 모든 버튼 크기 동일
@@ -290,34 +290,30 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleTextField.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20)
             make.height.equalTo(45)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.centerX.equalToSuperview()
         }
         
         EventInfoView.snp.makeConstraints { make in
             make.top.equalTo(titleTextField.snp.bottom).offset(15)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(120) // 높이 줄임
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(120)
             make.centerX.equalToSuperview()
         }
         
         categoryButton.snp.makeConstraints { make in
             make.top.equalTo(EventInfoView.snp.bottom).offset(15)
             make.height.equalTo(45)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.centerX.equalToSuperview()
         }
         
         dropdownTableView.snp.makeConstraints { make in
             make.top.equalTo(categoryButton.snp.bottom).offset(5)
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
+            make.bottom.equalToSuperview().inset(20)
         }
         
         // 삭제 버튼을 화면 하단에 고정
