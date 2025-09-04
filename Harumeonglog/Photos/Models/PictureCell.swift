@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class PictureCell: UICollectionViewCell {
     
@@ -66,16 +67,22 @@ class PictureCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(isAddButton: Bool, image: UIImage? = nil) {
+    func configure(isAddButton: Bool, image: UIImage? = nil, imageURL: URL? = nil) {
         if isAddButton {
             imageView.isHidden = true
             overlayView.isHidden = true
             addButton.isHidden = false
         } else {
-            imageView.image = image
             imageView.isHidden = false
             overlayView.isHidden = true
             addButton.isHidden = true
+            if let image = image {
+                imageView.image = image
+            } else if let url = imageURL {
+                imageView.sd_setImage(with: url, placeholderImage: nil)
+            } else {
+                imageView.image = nil
+            }
         }
     }
 

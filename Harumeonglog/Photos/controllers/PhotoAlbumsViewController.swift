@@ -17,6 +17,7 @@ class PhotoAlbumsViewController: UIViewController {
     }()
     
     private var isLoading = false
+    private var hasLoadedOnce = false
     private var isOpeningAlbum = false
     
     // 앨범의 사진 개수를 캐싱하는 딕셔너리
@@ -39,10 +40,8 @@ class PhotoAlbumsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // 화면에 돌아올 때마다 앨범 목록과 사진 개수 새로고침 (로딩 중이 아닐 때만)
-        if !isLoading {
-            // 캐시 무효화하여 최신 정보 가져오기
-            invalidatePhotoCountCache()
+        // 돌아올 때는 불필요한 재로딩 방지: 처음이거나 데이터가 없을 때만 로딩
+        if !isLoading && !hasLoadedOnce && photoAlbumsView.albums.isEmpty {
             fetchAlbums()
         }
     }
@@ -83,6 +82,7 @@ class PhotoAlbumsViewController: UIViewController {
                     
                     // 백그라운드에서 각 앨범의 사진 개수 조회
                     self?.fetchPhotoCountsForAlbums(albums: albums, token: token)
+                    self?.hasLoadedOnce = true
 
                 case .message(let msg):
                     print("서버 응답 메시지: \(msg)")
@@ -250,15 +250,18 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                         }
 
                         dispatchGroup.enter()
-                        URLSession.shared.dataTask(with: url) { data, response, error in
+                        SDWebImageManager.shared.loadImage(
+                            with: url,
+                            options: [.retryFailed, .continueInBackground, .scaleDownLargeImages],
+                            progress: nil
+                        ) { image, data, error, cacheType, finished, imageURL in
                             defer { dispatchGroup.leave() }
-
-                            if let data = data, let image = UIImage(data: data) {
+                            if let image = image {
                                 images.append(image)
                             } else {
                                 images.append(UIImage(named: "placeholder") ?? UIImage())
                             }
-                        }.resume()
+                        }
                     }
 
                     dispatchGroup.notify(queue: .main) {
