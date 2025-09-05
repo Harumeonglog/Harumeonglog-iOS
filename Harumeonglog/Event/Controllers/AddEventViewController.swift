@@ -52,6 +52,7 @@ class AddEventViewController: UIViewController {
             print("초기화 시 선택된 카테고리 복원: \(selectedCategory.rawValue)")
             updateCategoryInputView(for: selectedCategory)
         }
+        swipeRecognizer()
     }
     
     //탭바 숨기기

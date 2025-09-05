@@ -42,6 +42,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         self.view = postDetailView
         setCustomNavigationBarConstraints()
         postSettingButton()
+        swipeRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {

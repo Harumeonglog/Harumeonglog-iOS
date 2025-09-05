@@ -36,6 +36,8 @@ class NotiViewController: UIViewController {
                 }
             }
             .store(in: &cancellables)
+        
+        swipeRecognizer()
     }
     
     override func viewDidLayoutSubviews() {

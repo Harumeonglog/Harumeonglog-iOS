@@ -24,6 +24,8 @@ final class LikedPostsViewController: UIViewController {
         self.likedPostsView.likedPostsTableView.dataSource = self
         
         self.likedPostsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        
+        swipeRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {

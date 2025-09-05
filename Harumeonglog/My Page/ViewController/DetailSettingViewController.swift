@@ -16,6 +16,7 @@ class DetailSettingViewController: UIViewController {
         self.view = detailSettingView
         detailSettingView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
         setButtonAction()
+        swipeRecognizer()
     }
     
     override func viewDidLayoutSubviews() {

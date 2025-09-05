@@ -27,6 +27,7 @@ class EditProfileViewController: UIViewController {
         picker.delegate = self
         hideKeyboardWhenTappedAround()
         setActions()
+        swipeRecognizer()
     }
     
     override func viewDidLayoutSubviews() {

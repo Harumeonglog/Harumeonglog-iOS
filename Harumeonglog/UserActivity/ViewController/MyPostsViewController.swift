@@ -24,6 +24,8 @@ final class MyPostsViewController: UIViewController {
         self.myPostsView.myPostsTableView.dataSource = self
         
         self.myPostsView.navigationBar.leftArrowButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
+        
+        swipeRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {

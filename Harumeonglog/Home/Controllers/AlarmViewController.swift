@@ -20,6 +20,7 @@ class AlarmViewController: UIViewController {
         alarmView.alarmTableView.delegate = self
         alarmView.alarmTableView.dataSource = self
         setCustomNavigationBarConstraints()
+        swipeRecognizer()
         alarmView.inviteButton.addTarget(self, action: #selector(inviteButtonTap), for: .touchUpInside)
     }
     
