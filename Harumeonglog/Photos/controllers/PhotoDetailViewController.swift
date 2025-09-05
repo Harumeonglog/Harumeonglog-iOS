@@ -29,6 +29,7 @@ class PhotoDetailViewController: UIViewController {
         super.viewDidLoad()
         self.view = photoDetailView
         setCustomNavigationBarConstraints()
+        swipeRecognizer()
         
         photoDetailView.deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         photoDetailView.downloadButton.addTarget(self, action: #selector(didTapDownloadButton), for: .touchUpInside)

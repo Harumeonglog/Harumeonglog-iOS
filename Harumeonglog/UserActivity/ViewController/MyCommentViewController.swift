@@ -29,6 +29,8 @@ final class MyCommentViewController: UIViewController {
         // 동적 높이 설정
         self.myCommentsView.myCommentsTableView.rowHeight = UITableView.automaticDimension
         self.myCommentsView.myCommentsTableView.estimatedRowHeight = 90
+        
+        swipeRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {
