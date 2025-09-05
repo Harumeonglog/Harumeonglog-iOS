@@ -69,7 +69,37 @@ class InviteMemberViewController: UIViewController {
     
     @objc
     private func invite() {
-        viewModel.inviteUsers(petId: petId!)
+        guard let petId = petId else { return }
+        viewModel.inviteUsers(petId: petId) { [weak self] isSucceed in
+            guard let self = self else { return }
+            switch isSucceed {
+            case true:
+                // 모달 닫고 MyPage 탭으로 전환
+                self.dismiss(animated: true) {
+                    // 현재 활성 윈도우의 root가 탭바인지 확인
+                    if let windowScene = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .first(where: { $0.activationState == .foregroundActive }),
+                       let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+                       let tab = window.rootViewController as? UITabBarController {
+                        tab.selectedIndex = 4
+                        
+                        // MyPage 탭이 내비게이션 컨트롤러라면 루트로 정리
+                        if let myPageNav = tab.viewControllers?[4] as? UINavigationController {
+                            myPageNav.popToRootViewController(animated: false)
+                        }
+                    } else {
+                        // 폴백: 현재 컨텍스트에서 탭 전환 시도
+                        self.tabBarController?.selectedIndex = 4
+                    }
+                }
+                
+            case false:
+                let alert = UIAlertController(title: "초대 실패", message: "잠시 후 다시 시도해 주세요.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "확인", style: .default))
+                self.present(alert, animated: true)
+            }
+        }
     }
     
 }

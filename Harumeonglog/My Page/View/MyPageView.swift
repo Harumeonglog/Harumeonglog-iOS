@@ -12,7 +12,7 @@ class MyPageView: UIView {
     
     private let labelLeading: CGFloat = 38
     private let leadingTrailingPadding: CGFloat = 28
-
+    
     public lazy var goNotification = UIButton().then {
         $0.setImage(.rightArrow , for: .normal)
     }
@@ -23,11 +23,16 @@ class MyPageView: UIView {
         $0.backgroundColor = .gray03
         $0.clipsToBounds = true
     }
+    
     private lazy var myProfileNameLabel = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 20)
     }
+    
     public lazy var goEditProileButton = goToDetailButton()
+    
+    private lazy var scrollView = UIScrollView()
+    private lazy var contentView = UIView()
     
     private lazy var myActiveLabel = commonLabel(text: "내 활동")
     private lazy var myActiveStack = UIStackView().then { $0.axis = .horizontal }
@@ -81,6 +86,7 @@ class MyPageView: UIView {
     
     public func setConstraints() {
         setProfileConstraints()
+        setScrollContainer()
         setActiveConstraints()
         setPuppyListPreviewConstraints()
         setHelpConstraints()
@@ -93,15 +99,28 @@ class MyPageView: UIView {
         }
     }
     
+    private func setScrollContainer() {
+        self.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
+    }
+    
     private func setProfileConstraints() {
-        self.addSubview(myProfileFrame)
+        contentView.addSubview(myProfileFrame)
         myProfileFrame.addSubview(myProfileImageView)
         myProfileFrame.addSubview(myProfileNameLabel)
         myProfileFrame.addSubview(goEditProileButton)
         
         myProfileFrame.snp.makeConstraints { make in
             make.height.equalTo(80)
-            make.top.equalToSuperview().offset(100)
+            make.top.equalToSuperview().offset(40)
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
         }
         
@@ -124,8 +143,8 @@ class MyPageView: UIView {
     }
     
     private func setActiveConstraints() {
-        self.addSubview(myActiveLabel)
-        self.addSubview(myActiveStack)
+        contentView.addSubview(myActiveLabel)
+        contentView.addSubview(myActiveStack)
         
         myActiveLabel.snp.makeConstraints { make in
             make.top.equalTo(myProfileFrame.snp.bottom).offset(34)
@@ -135,7 +154,6 @@ class MyPageView: UIView {
         let screenWidth = UIScreen.main.bounds.width
         let myStackWidth: CGFloat = screenWidth - 2 * leadingTrailingPadding
         let myStackHeight: CGFloat = myStackWidth * (80.0/346.0)
-        
         let buttonWidth = (myStackWidth - 2) / 3
         
         myActiveStack.clipsToBounds = true
@@ -160,7 +178,7 @@ class MyPageView: UIView {
         for divider in dividers {
             divider.snp.makeConstraints { make in
                 make.width.equalTo(1)
-                make.top.bottom.equalTo(myActiveStack).inset(myStackHeight/6).priority(.high) // 우선순위를 999로 설정
+                make.top.bottom.equalTo(myActiveStack).inset(myStackHeight/6).priority(.high)
                 make.centerY.equalToSuperview()
             }
         }
@@ -170,26 +188,25 @@ class MyPageView: UIView {
                 make.width.equalTo(buttonWidth)
             }
         }
-        
     }
     
     private func setPuppyListPreviewConstraints() {
-        self.addSubview(myPetsLabel)
-        self.addSubview(goToPetListButton)
-        self.addSubview(previewPetListTableView)
-        
+        contentView.addSubview(myPetsLabel)
+        contentView.addSubview(goToPetListButton)
+        contentView.addSubview(previewPetListTableView)
+
         myPetsLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(labelLeading)
             make.top.equalTo(myActiveStack.snp.bottom).offset(24)
         }
-        
+
         goToPetListButton.snp.makeConstraints { make in
             make.centerY.equalTo(myPetsLabel)
             make.trailing.equalToSuperview().offset(-leadingTrailingPadding)
             make.height.equalTo(48)
             make.width.equalTo(48)
         }
-        
+
         previewPetListTableView.snp.makeConstraints { make in
             make.top.equalTo(myPetsLabel.snp.bottom).offset(10)
             make.height.equalTo(150)
@@ -198,81 +215,85 @@ class MyPageView: UIView {
     }
     
     private func setHelpConstraints() {
-        self.addSubview(helpLabel)
-        
+        contentView.addSubview(helpLabel)
+
         helpLabel.snp.makeConstraints { make in
             make.top.equalTo(previewPetListTableView.snp.bottom).offset(24)
             make.leading.equalTo(labelLeading)
         }
-        
-        self.addSubview(sendQueryLabel)
-        self.addSubview(privacyPolicyLabel)
-        self.addSubview(termsOfServiceLabel)
-        self.addSubview(notificationLabel)
-        
+
+        contentView.addSubview(sendQueryLabel)
+        contentView.addSubview(privacyPolicyLabel)
+        contentView.addSubview(termsOfServiceLabel)
+        contentView.addSubview(notificationLabel)
+
         sendQueryLabel.snp.makeConstraints { make in
             make.top.equalTo(helpLabel.snp.bottom).offset(24)
             make.leading.equalTo(labelLeading)
         }
-        
+
         privacyPolicyLabel.snp.makeConstraints { make in
             make.top.equalTo(sendQueryLabel.snp.bottom).offset(12)
             make.leading.equalTo(labelLeading)
         }
-        
+
         termsOfServiceLabel.snp.makeConstraints { make in
             make.top.equalTo(privacyPolicyLabel.snp.bottom).offset(12)
             make.leading.equalTo(labelLeading)
         }
-        
+
         notificationLabel.snp.makeConstraints { make in
             make.top.equalTo(termsOfServiceLabel.snp.bottom).offset(12)
             make.leading.equalTo(labelLeading)
         }
-        
-        self.addSubview(sendQueryButton)
-        self.addSubview(privacyPolicyButton)
-        self.addSubview(termsOfServiceButton)
-        self.addSubview(goNotification)
-        self.addSubview(revokeButton)
-        self.addSubview(logoutButton)
-        
+
+        contentView.addSubview(sendQueryButton)
+        contentView.addSubview(privacyPolicyButton)
+        contentView.addSubview(termsOfServiceButton)
+        contentView.addSubview(goNotification)
+        contentView.addSubview(revokeButton)
+        contentView.addSubview(logoutButton)
+
         sendQueryButton.snp.makeConstraints { make in
             make.centerY.equalTo(sendQueryLabel)
             make.trailing.equalToSuperview().offset(-labelLeading)
         }
-        
+
         privacyPolicyButton.snp.makeConstraints { make in
             make.centerY.equalTo(privacyPolicyLabel)
             make.trailing.equalToSuperview().offset(-labelLeading)
         }
-        
+
         termsOfServiceButton.snp.makeConstraints { make in
             make.centerY.equalTo(termsOfServiceLabel)
             make.trailing.equalToSuperview().offset(-labelLeading)
         }
-        
+
         goNotification.snp.makeConstraints { make in
             make.centerY.equalTo(notificationLabel)
             make.trailing.equalToSuperview().offset(-labelLeading)
         }
-        
+
         logoutButton.snp.makeConstraints { make in
             make.centerX.equalToSuperview().offset(40)
             make.top.equalTo(goNotification.snp.bottom).offset(20)
         }
-        
-        logoutButton.imageView?.snp.makeConstraints{ make in
+
+        logoutButton.imageView?.snp.makeConstraints { make in
             make.centerY.equalTo(logoutButton)
             make.trailing.equalToSuperview().inset(-30)
             make.height.equalTo(16)
         }
-        
+
         revokeButton.snp.makeConstraints { make in
             make.centerY.equalTo(logoutButton)
             make.centerX.equalToSuperview().offset(-50)
         }
-        
+
+        // IMPORTANT: Define scrollable content height
+        contentView.snp.makeConstraints { make in
+            make.bottom.equalTo(logoutButton.snp.bottom).offset(20)
+        }
     }
     
     private func commonLabel(text: String) -> UILabel {
