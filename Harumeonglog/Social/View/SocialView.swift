@@ -127,8 +127,8 @@ class SocialView: UIView {
         self.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.top.equalToSuperview().inset(80)
-            make.height.equalTo(40)
+            make.top.equalTo(self.safeAreaLayoutGuide)
+            make.height.equalTo(44)
         }
         
         self.addSubview(categoryButtonsScrollView)

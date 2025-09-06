@@ -93,6 +93,7 @@ class EditEventViewController: UIViewController {
                 }
             }
         }
+        swipeRecognizer()
     }
 
     override func viewDidAppear(_ animated: Bool) {

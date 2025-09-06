@@ -19,6 +19,7 @@ class InviteViewController: UIViewController {
         super.viewDidLoad()
         self.view = inviteView
         setCustomNavigationBarConstraints()
+        swipeRecognizer()
     }
     
     //탭바 숨기기

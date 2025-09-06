@@ -37,6 +37,8 @@ class PetListViewController: UIViewController, PetOwnerCellDelegate, PetGuestCel
         petListView.petListCollectionView.dataSource = self
         self.petListView.navigationBar.leftArrowButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         self.petListView.addPetButton.addTarget(self, action: #selector(showPetRegistrationVC), for: .touchUpInside)
+        
+        swipeRecognizer()
     }
     
     override func viewDidLayoutSubviews() {

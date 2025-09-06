@@ -40,6 +40,7 @@ class EditOrRegistPetViewController: UIViewController {
         picker.delegate = self
         hideKeyboardWhenTappedAround()
         setButtonActions()
+        swipeRecognizer()
     }
     
     override func viewDidLayoutSubviews() {

@@ -16,6 +16,7 @@ class InvitationRequestsViewController: UIViewController {
     
     override func viewDidLoad() {
         self.hideKeyboardWhenTappedAround()
+        swipeRecognizer()
         self.view = invitationRequestsView
         super.viewDidLoad()
     }
