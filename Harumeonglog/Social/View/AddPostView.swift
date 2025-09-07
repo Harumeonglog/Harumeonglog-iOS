@@ -140,7 +140,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleTextField.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(20)
             make.height.equalTo(40)
-            make.width.equalTo(362)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.centerX.equalToSuperview()
         }
         
@@ -152,7 +152,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         dropdownTableView.snp.makeConstraints { make in
             make.top.equalTo(categoryButton.snp.bottom).offset(5)
-            make.width.equalTo(362)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
         }
@@ -160,7 +160,8 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         contentTextView.snp.makeConstraints { make in
             make.top.equalTo(categoryButton.snp.bottom).offset(20)
             make.width.equalTo(titleTextField)
-            make.height.equalTo(340)
+            make.height.lessThanOrEqualTo(340)
+            make.height.greaterThanOrEqualTo(120)
             make.centerX.equalToSuperview()
         }
         
@@ -184,6 +185,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         addImageCount.snp.makeConstraints { make in
             make.top.equalTo(imageCollectionView.snp.bottom).offset(10)
             make.trailing.equalToSuperview().inset(20)
+            make.bottom.greaterThanOrEqualToSuperview().inset(44)
         }
     
         
