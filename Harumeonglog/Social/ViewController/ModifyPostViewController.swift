@@ -37,9 +37,13 @@ class ModifyPostViewController: UIViewController, CategorySelectionDelegate {
         return view
     }()
     
+    
+    override func loadView() {
+        self.view = addPostView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = addPostView
         setCustomNavigationBarConstraints()
         hideKeyboardWhenTappedAround()
         swipeRecognizer()
