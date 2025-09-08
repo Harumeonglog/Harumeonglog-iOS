@@ -12,7 +12,7 @@ extension EventView {
         if filteredEvents.isEmpty {
             let emptyLabel = UILabel()
             emptyLabel.translatesAutoresizingMaskIntoConstraints = false
-            emptyLabel.text = "일정이 아직 없어요.\n오른쪽 하단 + 버튼을 눌러 새 일정을 추가해보세요!"
+            emptyLabel.text = "일정이 아직 없어요.\n+ 버튼을 눌러 새 일정을 추가해보세요!"
             emptyLabel.textColor = .gray03
             emptyLabel.font = .body
             emptyLabel.textAlignment = .center

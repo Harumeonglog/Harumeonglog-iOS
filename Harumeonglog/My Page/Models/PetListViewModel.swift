@@ -106,6 +106,8 @@ final class PetListViewModel: ObservableObject {
                 if response.isSuccess {
                     print("반려동물 삭제 상공")
                     self.petList.removeAll { $0.petId == petId }
+                    // If the deleted pet was active, set the first remaining pet as active
+                    self.setFirstPetActiveIfNeeded(deletedPetId: petId)
                 } else {
                     print("반려동물 삭제 예외 코드: \(response.code), message: \(response.message)")
                 }
@@ -165,9 +167,37 @@ final class PetListViewModel: ObservableObject {
             } else {
                 cursor = petList.last!.petId!
             }
+            // If the removed pet was active, set the first remaining pet as active
+            self.setFirstPetActiveIfNeeded(deletedPetId: petId)
         }
     }
     
+}
+
+// MARK: - Active pet fallback
+extension PetListViewModel {
+    private func setFirstPetActiveIfNeeded(deletedPetId: Int) {
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { return }
+        // Fetch active pet and if it matches the deleted one, set the first remaining as active
+        PetService.ActivePetInfo(token: token) { result in
+            switch result {
+            case .success(let response):
+                guard let active = response.result else { return }
+                if active.petId == deletedPetId, let firstId = self.petList.first?.petId {
+                    PetService.UpdateActivePet(petId: firstId, token: token) { updateResult in
+                        switch updateResult {
+                        case .success:
+                            print("삭제된 활성 펫 대체로 첫 번째 펫(\(firstId))을 활성화")
+                        case .failure(let error):
+                            print("활성 펫 대체 실패: \(error)")
+                        }
+                    }
+                }
+            case .failure(let error):
+                print("ActivePetInfo 조회 실패: \(error)")
+            }
+        }
+    }
 }
 
 struct PetDTO: Codable {

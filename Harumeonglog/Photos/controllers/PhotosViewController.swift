@@ -265,6 +265,27 @@ class PhotosViewController: UIViewController {
             return
         }
         print("사진 저장 성공")
+
+        // 성공 팝업 후 선택 모드 해제 및 선택 해제 처리
+        let alert = UIAlertController(title: nil, message: "다운로드 되었습니다.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            // 선택 해제 및 UI 리셋 (선택 모드 종료와 동일한 상태)
+            for indexPath in self.selectedIndexPaths {
+                if let cell = self.photosView.PhotosCollectionView.cellForItem(at: indexPath) as? PictureCell {
+                    cell.setSelectedBorder(false)
+                }
+                self.photosView.PhotosCollectionView.deselectItem(at: indexPath, animated: false)
+            }
+            self.selectedIndexPaths.removeAll()
+            self.updateSelectedCountLabel()
+            // 선택 모드 해제하고 버튼/바 숨김
+            self.isSelecting = false
+            self.photosView.navigationBar.configureRightButton(text: "선택")
+            self.photosView.bottomActionBar.isHidden = true
+            self.photosView.PhotosCollectionView.allowsMultipleSelection = false
+            self.photosView.PhotosCollectionView.reloadData()
+        }))
+        present(alert, animated: true)
     }
 }
 

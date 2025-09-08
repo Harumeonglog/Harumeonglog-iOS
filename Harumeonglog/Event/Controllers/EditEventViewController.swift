@@ -64,6 +64,7 @@ class EditEventViewController: UIViewController {
         super.viewDidLoad()
         self.view = editEventView
         setCustomNavigationBarConstraints()
+        hideKeyboardWhenTappedAround()
         
         editEventView.deleteEventButton.isHidden = !isEditable
         if isEditable {
@@ -109,10 +110,12 @@ class EditEventViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = true
+        addKeyboardObservers()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.tabBarController?.tabBar.isHidden = false
+        removeKeyboardObservers()
     }
     
     private func setCustomNavigationBarConstraints() {
@@ -251,9 +254,11 @@ class EditEventViewController: UIViewController {
             ? editEventView.dateButton.title(for: .normal)!
             : (event?.date ?? "")
 
-        let time = (editEventView.timeButton.title(for: .normal) != nil && editEventView.timeButton.title(for: .normal) != "")
+        var time = (editEventView.timeButton.title(for: .normal) != nil && editEventView.timeButton.title(for: .normal) != "")
             ? editEventView.timeButton.title(for: .normal)!
             : (event?.time ?? "")
+        // Normalize time to HH:mm:ss
+        if time.count <= 5 && time.contains(":") { time += ":00" }
 
         let hasNotice = false // 알림 기능 제거됨
 
@@ -320,7 +325,7 @@ class EditEventViewController: UIViewController {
                 request.details = input.details.isEmpty ? nil : input.details
             }
 
-        case "OTHER":
+        case "OTHER", "GENERAL":
             if let view = editEventView.categoryInputView as? OtherView {
                 let input = view.getInput()
                 request.details = input.isEmpty ? nil : input
@@ -433,7 +438,7 @@ class EditEventViewController: UIViewController {
                             view.detailTextView.text = event.details
                         }
 
-                    case "OTHER":
+                    case "OTHER", "GENERAL":
                         if let view = self.editEventView.categoryInputView as? OtherView {
                             view.detailTextView.text = event.details
                         }
@@ -458,10 +463,12 @@ class EditEventViewController: UIViewController {
                 button.backgroundColor = .brown01
                 button.setTitleColor(.white, for: .normal)
                 button.tintColor = .clear
+                button.layer.borderColor = UIColor.clear.cgColor
             } else {
                 button.isSelected = false
                 button.backgroundColor = .white
                 button.setTitleColor(.gray00, for: .normal)
+                button.layer.borderColor = UIColor.brown02.cgColor
             }
         }
     }
@@ -482,6 +489,74 @@ class EditEventViewController: UIViewController {
                 receivableView.applyContent(from: detail)
             }
         }
+    }
+}
+
+// MARK: - Keyboard handling (adjust scroll insets)
+extension EditEventViewController {
+    private func addKeyboardObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
+        let curveRaw = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
+        let options = UIView.AnimationOptions(rawValue: curveRaw << 16)
+        let keyboardHeight = keyboardFrame.height - view.safeAreaInsets.bottom
+        let keyboardTopY = view.bounds.height - keyboardHeight
+        var requiredInset: CGFloat = 0
+        if let responder = view.findFirstResponder() {
+            let fieldFrameInView = responder.convert(responder.bounds, to: view)
+            if fieldFrameInView.maxY > keyboardTopY {
+                requiredInset = (fieldFrameInView.maxY - keyboardTopY) + 24
+            }
+        }
+        if requiredInset > 0 {
+            requiredInset = min(max(requiredInset, 12), keyboardHeight - 6)
+        }
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            self.editEventView.scrollView.contentInset.bottom = requiredInset
+            self.editEventView.scrollView.scrollIndicatorInsets.bottom = requiredInset
+        })
+        scrollActiveFieldIntoViewMinimally(keyboardHeight: keyboardHeight)
+    }
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        let userInfo = (notification.userInfo ?? [:])
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
+        let curveRaw = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
+        let options = UIView.AnimationOptions(rawValue: curveRaw << 16)
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            self.editEventView.scrollView.contentInset.bottom = 0
+            self.editEventView.scrollView.scrollIndicatorInsets.bottom = 0
+        })
+    }
+    private func scrollActiveFieldIntoViewMinimally(keyboardHeight: CGFloat) {
+        guard let responder = view.findFirstResponder(),
+              responder.isDescendant(of: editEventView.scrollView) else { return }
+        let scrollView = editEventView.scrollView
+        var visibleRect = scrollView.bounds.inset(by: scrollView.contentInset).insetBy(dx: 0, dy: 12)
+        visibleRect.size.height -= (keyboardHeight + 12)
+        var targetRect = responder.convert(responder.bounds, to: scrollView)
+        if let textView = responder as? UITextView, let range = textView.selectedTextRange {
+            let caret = textView.caretRect(for: range.end)
+            targetRect = textView.convert(caret.insetBy(dx: 0, dy: -8), to: scrollView)
+        }
+        var targetOffset = scrollView.contentOffset
+        if targetRect.maxY > visibleRect.maxY {
+            targetOffset.y += (targetRect.maxY - visibleRect.maxY)
+        } else if targetRect.minY < visibleRect.minY {
+            targetOffset.y -= (visibleRect.minY - targetRect.minY)
+        } else {
+            return
+        }
+        targetOffset.y = max(-scrollView.adjustedContentInset.top, min(targetOffset.y, scrollView.contentSize.height - scrollView.bounds.height + scrollView.adjustedContentInset.bottom))
+        scrollView.setContentOffset(targetOffset, animated: true)
     }
 }
 

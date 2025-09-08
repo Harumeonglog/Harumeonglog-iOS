@@ -45,6 +45,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         homeView.calendarView.setCurrentPage(Date(), animated: false)
         homeView.calendarView.select(Date())
+        applyWeekdayHeaderColors()
         
         fetchActivePets()
         
@@ -101,15 +102,21 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                                 // 이미지 로딩 개선
                                 self.loadProfileImage(activePetInfo.mainImage ?? "")
                             }
+                        } else {
+                            // 활성 펫이지만 목록이 비어있거나 매칭 실패 -> 무펫 처리
+                            DispatchQueue.main.async {
+                                self.applyNoPetState()
+                            }
                         }
                     }
+                } else {
+                    DispatchQueue.main.async { self.applyNoPetState() }
                 }
             case .failure(let error):
                 print("ActivePetInfo 조회 실패: \(error)")
                 // 실패 시 기본 펫으로 fallback
                 self.petViewModel.fetchActivePets { activePetsResult in
-                    guard let activePets = activePetsResult else { return }
-                    
+                    guard let activePets = activePetsResult else { DispatchQueue.main.async { self.applyNoPetState() }; return }
                     if let firstPet = activePets.pets.first {
                         DispatchQueue.main.async {
                             self.homeView.nicknameLabel.text = firstPet.name
@@ -127,10 +134,21 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                             
                             self.loadProfileImage(firstPet.mainImage ?? "")
                         }
+                    } else {
+                        DispatchQueue.main.async { self.applyNoPetState() }
                     }
                 }
             }
         }
+    }
+
+    private func applyNoPetState() {
+        // Hide add event button and show placeholder texts when there is no pet
+        self.homeView.addeventButton.isHidden = true
+        self.homeView.nicknameLabel.text = "강아지를 추가하세요"
+        self.homeView.birthdayLabel.text = ""
+        self.homeView.genderImageView.image = nil
+        // Default profile image already set by HomeView
     }
     
                              
@@ -205,6 +223,21 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
     func updateHeaderLabel() {
         homeView.headerLabel.text = getCurrentMonthString(for: homeView.calendarView.currentPage)
+    }
+
+    // 요일 헤더(일~토) 색상 적용: 일=red, 토=blue, 나머지=gray
+    func applyWeekdayHeaderColors() {
+        let labels = homeView.calendarView.calendarWeekdayView.weekdayLabels
+        for label in labels {
+            switch label.text {
+            case "일":
+                label.textColor = .red00
+            case "토":
+                label.textColor = .blue01
+            default:
+                label.textColor = .gray00
+            }
+        }
     }
 
     func fetchEventDatesForCurrentMonth(completion: (() -> Void)? = nil) {
