@@ -58,10 +58,12 @@ class AddEventViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = true
+        addKeyboardObservers()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.tabBarController?.tabBar.isHidden = false
+        removeKeyboardObservers()
     }
     
     private func setCustomNavigationBarConstraints() {
@@ -115,16 +117,20 @@ class AddEventViewController: UIViewController {
         addEventView.timeButton.setTitle(formattedTime, for: .normal)
     }
     
-    //날짜 선택하는 메서드 함수
+    // 날짜/시간을 각각 선택할 수 있도록 분리
     private func showDateTimePicker(for mode: PickerMode) {
         let alertController = UIAlertController(title: "\n\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
-        
         let datePicker = UIDatePicker()
-        datePicker.datePickerMode = .dateAndTime
+        switch mode {
+        case .date:
+            datePicker.datePickerMode = .date
+        case .time:
+            datePicker.datePickerMode = .time
+        }
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.locale = Locale(identifier: "ko_KR") // 한글 요일 표시
         datePicker.timeZone = TimeZone.current
-        datePicker.minuteInterval = 10 // 5분 간격 선택 가능
+        datePicker.minuteInterval = 10
         
         // 현재 버튼에 표시된 날짜/시간을 초기값으로 설정
         if mode == .date {
@@ -172,11 +178,7 @@ class AddEventViewController: UIViewController {
                 }
                 self.addEventView.layoutIfNeeded() // 즉시 적용
                 
-                // 날짜/시간 변경 후에도 선택된 카테고리 유지
-                if let selectedCategory = self.selectedCategory {
-                    print("날짜/시간 변경 후 카테고리 유지: \(selectedCategory.rawValue)")
-                    self.updateCategoryInputView(for: selectedCategory)
-                }
+                // 카테고리 입력 뷰는 재생성하지 않음 (사용자 입력 보존)
             }
         }
         
@@ -220,6 +222,79 @@ class AddEventViewController: UIViewController {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "HH:mm" // 24시간 형식
         return formatter.string(from: date)
+    }
+}
+
+// MARK: - Keyboard handling (adjust scroll insets)
+extension AddEventViewController {
+    private func addKeyboardObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
+        let curveRaw = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
+        let options = UIView.AnimationOptions(rawValue: curveRaw << 16)
+
+        let keyboardHeight = keyboardFrame.height - view.safeAreaInsets.bottom
+        let keyboardTopY = view.bounds.height - keyboardHeight
+        var requiredInset: CGFloat = 0
+        if let responder = view.findFirstResponder() {
+            let fieldFrameInView = responder.convert(responder.bounds, to: view)
+            if fieldFrameInView.maxY > keyboardTopY {
+                requiredInset = (fieldFrameInView.maxY - keyboardTopY) + 24
+            }
+        }
+        if requiredInset > 0 {
+            requiredInset = min(max(requiredInset, 12), keyboardHeight - 6)
+        }
+
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            // 최소 필요 인셋만 적용해 과도한 상단 이동 방지
+            self.addEventView.scrollView.contentInset.bottom = requiredInset
+            self.addEventView.scrollView.scrollIndicatorInsets.bottom = requiredInset
+        })
+        scrollActiveFieldIntoViewMinimally(keyboardHeight: keyboardHeight)
+    }
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        let userInfo = (notification.userInfo ?? [:])
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
+        let curveRaw = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
+        let options = UIView.AnimationOptions(rawValue: curveRaw << 16)
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            self.addEventView.scrollView.contentInset.bottom = 0
+            self.addEventView.scrollView.scrollIndicatorInsets.bottom = 0
+        })
+    }
+
+    private func scrollActiveFieldIntoViewMinimally(keyboardHeight: CGFloat) {
+        guard let responder = view.findFirstResponder(),
+              responder.isDescendant(of: addEventView.scrollView) else { return }
+        let scrollView = addEventView.scrollView
+        var visibleRect = scrollView.bounds.inset(by: scrollView.contentInset).insetBy(dx: 0, dy: 12)
+        // 키보드 높이만큼 아래 영역을 가린다고 가정하고 보이는 영역 보정
+        visibleRect.size.height -= (keyboardHeight + 12)
+        var targetRect = responder.convert(responder.bounds, to: scrollView)
+        if let textView = responder as? UITextView, let range = textView.selectedTextRange {
+            let caret = textView.caretRect(for: range.end)
+            targetRect = textView.convert(caret.insetBy(dx: 0, dy: -8), to: scrollView)
+        }
+        var targetOffset = scrollView.contentOffset
+        if targetRect.maxY > visibleRect.maxY {
+            targetOffset.y += (targetRect.maxY - visibleRect.maxY)
+        } else if targetRect.minY < visibleRect.minY {
+            targetOffset.y -= (visibleRect.minY - targetRect.minY)
+        } else {
+            return 
+        }
+        targetOffset.y = max(-scrollView.adjustedContentInset.top, min(targetOffset.y, scrollView.contentSize.height - scrollView.bounds.height + scrollView.adjustedContentInset.bottom))
+        scrollView.setContentOffset(targetOffset, animated: true)
     }
 }
 
@@ -286,8 +361,11 @@ extension AddEventViewController {
         case .bath:
             break
         case .other:
+            // OtherView가 생성되지 않았더라도 contentView 안의 OtherView를 탐색해서 입력을 수집
             if let view = addEventView.categoryInputView as? OtherView {
                 details = view.getInput()
+            } else if let other = addEventView.contentView.subviews.compactMap({ $0 as? OtherView }).first {
+                details = other.getInput()
             }
         }
         
@@ -313,10 +391,10 @@ extension AddEventViewController {
             isRepeated: !selectedWeekdays.isEmpty,
             expiredDate: "2025-12-31",
             repeatDays: getSelectedWeekdays(),
-            hasNotice: false, // 알림 기능 제거됨
+            hasNotice: true,
             time: formattedTime,
             category: category.serverKey,
-            details: category == .walk || category == .medicine || category == .checkup || category == .other ? input.details : nil,
+            details: category == .walk || category == .medicine || category == .checkup || category == .other ? (input.details.isEmpty ? nil : input.details) : nil,
             hospitalName: category == .checkup ? input.hospitalName : nil,
             department: category == .checkup ? input.department : nil,
             cost: category == .checkup ? input.cost : nil,

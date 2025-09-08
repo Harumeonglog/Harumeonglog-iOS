@@ -127,5 +127,8 @@ class PhotoDetailViewController: UIViewController {
             return
         }
         print("사진 저장 성공")
+        let alert = UIAlertController(title: nil, message: "다운로드 되었습니다.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }

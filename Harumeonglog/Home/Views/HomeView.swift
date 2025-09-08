@@ -71,7 +71,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     
     lazy var nicknameLabel: UILabel = {
         let label = UILabel()
-        label.text = "카이"
+        label.text = "강아지를 추가하세요"
         label.font = .headline
         label.textColor = .gray00
         label.numberOfLines = 1
@@ -200,7 +200,8 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         addSubview(eventView)
         addSubview(addeventButton)
         alarmButton.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).offset(16)
+            // Align Y with profileButton (dog image)
+            make.centerY.equalTo(profileButton)
             make.trailing.equalToSuperview().inset(20)
             make.width.height.equalTo(30)
         }

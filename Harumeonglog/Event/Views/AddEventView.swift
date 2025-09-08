@@ -33,6 +33,8 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
     public private(set) var selectedCategory: CategoryType?
     
     public var categoryInputView: UIView?
+    // 스크롤 콘텐츠 하단 제약을 갱신하기 위한 핸들
+    private var contentBottomConstraint: Constraint?
     
     public lazy var navigationBar = CustomNavigationBar()
 
@@ -174,6 +176,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
         scrollView.showsHorizontalScrollIndicator = false
+        scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
     
@@ -206,7 +209,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         // 스크롤뷰 구조 설정
         self.addSubview(scrollView)
-        self.addSubview(deleteEventButton)
         
         scrollView.addSubview(contentView)
         
@@ -233,7 +235,16 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.height.equalTo(44)
         }
         
-        // 스크롤뷰 설정
+        // 삭제 버튼은 스크롤뷰 밖, 안전영역 하단 고정
+        self.addSubview(deleteEventButton)
+        deleteEventButton.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(20)
+        }
+
+        // 스크롤뷰 설정: 하단을 삭제 버튼 위로 연결
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview()
@@ -314,19 +325,23 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(200)
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(20)
         }
-        
-        // 삭제 버튼을 화면 하단에 고정
-        deleteEventButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(20)
+        // 콘텐츠 뷰의 하단을 드롭다운 아래로 닫아 스크롤 가능 범위 확보
+        contentView.snp.makeConstraints { make in
+            contentBottomConstraint = make.bottom.equalTo(dropdownTableView.snp.bottom).offset(20).constraint
         }
 
         dateButton.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
+        timeButton.addTarget(self, action: #selector(timeButtonTapped), for: .touchUpInside)
         weekButtons.forEach { $0.addTarget(self, action: #selector(weekButtonTapped(_:)), for: .touchUpInside) }
+    }
+
+    // 카테고리 뷰가 바뀌면 스크롤 콘텐츠의 하단 기준을 해당 뷰로 갱신
+    private func updateContentBottom(below view: UIView) {
+        contentBottomConstraint?.deactivate()
+        contentView.snp.makeConstraints { make in
+            contentBottomConstraint = make.bottom.equalTo(view.snp.bottom).offset(20).constraint
+        }
     }
 
     @objc private func toggleDropdown() {
@@ -337,10 +352,24 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         delegate?.dateButtonTapped()
     }
 
+    @objc private func timeButtonTapped() {
+        delegate?.timeButtonTapped()
+    }
+
     @objc private func weekButtonTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         let isSelected = sender.backgroundColor != .brown01
         delegate?.weekdayTapped(title, isSelected: isSelected)
+        // Selected style: fill with brown01 and remove border
+        if isSelected {
+            sender.backgroundColor = .brown01
+            sender.setTitleColor(.white, for: .normal)
+            sender.layer.borderColor = UIColor.clear.cgColor
+        } else {
+            sender.backgroundColor = .white
+            sender.setTitleColor(.gray00, for: .normal)
+            sender.layer.borderColor = UIColor.brown02.cgColor
+        }
     }
 
     func updateCategoryInputView(for category: CategoryType) {
@@ -374,7 +403,6 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.top.equalTo(categoryButton.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(300)
-            make.bottom.equalToSuperview().inset(20) // 콘텐츠 뷰의 하단에 고정
         }
         // 드롭다운은 항상 버튼 바로 아래에 뜨도록 계층과 zPosition 보정
         contentView.bringSubviewToFront(dropdownTableView)
@@ -390,6 +418,9 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         // 레이아웃 즉시 적용
         self.layoutIfNeeded()
         print("[AddEventView] 카테고리 뷰 적용 완료")
+
+        // 스크롤 콘텐츠 하단을 카테고리 뷰로 갱신해서 스크롤 가능 범위를 유지
+        self.updateContentBottom(below: newView)
     }
 
     // UITableView DataSource & Delegate

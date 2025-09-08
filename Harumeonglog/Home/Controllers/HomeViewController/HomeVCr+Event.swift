@@ -14,6 +14,8 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
         updateHeaderLabel()
         fetchEventDatesForCurrentMonth()
+        // 달이 바뀔 때 요일 헤더 색상 재적용 (FSCalendar가 뷰를 갱신하므로 필요)
+        (self as? HomeViewController)?.applyWeekdayHeaderColors()
     }
 
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
@@ -60,6 +62,23 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
             formatter.dateFormat = "yyyy-MM-dd"
             let dateString = formatter.string(from: date)
             return markedDateStrings.contains(dateString) ? 1 : 0
+    }
+
+    // MARK: - Weekend colors (numbers): Sat blue, Sun red
+    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, titleDefaultColorFor date: Date) -> UIColor? {
+        let weekday = Calendar.current.component(.weekday, from: date)
+        // In Gregorian calendar: 1 = Sunday, 7 = Saturday
+        if weekday == 1 { return .red00 }
+        if weekday == 7 { return .blue01 }
+        return .gray00
+    }
+
+    // MARK: Weekday header colors: Sun red, Sat blue, others gray
+    func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, weekdayTextColorFor weekday: Int) -> UIColor? {
+        // FSCalendar weekday: 1 = Sun, 7 = Sat
+        if weekday == 1 { return .red00 }
+        if weekday == 7 { return .blue01 }
+        return .gray00
     }
 }
 

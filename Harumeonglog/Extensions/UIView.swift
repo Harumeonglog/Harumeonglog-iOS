@@ -1,4 +1,25 @@
 //
+//  UIView+FirstResponder.swift
+//  Harumeonglog
+//
+//  Created by Assistant on 6/21/25.
+//
+
+import UIKit
+
+extension UIView {
+    func findFirstResponder() -> UIView? {
+        if self.isFirstResponder { return self }
+        for subview in subviews {
+            if let firstResponder = subview.findFirstResponder() {
+                return firstResponder
+            }
+        }
+        return nil
+    }
+}
+
+//
 //  TextField.swift
 //  Harumeonglog
 //
