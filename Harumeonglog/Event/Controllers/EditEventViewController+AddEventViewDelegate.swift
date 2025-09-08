@@ -52,8 +52,15 @@ extension EditEventViewController: AddEventViewDelegate {
 
         for button in editEventView.weekButtons {
             if button.titleLabel?.text == weekday {
-                button.backgroundColor = isSelected ? .brown01 : .white
-                button.setTitleColor(isSelected ? .white : .gray00, for: .normal)
+                if isSelected {
+                    button.backgroundColor = .brown01
+                    button.setTitleColor(.white, for: .normal)
+                    button.layer.borderColor = UIColor.clear.cgColor
+                } else {
+                    button.backgroundColor = .white
+                    button.setTitleColor(.gray00, for: .normal)
+                    button.layer.borderColor = UIColor.brown02.cgColor
+                }
             }
         }
     }
