@@ -25,8 +25,13 @@ class MapViewController: UIViewController {
     
     // Recommend
     var isExpanded = false  // 추천 경로 모달창 expand 상태를 나타내는 변수
-    let minHeight: CGFloat = 150
-    let maxHeight: CGFloat = 750
+    // 고정값 대신 화면 비율 기반으로 수정
+    var minHeight: CGFloat {
+        return UIScreen.main.bounds.height * 0.1   // 화면의 20%
+    }
+    var maxHeight: CGFloat {
+        return UIScreen.main.bounds.height * 0.75  // 화면의 75%
+    }
     var cursor: Int = 0
     var hasNext: Bool = true
     var isFetching: Bool = false

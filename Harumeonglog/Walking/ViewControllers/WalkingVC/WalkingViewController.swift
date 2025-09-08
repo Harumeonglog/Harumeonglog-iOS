@@ -87,6 +87,7 @@ class WalkingViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         
         moveToUserLocationButtonTapped()
+        hideKeyboardWhenTappedAround()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
