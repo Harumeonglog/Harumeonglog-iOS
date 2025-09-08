@@ -108,8 +108,17 @@ class WalkingView: UIView {
         naverMapView.addSubview(recordView)
         recordView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(250)
+            
+            // 비율 제약은 '중간' 우선순위로
+            make.height.equalTo(naverMapView.snp.height)
+                .multipliedBy(0.27)
+                .priority(.medium)
+
+            // 최소 높이는 'required'로 (콘텐츠 확보가 최우선)
+            make.height.greaterThanOrEqualTo(220)
+                .priority(.required)
         }
+        
         
         recordView.addSubview(recordDistanceTimeView)
         
@@ -147,12 +156,12 @@ class WalkingView: UIView {
         
         btnStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(50)
+            make.top.equalTo(recordDistanceTimeView.snp.bottom).offset(70)
         }
         
         naverMapView.addSubview(moveToUserLocationButton)
         moveToUserLocationButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(266)
+            make.bottom.equalTo(recordView.snp.top).offset(-11)
             make.leading.equalToSuperview().inset(16)
             make.width.height.equalTo(40)
         }

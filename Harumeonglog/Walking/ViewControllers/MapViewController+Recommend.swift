@@ -43,6 +43,7 @@ extension MapViewController {
             mapView.recommendRouteView.snp.updateConstraints { make in
                 make.height.equalTo(finalHeight)
             }
+             
             updateRecommendRouteUI()
         default:
             break
@@ -120,9 +121,12 @@ extension MapViewController {
         // 높이에 따라 버튼 숨기기
         mapView.petStoreButton.isHidden = isExpanded
         mapView.vetButton.isHidden = isExpanded
+        mapView.moveToUserLocationButton.isHidden = isExpanded
+        mapView.walkingStartButton.isHidden = isExpanded
+        
         mapView.recommendRouteLabel.isHidden = !isExpanded
         mapView.routeFilterButton.isHidden = !isExpanded
-        mapView.recommendRouteTableView.isHidden = !isExpanded
+        mapView.recommendRouteTableView.isHidden = !isExpanded        
         
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
