@@ -18,7 +18,7 @@ class ShareRecordView: UIView {
     }
     
     private lazy var imageView = UIImageView().then { image in
-        image.image = UIImage(named: "applogo")
+        image.image = UIImage(named: "dog1")
     }
     
     private lazy var titleLabel = UILabel().then { label in
@@ -85,7 +85,7 @@ class ShareRecordView: UIView {
         
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(imageView.snp.bottom).offset(10)
+            make.top.equalTo(imageView.snp.bottom)
         }
         
         subtitleLabel.snp.makeConstraints { make in
