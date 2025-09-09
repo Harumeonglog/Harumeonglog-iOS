@@ -27,7 +27,8 @@ class WalkingViewController: UIViewController {
     var imageKeys: [String] = []
 
     var timer: Timer?
-    var timeElapsed: TimeInterval = 0       // 경과 시간
+    private var lastStartAt: Date?              // 마지막 시작(또는 재개) 시각
+    private var accumulated: TimeInterval = 0   // 일시정지까지의 누적 시간(초)
     
     var walkState: WalkState = .notStarted
     
@@ -75,12 +76,13 @@ class WalkingViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         
         moveToUserLocationButtonTapped()
+        hideKeyboardWhenTappedAround()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+        
         locationManager.stopUpdatingLocation()
     }
 
@@ -184,6 +186,7 @@ class WalkingViewController: UIViewController {
     @objc private func endBtnTapped() {
         locationManager.stopUpdatingLocation()          // 위치 추적 중지
         showAlertView()
+        stopTimer()
     }
     
     private func showAlertView() {
@@ -224,6 +227,8 @@ class WalkingViewController: UIViewController {
     private func sendEndWalkDataToServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         
+        if walkState == .walking { stopTimer() }
+
         let timeText = walkingView.recordTime.text ?? "00:00"
         let components = timeText.split(separator: ":").compactMap { Int($0) }
         let totalSeconds = (components.first ?? 0) * 60 + (components.last ?? 0)
@@ -258,24 +263,29 @@ class WalkingViewController: UIViewController {
 // MARK: 타이머 관련 메소드
 extension WalkingViewController {
     private func startTimer() {
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
-    }
-    
-    @objc private func updateTimer() {
-        timeElapsed += 1
-        updateTimeLabel()
+        guard timer == nil else { return }
+        lastStartAt = Date()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.updateTimeLabel()
+        }
+        RunLoop.main.add(timer!, forMode: .common)        // 스크롤 중에도 갱신
     }
     
     private func stopTimer() {
+        if let last = lastStartAt {
+            accumulated += Date().timeIntervalSince(last)
+        }
+        lastStartAt = nil
         timer?.invalidate()
         timer = nil
         updateTimeLabel()
     }
     
-    private func updateTimeLabel() {
-        let minutes = Int(timeElapsed) / 60
-        let seconds = Int(timeElapsed) % 60
-        
+    @objc private func updateTimeLabel() {
+        let running = lastStartAt.map { Date().timeIntervalSince($0) } ?? 0
+        let total = accumulated + running
+        let minutes = Int(total) / 60
+        let seconds = Int(total) % 60
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
 }

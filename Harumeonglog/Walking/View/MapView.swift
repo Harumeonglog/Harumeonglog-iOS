@@ -67,6 +67,7 @@ class MapView: UIView {
     
     private lazy var modalSlideImageView = UIImageView().then { imageView in
         imageView.image = UIImage(named: "modalSlide")
+        imageView.clipsToBounds = true
     }
     
     private lazy var bottomLineView = UIView().then  { view in
@@ -135,25 +136,24 @@ class MapView: UIView {
 //        
         naverMapView.addSubview(moveToUserLocationButton)
         naverMapView.addSubview(walkingStartButton)
-        
-        moveToUserLocationButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(170)
-            make.leading.equalToSuperview().inset(16)
-            make.width.height.equalTo(40)
-        }
-        
-        walkingStartButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(170)
-            make.trailing.equalToSuperview().inset(16)
-            make.width.equalTo(90)
-            make.height.equalTo(45)
-        }
-        
         naverMapView.addSubview(recommendRouteView)
         
         recommendRouteView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(150)
+        }
+        
+        moveToUserLocationButton.snp.makeConstraints { make in
+            make.bottom.equalTo(recommendRouteView.snp.top).offset(-11)
+            make.leading.equalToSuperview().inset(16)
+            make.width.height.equalTo(40)
+        }
+        
+        walkingStartButton.snp.makeConstraints { make in
+            make.bottom.equalTo(moveToUserLocationButton)
+            make.trailing.equalToSuperview().inset(16)
+            make.width.equalTo(90)
+            make.height.equalTo(45)
         }
         
         recommendRouteView.addSubview(modalSlideImageView)
@@ -166,6 +166,8 @@ class MapView: UIView {
             make.centerX.equalToSuperview()
             make.top.equalToSuperview().inset(11)
         }
+        
+        recommendRouteView.bringSubviewToFront(modalSlideImageView)
         
         recommendRouteLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
