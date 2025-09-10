@@ -9,6 +9,21 @@ import UIKit
 import NMapsMap
 import CoreLocation
 
+
+enum RouteSort: String, CaseIterable {
+    case recommend = "RECOMMEND"
+    case distance = "DISTANCE"
+    case time = "TIME"
+    
+    var title: String {
+        switch self {
+        case .recommend: return "추천순"
+        case .distance: return "거리순"
+        case .time: return "소요 시간순"
+        }
+    }
+}
+
 // MARK: 추천 경로에 대한 메소드
 extension MapViewController {
     
@@ -17,29 +32,25 @@ extension MapViewController {
         refreshControl.addTarget(self, action: #selector(refreshRecommendRoutes), for: .valueChanged)
         mapView.recommendRouteTableView.refreshControl = refreshControl
     }
+    
+    private func applySort(_ sort: RouteSort, reset: Bool = true) {
+        currentSort = sort
+        mapView.routeFilterButton.setTitle(sort.title, for: .normal)
+        fetchRouteData(reset: reset, sort: sort.rawValue)
+    }
 
     @objc private func refreshRecommendRoutes() {
         print("새로고침 실행")
-        
-        if mapView.routeFilterButton.titleLabel?.text == "추천순" {
-            fetchRouteData(reset: true, sort: "RECOMMEND")
-        } else if mapView.routeFilterButton.titleLabel?.text == "거리순" {
-            fetchRouteData(reset: true, sort: "DISTANCE")
-            
-        } else if mapView.routeFilterButton.titleLabel?.text == "소요 시간순" {
-            fetchRouteData(reset: true, sort: "TIME")
-        }
+        applySort(currentSort, reset: true)
         mapView.recommendRouteTableView.refreshControl?.endRefreshing()
     }
+
     
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
             // 제스처가 끝났을때 확장/축소 결정
         case .ended:
-            if !isExpanded {
-                fetchRouteData(reset: true, sort: "RECOMMEND")
-            }
-            
+            if !isExpanded { applySort(.recommend, reset: true) } 
             let velocity = gesture.velocity(in: mapView.recommendRouteView).y  // 초당 픽셀 이동 속도
             if velocity < -500 { // 위로 빠르게 스와이프 -> 확장
                 isExpanded = true
@@ -60,30 +71,12 @@ extension MapViewController {
     
     // 정렬을 위한 팝업버튼
     func configRouteFilterButton() {
-        let popUpButtonClosure: (UIAction) -> Void = { [weak self] action in
-            guard let self else { return }
-
-            if action.title == "추천순" {
-                self.mapView.routeFilterButton.setTitle("추천순", for: .normal)
-                fetchRouteData(reset: true, sort: "RECOMMEND")
-            } else if action.title == "거리순" {
-                self.mapView.routeFilterButton.setTitle("거리순", for: .normal)
-                fetchRouteData(reset: true, sort: "DISTANCE")
-            } else if action.title == "소요 시간순" {
-                self.mapView.routeFilterButton.setTitle("소요 시간순", for: .normal)
-                fetchRouteData(reset: true, sort: "TIME")
+        let actions = RouteSort.allCases.map { sort in
+            UIAction(title: sort.title, state: sort == currentSort ? .on : .off) { [weak self] _ in
+                self?.applySort(sort)
             }
         }
-
-        let recommendAction = makeAction(title: "추천순", color: .gray00, handler: popUpButtonClosure)
-        let distanceAction = makeAction(title: "거리순", color: .gray00, handler: popUpButtonClosure)
-        let timeAction = makeAction(title: "소요 시간순", color: .gray00, handler: popUpButtonClosure)
-
-        mapView.routeFilterButton.menu = UIMenu(title: "정렬", children: [
-            recommendAction,
-            distanceAction,
-            timeAction
-        ])
+        mapView.routeFilterButton.menu = UIMenu(title: "정렬", options: .singleSelection, children: actions)
         mapView.routeFilterButton.showsMenuAsPrimaryAction = true
     }
 

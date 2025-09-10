@@ -35,6 +35,7 @@ class MapViewController: UIViewController {
     var cursor: Int = 0
     var hasNext: Bool = true
     var isFetching: Bool = false
+    var currentSort: RouteSort = .recommend        // 기본정렬 상태 : 추천순
     
     internal var locationManager = CLLocationManager()
     internal var currentLocationMarker: NMFMarker?
