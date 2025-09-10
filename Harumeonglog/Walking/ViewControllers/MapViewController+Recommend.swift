@@ -12,7 +12,7 @@ import CoreLocation
 // MARK: 추천 경로에 대한 메소드
 extension MapViewController {
     
-    private func configureRefreshControl() {
+    func configureRefreshControl() {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshRecommendRoutes), for: .valueChanged)
         mapView.recommendRouteTableView.refreshControl = refreshControl
@@ -20,7 +20,15 @@ extension MapViewController {
 
     @objc private func refreshRecommendRoutes() {
         print("새로고침 실행")
-        fetchRouteData(reset: true, sort: "RECOMMEND")
+        
+        if mapView.routeFilterButton.titleLabel?.text == "추천순" {
+            fetchRouteData(reset: true, sort: "RECOMMEND")
+        } else if mapView.routeFilterButton.titleLabel?.text == "거리순" {
+            fetchRouteData(reset: true, sort: "DISTANCE")
+            
+        } else if mapView.routeFilterButton.titleLabel?.text == "소요 시간순" {
+            fetchRouteData(reset: true, sort: "TIME")
+        }
         mapView.recommendRouteTableView.refreshControl?.endRefreshing()
     }
     

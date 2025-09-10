@@ -50,6 +50,17 @@ class WalkingViewController: UIViewController {
     let walkService = WalkService()
     var recordView = RecordView()
 
+    // 필터 기준값(필요하면 숫자만 살짝 조절)
+    let minGoodAccuracy: CLLocationAccuracy = 25   // 수평정확도 25m 이내만 사용
+    let minDrawDistance: CLLocationDistance = 5    // 5m 이상 움직였을 때만 선 추가
+    let maxHumanSpeed: CLLocationSpeed = 7.0       // m/s, 사람이 낼 수 있는 속도 상한
+    let minSampleInterval: TimeInterval = 0.8      // 샘플 간 최소 간격
+
+    // 상태 보관
+    var lastAcceptedLocation: CLLocation?          // "선에 반영한" 마지막 위치
+    var smoothBuffer: [CLLocationCoordinate2D] = []// 스무딩용 버퍼
+    let smoothCount = 5                            // 최근 5개 평균
+
     
     lazy var walkingView: WalkingView = {
         let view = WalkingView()
@@ -66,6 +77,7 @@ class WalkingViewController: UIViewController {
         super.viewDidLoad()
         self.view = walkingView
         locationManager.delegate = self
+        locationManager.activityType = .fitness                 // 보행 최적화
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = 8
         locationManager.pausesLocationUpdatesAutomatically = false

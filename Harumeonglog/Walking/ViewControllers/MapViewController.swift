@@ -58,6 +58,7 @@ class MapViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()              // 서비스 권한을 허용할 것인지 묻는 팝업
         
         configRouteFilterButton()
+        configureRefreshControl()
         moveToUserLocationButtonTapped()
     }
     
