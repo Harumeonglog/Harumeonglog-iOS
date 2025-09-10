@@ -70,7 +70,8 @@ class RecordView: UIView {
     }
     
     public lazy var mapImageView = UIImageView().then { imageView in
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 15
         imageView.layer.borderColor = UIColor.brown02.cgColor
         imageView.layer.borderWidth = 1

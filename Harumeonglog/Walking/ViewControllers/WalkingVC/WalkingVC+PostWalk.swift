@@ -13,7 +13,7 @@ import NMapsMap
 // MARK: 산책 기록 결과
 extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
-    func showRecordWalkingView() {
+    func showRecordWalkingView(with mapImage: UIImage?) {
         let recordView = showDimmedView(RecordView.self)
         self.recordView = recordView
         
@@ -26,6 +26,10 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
         getPlaceName(from: self.startLocationCoordinates) { address in
             recordView.startAdddress.text = address
             print("\(address)")
+        }
+        
+        if let mapImage = mapImage {
+            recordView.mapImageView.image = mapImage
         }
         recordView.recordCancelBtn.addTarget(self, action: #selector(cancelRecordBtnTapped), for: .touchUpInside)
         recordView.recordSaveBtn.addTarget(self, action: #selector(saveRecordBtnTapped), for: .touchUpInside)

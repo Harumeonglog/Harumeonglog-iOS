@@ -255,7 +255,13 @@ class WalkingViewController: UIViewController {
                 if response.isSuccess {
                     print("산책 종료 성공")
                     removeView(AlertView.self)
-                    showRecordWalkingView()
+                    
+                    // 네이버 지도 캡쳐
+                    walkingView.naverMapView.takeSnapShot { [weak self] mapImage in
+                          guard let self else { return }
+                          self.showRecordWalkingView(with: mapImage)
+                    }
+
                 }
             case .failure(let error):
                 print("산책 종료 실패: \(error.localizedDescription)")
@@ -300,4 +306,36 @@ extension WalkingViewController {
         let seconds = Int(total) % 60
         walkingView.recordTime.text = String(format: "%02d:%02d", minutes, seconds)
     }
+}
+
+
+// MARK: 지도 캡쳐 관련 메소드
+extension WalkingViewController {
+    private func captureMapOnly(_ completion: @escaping (UIImage?) -> Void) {
+        // 지도 위에 올린 커스텀 서브뷰들만 숨김
+        let overlays: [UIView] = [
+            walkingView.recordView,
+            walkingView.moveToUserLocationButton
+        ]
+        let oldHidden = overlays.map { $0.isHidden }
+        overlays.forEach { $0.isHidden = true }
+
+        // (선택) 네이버 기본 UI도 숨기고 싶으면 잠깐 끄기
+        let nmap = walkingView.naverMapView
+        let oldZoom = nmap.showZoomControls
+        let oldCompass = nmap.showCompass
+        nmap.showZoomControls = false
+        nmap.showCompass = false
+
+        // 지도만 스냅샷
+        nmap.takeSnapShot { [weak self] image in
+            guard let self = self else { return }
+            // 복구
+            zip(overlays, oldHidden).forEach { view, wasHidden in view.isHidden = wasHidden }
+            nmap.showZoomControls = oldZoom
+            nmap.showCompass = oldCompass
+            completion(image)
+        }
+    }
+
 }
