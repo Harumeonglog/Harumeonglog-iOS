@@ -15,7 +15,7 @@ extension DateFormatter {
         if let date = date(from: string) {
             return timeAgoString(from: date)
         } else {
-            return ""
+            return "null date"
         }
     }
     

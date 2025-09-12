@@ -22,3 +22,11 @@ struct NoticeModel: Codable {
     let senderName: String?
     let createdAt: String?
 }
+//
+//"noticeId": 45,
+//        "title": "[초대 알림]",
+//        "content": "도비에 초대되었습니다.",
+//        "noticeType": "INVITATION",
+//        "targetId": null,
+//        "senderName": "rofxnaos",
+//        "createdAt": "2025-09-10T17:06:06.106028"

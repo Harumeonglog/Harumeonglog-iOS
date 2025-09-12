@@ -25,14 +25,12 @@ class NotiCollectionViewCell: UICollectionViewCell {
         $0.tintColor = .blue01
     }
     
-    private lazy var userNameLabel = UILabel().then { // Bold처리
-        $0.textColor = .black
-        $0.font = .systemFont(ofSize: 17, weight: .bold)
-    }
-    
-    private lazy var titleLabel = UILabel().then {
+    private lazy var contentLabel = UILabel().then {
         $0.textAlignment = .left
         $0.textColor = .black
+        $0.font = .systemFont(ofSize: 15, weight: .regular)
+        $0.numberOfLines = 2
+        $0.lineBreakMode = .byCharWrapping
     }
     
     private lazy var timeLabel = UILabel().then {
@@ -43,22 +41,12 @@ class NotiCollectionViewCell: UICollectionViewCell {
     public func configure(_ data: NoticeModel) {
         let type = data.noticeType
         typeImageView.image = type?.typeImage() ?? UIImage(systemName: "sun")
-        titleLabel.text = data.content ?? ""
+        contentLabel.text = data.content ?? ""
         if type == .COMMENT || type == .ARTICLE {
             // timeLabel.text = data.date
             timeLabel.isHidden = false
         } else {
             timeLabel.isHidden = true
-        }
-        // 유저 닉네임이 있는 경우
-        if data.senderName != nil {
-            userNameLabel.snp.makeConstraints { make in
-                make.width.greaterThanOrEqualTo(50)
-            }
-        } else {
-            userNameLabel.snp.makeConstraints { make in
-                make.width.equalTo(0)
-            }
         }
         
         // 시간
@@ -85,8 +73,7 @@ class NotiCollectionViewCell: UICollectionViewCell {
         
         self.addSubview(isReadLightBulb)
         self.addSubview(typeImageView)
-        self.addSubview(userNameLabel)
-        self.addSubview(titleLabel)
+        self.addSubview(contentLabel)
         self.addSubview(timeLabel)
         
         isReadLightBulb.snp.makeConstraints { make in
@@ -100,19 +87,14 @@ class NotiCollectionViewCell: UICollectionViewCell {
             make.centerY.equalToSuperview()
         }
         
-        userNameLabel.snp.makeConstraints { make in
-            make.leading.equalTo(typeImageView.snp.trailing).offset(13)
-            make.centerY.equalToSuperview()
-        }
-        
         timeLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
             make.width.greaterThanOrEqualTo(40)
         }
         
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(userNameLabel.snp.trailing)
+        contentLabel.snp.makeConstraints { make in
+            make.leading.equalTo(typeImageView.snp.trailing).offset(13)
             make.trailing.equalTo(timeLabel.snp.leading)
             make.centerY.equalToSuperview()
         }

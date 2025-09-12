@@ -66,4 +66,19 @@ final class UserActivityViewModel: ObservableObject {
         }
     }
     
+    func refreshMyPosts() {
+        likedCursor = 0
+        likedPosts = []
+    }
+    
+    func refreshMyComments() {
+        myCommentCursor = 0
+        myComments = []
+    }
+    
+    func refreshLikedPosts() {
+        likedCursor = 0
+        likedPosts = []
+    }
+    
 }

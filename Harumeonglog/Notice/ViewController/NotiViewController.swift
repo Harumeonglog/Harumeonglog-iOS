@@ -48,7 +48,7 @@ class NotiViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        noticeViewModel.getNotices{ _ in }
+        noticeViewModel.getNotices()
     }
     
     @objc
@@ -90,7 +90,7 @@ extension NotiViewController {
         if offsetY > contentHeight - height * 1.5 {
             workItem?.cancel()
             workItem = DispatchWorkItem { [weak self] in
-                self?.noticeViewModel.getNotices{ _ in}
+                self?.noticeViewModel.getNotices()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
         }
