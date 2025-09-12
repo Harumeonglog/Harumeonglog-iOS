@@ -50,7 +50,7 @@ class NotiCollectionViewCell: UICollectionViewCell {
         }
         
         // 시간
-        timeLabel.text = DateFormatter.stringToString(from: data.createdAt ?? "")
+        timeLabel.text = DateFormatter.stringFormatDate(from: data.createdAt ?? "")
     }
     
     override init(frame: CGRect) {
