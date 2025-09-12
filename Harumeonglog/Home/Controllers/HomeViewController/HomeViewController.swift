@@ -284,7 +284,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
     
     // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
-    func createDefaultProfileImage() -> UIImage? {
+    private func createDefaultProfileImage() -> UIImage? {
         let size = CGSize(width: 70, height: 70)
         let renderer = UIGraphicsImageRenderer(size: size)
 
