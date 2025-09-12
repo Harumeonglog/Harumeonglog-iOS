@@ -11,6 +11,7 @@ class ConfirmButton: UIButton {
     
     private lazy var mainLabel = UILabel().then {
         $0.textColor = .white
+        $0.font = .headline2
     }
     
     override init(frame: CGRect) {
@@ -51,7 +52,7 @@ class ConfirmButton: UIButton {
         plusImage.snp.makeConstraints { make in
             make.height.width.equalTo(14)
             make.centerY.equalTo(mainLabel)
-            make.trailing.equalTo(mainLabel.snp.leading).offset(-5)
+            make.trailing.equalTo(mainLabel.snp.leading).offset(-10)
         }
     }
     

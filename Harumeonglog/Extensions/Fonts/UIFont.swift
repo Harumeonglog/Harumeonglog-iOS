@@ -28,6 +28,9 @@ extension UIFont {
     @nonobjc class var headline: UIFont {
         return UIFont(name: FontName.pretendard_regular.rawValue, size: 20) ?? UIFont.systemFont(ofSize: 20)
     }
+    @nonobjc class var headline2: UIFont {
+        return UIFont(name: FontName.pretendard_regular.rawValue, size: 16) ?? UIFont.systemFont(ofSize: 16)
+    }
     @nonobjc class var description: UIFont {
         return UIFont(name: FontName.pretendard_light.rawValue, size: 12) ?? UIFont.systemFont(ofSize: 12)
     }
