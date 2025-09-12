@@ -42,15 +42,8 @@ class NotiCollectionViewCell: UICollectionViewCell {
         let type = data.noticeType
         typeImageView.image = type?.typeImage() ?? UIImage(systemName: "sun")
         contentLabel.text = data.content ?? ""
-        if type == .COMMENT || type == .ARTICLE {
-            // timeLabel.text = data.date
-            timeLabel.isHidden = false
-        } else {
-            timeLabel.isHidden = true
-        }
-        
-        // 시간
         timeLabel.text = DateFormatter.stringFormatDate(from: data.createdAt ?? "")
+        isReadLightBulb.isHidden = data.isRead
     }
     
     override init(frame: CGRect) {

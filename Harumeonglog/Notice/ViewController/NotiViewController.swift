@@ -77,6 +77,21 @@ extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSour
         cell.configure(data)
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let data = noticeViewModel.noticeList[indexPath.row]
+        guard let id = data.noticeId else { print("Notice ID is nil"); return }
+        noticeViewModel.deleteNotice(id: id) { result in
+            switch result {
+            case .success(_):
+                self.noticeViewModel.readNotice(id: id)
+                print(self.noticeViewModel.noticeList)
+                return
+            case .failure(_):
+                return
+            }
+        }   
+    }
        
 }
 

@@ -24,7 +24,7 @@ final class NoticeViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print("알림 불러오기 성공")
-                print(response.result?.items as Any)
+                // print(response.result?.items as Any)
                 if let result = response.result {
                     self.noticeList.append(contentsOf: result.items ?? [])
                     self.noticeList.sort{ $0.noticeId ?? 1 > $1.noticeId ?? 2 }
@@ -52,6 +52,16 @@ final class NoticeViewModel: ObservableObject {
                 completion(result)
             }
         }
+    }
+    
+    func readNotice(id: Int) {
+        noticeList[noticeList.firstIndex(where: {$0.noticeId == id})!].read()
+    }
+    
+    func refresh() {
+        noticeList = []
+        cursor = 0
+        getNotices()
     }
     
 }
