@@ -21,6 +21,7 @@ class MemberInPetCell: UITableViewCell {
     private weak var delegate: MemberInPetCellDelegate?
     
     private lazy var userProfileImage = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
@@ -47,7 +48,7 @@ class MemberInPetCell: UITableViewCell {
         self.delegate = delegate
         self.selectionStyle = .none
         
-        userProfileImage.kf.setImage(with: URL(string: member.image ?? ""))
+        userProfileImage.kf.setImage(with: URL(string:member.image ?? ""), placeholder: UIImage(named: "defaultImage"))
         nameLabel.text = member.name
         roleLabel.text = member.role
         

@@ -18,6 +18,7 @@ class MyPageView: UIView {
     }
     private lazy var myProfileFrame = UIView()
     private lazy var myProfileImageView = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 40
         $0.backgroundColor = .gray03

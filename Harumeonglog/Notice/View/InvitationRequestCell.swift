@@ -20,6 +20,7 @@ class InvitationRequestCell: UICollectionViewCell {
     private var delegate: InviteRequestCellDelegate?
     
     private lazy var profileImage = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.backgroundColor = .gray03
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
@@ -55,7 +56,7 @@ class InvitationRequestCell: UICollectionViewCell {
     public func configure(_ data: InvitationRequest, delegate: InviteRequestCellDelegate) {
         self.request = data
         nameLabel.text = data.petName
-        profileImage.kf.setImage(with: URL(string: data.image))
+        profileImage.kf.setImage(with: URL(string: data.image), placeholder: UIImage(named: "defaultImage"))
         self.delegate = delegate
     }
     

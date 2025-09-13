@@ -13,6 +13,7 @@ class EditProfileView: UIView {
     public lazy var navigationBar = CustomNavigationBar()
     
     private lazy var profileImageView = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 80
         $0.clipsToBounds = true
@@ -42,7 +43,7 @@ class EditProfileView: UIView {
     }
     
     public func setPrifileImageByURL(_ url: URL) {
-        profileImageView.kf.setImage(with: url)
+        profileImageView.kf.setImage(with: url, placeholder: UIImage(named: "defaultImage"))
     }
     
     public func setConstraints() {

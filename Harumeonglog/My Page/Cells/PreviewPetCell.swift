@@ -13,6 +13,7 @@ class PreviewPetCell: UITableViewCell {
     private var pet: PetDTO?
     
     private lazy var petImage = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 15
@@ -30,7 +31,7 @@ class PreviewPetCell: UITableViewCell {
     
     func configure(with pet: PetDTO) {
         self.pet = pet
-        petImage.kf.setImage(with: URL(string: pet.mainImage ?? "")!)
+        petImage.kf.setImage(with: URL(string: pet.mainImage ?? ""), placeholder: UIImage(named: "defaultImage"))
         nameLabel.text = pet.name
         roleLabel.text = pet.role
         constraints()
