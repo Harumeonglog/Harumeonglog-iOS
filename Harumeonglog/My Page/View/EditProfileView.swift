@@ -89,7 +89,7 @@ class EditProfileView: UIView {
         
         nicknameLabel.snp.makeConstraints { make in
             make.top.equalTo(profileImageView.snp.bottom).offset(55)
-            make.leading.equalToSuperview().offset(47)
+            make.leading.equalToSuperview().offset(47+25)
         }
         
         nicknameTextField.snp.makeConstraints { make in
@@ -102,11 +102,11 @@ class EditProfileView: UIView {
     private func commonLabel(text: String) -> UILabel {
         return UILabel().then {
             $0.text = text
-            $0.font = .systemFont(ofSize: 17)
+            $0.font = .body
             $0.textColor = .gray02
         }
     }
-    
+        
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .background

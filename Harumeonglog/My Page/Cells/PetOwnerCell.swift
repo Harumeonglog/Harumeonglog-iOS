@@ -229,7 +229,7 @@ class PetOwnerCell: UICollectionViewCell {
         
         memberTableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(birthdayLabel.snp.bottom).offset(16)
+            make.top.equalTo(birthdayLabel.snp.bottom).offset(20)
             make.height.equalTo(156) // 고정 높이
         }
         

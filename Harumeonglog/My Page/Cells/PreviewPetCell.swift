@@ -45,7 +45,7 @@ class PreviewPetCell: UITableViewCell {
         petImage.snp.makeConstraints { make in
             make.width.height.equalTo(30)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(18)
+            make.leading.equalToSuperview().offset(20)
         }
         
         nameLabel.snp.makeConstraints { make in
@@ -55,7 +55,7 @@ class PreviewPetCell: UITableViewCell {
         
         roleLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-12)
+            make.trailing.equalToSuperview().offset(-25)
         }
     }
 }

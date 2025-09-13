@@ -105,7 +105,7 @@ class WalkingView: UIView {
             make.edges.equalToSuperview()
         }
         
-        naverMapView.addSubview(recordView)
+        self.addSubview(recordView)
         recordView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             
@@ -159,7 +159,7 @@ class WalkingView: UIView {
             make.top.equalTo(recordDistanceTimeView.snp.bottom).offset(70)
         }
         
-        naverMapView.addSubview(moveToUserLocationButton)
+        self.addSubview(moveToUserLocationButton)
         moveToUserLocationButton.snp.makeConstraints { make in
             make.bottom.equalTo(recordView.snp.top).offset(-11)
             make.leading.equalToSuperview().inset(16)

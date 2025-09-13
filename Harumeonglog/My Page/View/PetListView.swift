@@ -62,7 +62,7 @@ class PetListView: UIView {
         
         addPetButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().offset(-20)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).offset(-20)
         }
     }
 }

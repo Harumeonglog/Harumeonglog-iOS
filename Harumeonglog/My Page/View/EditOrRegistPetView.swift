@@ -56,6 +56,8 @@ class EditOrRegistPetView: UIView {
     private lazy var dogGenderLabel = commonLabel(text: "성별")
     public lazy var dogGenderSelectButton = commonButton().then {
         $0.setTitle("성별", for: .normal)
+        $0.titleLabel?.font = .body
+        $0.setTitleColor(.gray00, for: .normal)
     }
     
     private lazy var triangleImage = UIImageView().then {
@@ -65,8 +67,9 @@ class EditOrRegistPetView: UIView {
     
     private lazy var birthdateLabel = commonLabel(text: "생일")
     public lazy var birthdateSelectButton = commonButton().then {
-        $0.setTitleColor(.black, for: .normal)
         $0.titleLabel?.textAlignment = .left
+        $0.titleLabel?.font = .body
+        $0.setTitleColor(.gray00, for: .normal)
     }
     
     public lazy var confirmButton = ConfirmButton()
@@ -290,8 +293,8 @@ class EditOrRegistPetView: UIView {
     private func commonLabel(text: String) -> UILabel {
         return UILabel().then {
             $0.text = text
-            $0.textColor = .black
-            $0.font = .systemFont(ofSize: 15)
+            $0.textColor = .gray00
+            $0.font = .headline2
         }
     }
         

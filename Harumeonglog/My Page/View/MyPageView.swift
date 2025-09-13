@@ -26,7 +26,7 @@ class MyPageView: UIView {
     
     private lazy var myProfileNameLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 20)
+        $0.font = .headline
     }
     
     public lazy var goEditProileButton = goToDetailButton()
@@ -73,12 +73,12 @@ class MyPageView: UIView {
     public lazy var revokeButton = UIButton().then {
         $0.setTitle("탈퇴하기", for: .normal)
         $0.setTitleColor(.gray01, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16)
+        $0.titleLabel?.font = .body
     }
     public lazy var logoutButton = UIButton().then {
         $0.setTitle("로그아웃", for: .normal)
         $0.setTitleColor(.logout, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16)
+        $0.titleLabel?.font = .body
         
         $0.setImage(.logout, for: .normal)
         $0.imageView?.contentMode = .scaleAspectFit
@@ -276,13 +276,13 @@ class MyPageView: UIView {
 
         logoutButton.snp.makeConstraints { make in
             make.centerX.equalToSuperview().offset(40)
-            make.top.equalTo(goNotification.snp.bottom).offset(20)
+            make.top.equalTo(goNotification.snp.bottom).offset(50)
         }
 
         logoutButton.imageView?.snp.makeConstraints { make in
             make.centerY.equalTo(logoutButton)
             make.trailing.equalToSuperview().inset(-30)
-            make.height.equalTo(16)
+            make.height.equalTo(14)
         }
 
         revokeButton.snp.makeConstraints { make in
@@ -300,7 +300,7 @@ class MyPageView: UIView {
         return UILabel().then {
             $0.text = text
             $0.textColor = .gray01
-            $0.font = .systemFont(ofSize: 14)
+            $0.font = .body
         }
     }
     
