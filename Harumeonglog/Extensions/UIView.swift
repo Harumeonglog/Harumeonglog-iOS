@@ -41,10 +41,14 @@ extension UITextField {
             
             $0.backgroundColor = .white
             $0.textColor = .gray00
+            $0.font = .body
             
             $0.autocapitalizationType = .none
             $0.autocorrectionType = .no
             $0.spellCheckingType = .no
+            
+            $0.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 25, height: 0))
+            $0.leftViewMode = .always
         }
     }
     

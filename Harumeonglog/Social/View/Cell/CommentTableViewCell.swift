@@ -144,7 +144,7 @@ class CommentTableViewCell: UITableViewCell {
     
     func configure(with comment: CommentItem, member: MemberInfoResponse) {
         commentContent.text = comment.content
-        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "defaultImage"))
         postTime.text = timeAgoString(from: comment.createdAt)
         
         self.accountName.text = member.nickname

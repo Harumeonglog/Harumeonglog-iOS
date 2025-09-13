@@ -202,7 +202,7 @@ class PostDetailView: UIView {
     }
     
     func configure(with postDetail: PostDetailResponse, member: MemberInfoResponse) {
-        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "defaultImage"))
         accountName.text = member.nickname
     
         postCategory.text = socialCategoryKey.tagsEngKorto[postDetail.postCategory]

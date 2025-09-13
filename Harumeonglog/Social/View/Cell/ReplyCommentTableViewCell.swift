@@ -136,7 +136,7 @@ class ReplyCommentTableViewCell: UITableViewCell {
     
     func configure(with commentReplies: CommentcommentResponse, member: MemberInfoResponse) {
         commentContent.text = commentReplies.content
-        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        accountImageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "defaultImage"))
 
         accountName.text = member.nickname
     }
