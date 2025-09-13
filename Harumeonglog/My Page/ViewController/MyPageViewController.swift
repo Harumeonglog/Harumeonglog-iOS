@@ -25,7 +25,7 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        userActivityViewModel.getmyPosts()
+        userActivityViewModel.getMyPosts()
         userActivityViewModel.getLikedPosts()
         
         petListViewModel.getPetList{ _ in }

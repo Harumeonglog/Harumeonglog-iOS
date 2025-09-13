@@ -21,7 +21,7 @@ final class UserActivityViewModel: ObservableObject {
     
     var cancellables: Set<AnyCancellable> = []
     
-    func getmyPosts() {
+    func getMyPosts() {
         UserActivityService.getMyPosts(cursor: myPostsCursor) { [weak self] result in
             switch result {
             case .success(let response):
@@ -67,18 +67,21 @@ final class UserActivityViewModel: ObservableObject {
     }
     
     func refreshMyPosts() {
-        likedCursor = 0
-        likedPosts = []
+        myPostsCursor = 0
+        myPosts = []
+        getMyPosts()
     }
     
     func refreshMyComments() {
         myCommentCursor = 0
         myComments = []
+        getMyComments()
     }
     
     func refreshLikedPosts() {
         likedCursor = 0
         likedPosts = []
+        getLikedPosts()
     }
     
 }

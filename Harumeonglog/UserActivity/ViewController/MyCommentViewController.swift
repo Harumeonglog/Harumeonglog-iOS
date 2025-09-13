@@ -35,7 +35,7 @@ final class MyCommentViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.userActivityViewModel?.getMyComments()
+        self.userActivityViewModel?.refreshMyComments()
     }
     
     func configure(with viewModel: UserActivityViewModel) {
