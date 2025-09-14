@@ -407,6 +407,8 @@ extension AddEventViewController {
     
     //createEvent 불러오기
     private func postEvent(request: EventRequest, token: String) {
+        showLoadingView()
+        
         // JSON 로그 출력 추가
         if let jsonData = try? JSONEncoder().encode(request),
            let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -414,6 +416,8 @@ extension AddEventViewController {
         }
         
         EventService.createEvent(request: request, token: token) { result in
+            self.hideLoadingView()
+            
             switch result {
             case .success(let response):
                 print("일정 추가 성공 !!: \(response)")

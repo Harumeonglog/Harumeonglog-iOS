@@ -8,7 +8,6 @@
 import UIKit
 import Alamofire
 
-
 class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     let socialPostService = SocialPostService()
@@ -17,7 +16,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     var postContent: String = ""
     private var postImages: [UIImage] = []          // 사용자가 고른 이미지
     private var imageKeys: [String] = []
-    
+    private var isSubmitting = false                // 게시글 생성 중복 방지 플래그
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
@@ -28,7 +27,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         view.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
         view.titleTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
 
-        
         return view
     }()
     
@@ -51,16 +49,13 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
     
     @objc func didTapRightButton() {
-        
         let postTitle = addPostView.titleTextField.text ?? ""
-        
-        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-        
         if postImages.isEmpty {
             createPost()
             return
         }
         
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
         let imageInfos = postImages.enumerated().map { (index, _) -> PresignedUrlImage in
             return PresignedUrlImage(
                 filename: "\(postTitle)_\(index)",
@@ -129,8 +124,9 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         postTitle = addPostView.titleTextField.text ?? ""
         postContent = addPostView.contentTextView.text ?? ""
         
+        showLoadingView()
+        
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
         socialPostService.sendPostToServer(
             postCategory: selectedCategory!,
             title: self.postTitle,
@@ -138,6 +134,9 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             postImageList: imageKeys,
             token: token
         ) { result in
+            
+            self.hideLoadingView()
+            
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -157,13 +156,16 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     @objc func textFieldDidChange() {
         updateRightButtonState()
     }
+    
+    @objc func contentTextDidChange() {
+        updateRightButtonState()
+    }
 
     private func updateRightButtonState() {
         self.postTitle = addPostView.titleTextField.text ?? ""
         self.postContent = addPostView.contentTextView.text ?? ""
         
-        
-        let isFormValid = !self.postTitle.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil && !self.postContent.trimmingCharacters(in: .whitespaces).isEmpty
+        let isFormValid = !self.postTitle.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil
         addPostView.navigationBar.rightButton.isHidden = !isFormValid
     }
     
