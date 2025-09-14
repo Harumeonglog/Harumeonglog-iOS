@@ -17,6 +17,7 @@ extension EventView {
             emptyLabel.font = .body
             emptyLabel.textAlignment = .center
             emptyLabel.numberOfLines = 0
+            emptyLabel.setLineSpacing(lineSpacing: 5, alignment: .center)
             
             let containerView = UIView(frame: tableView.bounds)
             containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]

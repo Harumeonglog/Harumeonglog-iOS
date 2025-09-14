@@ -51,7 +51,6 @@ class SocialViewController: UIViewController {
         fetchPostsFromServer(reset: true)
     }
     
-
     
     private func fetchPostsFromServer(reset: Bool = false, search: String? = nil) {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }

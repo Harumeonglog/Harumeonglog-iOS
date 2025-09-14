@@ -123,7 +123,6 @@ class SocialView: UIView {
     
     
     private func addComponents() {
-        
         self.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
@@ -133,7 +132,6 @@ class SocialView: UIView {
         
         self.addSubview(categoryButtonsScrollView)
         categoryButtonsScrollView.addSubview(categoryButtonsStackView)
-        
         categoryButtonsScrollView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(20)
@@ -144,11 +142,9 @@ class SocialView: UIView {
             make.edges.equalToSuperview()
             make.height.equalToSuperview()
         }
-        
         createButtons()
 
         self.addSubview(postTableView)
-        
         postTableView.snp.makeConstraints { make in
             make.top.equalTo(categoryButtonsScrollView.snp.bottom).offset(15)
             make.leading.trailing.equalToSuperview()
@@ -156,19 +152,10 @@ class SocialView: UIView {
         }
         
         self.addSubview(addPostButton)
-        
         addPostButton.snp.makeConstraints { make in
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(20)
             make.trailing.equalToSuperview().inset(20)
             make.width.height.equalTo(60)
-        }
-        
-        self.addSubview(bottomLineView)
-        
-        bottomLineView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(1)
-            make.bottom.equalTo(self.safeAreaLayoutGuide)
         }
     }
     
