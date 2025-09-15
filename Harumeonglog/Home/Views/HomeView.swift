@@ -69,6 +69,9 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
     }
     
+    lazy var infoContainer = UIView().then { view in
+    }
+    
     lazy var nicknameLabel: UILabel = {
         let label = UILabel()
         label.text = "강아지를 추가하세요"
@@ -189,10 +192,11 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     
     //MARK: constraint 잡기
     private func addComponents() {
-        addSubview(nicknameLabel)
-        addSubview(birthdayIconLabel)
-        addSubview(birthdayLabel)
-        addSubview(genderImageView)
+        addSubview(infoContainer)
+        infoContainer.addSubview(nicknameLabel)
+        infoContainer.addSubview(genderImageView)
+        infoContainer.addSubview(birthdayIconLabel)
+        infoContainer.addSubview(birthdayLabel)
         addSubview(profileButton)
         addSubview(calendarView)
         addSubview(headerStackView)
@@ -212,15 +216,20 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
             make.width.height.equalTo(70)
         }
         
-        nicknameLabel.snp.makeConstraints { make in
-            make.top.equalTo(profileButton.snp.top).offset(18)
+        infoContainer.snp.makeConstraints { make in
+            make.centerY.equalTo(profileButton)
             make.leading.equalTo(profileButton.snp.trailing).offset(12)
-            make.trailing.lessThanOrEqualToSuperview().inset(20)
+            make.height.greaterThanOrEqualTo(50)
+            make.width.equalTo(50)
+        }
+         
+        nicknameLabel.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview()
             make.height.greaterThanOrEqualTo(20)
         }
         
         genderImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(nicknameLabel)
+            make.top.equalToSuperview()
             make.leading.equalTo(nicknameLabel.snp.trailing).offset(4)
             make.height.width.equalTo(16)
         }
