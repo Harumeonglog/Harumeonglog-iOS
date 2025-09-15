@@ -40,7 +40,7 @@ class AlarmView: UIView {
         button.setTitleColor(.brown00, for: .normal)
         button.tintColor = .brown00
         button.backgroundColor = .brown02
-        button.layer.cornerRadius = 15
+        button.layer.cornerRadius = 20
 
         // 🔹 버튼 내부 전체 여백 (텍스트 왼쪽에서 25pt 떨어지도록 설정)
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: -20, bottom: 0, right: 15)
@@ -78,7 +78,7 @@ class AlarmView: UIView {
             make.top.equalToSuperview().offset(128)
             make.centerX.equalToSuperview()
             make.width.equalTo(358)
-            make.height.equalTo(40)
+            make.height.equalTo(44)
         }
         alarmTableView.snp.makeConstraints { make in
             make.top.equalTo(inviteButton.snp.bottom).offset(25)

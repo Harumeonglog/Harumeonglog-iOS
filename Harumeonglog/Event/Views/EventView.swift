@@ -47,7 +47,6 @@ class EventView: UIView, UICollectionViewDelegateFlowLayout, UITableViewDataSour
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .white
         categoryCollectionView.delegate = self
         categoryCollectionView.dataSource = self
         categoryCollectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
@@ -56,10 +55,18 @@ class EventView: UIView, UICollectionViewDelegateFlowLayout, UITableViewDataSour
         tableView.dataSource = self
         
         setupLayout()
+        setupUI()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        backgroundColor = .white
+        layer.cornerRadius = 45
+        layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        layer.masksToBounds = true
     }
 
     private func setupLayout() {
