@@ -30,7 +30,7 @@ final class MyPostsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.userActivityViewModel?.getmyPosts()
+        self.userActivityViewModel?.refreshMyPosts()
     }
     
     func configure(with viewModel: UserActivityViewModel) {

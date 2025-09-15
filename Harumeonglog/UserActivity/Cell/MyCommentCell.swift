@@ -15,6 +15,7 @@ class MyCommentCell: UITableViewCell {
     private var distanceFromImage: CGFloat = 8
     
     private lazy var myImageView = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 20
@@ -41,7 +42,7 @@ class MyCommentCell: UITableViewCell {
     func configure(comment: MyCommentItem) {
         self.backgroundColor = .background
         setUI()
-        self.myImageView.kf.setImage(with: URL(string: MemberAPIService.userInfo?.image ?? ""))
+        self.myImageView.kf.setImage(with: URL(string: MemberAPIService.userInfo?.image ?? ""), placeholder: UIImage(named: "defaultImage"))
         self.myNameLabel.text = MemberAPIService.userInfo?.nickname
         self.comment = comment
         self.timeLabel.text = timeAgoString(from: DateFormatterShared.convertISO8601StringToDate(comment.createdAt) ?? .now)

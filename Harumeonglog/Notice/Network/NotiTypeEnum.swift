@@ -7,11 +7,13 @@
 
 import UIKit
 
-enum NotiTypeEnum: Codable {
-    case EVENT, COMMENT, NOTICE, ARTICLE
+enum NotiTypeEnum: String, Codable {
+    case EVENT, COMMENT, NOTICE, ARTICLE, INVITATION
     
     func typeImage() -> UIImage {
         switch self {
+        case .INVITATION:
+            return .friends
         case .EVENT:
             return .edit
         case .COMMENT, .ARTICLE:

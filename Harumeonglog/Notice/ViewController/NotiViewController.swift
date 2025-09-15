@@ -48,7 +48,7 @@ class NotiViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        noticeViewModel.getNotices{ _ in }
+        noticeViewModel.getNotices()
     }
     
     @objc
@@ -77,6 +77,21 @@ extension NotiViewController: UICollectionViewDelegate, UICollectionViewDataSour
         cell.configure(data)
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let data = noticeViewModel.noticeList[indexPath.row]
+        guard let id = data.noticeId else { print("Notice ID is nil"); return }
+        noticeViewModel.deleteNotice(id: id) { result in
+            switch result {
+            case .success(_):
+                self.noticeViewModel.readNotice(id: id)
+                print(self.noticeViewModel.noticeList)
+                return
+            case .failure(_):
+                return
+            }
+        }   
+    }
        
 }
 
@@ -90,7 +105,7 @@ extension NotiViewController {
         if offsetY > contentHeight - height * 1.5 {
             workItem?.cancel()
             workItem = DispatchWorkItem { [weak self] in
-                self?.noticeViewModel.getNotices{ _ in}
+                self?.noticeViewModel.getNotices()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem!)
         }

@@ -16,7 +16,7 @@ final class NoticeViewModel: ObservableObject {
     
     init() {}
     
-    func getNotices(completion: @escaping(Result<HaruResponse<NoticesResult>, AFError>) -> Void) {
+    func getNotices() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return}
         guard !isLoading else { print("isLoading true"); return }
         isLoading = true
@@ -24,14 +24,14 @@ final class NoticeViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print("알림 불러오기 성공")
+                // print(response.result?.items as Any)
                 if let result = response.result {
                     self.noticeList.append(contentsOf: result.items ?? [])
+                    self.noticeList.sort{ $0.noticeId ?? 1 > $1.noticeId ?? 2 }
                     self.cursor = self.noticeList.last?.noticeId
                 }
-                completion(result)
             case .failure(let failure):
                 print("알림 불러오기 실패: \(failure)")
-                completion(result)
             }
             self.isLoading = false
         }
@@ -52,6 +52,16 @@ final class NoticeViewModel: ObservableObject {
                 completion(result)
             }
         }
+    }
+    
+    func readNotice(id: Int) {
+        noticeList[noticeList.firstIndex(where: {$0.noticeId == id})!].read()
+    }
+    
+    func refresh() {
+        noticeList = []
+        cursor = 0
+        getNotices()
     }
     
 }

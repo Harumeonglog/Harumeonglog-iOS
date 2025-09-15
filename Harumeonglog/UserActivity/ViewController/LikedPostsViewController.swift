@@ -30,7 +30,7 @@ final class LikedPostsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.userActivityViewModel?.getLikedPosts()
+        self.userActivityViewModel?.refreshLikedPosts()
     }
     
     func configure(with viewModel: UserActivityViewModel) {

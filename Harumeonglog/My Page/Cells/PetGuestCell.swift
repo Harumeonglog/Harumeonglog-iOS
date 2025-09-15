@@ -18,6 +18,7 @@ class PetGuestCell: UICollectionViewCell {
     var pet: PetDTO?
     // Owner, Guest 공통 부분
     private lazy var profileImage = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 40
         $0.contentMode = .scaleAspectFill
@@ -52,7 +53,7 @@ class PetGuestCell: UICollectionViewCell {
         self.pet = pet
         self.delegate = delegate
         setDefaultConstraints()
-        profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""))
+        profileImage.kf.setImage(with: URL(string: pet.mainImage ?? ""), placeholder: UIImage(named: "defaultImage"))
         nameLabel.text = pet.name
         genderLabel.text = pet.gender
         dogSizeLabel.text = pet.size
