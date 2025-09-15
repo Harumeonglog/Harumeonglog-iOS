@@ -12,7 +12,7 @@ final class NoticeViewModel: ObservableObject {
     
     @Published var noticeList: [NoticeModel] = []
     @Published var isLoading: Bool = false
-    var cursor: Int? = 0
+    var cursor: Int = 0
     
     init() {}
     
@@ -20,7 +20,7 @@ final class NoticeViewModel: ObservableObject {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { print("엑세스 토큰이 없음"); return}
         guard !isLoading else { print("isLoading true"); return }
         isLoading = true
-        NoticeService.getNoticies(cursor: cursor!, token: token) { result in
+        NoticeService.getNoticies(cursor: cursor, token: token) { result in
             switch result {
             case .success(let response):
                 print("알림 불러오기 성공")
@@ -28,7 +28,7 @@ final class NoticeViewModel: ObservableObject {
                 if let result = response.result {
                     self.noticeList.append(contentsOf: result.items ?? [])
                     self.noticeList.sort{ $0.noticeId ?? 1 > $1.noticeId ?? 2 }
-                    self.cursor = self.noticeList.last?.noticeId
+                    self.cursor = self.noticeList.last?.noticeId ?? 0
                 }
             case .failure(let failure):
                 print("알림 불러오기 실패: \(failure)")
