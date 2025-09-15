@@ -53,13 +53,13 @@ class DetailSettingView: UIView {
         stackBackground.addSubview(notificationStack)
         
         notificationLabel.snp.makeConstraints { make in
-            make.leading.equalTo(self.safeAreaLayoutGuide).offset(32)
+            make.leading.equalTo(self.safeAreaLayoutGuide).offset(34)
             make.top.equalTo(navigationBar.snp.bottom).offset(39)
         }
         
         stackBackground.snp.makeConstraints { make in
-            make.top.equalTo(notificationLabel.snp.bottom).offset(20)
-            make.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(35)
+            make.top.equalTo(notificationLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(28)
             make.height.equalTo(260)
         }
         
@@ -90,14 +90,16 @@ class DetailSettingView: UIView {
 
 class NotificatonSettingCell: UIView {
     
+    private let textContainer: UIView = UIView()
+    
     private let mainTitle = UILabel().then {
         $0.textColor = .gray00
-        $0.font = .systemFont(ofSize: 14)
+        $0.font = .body
     }
     
     private let subTitle = UILabel().then {
         $0.textColor = .gray02
-        $0.font = .systemFont(ofSize: 10)
+        $0.font = .description
     }
     
     public let switchView = UISwitch().then {
@@ -111,22 +113,28 @@ class NotificatonSettingCell: UIView {
     
     private func setConstraints() {
         self.addSubview(switchView)
-        self.addSubview(mainTitle)
-        self.addSubview(subTitle)
+        self.addSubview(textContainer)
+        textContainer.addSubview(mainTitle)
+        textContainer.addSubview(subTitle)
         
         switchView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().offset(-2)
         }
         
-        mainTitle.snp.makeConstraints { make in
+        textContainer.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(2)
-            make.centerY.equalToSuperview().offset(-10)
+            make.height.greaterThanOrEqualTo(20)
+            make.centerY.equalToSuperview()
+        }
+        
+        mainTitle.snp.makeConstraints { make in
+            make.top.equalToSuperview()
         }
         
         subTitle.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(2)
-            make.top.equalTo(mainTitle.snp.bottom).offset(3)
+            make.top.equalTo(mainTitle.snp.bottom).offset(5)
+            make.bottom.equalToSuperview()
         }
     }
     

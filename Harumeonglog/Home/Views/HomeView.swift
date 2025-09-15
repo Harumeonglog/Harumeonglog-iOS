@@ -229,7 +229,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         genderImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.centerY.equalTo(nicknameLabel)
             make.leading.equalTo(nicknameLabel.snp.trailing).offset(4)
             make.height.width.equalTo(16)
         }
