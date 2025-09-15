@@ -19,6 +19,7 @@ class UserStageCell: UICollectionViewCell {
     static let identifier: String = "UserStageCell"
     
     private lazy var profileImageView = UIImageView().then {
+        $0.image = UIImage(named: "defaultImage")
         $0.layer.cornerRadius = 25
         $0.clipsToBounds = true
         $0.contentMode = .scaleAspectFill
@@ -36,8 +37,9 @@ class UserStageCell: UICollectionViewCell {
     }
     
     public func configure(data: Member, delegate: UserStageCellDelegate) {
+        self.delegate = delegate
         self.member = data
-        profileImageView.kf.setImage(with: URL(string: data.image ?? ""))
+        profileImageView.kf.setImage(with: URL(string: data.image ?? ""), placeholder: UIImage(named: "defaultImage"))
         nicknameLabel.text = data.name
         userLevelToggleButton.setUserLevel(data.level ?? .GUEST)
     }
