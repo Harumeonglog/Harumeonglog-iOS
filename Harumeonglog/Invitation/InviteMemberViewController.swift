@@ -22,6 +22,7 @@ class InviteMemberViewController: UIViewController {
         setupBindings()
         setupDelegates()
         setupActions()
+        swipeRecognizer()
     }
     
     func configure(petId: Int) {
