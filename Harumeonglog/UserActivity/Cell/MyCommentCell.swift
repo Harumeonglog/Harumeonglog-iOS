@@ -45,7 +45,7 @@ class MyCommentCell: UITableViewCell {
         self.myImageView.kf.setImage(with: URL(string: MemberAPIService.userInfo?.image ?? ""), placeholder: UIImage(named: "defaultImage"))
         self.myNameLabel.text = MemberAPIService.userInfo?.nickname
         self.comment = comment
-        self.timeLabel.text = timeAgoString(from: DateFormatterShared.convertISO8601StringToDate(comment.createdAt) ?? .now)
+        self.timeLabel.text = timeAgoString(from: comment.createdAt)
         self.contentLabel.text = comment.content
     }
     
