@@ -42,6 +42,7 @@ class BaseViewController: UITabBarController {
         setupTabBarItems()
         setupTabBar()
         MemberAPIService.getInfo{ _,_  in }
+        self.view.backgroundColor = .bg
         myPageVC.navigationBar.backgroundColor = .bg
         self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageVC]
     }
