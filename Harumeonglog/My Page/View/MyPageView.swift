@@ -103,7 +103,13 @@ class MyPageView: UIView {
     private func setScrollContainer() {
         self.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            if #available(iOS 26, *) {
+                make.leading.trailing.bottom.equalToSuperview()
+                make.top.equalToSuperview().offset(30)
+            }
+            else {
+                make.edges.equalToSuperview()
+            }
         }
         
         scrollView.addSubview(contentView)
@@ -277,7 +283,7 @@ class MyPageView: UIView {
 
         logoutButton.snp.makeConstraints { make in
             make.centerX.equalToSuperview().offset(40)
-            make.top.equalTo(goNotification.snp.bottom).offset(50)
+            make.top.equalTo(goNotification.snp.bottom).offset(20)
         }
 
         logoutButton.imageView?.snp.makeConstraints { make in
