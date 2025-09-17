@@ -96,7 +96,7 @@ class MyPageView: UIView {
     public func configure(_ userInfo: UserInfo) {
         myProfileNameLabel.text = userInfo.nickname ?? ""
         if let urlString = userInfo.image {
-            myProfileImageView.kf.setImage(with: URL(string: urlString))
+            myProfileImageView.kf.setImage(with: URL(string: urlString), placeholder: UIImage(named: "defaultImage"))
         }
     }
     
