@@ -9,7 +9,6 @@ import SnapKit
 
 class PhotoAlbumsView: UIView {
     
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .bg
@@ -37,7 +36,7 @@ class PhotoAlbumsView: UIView {
         self.addSubview(albumCollectionView)
         
         albumCollectionView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(142)
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(16)
             make.leading.trailing.equalToSuperview().inset(20)
             make.bottom.equalTo(self.safeAreaLayoutGuide).offset(0)
         }

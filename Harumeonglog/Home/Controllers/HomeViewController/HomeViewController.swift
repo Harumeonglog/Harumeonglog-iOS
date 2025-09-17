@@ -173,6 +173,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         let addVC = AddEventViewController()
         addVC.selectedDate = selectedDate // 선택된 날짜 전달
         addVC.delegate = self // 델리게이트 설정
+        addVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(addVC, animated: true)
     }
 

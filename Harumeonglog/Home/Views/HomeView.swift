@@ -211,7 +211,7 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
         }
         
         profileButton.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).offset(16)
+            make.top.equalToSuperview().offset(47+16)
             make.leading.equalToSuperview().offset(20)
             make.width.height.equalTo(70)
         }
