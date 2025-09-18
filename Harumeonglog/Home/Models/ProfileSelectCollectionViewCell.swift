@@ -94,8 +94,8 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         
         print("이미지 로딩 시도: \(profile.imageName)")
         
-        // 기본 이미지를 비트맵으로 생성해서 사이즈 통일
-        let placeholderImage = createPlaceholderImage()
+        // 기본 이미지: Assets의 defaultImage 사용
+        let placeholderImage = UIImage(named: "defaultImage")
         profileImageView.image = placeholderImage
         
         // URL 유효성 검사 및 이미지 다운로드 (SDWebImage 캐시 사용)
@@ -108,31 +108,6 @@ class ProfileSelectCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    // 플레이스홀더 이미지 생성 함수 추가
-    private func createPlaceholderImage() -> UIImage? {
-        let size = CGSize(width: 70, height: 70)
-        let renderer = UIGraphicsImageRenderer(size: size)
-
-        return renderer.image { context in
-            // 배경 색상
-            UIColor.systemGray5.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-
-            // 흰색으로 tint된 심볼 이미지 그리기
-            let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular)
-            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
-                .withTintColor(.white, renderingMode: .alwaysOriginal) {
-                
-                let symbolRect = CGRect(
-                    x: (size.width - 30) / 2,
-                    y: (size.height - 30) / 2,
-                    width: 30,
-                    height: 30
-                )
-                symbolImage.draw(in: symbolRect)
-            }
-        }
-    }
     
     private func updateSelectionStyle(isSelected: Bool) {
         print("ProfileSelectCollectionViewCell - updateSelectionStyle: \(isSelected)")
