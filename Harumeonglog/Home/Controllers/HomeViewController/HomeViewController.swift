@@ -54,9 +54,12 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         // 키보드 숨김 처리 추가
         hideKeyboardWhenTappedAround()
-        // Enable interactive pop gesture globally for this nav stack
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+
+        // 산책 종료/저장 후 서버에서 최신 이벤트 날짜 재조회
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWalkCompletedForCalendarRefresh), name: NSNotification.Name("WalkEnded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWalkCompletedForCalendarRefresh), name: NSNotification.Name("WalkSaved"), object: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -394,5 +397,12 @@ extension HomeViewController: UICollectionViewDelegate, UIGestureRecognizerDeleg
         // 이벤트 목록 중 선택된 index의 eventId를 전달
         let editVC = EditEventViewController(eventId: indexPath.row + 1)
         self.navigationController?.pushViewController(editVC, animated: true)
+    }
+}
+
+// MARK: - Walk complete -> refresh calendar from server
+extension HomeViewController {
+    @objc fileprivate func handleWalkCompletedForCalendarRefresh() {
+        fetchEventDatesForCurrentMonth()
     }
 }

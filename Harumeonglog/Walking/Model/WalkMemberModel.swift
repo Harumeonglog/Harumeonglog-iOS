@@ -15,7 +15,7 @@ struct WalkPetResposne: Codable {
 struct WalkPets: Codable {
     let petId: Int
     let name: String
-    let image : String
+    let image : String?
 }
 
 
@@ -33,5 +33,5 @@ struct WalkMemberResponse : Codable {
 struct WalkMembers: Codable {
     let memberId: Int
     let nickname: String
-    let image : String
+    let image : String?
 }
