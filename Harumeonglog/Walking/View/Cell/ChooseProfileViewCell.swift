@@ -15,6 +15,7 @@ class ChooseProfileViewCell: UICollectionViewCell {
 
     public lazy var imageView = UIImageView().then { imageView in
         imageView.image = UIImage.test
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 50
         imageView.clipsToBounds = true
     }
@@ -94,12 +95,12 @@ class ChooseProfileViewCell: UICollectionViewCell {
     }
     
     func configureMember(with member : WalkMembers) {
-        imageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        imageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "defaultImage"))
         nameLabel.text = member.nickname
     }
     
     func configurePet(with pet : WalkPets) {
-        imageView.sd_setImage(with: URL(string: pet.image ?? ""), placeholderImage: UIImage(named: "testImage"))
+        imageView.sd_setImage(with: URL(string: pet.image ?? ""), placeholderImage: UIImage(named: "defaultImage"))
         nameLabel.text = pet.name
     }
     
