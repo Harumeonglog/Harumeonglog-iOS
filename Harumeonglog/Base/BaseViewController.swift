@@ -59,6 +59,7 @@ class BaseViewController: UITabBarController {
         MemberAPIService.getInfo{ _,_  in }
         self.view.backgroundColor = .bg
         myPageVC.navigationBar.backgroundColor = .bg
+        homeVC.navigationBar.isHidden = true
         self.viewControllers = [homeVC, walkingVC, photosVC, socialVC, myPageVC]
     }
     
