@@ -54,6 +54,10 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
             case .success(let response):
                 if response.isSuccess {
                     print("산책 기록 저장 성공")
+                    
+                    // 캘린더 새로고침 알림 전송
+                    NotificationCenter.default.post(name: NSNotification.Name("WalkSaved"), object: nil)
+                    
                     removeView(RecordView.self)
                     showShareWalkingView()
                 }
