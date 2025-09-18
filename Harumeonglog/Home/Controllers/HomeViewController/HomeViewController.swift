@@ -19,6 +19,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     let petViewModel = HomePetViewModel()
 
     private var hasLoadedEventDates = false
+    private var hasLoadedSelectedDateEvents = false
     var selectedDate: Date = Date() // 선택된 날짜 저장 (internal로 변경)
 
     var markedDates: [Date] = []
@@ -67,6 +68,10 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         if !hasLoadedEventDates {
             fetchEventDatesForCurrentMonth()
             hasLoadedEventDates = true
+        }
+        if !hasLoadedSelectedDateEvents {
+            loadEventsForSelectedDate()
+            hasLoadedSelectedDateEvents = true
         }
     }
     
@@ -286,6 +291,21 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         homeView.calendarView.setCurrentPage(date, animated: true)
         updateHeaderLabel()
     }
+
+    private func loadEventsForSelectedDate() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { return }
+        eventViewModel.fetchEventsByDate(selectedDate, token: token) { [weak self] result in
+            switch result {
+            case .success(let eventDates):
+                DispatchQueue.main.async {
+                    let mapped = eventDates.map { Event(id: $0.id, title: $0.title, category: "OTHER", done: $0.done) }
+                    self?.homeView.eventView.updateEvents(mapped)
+                }
+            case .failure:
+                break
+            }
+        }
+    }
     
     
     // 프로필 이미지 로딩 메서드#imageLiteral(resourceName: "simulator_screenshot_FBF99356-4D17-4CE5-8F1F-72660522D658.png")
@@ -400,9 +420,12 @@ extension HomeViewController: UICollectionViewDelegate, UIGestureRecognizerDeleg
     }
 }
 
-// MARK: - Walk complete -> refresh calendar from server
 extension HomeViewController {
     @objc fileprivate func handleWalkCompletedForCalendarRefresh() {
-        fetchEventDatesForCurrentMonth()
+        // 1) 월 단위 점표시 갱신
+        fetchEventDatesForCurrentMonth() { [weak self] in
+            // 2) 선택된 날짜의 이벤트 목록도 최신화
+            self?.loadEventsForSelectedDate()
+        }
     }
 }
