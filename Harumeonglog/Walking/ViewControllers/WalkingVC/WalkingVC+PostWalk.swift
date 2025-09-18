@@ -20,6 +20,10 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
         recordView.profileCollectionView.delegate = self
         recordView.profileCollectionView.dataSource = self
         recordView.profileCollectionView.reloadData()
+
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardOnRecordView))
+        dismissTap.cancelsTouchesInView = false
+        recordView.addGestureRecognizer(dismissTap)
         
         recordView.totalDistance.text = walkingView.recordDistance.text
         recordView.totalTime.text = walkingView.recordTime.text
@@ -87,6 +91,13 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
 }
     
+extension WalkingViewController {
+    @objc fileprivate func dismissKeyboardOnRecordView() {
+        self.recordView.endEditing(true)
+        UIApplication.shared.windows.first?.endEditing(true)
+    }
+}
+
 // MARK: 산책 공유
 extension WalkingViewController {
     func showShareWalkingView() {
@@ -138,6 +149,10 @@ extension WalkingViewController {
         if let window = UIApplication.shared.windows.first {
             let dimmedView = UIView(frame: window.bounds)
             dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            // 배경 터치 시 키보드 내리기
+            let bgTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardOnRecordView))
+            bgTap.cancelsTouchesInView = false
+            dimmedView.addGestureRecognizer(bgTap)
             
             let view = T()
             
