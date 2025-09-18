@@ -10,9 +10,24 @@ import UIKit
 // 탭바 커스텀 (높이 설정)
 class CustomTabBar: UITabBar {
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        var size = super.sizeThatFits(size)
-        size.height = 100
-        return size
+        var newSize = super.sizeThatFits(size)
+        
+        let screenHeight = UIScreen.main.bounds.height
+        let screenWidth = UIScreen.main.bounds.width
+        
+        let homeButtonResolutions: [CGSize] = [
+            CGSize(width: 320, height: 568),  // iPhone SE (1st gen)
+            CGSize(width: 375, height: 667),  // iPhone 6s, 7, 8, SE (2nd/3rd gen)
+            CGSize(width: 414, height: 736),  // iPhone 6s Plus, 7 Plus, 8 Plus
+        ]
+
+        if homeButtonResolutions.contains(CGSize(width: screenWidth, height: screenHeight)) {
+            newSize.height = 60
+        } else {
+            newSize.height = 100
+        }
+        
+        return newSize
     }
     
     override init(frame: CGRect) {
