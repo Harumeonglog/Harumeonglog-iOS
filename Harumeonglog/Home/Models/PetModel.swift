@@ -54,7 +54,7 @@ struct PetMember: Codable {
     let id: Int
     let name: String
     let role: String
-    let image: String
+    let image: String?
 }
 
 //MARK: GET /api/v1/pets/active - 현재 펫 변경 시 보유 펫 조회

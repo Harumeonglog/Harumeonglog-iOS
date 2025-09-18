@@ -54,9 +54,12 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         // 키보드 숨김 처리 추가
         hideKeyboardWhenTappedAround()
-        // Enable interactive pop gesture globally for this nav stack
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+
+        // 산책 종료/저장 후 서버에서 최신 이벤트 날짜 재조회
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWalkCompletedForCalendarRefresh), name: NSNotification.Name("WalkEnded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWalkCompletedForCalendarRefresh), name: NSNotification.Name("WalkSaved"), object: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -284,36 +287,11 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         updateHeaderLabel()
     }
     
-    // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
-    private func createDefaultProfileImage() -> UIImage? {
-        let size = CGSize(width: 70, height: 70)
-        let renderer = UIGraphicsImageRenderer(size: size)
-
-        return renderer.image { context in
-            // 배경 색상 - 모달과 동일하게 systemGray5
-            UIColor.systemGray5.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-
-            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
-            let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
-            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
-                .withTintColor(.white, renderingMode: .alwaysOriginal) {
-                
-                let symbolRect = CGRect(
-                    x: (size.width - 40) / 2,
-                    y: (size.height - 40) / 2,
-                    width: 40,
-                    height: 40
-                )
-                symbolImage.draw(in: symbolRect)
-            }
-        }
-    }
     
     // 프로필 이미지 로딩 메서드#imageLiteral(resourceName: "simulator_screenshot_FBF99356-4D17-4CE5-8F1F-72660522D658.png")
     private func loadProfileImage(_ imageName: String) {
-        // 기본 이미지 설정 - 모달과 동일한 스타일의 pawprint.fill
-        let defaultImage = createDefaultProfileImage()
+        // 기본 이미지 설정 - Settings와 동일한 defaultImage 사용
+        let defaultImage = UIImage(named: "defaultImage")
         homeView.profileButton.setImage(defaultImage, for: .normal)
         
         // 유효한 이미지 URL인 경우에만 로딩 시도
@@ -419,5 +397,12 @@ extension HomeViewController: UICollectionViewDelegate, UIGestureRecognizerDeleg
         // 이벤트 목록 중 선택된 index의 eventId를 전달
         let editVC = EditEventViewController(eventId: indexPath.row + 1)
         self.navigationController?.pushViewController(editVC, animated: true)
+    }
+}
+
+// MARK: - Walk complete -> refresh calendar from server
+extension HomeViewController {
+    @objc fileprivate func handleWalkCompletedForCalendarRefresh() {
+        fetchEventDatesForCurrentMonth()
     }
 }
