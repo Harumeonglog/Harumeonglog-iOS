@@ -71,6 +71,7 @@ extension EventView {
                         print("단일 일정 조회 성공: \(eventDetail.title)")
                         print("getEventDetail 응답 데이터: \(response)")
                         let editVC = EditEventViewController(event: eventDetail, isEditable: true)
+                        editVC.hidesBottomBarWhenPushed = true
                         editVC.delegate = self.findViewController() as? EditEventViewControllerDelegate
                         if let viewController = self.findViewController() {
                             viewController.navigationController?.pushViewController(editVC, animated: true)

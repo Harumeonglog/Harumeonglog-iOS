@@ -282,6 +282,7 @@ extension PhotoAlbumsViewController: UICollectionViewDelegate, UICollectionViewD
                         }
 
                         let photosVC = PhotosViewController(album: updatedAlbum)
+                        photosVC.hidesBottomBarWhenPushed = true
                         self?.navigationController?.pushViewController(photosVC, animated: true)
                         self?.isOpeningAlbum = false
                     }

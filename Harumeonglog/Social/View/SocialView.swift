@@ -125,8 +125,8 @@ class SocialView: UIView {
     private func addComponents() {
         self.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(47+16)
             make.leading.trailing.equalToSuperview().inset(20)
-            make.top.equalTo(self.safeAreaLayoutGuide)
             make.height.equalTo(44)
         }
         

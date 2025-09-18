@@ -445,6 +445,7 @@ extension PhotosViewController : UICollectionViewDataSource, UICollectionViewDel
                     case .result(let detail):
                         DispatchQueue.main.async {
                             let detailVC = PhotoDetailViewController(image: image, imageInfo: detail, album: self.album)
+                            detailVC.hidesBottomBarWhenPushed = true
                             self.navigationController?.pushViewController(detailVC, animated: true)
                         }
                     case .message(let message):
