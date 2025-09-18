@@ -151,12 +151,10 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
 
     private func applyNoPetState() {
-        // Hide add event button and show placeholder texts when there is no pet
         self.homeView.addeventButton.isHidden = true
         self.homeView.nicknameLabel.text = "강아지를 추가하세요"
         self.homeView.birthdayLabel.text = ""
         self.homeView.genderImageView.image = nil
-        // Default profile image already set by HomeView
     }
     
                              
@@ -294,11 +292,13 @@ class HomeViewController: UIViewController, HomeViewDelegate {
 
     private func loadEventsForSelectedDate() {
         guard let token = KeychainService.get(key: K.Keys.accessToken), !token.isEmpty else { return }
-        eventViewModel.fetchEventsByDate(selectedDate, token: token) { [weak self] result in
+        let selectedCategoryKey = homeView.eventView.selectedCategory?.serverKey
+        eventViewModel.fetchEventsByDate(selectedDate, token: token, category: selectedCategoryKey) { [weak self] result in
             switch result {
             case .success(let eventDates):
                 DispatchQueue.main.async {
-                    let mapped = eventDates.map { Event(id: $0.id, title: $0.title, category: "OTHER", done: $0.done) }
+                    let eventCategory = selectedCategoryKey ?? "OTHER"
+                    let mapped = eventDates.map { Event(id: $0.id, title: $0.title, category: eventCategory, done: $0.done) }
                     self?.homeView.eventView.updateEvents(mapped)
                 }
             case .failure:
@@ -308,7 +308,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
     }
     
     
-    // 프로필 이미지 로딩 메서드#imageLiteral(resourceName: "simulator_screenshot_FBF99356-4D17-4CE5-8F1F-72660522D658.png")
+    // 프로필 이미지 로딩 메서드
     private func loadProfileImage(_ imageName: String) {
         // 기본 이미지 설정 - Settings와 동일한 defaultImage 사용
         let defaultImage = UIImage(named: "defaultImage")
