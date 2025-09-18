@@ -8,6 +8,7 @@
 import UIKit
 import Alamofire
 import SDWebImage
+import Combine
 
 class PhotoAlbumsViewController: UIViewController {
 
@@ -25,7 +26,10 @@ class PhotoAlbumsViewController: UIViewController {
     
     // 캐시 유효 시간 (초)
     private let cacheValidityDuration: TimeInterval = 300 // 5분
-
+    
+    // 구독 저장하는 Set
+    private lazy var cancellables: Set<AnyCancellable> = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = photoAlbumsView
@@ -36,6 +40,12 @@ class PhotoAlbumsViewController: UIViewController {
         photoAlbumsView.albumCollectionView.delegate = self
         photoAlbumsView.albumCollectionView.dataSource = self
         
+        PetListViewModel.shared.$petList
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                self.fetchAlbums()
+            }
+            .store(in: &cancellables)
     }
     
     override func viewWillAppear(_ animated: Bool) {

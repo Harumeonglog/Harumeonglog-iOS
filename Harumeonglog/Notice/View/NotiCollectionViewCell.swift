@@ -28,21 +28,21 @@ class NotiCollectionViewCell: UICollectionViewCell {
     private lazy var contentLabel = UILabel().then {
         $0.textAlignment = .left
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 15, weight: .regular)
+        $0.font = UIFont(name: FontName.pretendard_light.rawValue, size: 15)
         $0.numberOfLines = 2
         $0.lineBreakMode = .byCharWrapping
     }
     
     private lazy var timeLabel = UILabel().then {
         $0.textColor = .gray02
-        $0.font = .systemFont(ofSize: 12)
+        $0.font = UIFont(name: FontName.pretendard_light.rawValue, size: 10)
     }
     
     public func configure(_ data: NoticeModel) {
         let type = data.noticeType
         typeImageView.image = type?.typeImage() ?? UIImage(systemName: "sun")
         contentLabel.text = data.content ?? ""
-        timeLabel.text = DateFormatter.stringFormatDate(from: data.createdAt ?? "")
+        timeLabel.text = timeAgoString(from: data.createdAt ?? "")
         isReadLightBulb.isHidden = data.isRead
     }
     
@@ -87,8 +87,8 @@ class NotiCollectionViewCell: UICollectionViewCell {
         }
         
         contentLabel.snp.makeConstraints { make in
-            make.leading.equalTo(typeImageView.snp.trailing).offset(13)
-            make.trailing.equalTo(timeLabel.snp.leading)
+            make.leading.equalTo(typeImageView.snp.trailing).offset(8)
+            make.trailing.equalTo(timeLabel.snp.leading).offset(-8)
             make.centerY.equalToSuperview()
         }
     }

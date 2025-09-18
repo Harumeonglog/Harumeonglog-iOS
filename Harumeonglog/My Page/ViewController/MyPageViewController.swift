@@ -69,10 +69,23 @@ class MyPageViewController: UIViewController, UIGestureRecognizerDelegate {
         myPageView.likedPostButton.addTarget(self, action: #selector(goToLikedPostVC), for: .touchUpInside)
         myPageView.myPostButton.addTarget(self, action: #selector(goToMyPostVC), for: .touchUpInside)
         myPageView.myCommentButton.addTarget(self, action: #selector(goToMyCommentVC), for: .touchUpInside)
+        myPageView.sendQueryButton.addTarget(self, action: #selector(goToSendQueryVC), for: .touchUpInside)
+        myPageView.privacyPolicyButton.addTarget(self, action: #selector(goToPrivacyPolicyVC), for: .touchUpInside)
+        myPageView.termsOfServiceButton.addTarget(self, action: #selector(goToPrivacyPolicyVC), for: .touchUpInside)
     }
     
     func configure(petListViewModel: PetListViewModel) {
         self.petListViewModel = petListViewModel
+    }
+    
+    @objc
+    private func goToSendQueryVC() {
+        self.present(KakaoQAWebViewController(), animated: true)
+    }
+    
+    @objc
+    private func goToPrivacyPolicyVC() {
+        self.present(PrivacyAndTermsOfServiceWebViewController(), animated: true)
     }
     
     @objc
