@@ -57,6 +57,11 @@ class PetOwnerCell: UICollectionViewCell {
         $0.setImage(.meatballsMenu, for: .normal)
     }
     
+    private lazy var noMemberLabel = UILabel().then {
+        $0.text = "초대된 멤버가 없습니다."
+        $0.font = UIFont(name: "Pretendard-Light", size: 13)
+    }
+    
     private lazy var editMenuFrameView = UIView().then {
         $0.layer.cornerRadius = 15
         $0.clipsToBounds = true
@@ -155,6 +160,7 @@ class PetOwnerCell: UICollectionViewCell {
         self.addSubview(meatballButton)
         self.addSubview(memberTableView)
         self.addSubview(sendInviationButton)
+        memberTableView.addSubview(noMemberLabel)
         self.addSubview(editMenuFrameView)
         editMenuFrameView.addSubview(editMenuFrameLine)
         editMenuFrameView.addSubview(exitButton)
@@ -232,6 +238,10 @@ class PetOwnerCell: UICollectionViewCell {
             make.leading.trailing.equalToSuperview().inset(16)
             make.top.equalTo(birthdayLabel.snp.bottom).offset(20)
             make.height.equalTo(156) // 고정 높이
+        }
+        
+        noMemberLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
         
         sendInviationButton.snp.makeConstraints { make in
@@ -319,6 +329,7 @@ class PetOwnerCell: UICollectionViewCell {
 
 extension PetOwnerCell: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        noMemberLabel.isHidden = !members.isEmpty
         return members.count
     }
     
