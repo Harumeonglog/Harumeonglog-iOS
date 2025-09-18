@@ -52,7 +52,7 @@ class ShowMemberProfileCell: UICollectionViewCell {
     }
     
     func configureMember(with member : WalkMembers) {
-        imageView.sd_setImage(with: URL(string: member.image), placeholderImage: UIImage(named: "testImage"))
+        imageView.sd_setImage(with: URL(string: member.image ?? ""), placeholderImage: UIImage(named: "testImage"))
         nameLabel.text = member.nickname
     }
     
@@ -104,7 +104,7 @@ class ShowPetProfileCell: UICollectionViewCell {
     
     
     func configurePet(with pet : WalkPets) {
-        imageView.sd_setImage(with: URL(string: pet.image), placeholderImage: UIImage(named: "testImage"))
+        imageView.sd_setImage(with: URL(string: pet.image ?? ""), placeholderImage: UIImage(named: "testImage"))
         nameLabel.text = pet.name
     }
 }
