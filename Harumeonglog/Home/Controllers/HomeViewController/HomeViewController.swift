@@ -57,6 +57,9 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         // Enable interactive pop gesture globally for this nav stack
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        
+        // 산책 종료 알림 등록
+        setupWalkEndNotifications()
     }
 
     override func viewDidLayoutSubviews() {
@@ -284,36 +287,11 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         updateHeaderLabel()
     }
     
-    // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
-    private func createDefaultProfileImage() -> UIImage? {
-        let size = CGSize(width: 70, height: 70)
-        let renderer = UIGraphicsImageRenderer(size: size)
-
-        return renderer.image { context in
-            // 배경 색상 - 모달과 동일하게 systemGray5
-            UIColor.systemGray5.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-
-            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
-            let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
-            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
-                .withTintColor(.white, renderingMode: .alwaysOriginal) {
-                
-                let symbolRect = CGRect(
-                    x: (size.width - 40) / 2,
-                    y: (size.height - 40) / 2,
-                    width: 40,
-                    height: 40
-                )
-                symbolImage.draw(in: symbolRect)
-            }
-        }
-    }
     
     // 프로필 이미지 로딩 메서드#imageLiteral(resourceName: "simulator_screenshot_FBF99356-4D17-4CE5-8F1F-72660522D658.png")
     private func loadProfileImage(_ imageName: String) {
-        // 기본 이미지 설정 - 모달과 동일한 스타일의 pawprint.fill
-        let defaultImage = createDefaultProfileImage()
+        // 기본 이미지 설정 - Settings와 동일한 defaultImage 사용
+        let defaultImage = UIImage(named: "defaultImage")
         homeView.profileButton.setImage(defaultImage, for: .normal)
         
         // 유효한 이미지 URL인 경우에만 로딩 시도
@@ -360,6 +338,11 @@ class HomeViewController: UIViewController, HomeViewDelegate {
             print("홈화면 프로필 이미지 URL이 비어있거나 유효하지 않음: \(imageName)")
             // 빈 URL 시 기본 이미지 유지
         }
+    }
+    
+    deinit {
+        // 알림 구독 해제
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -420,4 +403,47 @@ extension HomeViewController: UICollectionViewDelegate, UIGestureRecognizerDeleg
         let editVC = EditEventViewController(eventId: indexPath.row + 1)
         self.navigationController?.pushViewController(editVC, animated: true)
     }
+}
+
+// MARK: - Walk End Notifications
+extension HomeViewController {
+    private func setupWalkEndNotifications() {
+        // 산책 종료 알림 등록
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWalkEnded),
+            name: NSNotification.Name("WalkEnded"),
+            object: nil
+        )
+        
+        // 산책 저장 완료 알림 등록
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWalkSaved),
+            name: NSNotification.Name("WalkSaved"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleWalkEnded() {
+        print("산책 종료 알림 수신 - 캘린더 새로고침")
+        refreshCalendar()
+    }
+    
+    @objc private func handleWalkSaved() {
+        print("산책 저장 완료 알림 수신 - 캘린더 새로고침")
+        refreshCalendar()
+    }
+    
+    private func refreshCalendar() {
+        // 현재 월의 이벤트 날짜들을 다시 가져와서 캘린더 새로고침
+        fetchEventDatesForCurrentMonth { [weak self] in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.homeView.calendarView.reloadData()
+                print("캘린더 새로고침 완료")
+            }
+        }
+    }
+    
 }
