@@ -256,9 +256,6 @@ class WalkingViewController: UIViewController {
                     print("산책 종료 성공")
                     removeView(AlertView.self)
                     
-                    // 캘린더 새로고침 알림 전송
-                    NotificationCenter.default.post(name: NSNotification.Name("WalkEnded"), object: nil)
-                    
                     // 네이버 지도 캡쳐
                     walkingView.naverMapView.takeSnapShot { [weak self] mapImage in
                           guard let self else { return }

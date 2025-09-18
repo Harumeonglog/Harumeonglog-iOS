@@ -36,13 +36,38 @@ class HomeView: UIView, FSCalendarDelegate, FSCalendarDataSource {
     lazy var profileButton: UIButton = {
         let button = UIButton()
         // 기본 이미지 설정 - 모달과 동일한 스타일의 pawprint.fill
-        button.setImage(UIImage(named: "defaultImage"), for: .normal)
+        button.setImage(createDefaultProfileImage(), for: .normal)
         button.layer.cornerRadius = 35
         button.clipsToBounds = true
         button.imageView?.contentMode = .scaleAspectFill
         return button
     }()
     
+    // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
+    private func createDefaultProfileImage() -> UIImage? {
+        let size = CGSize(width: 70, height: 70)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            // 배경 색상 - 모달과 동일하게 systemGray5
+            UIColor.systemGray5.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
+            let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal) {
+                
+                let symbolRect = CGRect(
+                    x: (size.width - 40) / 2,
+                    y: (size.height - 40) / 2,
+                    width: 40,
+                    height: 40
+                )
+                symbolImage.draw(in: symbolRect)
+            }
+        }
+    }
     
     lazy var infoContainer = UIView().then { view in
     }

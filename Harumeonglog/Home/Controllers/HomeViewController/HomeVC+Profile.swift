@@ -89,11 +89,36 @@ extension HomeViewController: ProfileSelectDelegate {
         }
     }
     
+    // 기본 프로필 이미지 생성 함수 (모달과 동일한 스타일)
+    private func createDefaultProfileImage() -> UIImage? {
+        let size = CGSize(width: 70, height: 70)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            // 배경 색상 - 모달과 동일하게 systemGray5
+            UIColor.systemGray5.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            // 흰색으로 tint된 pawprint.fill 심볼 이미지 그리기
+            let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+            if let symbolImage = UIImage(systemName: "pawprint.fill", withConfiguration: config)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal) {
+                
+                let symbolRect = CGRect(
+                    x: (size.width - 40) / 2,
+                    y: (size.height - 40) / 2,
+                    width: 40,
+                    height: 40
+                )
+                symbolImage.draw(in: symbolRect)
+            }
+        }
+    }
     
     // 프로필 이미지 로딩 메서드
     private func loadProfileImage(_ imageName: String) {
-        // 기본 이미지 설정 - Settings와 동일한 defaultImage 사용
-        let defaultImage = UIImage(named: "defaultImage")
+        // 기본 이미지 설정 - 모달과 동일한 스타일의 pawprint.fill
+        let defaultImage = createDefaultProfileImage()
         homeView.profileButton.setImage(defaultImage, for: .normal)
         
         // 유효한 이미지 URL인 경우에만 로딩 시도
