@@ -35,20 +35,17 @@ extension HomeViewController: FSCalendarDelegate, FSCalendarDataSource, FSCalend
             return
         }
 
-        // 현재 선택된 카테고리가 있는지 확인
-        let selectedCategory = homeView.eventView.selectedCategory?.serverKey
+        // 현재 선택된 카테고리 키
+        let selectedCategoryKey = homeView.eventView.selectedCategory?.serverKey
         
-        eventViewModel.fetchEventsByDate(date, token: token) { result in
+        eventViewModel.fetchEventsByDate(date, token: token, category: selectedCategoryKey) { result in
             switch result {
             case .success(let eventDates):
                 let workItem = DispatchWorkItem {
-                    let mappedEvents = eventDates.map { eventDate in
-                        // EventDate에는 category가 없으므로, 현재 선택된 카테고리나 기본값 사용
-                        let eventCategory = selectedCategory ?? "OTHER"
-                        return Event(id: eventDate.id, title: eventDate.title, category: eventCategory, done: eventDate.done)
-                    }
+                    let eventCategory = selectedCategoryKey ?? "OTHER"
+                    let mappedEvents = eventDates.map { Event(id: $0.id, title: $0.title, category: eventCategory, done: $0.done) }
                     self.homeView.eventView.updateEvents(mappedEvents)
-                    print("\(self.dateFormatter.string(from: date)) 일정 \(eventDates.count)건 불러옴 (카테고리: \(selectedCategory ?? "전체"))")
+                    print("\(self.dateFormatter.string(from: date)) 일정 \(eventDates.count)건 불러옴 (카테고리: \(selectedCategoryKey ?? "전체"))")
                 }
                 DispatchQueue.main.async(execute: workItem)
             case .failure(let error):
