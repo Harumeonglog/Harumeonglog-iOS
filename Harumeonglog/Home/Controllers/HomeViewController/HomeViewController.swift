@@ -114,6 +114,7 @@ class HomeViewController: UIViewController, HomeViewDelegate {
                             // 활성 펫이지만 목록이 비어있거나 매칭 실패 -> 무펫 처리
                             DispatchQueue.main.async {
                                 self.applyNoPetState()
+                                self.showAddNewPetVC()
                             }
                         }
                     }
@@ -157,6 +158,12 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         self.homeView.genderImageView.image = nil
     }
     
+    private func showAddNewPetVC() {
+        let petRegistrationVC = EditOrRegistPetViewController()
+        petRegistrationVC.hidesBottomBarWhenPushed = true
+        petRegistrationVC.configure(pet: nil, petListViewModel: PetListViewModel.shared, mode: .Regist)
+        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
+    }
                              
     // MARK: - 버튼 동작 함수들 모음
     private func setupButtons() {
