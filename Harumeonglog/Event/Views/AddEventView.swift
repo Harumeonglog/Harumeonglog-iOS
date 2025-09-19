@@ -384,7 +384,7 @@ class AddEventView: UIView, UITableViewDelegate, UITableViewDataSource {
         let newView: UIView
         switch category {
         case .bath:
-            newView = UIView() 
+            newView = OtherView()
         case .walk:
             newView = WalkView()
         case .medicine:
