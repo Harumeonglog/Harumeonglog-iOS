@@ -96,14 +96,18 @@ class AuthAPIService {
     }
     
     static func reissue(completion: @escaping (AuthCode) -> Void) {
-        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { completion(.AUTH400); return }
         guard let refreshToken = KeychainService.get(key: K.Keys.refreshToken) else { completion(.AUTH400); return }
-        APIClient.postRequest(
-            endpoint: "/api/v1/auth/reissue",
-            parameters: ["refreshToken": refreshToken],
-            token: accessToken
-        ) { (response: Result<HaruResponse<ReissueResult>, AFError>) in
-            switch response {
+        let url = "https://api.haru-official.click/api/v1/auth/reissue"
+        let headers: HTTPHeaders = [ "accept": "*/*", "Content-Type": "application/json" ]
+        let parameters: [String: Any] = ["refreshToken": refreshToken]
+        AF.request(
+            url,
+            method: .post,
+            parameters: parameters,
+            encoding: JSONEncoding.default,
+            headers: headers
+        ).responseDecodable(of: HaruResponse<ReissueResult>.self) { response in
+            switch response.result {
             case .success(let success):
                 switch success.code {
                 case AuthCode.COMMON200.rawValue:
