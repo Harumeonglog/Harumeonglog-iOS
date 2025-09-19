@@ -111,10 +111,12 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
             }
         }
         
-        if uploadErrorOccurred {
-            print("업로드 실패로 게시글 생성 중단")
-        } else {
-            self.createPost()
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            if uploadErrorOccurred {
+                print("업로드 실패로 게시글 생성 중단")
+            } else {
+                self!.createPost()
+            }
         }
     }
     
