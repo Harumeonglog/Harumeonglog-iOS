@@ -40,7 +40,7 @@ class AuthAPIService {
                     _ = KeychainService.add(key: K.Keys.accessToken, value: response.result!.accessToken ?? "")
                     _ = KeychainService.add(key: K.Keys.refreshToken, value: response.result!.refreshToken ?? "")
                     if response.result?.isSignUp ?? true {
-                        
+                        RootViewControllerService.toPolicyAgreementViewController()
                     } else {
                         RootViewControllerService.toBaseViewController()
                     }

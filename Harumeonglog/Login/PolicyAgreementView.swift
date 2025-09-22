@@ -36,7 +36,7 @@ class PolicyAgreementView: UIView {
     }
     
     private lazy var selectUnderline = UIView().then {
-        $0.backgroundColor = .bg
+        $0.backgroundColor = .gray02
     }
     
     public lazy var over14Button = CheckBoxButton()
