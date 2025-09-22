@@ -94,7 +94,7 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
 extension WalkingViewController {
     @objc fileprivate func dismissKeyboardOnRecordView() {
-        self.view.endEditing(true)
+        view.window?.endEditing(true)
     }
 }
 
