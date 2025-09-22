@@ -11,7 +11,7 @@ class ConfirmButton: UIButton {
     
     private lazy var mainLabel = UILabel().then {
         $0.textColor = .white
-        $0.font = .headline2
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 17) ?? UIFont.systemFont(ofSize: 17)
     }
     
     override init(frame: CGRect) {

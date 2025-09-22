@@ -1,0 +1,232 @@
+//
+//  PrivacyPolicyView.swift
+//  Harumeonglog
+//
+//  Created by 이승준 on 9/22/25.
+//
+
+import UIKit
+import SnapKit
+
+class PolicyAgreementView: UIView {
+    
+    let buttonSize: CGFloat = 44
+    
+    // MARK: Policy Check
+    private lazy var titleLabel = UILabel().then {
+        $0.text = "약관동의"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 20) ?? UIFont.systemFont(ofSize: 20)
+        $0.textColor = .black
+    }
+    
+    private lazy var subTitleLabel = UILabel().then {
+        $0.text = "투유와 함께하기 전\n필요한 약관들을 확인해주세요!"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 17) ?? UIFont.systemFont(ofSize: 17)
+        $0.textColor = .black
+        $0.numberOfLines = 2
+        $0.textAlignment = .left
+    }
+    
+    public lazy var agreeAllButton = CheckBoxButton()
+    
+    private lazy var selectAllLabel = UILabel().then {
+        $0.text = "전체선택"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 17) ?? UIFont.systemFont(ofSize: 17)
+        $0.textColor = .black
+    }
+    
+    private lazy var selectUnderline = UIView().then {
+        $0.backgroundColor = .bg
+    }
+    
+    public lazy var over14Button = CheckBoxButton()
+    public lazy var policyAgreeButton = CheckBoxButton()
+    public lazy var privacyAgreeButton = CheckBoxButton()
+    
+    private lazy var over14Label = UILabel().then {
+        $0.text = "만 14세 이상입니다"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 15) ?? UIFont.systemFont(ofSize: 15)
+        $0.textColor = .black
+    }
+    
+    private lazy var policyAgreeLabel = UILabel().then {
+        $0.text = "이용약관 동의"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 15) ?? UIFont.systemFont(ofSize: 15)
+        $0.textColor = .black
+    }
+
+    private lazy var privacyAgreeLabel = UILabel().then {
+        $0.text = "개인정보 수집 및 이용동의"
+        $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 15) ?? UIFont.systemFont(ofSize: 15)
+        $0.textColor = .black
+    }
+    
+    private lazy var requiredLabel01 = createRequiredLabel()
+    private lazy var requiredLabel02 = createRequiredLabel()
+    private lazy var requiredLabel03 = createRequiredLabel()
+    public lazy var goTermsOfUse = goDetailButton()
+    public lazy var goPrivacyDetail = goDetailButton()
+    
+    public lazy var nextButton = ConfirmButton()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .background
+        self.addComponents()
+        self.setUpNextButton()
+        nextButton.configure(labelText: "약관 및 이용동의 확인")
+    }
+    
+    private func addComponents() {
+        self.addSubview(titleLabel)
+        self.addSubview(subTitleLabel)
+        
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(20)
+            make.top.equalToSuperview().offset(100)
+        }
+        
+        subTitleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(20)
+            make.top.equalTo(titleLabel.snp.bottom).offset(15)
+        }
+        
+        self.addSubview(agreeAllButton)
+        self.addSubview(selectAllLabel)
+        self.addSubview(selectUnderline)
+        
+        agreeAllButton.configure(padding: 13)
+        agreeAllButton.snp.makeConstraints { make in
+            make.height.width.equalTo(60)
+            make.trailing.equalTo(selectAllLabel.snp.leading).offset(10)
+            make.centerY.equalTo(selectAllLabel)
+        }
+        
+        selectAllLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(selectUnderline.snp.top).offset(-14)
+            make.leading.equalToSuperview().offset(42)
+        }
+        
+        selectUnderline.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(1)
+            make.top.equalTo(subTitleLabel.snp.bottom).offset(74)
+        }
+        
+        self.addSubview(over14Button)
+        over14Button.configure(padding: 8)
+        self.addSubview(over14Label)
+        self.addSubview(requiredLabel01)
+        self.addSubview(policyAgreeButton)
+        policyAgreeButton.configure(padding: 8)
+        self.addSubview(policyAgreeLabel)
+        self.addSubview(requiredLabel02)
+        self.addSubview(goTermsOfUse)
+        self.addSubview(privacyAgreeButton)
+        privacyAgreeButton.configure(padding: 8)
+        self.addSubview(privacyAgreeLabel)
+        self.addSubview(requiredLabel03)
+        self.addSubview(goPrivacyDetail)
+        
+        over14Button.snp.makeConstraints { make in
+            make.centerY.equalTo(over14Label)
+            make.width.height.equalTo(44)
+        }
+        
+        over14Label.snp.makeConstraints { make in
+            make.top.equalTo(selectUnderline.snp.bottom).offset(15)
+            make.leading.equalToSuperview().offset(42)
+        }
+        
+        requiredLabel01.snp.makeConstraints { make in
+            make.centerY.equalTo(over14Label)
+            make.leading.equalTo(over14Label.snp.trailing).offset(12)
+            make.height.equalTo(17.22)
+            make.width.equalTo(40.55)
+        }
+        
+        policyAgreeButton.snp.makeConstraints { make in
+            make.centerY.equalTo(policyAgreeLabel)
+            make.width.height.equalTo(44)
+        }
+        
+        policyAgreeLabel.snp.makeConstraints { make in
+            make.top.equalTo(over14Label.snp.bottom).offset(20)
+            make.leading.equalToSuperview().offset(42)
+        }
+        
+        requiredLabel02.snp.makeConstraints { make in
+            make.centerY.equalTo(policyAgreeLabel)
+            make.leading.equalTo(policyAgreeLabel.snp.trailing).offset(12)
+            make.height.equalTo(17.22)
+            make.width.equalTo(40.55)
+        }
+        
+        goTermsOfUse.snp.makeConstraints { make in
+            make.centerY.equalTo(policyAgreeLabel)
+            make.width.height.equalTo(24)
+            make.leading.equalTo(requiredLabel02.snp.trailing).offset(6.42)
+        }
+        
+        privacyAgreeButton.snp.makeConstraints { make in
+            make.centerY.equalTo(privacyAgreeLabel)
+            make.width.height.equalTo(44)
+        }
+        
+        privacyAgreeLabel.snp.makeConstraints { make in
+            make.top.equalTo(policyAgreeLabel.snp.bottom).offset(20)
+            make.leading.equalToSuperview().offset(42)
+        }
+        
+        requiredLabel03.snp.makeConstraints { make in
+            make.centerY.equalTo(privacyAgreeLabel)
+            make.leading.equalTo(privacyAgreeLabel.snp.trailing).offset(12)
+            make.height.equalTo(17.22)
+            make.width.equalTo(40.55)
+        }
+        
+        goPrivacyDetail.snp.makeConstraints { make in
+            make.centerY.equalTo(privacyAgreeLabel)
+            make.width.height.equalTo(24)
+            make.leading.equalTo(requiredLabel03.snp.trailing).offset(6.42)
+        }
+        
+    }
+    
+    private func setUpNextButton() {
+        self.addSubview(nextButton)
+        
+        nextButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(30)
+            make.bottom.equalToSuperview().inset(30)
+        }
+    }
+    
+    private func createRequiredLabel() -> UILabel {
+        return UILabel().then {
+            $0.text = "필수"
+            $0.textAlignment = .center
+            $0.font = UIFont(name: FontName.pretendard_medium.rawValue, size: 13) ?? UIFont.systemFont(ofSize: 13)
+            $0.textColor = .white
+            $0.backgroundColor = .red00
+            $0.layer.cornerRadius = 5.68
+            $0.clipsToBounds = true
+        }
+    }
+    
+    private func goDetailButton() -> UIButton {
+        return UIButton().then {
+            $0.setImage(.goDetail , for: .normal)
+            $0.contentMode = .scaleAspectFit
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
+#Preview {
+    PolicyAgreementViewController()
+}
