@@ -9,13 +9,13 @@
 /* Begin PBXBuildFile section */
 		637201482D830EAB0088E222 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 637201472D830EAB0088E222 /* SnapKit */; };
 		6372014B2D830EB80088E222 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 6372014A2D830EB80088E222 /* Then */; };
-		6372014E2D830EF60088E222 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 6372014D2D830EF60088E222 /* Alamofire */; };
 		637201512D830F050088E222 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 637201502D830F050088E222 /* Kingfisher */; };
 		637201542D830F370088E222 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 637201532D830F370088E222 /* KakaoSDKAuth */; };
 		637201562D830F370088E222 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 637201552D830F370088E222 /* KakaoSDKCommon */; };
 		637201582D830F370088E222 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 637201572D830F370088E222 /* KakaoSDKUser */; };
 		637202232D830FCD0088E222 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 637202222D830FCD0088E222 /* FirebaseCore */; };
 		637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 637202242D830FCD0088E222 /* FirebaseMessaging */; };
+		639977EF2E81837F005D086B /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 639977EE2E81837F005D086B /* Alamofire */; };
 		947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 947D14502D853E5E00486ED6 /* FSCalendar */; };
 		94AFC6832DAA52BC0089C7F8 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 94AFC6822DAA52BC0089C7F8 /* SDWebImage */; };
 		97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 97470C7C2D93DBE600039FA5 /* NMapsMap */; };
@@ -53,7 +53,6 @@
 			files = (
 				637202252D830FCD0088E222 /* FirebaseMessaging in Frameworks */,
 				637201512D830F050088E222 /* Kingfisher in Frameworks */,
-				6372014E2D830EF60088E222 /* Alamofire in Frameworks */,
 				947D14512D853E5E00486ED6 /* FSCalendar in Frameworks */,
 				637201482D830EAB0088E222 /* SnapKit in Frameworks */,
 				637201582D830F370088E222 /* KakaoSDKUser in Frameworks */,
@@ -61,6 +60,7 @@
 				97470C7D2D93DBE600039FA5 /* NMapsMap in Frameworks */,
 				6372014B2D830EB80088E222 /* Then in Frameworks */,
 				637201562D830F370088E222 /* KakaoSDKCommon in Frameworks */,
+				639977EF2E81837F005D086B /* Alamofire in Frameworks */,
 				637202232D830FCD0088E222 /* FirebaseCore in Frameworks */,
 				637201542D830F370088E222 /* KakaoSDKAuth in Frameworks */,
 			);
@@ -99,7 +99,6 @@
 			packageProductDependencies = (
 				637201472D830EAB0088E222 /* SnapKit */,
 				6372014A2D830EB80088E222 /* Then */,
-				6372014D2D830EF60088E222 /* Alamofire */,
 				637201502D830F050088E222 /* Kingfisher */,
 				637201532D830F370088E222 /* KakaoSDKAuth */,
 				637201552D830F370088E222 /* KakaoSDKCommon */,
@@ -109,6 +108,7 @@
 				947D14502D853E5E00486ED6 /* FSCalendar */,
 				97470C7C2D93DBE600039FA5 /* NMapsMap */,
 				94AFC6822DAA52BC0089C7F8 /* SDWebImage */,
+				639977EE2E81837F005D086B /* Alamofire */,
 			);
 			productName = Harumeonglog;
 			productReference = 638DF0612D84824200542F21 /* Harumeonglog.app */;
@@ -142,13 +142,13 @@
 			packageReferences = (
 				637201462D830EAB0088E222 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				637201492D830EB80088E222 /* XCRemoteSwiftPackageReference "Then" */,
-				6372014C2D830EF60088E222 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				6372014F2D830F050088E222 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				637201522D830F370088E222 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */,
 				97470C7B2D93DBE600039FA5 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 				94AFC6812DAA52BC0089C7F8 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				639977ED2E81837F005D086B /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63E121A62D825DB300402E92;
@@ -434,14 +434,6 @@
 				minimumVersion = 3.0.0;
 			};
 		};
-		6372014C2D830EF60088E222 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.10.2;
-			};
-		};
 		6372014F2D830F050088E222 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -464,6 +456,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.9.0;
+			};
+		};
+		639977ED2E81837F005D086B /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
 			};
 		};
 		947D144F2D853E5E00486ED6 /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
@@ -503,11 +503,6 @@
 			package = 637201492D830EB80088E222 /* XCRemoteSwiftPackageReference "Then" */;
 			productName = Then;
 		};
-		6372014D2D830EF60088E222 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6372014C2D830EF60088E222 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
-		};
 		637201502D830F050088E222 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6372014F2D830F050088E222 /* XCRemoteSwiftPackageReference "Kingfisher" */;
@@ -537,6 +532,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 637202212D830FCD0088E222 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		639977EE2E81837F005D086B /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 639977ED2E81837F005D086B /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 		947D14502D853E5E00486ED6 /* FSCalendar */ = {
 			isa = XCSwiftPackageProductDependency;

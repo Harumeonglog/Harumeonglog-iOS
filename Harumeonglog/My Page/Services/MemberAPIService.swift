@@ -46,9 +46,48 @@ struct InfoParameters {
     let nickname: String?
 }
 
+struct TermResult : Codable {
+    let memberId: Int
+    let didAgree: Bool
+}
+
 class MemberAPIService {
     
     static var userInfo: UserInfo?
+    
+    static func getAgree(completion: @escaping (Bool) -> Void) {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+        APIClient.getRequest(
+            endpoint: "/api/v1/members/terms",
+            token: accessToken
+        ) { (response: Result<HaruResponse<TermResult>, AFError>) in
+            switch response {
+            case .success(let success):
+                print("ters agree \(success.result?.didAgree ?? false)")
+                completion(success.result?.didAgree ?? false)
+            case .failure(_):
+                return
+            }
+        }
+    }
+    
+    static func patchAgree(completion: @escaping (Bool) -> Void) {
+        guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }
+        APIClient.patchRequest(
+            endpoint: "/api/v1/members/terms",
+            parameters: [
+                "didAgree" : true
+            ],
+            token: accessToken
+        ) { (response: Result<HaruResponse<TermResult>, AFError>) in
+            switch response {
+            case .success:
+                completion(true)
+            case .failure:
+                completion(false)
+            }
+        }
+    }
     
     static func getSetting(completion: @escaping (MemberCode, SettingResult?) -> Void) {
         guard let accessToken = KeychainService.get(key: K.Keys.accessToken) else { return }

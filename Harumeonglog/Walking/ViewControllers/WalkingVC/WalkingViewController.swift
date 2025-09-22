@@ -339,3 +339,9 @@ extension WalkingViewController {
     }
 
 }
+
+extension WalkingViewController {
+    @objc fileprivate func dismissKeyboardOnRecordView() {
+        view.window?.endEditing(true)
+    }
+}
