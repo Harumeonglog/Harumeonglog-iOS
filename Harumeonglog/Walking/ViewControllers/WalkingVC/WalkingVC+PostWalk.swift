@@ -11,7 +11,7 @@ import NMapsMap
 
 
 // MARK: 산책 기록 결과
-extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate {
     
     func showRecordWalkingView(with mapImage: UIImage?) {
         let recordView = showDimmedView(RecordView.self)
@@ -23,6 +23,7 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
 
         let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardOnRecordView))
         dismissTap.cancelsTouchesInView = false
+        dismissTap.delegate = self
         recordView.addGestureRecognizer(dismissTap)
         
         recordView.totalDistance.text = walkingView.recordDistance.text
@@ -93,8 +94,7 @@ extension WalkingViewController: UICollectionViewDelegate, UICollectionViewDataS
     
 extension WalkingViewController {
     @objc fileprivate func dismissKeyboardOnRecordView() {
-        self.recordView.endEditing(true)
-        UIApplication.shared.windows.first?.endEditing(true)
+        self.view.endEditing(true)
     }
 }
 
