@@ -4,6 +4,7 @@ import UIKit
 import Alamofire
 import FSCalendar
 import SnapKit
+import Combine
 
 protocol ProfileSelectDelegate: AnyObject {
     func didSelectProfile(_ profile: Profile)
@@ -14,14 +15,16 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         setCalendarTo(date: date)
     }
     
-
+    let petListViewModel = PetListViewModel.shared
     let eventViewModel = HomeEventViewModel()
     let petViewModel = HomePetViewModel()
-
+    
+    private var cancellables: Set<AnyCancellable> = [] // 구독 저장
     private var hasLoadedEventDates = false
     private var hasLoadedSelectedDateEvents = false
+    private var isAddShowed = false
     var selectedDate: Date = Date() // 선택된 날짜 저장 (internal로 변경)
-
+    
     var markedDates: [Date] = []
     var markedDateStrings: Set<String> = []
     let dateFormatter: DateFormatter = {
@@ -52,6 +55,14 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         
         setupButtons()
         updateHeaderLabel()
+        
+        // Combine
+        petListViewModel.$petList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.fetchActivePets()
+            }
+            .store(in: &cancellables)
         
         // 키보드 숨김 처리 추가
         hideKeyboardWhenTappedAround()
@@ -156,13 +167,17 @@ class HomeViewController: UIViewController, HomeViewDelegate {
         self.homeView.nicknameLabel.text = "강아지를 추가하세요"
         self.homeView.birthdayLabel.text = ""
         self.homeView.genderImageView.image = nil
+        self.homeView.profileButton.setImage(UIImage(named: "defaultImage"), for: .normal)
     }
     
     private func showAddNewPetVC() {
-        let petRegistrationVC = EditOrRegistPetViewController()
-        petRegistrationVC.hidesBottomBarWhenPushed = true
-        petRegistrationVC.configure(pet: nil, petListViewModel: PetListViewModel.shared, mode: .Regist)
-        self.navigationController?.pushViewController(petRegistrationVC, animated: true)
+        if !isAddShowed {
+            let petRegistrationVC = EditOrRegistPetViewController()
+            petRegistrationVC.hidesBottomBarWhenPushed = true
+            petRegistrationVC.configure(pet: nil, petListViewModel: PetListViewModel.shared, mode: .Regist)
+            self.navigationController?.pushViewController(petRegistrationVC, animated: true)
+            isAddShowed = true
+        }
     }
                              
     // MARK: - 버튼 동작 함수들 모음

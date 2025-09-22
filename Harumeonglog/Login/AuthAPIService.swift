@@ -35,11 +35,15 @@ class AuthAPIService {
             case .success(let response):
                 switch response.code {
                 case AuthCode.COMMON200.rawValue:
-                    print("access token is \(response.result!.accessToken)")
-                    print("refresh token is \(response.result!.refreshToken)")
-                    _ = KeychainService.add(key: K.Keys.accessToken, value: response.result!.accessToken)
-                    _ = KeychainService.add(key: K.Keys.refreshToken, value: response.result!.refreshToken)
-                    RootViewControllerService.toBaseViewController()
+                    print("access token is \(response.result!.accessToken ?? "nothing")")
+                    print("refresh token is \(response.result!.refreshToken ?? "nothing")")
+                    _ = KeychainService.add(key: K.Keys.accessToken, value: response.result!.accessToken ?? "")
+                    _ = KeychainService.add(key: K.Keys.refreshToken, value: response.result!.refreshToken ?? "")
+                    if response.result?.isSignUp ?? true {
+                        RootViewControllerService.toPolicyAgreementViewController()
+                    } else {
+                        RootViewControllerService.toBaseViewController()
+                    }
                 case AuthCode.AUTH400.rawValue:
                     print("\(response.code) : OAuth 토큰 만료")
                 default:
@@ -135,9 +139,10 @@ enum AuthCode: String {
 }
 
 struct LoginResult: Codable {
-    let memberId: Int
-    let accessToken: String
-    let refreshToken: String
+    let memberId: Int?
+    let accessToken: String?
+    let refreshToken: String?
+    let isSignUp: Bool?
 }
 
 struct ReissueResult: Codable {

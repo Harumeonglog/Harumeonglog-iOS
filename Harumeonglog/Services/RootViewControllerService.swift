@@ -12,6 +12,7 @@ class RootViewControllerService {
     
     private static let loginViewController = LoginViewController()
     private static let baseViewController = BaseViewController()
+    private static let policyAgreementView = PolicyAgreementViewController()
     
     static func toBaseViewController() {
         baseViewController.selectedIndex = 0
@@ -20,6 +21,10 @@ class RootViewControllerService {
     
     static func toLoginViewController() {
         sceneDelegate?.changeRootViewController(loginViewController, animated: false)
+    }
+    
+    static func toPolicyAgreementViewController() {
+        sceneDelegate?.changeRootViewController(policyAgreementView, animated: false)
     }
     
 }
