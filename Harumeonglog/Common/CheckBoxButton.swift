@@ -1,0 +1,62 @@
+//
+//  CheckBoxButton.swift
+//  Harumeonglog
+//
+//  Created by 이승준 on 9/22/25.
+//
+
+import UIKit
+
+class CheckBoxButton: UIButton {
+    
+    public var isChecked: Bool = false
+    
+    private lazy var checboxImage = UIImageView().then {
+        $0.image = .checkBox
+        $0.contentMode = .scaleAspectFit
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.addSubview(checboxImage)
+        
+        checboxImage.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(3.5)
+        }
+    }
+    
+    func configure(padding: CGFloat) {
+        checboxImage.snp.updateConstraints { make in
+            make.edges.equalToSuperview().inset(padding + 3.5)
+        }
+    }
+    
+    public func toggle() {
+        if isChecked {  // true -> false
+            checboxImage.image = .checkBox
+        } else {        // flase -> true
+            checboxImage.image = .checkBoxChecked
+        }
+        isChecked.toggle()
+    }
+    
+    public func checked() {
+        checboxImage.image = .checkBoxChecked
+        isChecked = true
+    }
+    
+    public func notChecked() {
+        checboxImage.image = .checkBox
+        isChecked = false
+    }
+    
+    public func isMarked() -> Bool {
+        return isChecked
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
