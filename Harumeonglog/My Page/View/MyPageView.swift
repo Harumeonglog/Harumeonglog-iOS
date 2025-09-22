@@ -127,7 +127,7 @@ class MyPageView: UIView {
         
         myProfileFrame.snp.makeConstraints { make in
             make.height.equalTo(80)
-            make.top.equalToSuperview().offset(40)
+            make.top.equalToSuperview().offset(47+16)
             make.leading.trailing.equalToSuperview().inset(leadingTrailingPadding)
         }
         
