@@ -15,7 +15,6 @@ class WalkMemberService {
         completion: @escaping (Result<HaruResponse<WalkPetResposne>, AFError>) -> Void
     ) {
         let endpoint = "/api/v1/walks/pets"
-        
         APIClient.getRequestWithoutParameters(endpoint: endpoint, token: token, completion: completion)
     }
     
@@ -27,7 +26,6 @@ class WalkMemberService {
         
         let endpoint = "/api/v1/walks/members"
         let requestBody = WalkMemberRequest(petId: petId)
-        
         APIClient.postRequest(endpoint: endpoint, parameters: requestBody, token: token, completion: completion)
     }
     

@@ -66,11 +66,12 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
 
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
+        guard let postId else { return }
+        
         print("\(self.postImages)")
         self.postImages = []
         
-        socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
+        socialPostService.getPostDetailsFromServer(postId: postId, token: token){ [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
@@ -94,8 +95,9 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 print("게시글 조회 실패: \(error.localizedDescription)")
             }
         }
-
     }
+    
+    
     
     @objc
     private func didTapBackButton() {
@@ -124,8 +126,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                         isLiked.toggle()
                         fetchPostDetailsFromServer()
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 좋아요 실패: \(error.localizedDescription)")
@@ -186,8 +186,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 print("게시글 신고 실패: \(error.localizedDescription)")
             }
         }
-        
-        
     }
     
     private func deletePost() {
@@ -206,6 +204,10 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 print("게시글 좋아요 실패: \(error.localizedDescription)")
             }
         }
+    }
+    
+    private func blockMember() {
+        guard let token = KeychainService.get(key: K.Keys.accessToken) else {  return  }
     }
     
     private func updateLikeButton() {
