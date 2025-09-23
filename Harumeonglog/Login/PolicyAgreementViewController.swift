@@ -86,7 +86,9 @@ extension PolicyAgreementViewController {
     
     @objc
     private func goToBaseViewController() {
-        RootViewControllerService.toBaseViewController()
+        MemberAPIService.patchAgree { _ in
+            RootViewControllerService.toBaseViewController()
+        }
     }
     
     @objc
