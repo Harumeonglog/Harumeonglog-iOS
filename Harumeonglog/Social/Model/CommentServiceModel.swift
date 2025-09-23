@@ -24,6 +24,7 @@ struct CommentResponse: Codable {
 struct CommentItem: Codable {
     let commentId : Int
     let content : String?
+    let isOwn : Bool
     let memberInfoResponse: MemberInfoResponse
     let createdAt: String
     let commentcommentResponseList : [CommentcommentResponse]   // 대댓글 리스트
@@ -32,6 +33,8 @@ struct CommentItem: Codable {
 struct CommentcommentResponse : Codable {
     let commentId : Int
     let content : String
+    let isOwn : Bool
+    let createdAt: String
     let memberInfoResponse: MemberInfoResponse
 }
 

@@ -8,11 +8,11 @@
 import Foundation
 
 struct MemberBlockRequest: Codable {
-    var reportedId: Int
+    let reportedId: Int
 }
 
 struct MemberBlockResponse: Codable {
-    var reporterId: Int
-    var reportedId: Int
-    var isBlock: Bool
+    let reporterId: Int
+    let reportedId: Int
+    let isBlock: Bool
 }

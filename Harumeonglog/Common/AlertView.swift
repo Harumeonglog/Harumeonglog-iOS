@@ -11,11 +11,14 @@ import Then
 
 class AlertView: UIView {
     
-    private lazy var titleLabel = UIButton().then { button in
-        button.setTitleColor(.gray00, for: .normal)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 17)
-        button.titleLabel?.textAlignment = .center
-        button.isEnabled = false
+    public var onConfirm: (() -> Void)?
+    public var onCancel: (() -> Void)?
+    
+    private let titleLabel = UILabel().then { label in
+        label.textColor = .gray00
+        label.font = UIFont(name: "Pretendard-Medium", size: 17)
+        label.textAlignment = .center
+        label.numberOfLines = 0
     }
     
     private lazy var underlineView = UIView().then { view in
@@ -51,10 +54,11 @@ class AlertView: UIView {
         layer.masksToBounds = true
         
         // 메시지, 확인버튼 text 초기화
-        titleLabel.setTitle(title, for: .normal)
+        titleLabel.text = title
         confirmBtn.setTitle(confirmText, for: .normal)
         
         addComponents()
+        bindActions()
     }
     
     required init?(coder: NSCoder) {
@@ -83,9 +87,6 @@ class AlertView: UIView {
         }
         
         self.addSubview(btnStackView)
-        btnStackView.addSubview(cancelBtn)
-        btnStackView.addSubview(confirmBtn)
-        
         btnStackView.snp.makeConstraints { make in
             make.bottom.leading.trailing.equalToSuperview()
             make.top.equalTo(underlineView)
@@ -93,5 +94,14 @@ class AlertView: UIView {
         }
         
     }
+    
+    private func bindActions() {
+         cancelBtn.addTarget(self, action: #selector(tapCancel), for: .touchUpInside)
+         confirmBtn.addTarget(self, action: #selector(tapConfirm), for: .touchUpInside)
+     }
+
+    
+    @objc private func tapCancel() { onCancel?() }
+    @objc private func tapConfirm() { onConfirm?() }
     
 }

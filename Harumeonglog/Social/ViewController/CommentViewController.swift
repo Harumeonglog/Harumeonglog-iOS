@@ -11,6 +11,7 @@ protocol MenuConfigurableCell {
     var settingButton: UIButton { get }
 }
 
+
 enum CommentDisplayItem {
     case comment(CommentItem)
     case reply(CommentcommentResponse)
@@ -285,16 +286,19 @@ extension CommentViewController {
     func likeButtonTapped(in: CommentTableViewCell) {
     }
     
-    func configureSettingMenu(for cell: MenuConfigurableCell, commentId: Int) {
+    func configureSettingMenu(for cell: MenuConfigurableCell, commentId: Int, memberId: Int, isOwn: Bool) {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
             switch action.title {
             case "신고":
                 print("신고")
                 self.reportComment(commentId: commentId)
-            case "차단":
-                print("차단")
-                self.blockComment(commentId: commentId)
+//            case "차단":
+//                print("차단")
+//                self.blockComment(commentId: commentId)
+            case "사용자 차단":
+                showBlockAlertView(reportedId: memberId)
+                self.fetchCommentsFromServer(reset: true)
             default:
                 break
             }
@@ -302,8 +306,16 @@ extension CommentViewController {
         
         let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
         let blockAction = makeAction(title: "차단", color: .gray00, handler: handler)
+        let blockMemberAction = makeAction(title: "사용자 차단", color: .gray00, handler: handler)
 
-        let menu = UIMenu(options: .displayInline, children: [reportAction, blockAction])
+        let actions: [UIAction]
+        if !isOwn {
+            actions = [reportAction, blockMemberAction]
+        } else {
+            return
+        }
+        
+        let menu = UIMenu(options: .displayInline, children: actions)
         cell.settingButton.menu = menu
         cell.settingButton.showsMenuAsPrimaryAction = true
     }
@@ -317,6 +329,7 @@ extension CommentViewController {
             case .success(let response):
                 if response.isSuccess {
                     print("댓글 신고 성공")
+                    self!.fetchCommentsFromServer(reset: true)
                 }
             case .failure(let error):
                 print("댓글 생성 실패: \(error.localizedDescription)")
@@ -340,12 +353,18 @@ extension CommentViewController {
             }
         }
     }
+    
+
 }
 
 
 
 // MARK: tableView 설정
 extension CommentViewController: UITableViewDelegate, UITableViewDataSource, CommentTableViewCellDelegate {
+    func accountImageViewTapped(in: CommentTableViewCell) {
+        showBlockAlertView(reportedId: 4)
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = commentDisplayItems[indexPath.row]
         
@@ -355,14 +374,14 @@ extension CommentViewController: UITableViewDelegate, UITableViewDataSource, Com
             cell.selectionStyle = .none
             cell.delegate = self
             cell.configure(with: comment, member: comment.memberInfoResponse)
-            configureSettingMenu(for: cell, commentId: comment.commentId)
+            configureSettingMenu(for: cell, commentId: comment.commentId, memberId: comment.memberInfoResponse.memberId, isOwn: comment.isOwn)
             return cell
             
         case .reply(let reply):
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReplyCommentTableViewCell", for: indexPath) as! ReplyCommentTableViewCell
             cell.selectionStyle = .none
             cell.configure(with: reply, member: reply.memberInfoResponse)
-            configureSettingMenu(for: cell, commentId: reply.commentId)
+            configureSettingMenu(for: cell, commentId: reply.commentId, memberId: reply.memberInfoResponse.memberId, isOwn: reply.isOwn)
             return cell
         }
     }
