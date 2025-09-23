@@ -78,8 +78,11 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         return tableView
     }()
     
+    let textViewPlaceHolder = "부적절하거나 불쾌감을 줄 수 있는 컨텐츠는 제재를 받을 수 있습니다."
+    
     public lazy var contentTextView = UITextView().then { textView in
         textView.font = .body
+        textView.text = textViewPlaceHolder
         textView.textColor = .gray00
         textView.backgroundColor = .white
         textView.layer.cornerRadius = 15

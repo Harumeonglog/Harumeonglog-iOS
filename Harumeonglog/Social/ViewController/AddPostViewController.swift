@@ -26,7 +26,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         view.imageCollectionView.dataSource = self
         view.addImageButton.addTarget(self, action: #selector(addImageButtonTapped), for: .touchUpInside)
         view.titleTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-
+        view.contentTextView.delegate = self
         return view
     }()
     
@@ -190,7 +190,21 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     
 }
 
-
+extension AddPostViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == addPostView.textViewPlaceHolder {
+            textView.text = nil
+            textView.textColor = .black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = addPostView.textViewPlaceHolder
+            textView.textColor = .lightGray
+        }
+    }
+}
 
 extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     

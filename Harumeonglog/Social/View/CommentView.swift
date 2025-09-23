@@ -38,7 +38,7 @@ class CommentView: UIView {
     }
     
     public lazy var placeholderLabel = UILabel().then { label in
-        label.text = "댓글을 달아주세요."
+        label.text = "부적절한 글은 삭제될 수 있습니다."
         label.textColor = .gray02
         label.font = .body
     }
