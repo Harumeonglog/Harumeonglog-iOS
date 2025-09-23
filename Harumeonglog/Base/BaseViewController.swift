@@ -79,11 +79,11 @@ class BaseViewController: UITabBarController {
         
         let insets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
         
-        homeVC.tabBarItem = createTabBarItem(title: "홈", image: .home, tag: 0, size: iconSizeHome, insets: insets)
-        walkingVC.tabBarItem = createTabBarItem(title: "산책", image: .dogWalking, tag: 1, size: iconSizeWalking, insets: insets)
-        photosVC.tabBarItem = createTabBarItem(title: "사진", image: .photo, tag: 2, size: iconSizePhoto, insets: insets)
-        socialVC.tabBarItem = createTabBarItem(title: "소셜", image: .friends, tag: 3, size: iconSizeFriends, insets: insets)
-        myPageVC.tabBarItem = createTabBarItem(title: "마이페이지", image: .gear, tag: 4, size: iconSizeMyPage, insets: insets)
+        homeVC.tabBarItem = createTabBarItem(title: "", image: .home, tag: 0, size: iconSizeHome, insets: insets)
+        walkingVC.tabBarItem = createTabBarItem(title: "", image: .dogWalking, tag: 1, size: iconSizeWalking, insets: insets)
+        photosVC.tabBarItem = createTabBarItem(title: "", image: .photo, tag: 2, size: iconSizePhoto, insets: insets)
+        socialVC.tabBarItem = createTabBarItem(title: "", image: .friends, tag: 3, size: iconSizeFriends, insets: insets)
+        myPageVC.tabBarItem = createTabBarItem(title: "", image: .gear, tag: 4, size: iconSizeMyPage, insets: insets)
     }
     
     private func createTabBarItem(title: String, image: UIImage, tag: Int, size: CGSize, insets: UIEdgeInsets) -> UITabBarItem {
