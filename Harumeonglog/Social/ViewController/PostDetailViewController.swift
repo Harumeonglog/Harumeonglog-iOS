@@ -9,10 +9,11 @@ import UIKit
 import SDWebImage
 
 class PostDetailViewController: UIViewController, UIScrollViewDelegate {
-    
+
     let socialPostService = SocialPostService()
 
     var postId : Int?
+    var memberId : Int?
     var isOwn : Bool = false
     var isLiked: Bool = false
 
@@ -24,14 +25,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     private lazy var postDetailView: PostDetailView = {
         let view = PostDetailView()
         view.backgroundColor = .background
-        
         view.postImageScrollView.delegate = self
         view.commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
-        
-        // 버튼에 더블 탭 제스처 추가
-        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(likeButtonDoubleTapped))
-        doubleTapGesture.numberOfTapsRequired = 2
-        view.addGestureRecognizer(doubleTapGesture)
                 
         return view
     }()
@@ -43,11 +38,16 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         setCustomNavigationBarConstraints()
         postSettingButton()
         swipeRecognizer()
+        
+        // 더블탭 (좋아요)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(likeButtonDoubleTapped))
+        doubleTap.numberOfTapsRequired = 2
+        doubleTap.cancelsTouchesInView = false
+        postDetailView.addGestureRecognizer(doubleTap)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         fetchPostDetailsFromServer()
     }
     
@@ -66,11 +66,12 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
 
     private func fetchPostDetailsFromServer() {
         guard let token = KeychainService.get(key: K.Keys.accessToken) else { return }
-
+        guard let postId else { return }
+        
         print("\(self.postImages)")
         self.postImages = []
         
-        socialPostService.getPostDetailsFromServer(postId: postId!, token: token){ [weak self] result in
+        socialPostService.getPostDetailsFromServer(postId: postId, token: token){ [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let response):
@@ -81,6 +82,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                         self.postImages.append(contentsOf: postDetail.postImageList.compactMap { $0 })
                         self.isLiked = postDetail.isLiked
                         self.isOwn = postDetail.isOwn
+                        self.memberId = postDetail.memberInfoResponse.memberId
                         
                         DispatchQueue.main.async {
                             self.postDetailView.configure(
@@ -94,8 +96,9 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 print("게시글 조회 실패: \(error.localizedDescription)")
             }
         }
-
     }
+    
+    
     
     @objc
     private func didTapBackButton() {
@@ -115,7 +118,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         
         socialPostService.likePostToServer(postId: postId!, token: token){ [weak self] result in
             guard let self = self else { return }
-
             switch result {
             case .success(let response):
                 if response.isSuccess {
@@ -124,8 +126,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                         isLiked.toggle()
                         fetchPostDetailsFromServer()
                     }
-                } else {
-                    print("서버 응답 에러: \(response.message)")
                 }
             case .failure(let error):
                 print("게시글 좋아요 실패: \(error.localizedDescription)")
@@ -134,10 +134,10 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     }
     
     
+    
     private func postSettingButton() {
         let handler: UIActionHandler = { [weak self] action in
             guard let self else { return }
-            
             switch action.title {
             case "수정":
                 let modifyVC = ModifyPostViewController()
@@ -145,6 +145,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 self.navigationController?.pushViewController(modifyVC, animated: true)
             case "신고":
                 self.reportPost()
+            case "사용자 차단":
+                self.blockMember()
             case "삭제":
                 self.deletePost()
             default:
@@ -154,14 +156,15 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         
         let modifyAction = makeAction(title: "수정", color: .gray00, handler: handler)
         let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
+        let blockAction = makeAction(title: "사용자 차단", color: .red00, handler: handler)
         let deleteAction = makeAction(title: "삭제", color: .red00, handler: handler)
 
         let actions: [UIAction]
         
         if self.isOwn {
-            actions = [modifyAction, reportAction, deleteAction]
+            actions = [modifyAction, deleteAction]
         } else {
-            actions = [reportAction]
+            actions = [reportAction, blockAction]
         }
         
         let menu = UIMenu(options: .displayInline, children: actions)
@@ -186,8 +189,10 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                 print("게시글 신고 실패: \(error.localizedDescription)")
             }
         }
-        
-        
+    }
+    
+    private func blockMember() {
+        showBlockAlertView(reportedId: self.memberId!)
     }
     
     private func deletePost() {
@@ -207,6 +212,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
             }
         }
     }
+    
     
     private func updateLikeButton() {
         let imageName = isLiked ? "heart.fill" : "heart"
@@ -234,9 +240,7 @@ extension PostDetailViewController {
             if let url = URL(string: postImages[i]) {
                 imageView.sd_setImage(with: url)
             }
-
             postDetailView.postImageScrollView.addSubview(imageView)
-
         }
         
         // 전체 컨텐츠 크기를 설정하여 스크롤을 가능하게 만듦

@@ -19,8 +19,6 @@ struct WalkPets: Codable {
 }
 
 
-
-
 struct WalkMemberRequest: Codable {
     let petId: [Int]
 }

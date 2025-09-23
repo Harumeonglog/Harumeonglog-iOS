@@ -33,7 +33,6 @@ class WalkService {
     ) {
         
         let endpoint = "/api/v1/walks/\(walkId)/pause"
-        
         APIClient.patchRequest(endpoint: endpoint, token: token, completion: completion)
     }
     
@@ -90,7 +89,6 @@ class WalkService {
         completion: @escaping (Result<HaruResponse<WalkShareResponse>, AFError>) -> Void
     ){
         let endpoint = "/api/v1/walks/\(walkId)/share"
-        
         APIClient.patchRequest(endpoint: endpoint, token: token, completion: completion)
     }
 }

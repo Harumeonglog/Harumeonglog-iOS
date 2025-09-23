@@ -10,6 +10,7 @@ import SnapKit
 import Then
 
 protocol CommentTableViewCellDelegate: AnyObject {
+    func accountImageViewTapped(in: CommentTableViewCell)
     func replyButtonTapped(in: CommentTableViewCell)
     func likeButtonTapped(in: CommentTableViewCell)
 }
@@ -27,6 +28,7 @@ class CommentTableViewCell: UITableViewCell {
         imageView.image = UIImage(named: "testImage")
         imageView.layer.cornerRadius = 20
         imageView.clipsToBounds = true
+        imageView.isUserInteractionEnabled = true
     }
     
     public lazy var accountName = UILabel().then { label in
@@ -71,6 +73,8 @@ class CommentTableViewCell: UITableViewCell {
         self.backgroundColor = .background
         self.addComponents()
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(profileImageTapped))
+        accountImageView.addGestureRecognizer(tapGesture)
         replyButton.addTarget(self, action: #selector(replyButtonTapped), for: .touchUpInside)
     }
     
@@ -80,9 +84,13 @@ class CommentTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    @objc private func profileImageTapped() {
+        print("프로필 이미지 눌림")
+        delegate?.accountImageViewTapped(in: self)
+    }
+    
     @objc private func replyButtonTapped() {
-        print("✅ replyButtonTapped 실행됨")
-
         delegate?.replyButtonTapped(in: self)
     }
     

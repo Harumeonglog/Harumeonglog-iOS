@@ -203,7 +203,6 @@ class WalkingViewController: UIViewController {
     
     private func showAlertView() {
         stopTimer()
-        
         let alertView = AlertView(title: "산책을 끝내시겠습니까 ?", confirmText: "종료")
         
         // 뒷배경 어둡게 처리

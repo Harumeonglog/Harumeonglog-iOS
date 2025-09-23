@@ -108,7 +108,7 @@ class EditOrRegistPetView: UIView {
         }
         
         self.birthdateSelectButton.setTitle(pet.birth, for: .normal)
-        self.navigationBar.configureTitle(title: "반려견 정보를 수장해주세요.")
+        self.navigationBar.configureTitle(title: "반려견 정보를 수정해주세요.")
         self.confirmButton.configure(labelText: "수정하기")
     }
     
