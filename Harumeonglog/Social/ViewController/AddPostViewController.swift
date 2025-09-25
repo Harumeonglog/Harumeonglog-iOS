@@ -17,6 +17,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     private var postImages: [UIImage] = []          // 사용자가 고른 이미지
     private var imageKeys: [String] = []
     private var isSubmitting = false                // 게시글 생성 중복 방지 플래그
+    private let maxImageCount = 10
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
@@ -182,6 +183,10 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     }
     
     @objc private func addImageButtonTapped() {
+        if postImages.count >= maxImageCount {
+            print("최대 10장까지만 업로드 가능")
+            return
+        }
         let imagePickerController = UIImagePickerController()
         imagePickerController.allowsEditing = true
         imagePickerController.delegate = self
@@ -223,7 +228,6 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         if let image = selectedImage {
             postImages.append(image)
             addPostView.imageCollectionView.reloadData()
-            addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
         picker.dismiss(animated: true)
