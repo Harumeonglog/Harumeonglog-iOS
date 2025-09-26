@@ -78,11 +78,16 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         return tableView
     }()
     
-    let textViewPlaceHolder = "부적절하거나 불쾌감을 줄 수 있는 컨텐츠는 제재를 받을 수 있습니다."
+    public lazy var contentTextViewPlaceHolderLabel = UILabel().then { label in
+        label.text = "부적절하거나 불쾌감을 줄 수 있는 글은 제재를 받을 수 있습니다."
+        label.textColor = .gray02
+        label.font = .body
+        label.setLineSpacing(lineSpacing: 4)
+        label.numberOfLines = 1
+    }
     
     public lazy var contentTextView = UITextView().then { textView in
         textView.font = .body
-        textView.text = textViewPlaceHolder
         textView.textColor = .gray00
         textView.backgroundColor = .white
         textView.layer.cornerRadius = 15
@@ -139,6 +144,7 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
         self.addSubview(categoryButton)
         self.addSubview(dropdownTableView)
         self.addSubview(contentTextView)
+        contentTextView.addSubview(contentTextViewPlaceHolderLabel)
         
         titleTextField.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(20)
@@ -166,6 +172,12 @@ class AddPostView: UIView, UITableViewDelegate, UITableViewDataSource {
             make.height.lessThanOrEqualTo(340)
             make.height.greaterThanOrEqualTo(120)
             make.centerX.equalToSuperview()
+        }
+        
+        contentTextViewPlaceHolderLabel.snp.makeConstraints { make in
+            make.top.equalTo(contentTextView.snp.top).inset(contentTextView.textContainerInset.top)
+            make.leading.equalTo(contentTextView.snp.leading).inset(contentTextView.textContainerInset.left + 3)
+            make.trailing.equalTo(contentTextView.snp.trailing).inset(contentTextView.textContainerInset.right + 3)
         }
         
         self.addSubview(addImageButton)

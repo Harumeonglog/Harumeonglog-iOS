@@ -293,9 +293,6 @@ extension CommentViewController {
             case "신고":
                 print("신고")
                 self.reportComment(commentId: commentId)
-//            case "차단":
-//                print("차단")
-//                self.blockComment(commentId: commentId)
             case "사용자 차단":
                 showBlockAlertView(reportedId: memberId)
                 self.fetchCommentsFromServer(reset: true)
@@ -303,7 +300,6 @@ extension CommentViewController {
                 break
             }
         }
-        
         let reportAction = makeAction(title: "신고", color: .gray00, handler: handler)
         let blockAction = makeAction(title: "차단", color: .gray00, handler: handler)
         let blockMemberAction = makeAction(title: "사용자 차단", color: .gray00, handler: handler)

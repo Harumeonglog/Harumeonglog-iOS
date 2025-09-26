@@ -8,7 +8,7 @@
 import UIKit
 import Alamofire
 
-class AddPostViewController: UIViewController, CategorySelectionDelegate {
+class AddPostViewController: UIViewController {
     
     let socialPostService = SocialPostService()
     var postTitle: String = ""
@@ -17,6 +17,7 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     private var postImages: [UIImage] = []          // 사용자가 고른 이미지
     private var imageKeys: [String] = []
     private var isSubmitting = false                // 게시글 생성 중복 방지 플래그
+    private let maxImageCount = 10
 
     private lazy var addPostView: AddPostView = {
         let view = AddPostView()
@@ -69,7 +70,6 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
     private func requestPresignedURLS(images: [PresignedUrlImage], token: String) {
         // entityId = 0으로 고정
         let entity = PURLsRequestEntity(entityId: 0, images: images)
-        
         PresignedUrlService.getPresignedUrls(domain: .post, entities: [entity], token: token) { [weak self] result in
             switch result {
             case .success(let response):
@@ -152,12 +152,40 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         }
     }
     
+
+    
+    @objc
+    private func didTapBackButton(){
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func addImageButtonTapped() {
+        if postImages.count >= maxImageCount {
+            print("최대 10장까지만 업로드 가능")
+            return
+        }
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.allowsEditing = true
+        imagePickerController.delegate = self
+        self.present(imagePickerController, animated: true)
+    }
+    
+}
+
+extension AddPostViewController: UITextViewDelegate, CategorySelectionDelegate {
+
+    func textViewDidChange(_ textView: UITextView) {
+        addPostView.contentTextViewPlaceHolderLabel.isHidden = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        updateRightButtonState()
+    }
     
     @objc func textFieldDidChange() {
         updateRightButtonState()
     }
     
-    @objc func contentTextDidChange() {
+    internal func didSelectCategory(_ category: String) {
+        print("선택된 카테고리: \(category)")
+        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
         updateRightButtonState()
     }
 
@@ -168,48 +196,12 @@ class AddPostViewController: UIViewController, CategorySelectionDelegate {
         let isFormValid = !self.postTitle.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil
         addPostView.navigationBar.rightButton.isHidden = !isFormValid
     }
-    
-    func didSelectCategory(_ category: String) {
-        print("선택된 카테고리: \(category)")
-        selectedCategory = socialCategoryKey.tagsKortoEng[category] ?? "unknown"
-        updateRightButtonState()
-    }
-
-    
-    @objc
-    private func didTapBackButton(){
-        navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func addImageButtonTapped() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.allowsEditing = true
-        imagePickerController.delegate = self
-        self.present(imagePickerController, animated: true)
-    }
-    
 }
 
-extension AddPostViewController: UITextViewDelegate {
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == addPostView.textViewPlaceHolder {
-            textView.text = nil
-            textView.textColor = .black
-        }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            textView.text = addPostView.textViewPlaceHolder
-            textView.textColor = .lightGray
-        }
-    }
-}
 
 extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
         var selectedImage: UIImage?
         
         if let editedImage = info[.editedImage] as? UIImage {
@@ -218,12 +210,10 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
         else if let originalImage = info[.originalImage] as? UIImage {
             selectedImage = originalImage
         }
-        
         // 선택된 이미지를 배열에 추가
         if let image = selectedImage {
             postImages.append(image)
             addPostView.imageCollectionView.reloadData()
-            addPostView.imageCollectionView.layoutIfNeeded()
             addPostView.addImageCount.text = "\(postImages.count)/10"
         }
         picker.dismiss(animated: true)
@@ -254,7 +244,6 @@ extension AddPostViewController: UICollectionViewDelegate, UICollectionViewDataS
             self?.addPostView.imageCollectionView.reloadData()
             self?.addPostView.addImageCount.text = "\(self?.postImages.count ?? 0)/10"
         }
-
         return cell
     }
 }
