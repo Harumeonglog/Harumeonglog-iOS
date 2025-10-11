@@ -56,7 +56,7 @@ extension LocationHandling {
     
     func showLocationPermissionAlert() {
         let alert = UIAlertController(title: "위치 권한 필요",
-                                      message: "현재 위치를 사용하려면 설정에서\n 위치 접근을 허용해 주세요.",
+                                      message: "사용자의 산책 경로를 파악하기 위해\n위치 권한이 필요합니다.",
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default, handler: { _ in
             if let appSettings = URL(string: UIApplication.openSettingsURLString) {

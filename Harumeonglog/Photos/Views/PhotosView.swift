@@ -79,7 +79,7 @@ class PhotosView: UIView {
 
         
         PhotosCollectionView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(125)
+            make.top.equalToSuperview().offset(47+16)
             make.leading.trailing.equalToSuperview().inset(13)
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(35)
         }

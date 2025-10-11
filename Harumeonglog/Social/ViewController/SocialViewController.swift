@@ -16,6 +16,7 @@ class SocialViewController: UIViewController {
     private var selectedBtn: UIButton?               // 이전에 눌린 카테고리 버튼 저장
     private var selectedCategory: String = "ALL"
     private var posts: [PostItem] = []
+    private var isOwn : Bool = false
     private var cursor: Int = 0
     private var hasNext: Bool = true
     private var isFetching: Bool = false
@@ -161,9 +162,7 @@ class SocialViewController: UIViewController {
         
         selectedBtn = sender
         selectedCategory = tappedCategory
-
         fetchPostsFromServer(reset: true, search: self.searchText)
-        
     }
     
     
@@ -172,7 +171,6 @@ class SocialViewController: UIViewController {
         addPostVC.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(addPostVC, animated: true)
     }
-
 }
 
 

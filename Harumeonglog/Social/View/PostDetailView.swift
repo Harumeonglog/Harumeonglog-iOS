@@ -10,8 +10,9 @@ import SnapKit
 import Then
 import SDWebImage
 
+
 class PostDetailView: UIView {
-    
+
     public lazy var navigationBar = CustomNavigationBar()
 
     private var likeAnchorView: UIView!
@@ -23,6 +24,7 @@ class PostDetailView: UIView {
         imageView.image = UIImage(named: "")
         imageView.layer.cornerRadius = 20
         imageView.clipsToBounds = true
+        imageView.isUserInteractionEnabled = true
     }
     
     public lazy var accountName = UILabel().then { label in
@@ -144,6 +146,7 @@ class PostDetailView: UIView {
         
         accountImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
+            make.leading.equalToSuperview()
             make.width.height.equalTo(40)
         }
         
